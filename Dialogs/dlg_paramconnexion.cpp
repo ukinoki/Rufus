@@ -124,11 +124,10 @@ void dlg_paramconnexion::Verif()
 //! aléatoire du cabinet, soit en important le fichier copié sur une clé USB depuis
 //! un poste qui fonctionne, soit en le saisissant. En cas de succès, l'enregistre
 //! (.dbkey + cache) et renvoie true pour signaler qu'un nouvel essai est possible.
-bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre,
-                                                  const QString &corps, bool *reinitialiserDemande)
+dlg_paramconnexion::IssueMdp
+dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre,
+                                             const QString &corps, bool monoposte)
 {
-    if (reinitialiserDemande)
-        *reinitialiserDemande = false;
     UpMessageBox msgbox(parent);
     msgbox.setText(!titre.isEmpty() ? titre : tr("Base de données sécurisée"));
     msgbox.setInformativeText(!corps.isEmpty() ? corps
@@ -144,24 +143,30 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString
     SaisirBouton->setText(tr("Saisir le mot de passe"));
     USBBouton   ->setText(tr("Importer depuis une clé USB"));
     msgbox.addButton(AnnulBouton,  UpSmallButton::CLOSEBUTTON);
-    //! 4e bouton (MONOPOSTE) : « Passer cette étape » — on ne saisit pas de mot de passe et on
-    //! poursuit vers la création / réinitialisation d'une base (mdp égaré / données sans importance).
+    //! Deux boutons de plus sur le poste qui HÉBERGE la base, pour les deux impasses possibles :
+    //!   • « Passer cette étape » = je n'ai aucun mot de passe → l'appelant proposera la procédure de
+    //!     restauration par le mot de passe de secours (la base et ses données sont conservées) ;
+    //!   • « Réinitialiser le programme » = je repars d'une base neuve (données abandonnées).
+    //! Un poste client ne voit ni l'un ni l'autre : il ne répare pas la base des autres.
+    UpSmallButton *PasserBouton = nullptr;
     UpSmallButton *ReinitBouton = nullptr;
-    if (reinitialiserDemande)
+    if (monoposte)
     {
+        PasserBouton = new UpSmallButton();
+        PasserBouton->setText(tr("Je n'ai aucun mot de passe"));
+        msgbox.addButton(PasserBouton, UpSmallButton::SKIPBUTTON);
         ReinitBouton = new UpSmallButton();
-        ReinitBouton->setText(tr("Passer cette étape"));
-        msgbox.addButton(ReinitBouton, UpSmallButton::SKIPBUTTON);
+        ReinitBouton->setText(tr("Réinitialiser le programme"));
+        msgbox.addButton(ReinitBouton, UpSmallButton::OUPSBUTTON);
     }
     msgbox.addButton(SaisirBouton, UpSmallButton::KEYBOARDBUTTON);
     msgbox.addButton(USBBouton,    UpSmallButton::RECORDBUTTON);
     msgbox.exec();
 
+    if (PasserBouton && msgbox.clickedButton() == PasserBouton)
+        return IssueMdp::Inconnu;
     if (ReinitBouton && msgbox.clickedButton() == ReinitBouton)
-    {
-        *reinitialiserDemande = true;
-        return false;                 //! pas de mot de passe : l'appelant orientera vers la réinitialisation
-    }
+        return IssueMdp::Reinitialiser;
 
     QString mdp;
     if (msgbox.clickedButton() == USBBouton)
@@ -169,7 +174,7 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString
         const QString fichier = QFileDialog::getOpenFileName(
                     parent, tr("Sélectionnez le fichier du mot de passe sur la clé USB"));
         if (fichier.isEmpty())
-            return false;
+            return IssueMdp::EchecSaisie;
         QFile f(fichier);
         if (f.open(QIODevice::ReadOnly | QIODevice::Text))
         {
@@ -190,7 +195,7 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString
         {
             UpMessageBox::Watch(parent, tr("Fichier illisible"),
                                 tr("Ce fichier ne contient pas un mot de passe valide."));
-            return false;
+            return IssueMdp::EchecSaisie;
         }
     }
     else if (msgbox.clickedButton() == SaisirBouton)
@@ -208,13 +213,13 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString
         connect(dlg.OKButton, &QPushButton::clicked, &dlg, &QDialog::accept);
         champ->setFocus();
         if (dlg.exec() != QDialog::Accepted)
-            return false;
+            return IssueMdp::EchecSaisie;
         mdp = champ->text().trimmed();
         if (mdp.isEmpty())
-            return false;
+            return IssueMdp::EchecSaisie;
     }
     else
-        return false;   // annulé
+        return IssueMdp::Annule;   // « Annuler » ou fiche fermée
 
     //! On n'INSCRIT le mot de passe dans le .dbkey qu'APRÈS avoir VÉRIFIÉ qu'il fonctionne : on l'écrit,
     //! on se reconnecte (connecterAvecCandidats essaie le .dbkey en premier), puis on contrôle qu'on
@@ -228,9 +233,9 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString
         MySQLInstaller::supprimerMotDePassePourMode(DataBase::I()->ModeAccesDataBase());   // faux → on le retire
         UpMessageBox::Watch(parent, tr("Mot de passe incorrect"),
             tr("Ce mot de passe ne permet pas de se connecter à la base de données."));
-        return false;
+        return IssueMdp::EchecSaisie;
     }
-    return true;
+    return IssueMdp::Obtenu;
 }
 
 /*!

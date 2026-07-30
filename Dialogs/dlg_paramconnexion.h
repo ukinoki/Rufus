@@ -64,17 +64,26 @@ public:
     explicit dlg_paramconnexion(QWidget *parent = Q_NULLPTR);
     ~dlg_paramconnexion();
     Ui::dlg_paramconnexion *ui;
+    //! Issue de la fiche de récupération du mot de passe MySQL (cf. RecupererMotDePasseMySQL).
+    enum class IssueMdp {
+        Obtenu,         //!< un mot de passe a été récupéré ET ÉPROUVÉ : la base s'ouvre
+        Annule,         //!< « Annuler » (ou fiche fermée) : l'utilisateur veut sortir
+        Inconnu,        //!< « Passer cette étape » : il n'a aucun mot de passe à proposer
+        Reinitialiser,  //!< « Réinitialiser le programme » : il veut repartir d'une base neuve
+        EchecSaisie     //!< il a saisi/importé un mot de passe, mais il n'ouvre pas la base
+    };
+
     //! Récupération du mot de passe aléatoire (saisie ou clé USB). STATIQUE et PUBLIQUE : appelée
     //! aussi AU DÉMARRAGE (Connexion_A_La_Base), hors de toute instance du dialogue.
     //! titre/corps optionnels : permettent d'adapter le message d'introduction au CONTEXTE — échec
     //! d'authentification (défaut) OU récupération PROACTIVE alors que le générique fonctionne encore
     //! (cf. MySQLInstaller::proposerRecuperationAleatoire). Vides → le message « échec » par défaut.
-    //! reinitialiserDemande (MONOPOSTE) : si non nul, ajoute un 4e bouton « mot de passe inconnu →
-    //! réinitialiser le serveur » ; un clic met *reinitialiserDemande=true et renvoie false (on ne
-    //! cherche pas à se connecter, on veut remplacer le serveur sans sauvegarde).
-    static bool     RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(),
+    //! monoposte : ajoute les deux issues qui n'ont de sens que sur le poste qui HÉBERGE la base —
+    //! « Passer cette étape » (aucun mot de passe) et « Réinitialiser le programme ». Un poste client
+    //! ne les voit pas : il ne répare ni ne remplace la base des autres.
+    static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(),
                                              const QString &corps = QString(),
-                                             bool *reinitialiserDemande = nullptr);
+                                             bool monoposte = false);
 
 private:
     void            DossierClesSSL();                   //!< choisit le dossier des clés SSL (accès distant) et le renseigne dans le champ

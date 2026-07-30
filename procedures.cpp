@@ -3378,8 +3378,10 @@ bool Procedures::Connexion_A_La_Base()
         }
     }
 
+    const bool monoposte = (db->ModeAccesDataBase() == Utils::Poste);
+
     //! MONOPOSTE : pré-contrôle de la PRÉSENCE d'un serveur MySQL local
-    if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::serveurLocalPresent())
+    if (monoposte && !MySQLInstaller::serveurLocalPresent())
     {
         RecupererDemarrage(tr("Aucun serveur de base de données"),
                            tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
@@ -3393,25 +3395,117 @@ bool Procedures::Connexion_A_La_Base()
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     if (!errConnexion.isEmpty())
     {
-        //! Échec d'AUTHENTIFICATION : on propose DIRECTEMENT de récupérer le bon mot de passe
-        //! MONOPOSTE : on ajoute un 4e bouton « mot de passe inconnu → réinitialiser le serveur »
-        if (MySQLInstaller::estErreurAuthentification(errConnexion))
+        //! RÉSEAU LOCAL : la cause la plus fréquente n'est PAS le mot de passe mais l'ADRESSE du
+        //! serveur (box remplacée, IP fixe perdue, serveur déplacé). On la MONTRE et on la fait
+        //! confirmer avant de parler de mot de passe — sinon on cherche une clé alors que c'est la
+        //! porte qui a changé d'adresse.
+        if (db->ModeAccesDataBase() == Utils::ReseauLocal)
         {
-            const bool monoposte = (db->ModeAccesDataBase() == Utils::Poste);
-            bool reinitialiser = false;
-            if (dlg_paramconnexion::RecupererMotDePasseMySQL(Q_NULLPTR, QString(), QString(),
-                                                             monoposte ? &reinitialiser : nullptr))
-                errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);   // mdp obtenu → on réessaie
-            else if (monoposte && !reinitialiser)
-                return false;   //! bouton « Annuler » (monoposte) → on sort
-            if (monoposte && reinitialiser && !errConnexion.isEmpty()
-                && MySQLInstaller().restaurerAvecMotDePasseDeSecours())
-                errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+            UpMessageBox msgbox(Q_NULLPTR);
+            msgbox.setIcon(UpMessageBox::Quest);
+            msgbox.setText(tr("Le serveur du cabinet est introuvable"));
+            msgbox.setInformativeText(
+                tr("Rufus cherche la base de données du cabinet à cette adresse :") + "\n\n" +
+                "<p align=\"center\"><b><span style=\"color:#c00000; font-size:12pt;\">" + server + "</span></b></p>" + "\n\n" +
+                tr("Est-ce toujours la bonne adresse ?"));
+            UpSmallButton *bAnnuler = new UpSmallButton(tr("Abandonner et\nquitter Rufus"));
+            UpSmallButton *bCorriger= new UpSmallButton(tr("Non, corriger\nl'adresse"));
+            UpSmallButton *bOui     = new UpSmallButton(tr("Oui, l'adresse\nest correcte"));
+            msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
+            msgbox.addButton(bCorriger, UpSmallButton::EDITBUTTON);
+            msgbox.addButton(bOui,      UpSmallButton::STARTBUTTON);
+            msgbox.exec();
+            if (msgbox.clickedButton() == bAnnuler)
+                return false;
+            if (msgbox.clickedButton() == bCorriger)
+            {
+                //! Adresse à revoir : on ressaisit les paramètres puis on relance — la nouvelle
+                //! instance repartira sur le Rufus.ini corrigé.
+                if (VerifParamConnexion())
+                    Utils::Redemarrage();
+                return false;
+            }
         }
 
-        //! Toujours en échec (mot de passe non récupéré, ou échec NON-auth
+        //! Échec d'AUTHENTIFICATION : on propose de récupérer le bon mot de passe. MONOPOSTE : la
+        //! fiche porte deux issues de plus (« je n'ai aucun mot de passe » et « réinitialiser le
+        //! programme »), et on boucle dessus tant que l'utilisateur n'a ni renoncé ni abouti.
+        //! Socle < 8.0.14 : la base n'a jamais été sécurisée, il n'existe aucun aléatoire à
+        //! récupérer — inutile de réclamer un mot de passe qu'on sait inexistant.
+        if (MySQLInstaller::estErreurAuthentification(errConnexion)
+            && (!monoposte || MySQLInstaller::socleLocalConforme()))
+        {
+            forever
+            {
+                const dlg_paramconnexion::IssueMdp issue =
+                    dlg_paramconnexion::RecupererMotDePasseMySQL(Q_NULLPTR, QString(), QString(), monoposte);
+
+                if (issue == dlg_paramconnexion::IssueMdp::Obtenu)
+                {
+                    errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+                    break;
+                }
+                if (issue == dlg_paramconnexion::IssueMdp::Annule)
+                    return false;   //! « Annuler et sortir » : on ne va pas plus loin
+                if (!monoposte)
+                    break;          //! client : ni secours ni réinitialisation ici → message ci-dessous
+
+                //! « Je n'ai aucun mot de passe », ou un mot de passe qui n'ouvre pas la base : AVANT
+                //! toute opération destructive, la vraie chance — la restauration par le mot de passe
+                //! de secours, qui rouvre la base SANS toucher aux données.
+                if (issue == dlg_paramconnexion::IssueMdp::Inconnu
+                 || issue == dlg_paramconnexion::IssueMdp::EchecSaisie)
+                {
+                    if (UpMessageBox::Question(Q_NULLPTR, tr("Aucun mot de passe ne fonctionne"),
+                            tr("Rufus peut rétablir l'accès à votre base avec le mot de passe de "
+                               "SECOURS choisi à l'installation, sur cet ordinateur.") + "\n" +
+                            tr("Vos données ne seront pas touchées.") + "\n\n" +
+                            tr("Voulez-vous utiliser cette procédure ?"),
+                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                            QStringList() << tr("Annuler") << tr("Rétablir l'accès"))
+                        != UpSmallButton::STARTBUTTON)
+                        continue;                       //! → retour à la fiche précédente
+                    if (MySQLInstaller().restaurerAvecMotDePasseDeSecours())
+                    {
+                        errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+                        break;
+                    }
+                    continue;
+                }
+
+                //! « Réinitialiser le programme » : on repart d'une base VIERGE. Irréversible pour les
+                //! données de l'ancienne base → confirmation explicite.
+                if (issue == dlg_paramconnexion::IssueMdp::Reinitialiser)
+                {
+                    if (UpMessageBox::Question(Q_NULLPTR, tr("Réinitialiser le programme"),
+                            tr("Rufus va installer une base patients NEUVE sur cet ordinateur.") + "\n" +
+                            tr("Les données de la base actuelle ne seront plus accessibles.") + "\n\n" +
+                            tr("Voulez-vous continuer ?"),
+                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                            QStringList() << tr("Annuler") << tr("Nouvelle base patients"))
+                        != UpSmallButton::STARTBUTTON)
+                        continue;                       //! → retour à la fiche précédente
+                    PremierDemarrage(/*forceBaseVierge=*/true);
+                    return false;
+                }
+            }
+        }
+
+        //! Toujours en échec. Le message dépend de ce qui bloque, et de ce que CE poste peut faire :
         if (!errConnexion.isEmpty())
         {
+            //! Poste CLIENT + mot de passe refusé : il n'a rien à réparer ici. La clé se récupère sur
+            //! un poste à jour, ou se recrée depuis le serveur — pas d'ici.
+            if (!monoposte && MySQLInstaller::estErreurAuthentification(errConnexion))
+            {
+                UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
+                    tr("Aucun mot de passe connu de ce poste n'ouvre la base du cabinet.") + "\n\n" +
+                    tr("Vous devez récupérer un mot de passe valide (copié sur une clé USB depuis un "
+                       "poste qui fonctionne, menu Édition / Paramètres) ;") + "\n" +
+                    tr("si c'est impossible, un nouveau mot de passe doit être créé depuis Rufus "
+                       "s'exécutant sur le poste serveur."));
+                return false;
+            }
             RecupererDemarrage(tr("Connexion à la base impossible"),
                                tr("Rufus n'a pas pu se connecter à la base de données avec les "
                                   "paramètres enregistrés.") + "\n" +
@@ -3430,6 +3524,28 @@ bool Procedures::Connexion_A_La_Base()
 
     //! ACCÈS DISTANT : avertir PROACTIVEMENT si les clés SSL approchent de l'expiration.
     MySQLInstaller().avertirExpirationClesSSLDistant();
+
+    //! RÉSEAU LOCAL : le dossier d'imagerie du cabinet est un PARTAGE RÉSEAU monté sur ce poste. La
+    //! base peut répondre alors que le partage, lui, n'est pas monté (session ouverte avant le
+    //! serveur, montage non permanent) : les images seraient alors introuvables SANS explication, une
+    //! fois Rufus ouvert. On le contrôle donc ici, et on invite à monter le partage — sans bloquer le
+    //! lancement : Rufus reste utilisable pour tout ce qui n'est pas l'imagerie. On lit le réglage du
+    //! Rufus.ini (pas db->dirimagerie(), qui tenterait de CRÉER le dossier et n'afficherait qu'un
+    //! message fugace).
+    if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+    {
+        const QString dirimg = m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+        if (dirimg.isEmpty() || !QDir(dirimg).exists())
+            UpMessageBox::Watch(Q_NULLPTR, tr("Dossier d'imagerie du cabinet inaccessible"),
+                (dirimg.isEmpty()
+                    ? tr("Aucun dossier d'imagerie n'est indiqué pour ce poste.")
+                    : tr("Rufus ne trouve pas le dossier d'imagerie du cabinet :") + "\n\n"
+                      + "<p align=\"center\"><b><span style=\"color:#c00000; font-size:12pt;\">" + dirimg + "</span></b></p>") + "\n\n" +
+                tr("Ce dossier est partagé par le poste serveur : montez ce partage réseau sur cet "
+                   "ordinateur, ou corrigez son emplacement dans Édition / Paramètres / onglet "
+                   "« Réseau local ».") + "\n\n" +
+                tr("Rufus démarre quand même, mais les images ne seront ni lues ni enregistrées."));
+    }
 
     //! COHÉRENCE DE LA BASE Rufus : la connexion au serveur a réussi
     {
@@ -5210,7 +5326,11 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool RecupIni,
             }
         }
         else
-            reponse = PremierDemarrage();
+            //! MONOPOSTE : « une base patients » veut dire ici une base NEUVE — installation du
+            //! serveur et création d'une base vierge. Se CONNECTER à une base existante ne se joue
+            //! plus ici mais dans la saisie des paramètres de connexion (ReparerIni), qui écrit le
+            //! Rufus.ini : d'où le raccourci direct, sans repasser par le choix vierge/existante.
+            reponse = PremierDemarrage(/*forceBaseVierge=*/true);
     }
     return reponse;
 }

@@ -2146,6 +2146,19 @@ bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
  * true si le serveur MySQL courant (via la connexion Qt ouverte) atteint le seuil commun
  * (VERSION_MYSQL_MINI = 8.0.14) et n'est pas MariaDB. False si trop ancien / illisible.
  */
+/*!
+ * \brief MySQLInstaller::socleLocalConforme
+ * Conformité du socle relevée SANS connexion, en interrogeant le serveur LOCAL comme le fait run()
+ * avant d'installer (binaire mysqld / client). À utiliser pour les décisions qui PRÉCÈDENT la
+ * connexion — socleMySQLConforme(), lui, passe par la connexion Qt déjà ouverte. Même critère :
+ * version >= seuil et pas MariaDB. N'a de sens que sur le poste qui héberge la base.
+ */
+bool MySQLInstaller::socleLocalConforme()
+{
+    MySQLInstaller m;
+    return versionAtLeast(m.getMySQLServerVersion(), seuilVersionMySQL()) && !m.isMariaDB();
+}
+
 bool MySQLInstaller::socleMySQLConforme()
 {
     bool ok = false;
@@ -4097,45 +4110,24 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
  */
 
 /*!
- * \brief MySQLInstaller::hostsDuCompteMySQL
- * Hosts sur lesquels un compte MySQL existe (liste vide = compte absent). Lu avec adminrufus.
- * \param login  compte cherché (ex. « root »)
- */
-QStringList MySQLInstaller::hostsDuCompteMySQL(const QString& login)
-{
-    MySQLInstaller m;
-    const QString out = m.runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
-                "\"SELECT host FROM mysql.user WHERE user = '%4';\" 2>&1")
-            .arg(m.mysqlBin("mysql"), QString(LOGIN_SQL), motDePasseSQL(), login));
-    QStringList hosts;
-    for (const QString& l : m.lignesResultat(out))
-        if (!l.startsWith("ERROR", Qt::CaseInsensitive))
-            hosts << l;
-    return hosts;
-}
-
-/*!
  * \brief MySQLInstaller::supprimerCompteMySQL
- * Supprime un compte MySQL sur TOUS les hosts où il existe.
+ * Supprime un compte MySQL sur TOUS les hosts où il existe (Utils::hostsDuCompteSQL, déjà utilisé
+ * pour purger gaxt78iy). Erreur SQL MUETTE : l'échec est prévu (supprimer un compte système exige
+ * SYSTEM_USER) et l'appelant le CONSTATE lui-même en relisant mysql.user, avec son propre message.
  * \param login  compte à supprimer
  */
 void MySQLInstaller::supprimerCompteMySQL(const QString& login)
 {
-    const QStringList hosts = hostsDuCompteMySQL(login);
+    const QStringList hosts = Utils::hostsDuCompteSQL(login);
     if (hosts.isEmpty())
         return;
-    QString sql;
     for (const QString& h : hosts)
-        sql += QString("DROP USER IF EXISTS '%1'@'%2';").arg(login, h);
-    sql += "FLUSH PRIVILEGES;";
-    MySQLInstaller m;
-    m.runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-                 .arg(m.mysqlBin("mysql"), QString(LOGIN_SQL), motDePasseSQL(), sql));
+        DataBase::I()->StandardSQL(QString("DROP USER IF EXISTS '%1'@'%2'").arg(login, h), "");
+    DataBase::I()->StandardSQL("FLUSH PRIVILEGES", "");
 }
 
-bool MySQLInstaller::rootExiste()          { return !hostsDuCompteMySQL("root").isEmpty(); }
-bool MySQLInstaller::compteDeSecoursExiste(){ return !hostsDuCompteMySQL(LOGIN_SQL_SECOURS).isEmpty(); }
+bool MySQLInstaller::rootExiste()           { return !Utils::hostsDuCompteSQL("root").isEmpty(); }
+bool MySQLInstaller::compteDeSecoursExiste(){ return !Utils::hostsDuCompteSQL(LOGIN_SQL_SECOURS).isEmpty(); }
 
 /*!
  * \brief demanderMotDePasseDeSecours

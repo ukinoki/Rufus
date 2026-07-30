@@ -185,6 +185,7 @@ public:
 
     /*! ── État du socle / du serveur ──────────────────────────────────────────────────────────────────── */
     static bool socleMySQLConforme();                   /*!< socle MySQL conforme à Rufus (>= 8.0.14 et pas MariaDB) */
+    static bool socleLocalConforme();                   /*!< idem, mais relevé SANS connexion (serveur LOCAL) : pour les décisions qui précèdent la connexion */
     static bool serveurLocalPresent();                  /*!< un serveur MySQL local est-il installé ? (avant toute connexion) */
     void        verifierEtReparerConfigMonoposte();     /*!< monoposte : vérif silencieuse de la config, propose de réparer sinon */
     bool        reinstallerSocleMySQLpourMigration();   /*!< migration DESTRUCTIVE du socle (après sauvegarde validée) */
@@ -326,9 +327,7 @@ private:
     QString     runCmdFull(const QString& cmd, int timeoutMs = 30000);   /*!< comme runCmd, sortie complète (stdout + stderr) */
     QStringList lignesResultat(const QString& sortie);                   /*!< lignes de DONNÉES d'une sortie mysql (sans « [Warning] … password … ») */
 
-    /*! ── Comptes MySQL : inspection / suppression (via le client, en adminrufus) ──────────────────────── */
-    static QStringList hostsDuCompteMySQL(const QString& login);   /*!< hosts sur lesquels ce compte existe (vide = compte absent) */
-    static void        supprimerCompteMySQL(const QString& login); /*!< supprime le compte sur TOUS ses hosts */
+    static void supprimerCompteMySQL(const QString& login);   /*!< supprime un compte MySQL sur TOUS ses hosts (erreur SQL muette : l'appelant constate) */
 
     /*! Exécute avec droits admin. stdinData (Linux) :
      *  passé sur l'entrée standard du processus élevé (ex. mot de passe smbpasswd)
