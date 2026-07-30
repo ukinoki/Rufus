@@ -230,7 +230,7 @@ public:
     QDate versionNGAP();
     double valeurAMYmetropole();
     double valeurAMYDOM();
-    bool verifMajCotations();                                   //! vérifie/applique les MAJ du fichier de cotations (CCAM : table ccam + montants ; NGAP : import AMY) au démarrage ; court-circuit par la date du fichier (rufus.ini). Renvoie true si le fichier a été traité (l'appelant enchaîne alors completeTipsManquants)
+    bool verifMajCotations(bool &misajour);                     //! vérifie/applique les MAJ du fichier de cotations (CCAM : table ccam + montants ; NGAP : import AMY) au démarrage ; court-circuit par la date du fichier (rufus.ini). Renvoie true si le fichier a été traité (l'appelant enchaîne alors completeTipsManquants) ; misajour ne passe à true que si quelque chose a RÉELLEMENT changé (c'est lui qui justifie le message à l'écran)
     void corrigeMontantsPratiques();                            //! invariant permanent (à chaque démarrage) : remonte au conventionnel tout montant pratiqué passé en-dessous, dans jointuresccam et jointuresassociations
     //! opérations sur la jointure d'une cotation pour un utilisateur (SQL regroupé ici, aiguillé par le type) :
     void ajouteJointureCotation(int typcotation, int idcotation, int iduser, double montantpratique, double montantconventionnel = 0);   //!< (re)crée la jointure (anti-doublon) ; NGAP sans montant, « autre » avec conventionnel+pratiqué, sinon pratiqué seul

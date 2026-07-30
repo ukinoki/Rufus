@@ -34,16 +34,31 @@ Branche de travail : `RufusQt6`.
 
 ### Points à traiter
 
-- [ ] **Codes barres** — point de coupe unique : `User::mapBarCodes()`, `Items/cls_user.cpp:201`.
-      Elle seule construit la map (`AM`, `RPPS`) ; tout l'aval (`TextPrinter/code128`,
-      `Procedures::ImpressionDocument`, `dlg_docsexternes`) devient inerte si la map est vide.
+- [x] **Codes barres** — la map (`AM`, `RPPS`) n'est plus posée hors France. Garde aux 3 seuls
+      `setmapBarcodes()` du programme (`procedures.cpp:1639`, `:1679`, `:1724`) ; `TextPrinter`
+      n'imprime rien si la map est vide. Garde mise là et non dans `User::mapBarCodes()` :
+      **aucune classe de `Items/` ne dépend de `DataBase`**, il ne faut pas ouvrir cette porte.
 - [x] **Carte Vitale** — bouton `VitaleupPushButton` masqué hors France (`rufus.cpp`, `InitWidgets()`).
       C'était la seule entrée : `SimulerLireCV` n'est câblé que par une ligne en commentaire
       (`rufus.cpp:439`). Le module (`lecteurvitale`, `fichevitale`) reste compilé mais inatteignable.
 - [ ] **NNI** — déborde les deux sites déjà gardés : `Utils::rgx_NNI` (`utils.cpp:59`, format INSEE en
       dur), affichage, impression, colonne DSP.
 - [ ] **CMU** — dispositif français, sert encore au calcul du montant : `rufus.cpp:4568`
-      (`RetrouveMontantActe`), `rufus.cpp:7429-7434`.
+      (`RetrouveMontantActe`). L'affichage ALD/CMU de `rufus.cpp:7430` est déjà gardé.
+- [ ] **ALD** — spécificité française. Le décompte brut trompe : les points de **décision** sont déjà
+      gardés, un seul trou reste.
+    - déjà couvert : `rufus.cpp:8850` et `dlg_programmationinterventions.cpp:1689`
+      (`ALD = … && cotationsfrance()`) · la case de `dlg_impressions.cpp:1999` et celle de
+      `dlg_identificationpatient.cpp:152` ne sont visibles qu'en France · l'affichage ALD/CMU de
+      `rufus.cpp:7429`
+    - **à faire** : `dlg_docsexternes.cpp:597`, `bool ALD = docmt->isALD()` n'est pas gardé — un
+      document externe marqué ALD, réimprimé hors France, repasse par l'en-tête bizone.
+    - résidus inertes, à nettoyer seulement si on veut : l'ordonnance bizone entière reste dans le
+      code mais devient inatteignable (`Ressources::BodyOrdoALD()`/`HeaderOrdoALD()`, `ALDHeader`,
+      `TailleEnTeteALD` et son réglage `Param_Imprimante/TailleEnTeteALD`, `HTML_LARGEUR_ENTETE_*_ALD`,
+      le paramètre `bool ALD` qui traverse toute la chaîne d'impression) ; le drapeau patient
+      (`CP_ALD_DSP`, `Patient::isald()`) continue d'être écrit à false, case masquée.
+    - à laisser : `conversionbase.cpp` (12 occurrences), migration des anciennes bases.
 - [ ] **`loadCotationsByUser`** n'a toujours aucun appelant — à brancher ou à retirer.
 
 ### Déjà conditionné (pour mémoire, 31 sites)
