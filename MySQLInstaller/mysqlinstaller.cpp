@@ -2683,9 +2683,6 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
  */
 bool MySQLInstaller::poserEtSauvegarderAleatoire()
 {
-    /*! Sécurisation en DEUX temps (cf. securiserAdminrufusEtMdp) : 1) (re)poser gaxt78iy comme mdp
-     *  courant ; 2) basculer sur l'aléatoire en RETENANT gaxt78iy comme 2e mdp. Aucun plugin imposé
-     *  (indisponible sur MySQL 8.4 ; un changement de plugin ferait rejeter RETAIN, ERROR 3894). */
     const QString np = genererMotDePasse();
     if (np.isEmpty())                                   /*!< garde-fou : genererMotDePasse ne renvoie jamais vide */
         return false;
@@ -2701,7 +2698,7 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
         return false;                                   /*!< écriture impossible → on ne sécurise PAS */
     }
     /*! Pose np (avec gaxt78iy en 2e mot de passe) sur TOUS les hosts d'adminrufus/adminrufusSSL. */
-    securiserAdminrufusEtMdp(np);   /*!< LANonly=false → adminrufus LAN + adminrufusSSL@'%' */
+    securiserAdminrufusEtMdp(np);   /*!< pose np partout, le générique restant en 2e mot de passe */
 
     /*! VÉRIFICATION que la sécurisation a pris (retours StandardSQL non fiables). Sinon on ANNULE : retrait
      *  de np du .dbkey, retour à gaxt78iy, aucun message trompeur. La base reste fonctionnelle. */
@@ -2733,87 +2730,85 @@ static QStringList hostsLANprives()
 }
 
 /*!
+ * \brief MySQLInstaller::entretienComptesAdminrufusLAN
+ * ENTRETIEN des comptes, sans jamais toucher à un mot de passe existant : crée les adminrufus
+ * restreints au LAN s'ils manquent (versions antérieures qui posaient un aléatoire sans les créer),
+ * redonne les privilèges, puis retire adminrufus@'%'. true si @'%' a bien disparu.
+ * \param mdpCourant  mot de passe avec lequel ce poste est connecté (donné aux comptes à créer)
+ */
+bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
+{
+    const QString ur     = QString(LOGIN_SQL);
+    const QString legacy = QString(MDP_SQL);
+    auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
+
+    /*! Les comptes LAN sont créés d'un bloc : en tester UN suffit. On prend le plus improbable —
+     *  '10.%' n'est jamais apparu autrement que par cette création, alors que 'localhost' ou
+     *  '127.0.0.1' peuvent traîner d'une installation ancienne et feraient croire au bloc complet. */
+    if (!Utils::hostsDuCompteSQL(ur).contains("10.%"))
+    {
+        /*! Comptes NEUFS, donc rien d'existant n'est réécrit et aucune échéance n'est déplacée. On leur
+         *  donne le mot de passe courant, avec le générique en 2e : sans lui, un poste qui n'a encore
+         *  que le générique perdrait l'accès dès le retrait d'adminrufus@'%'. */
+        for (const QString& h : hostsLANprives())
+        {
+            exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
+            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, mdpCourant));
+        }
+    }
+
+    /*! Privilèges redonnés à chaque passage : c'est par eux que revient SYSTEM_USER, qu'une version
+     *  antérieure avait pu révoquer — et sans lequel ces comptes ne peuvent plus rien administrer. */
+    for (const QString& h : hostsLANprives())
+        exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
+    exec(QString("FLUSH PRIVILEGES"));
+
+    /*! adminrufus@'%' (joignable du WAN par une box mal configurée) n'est retiré QU'UNE FOIS le relais
+     *  LAN en place — sinon plus aucune connexion possible. C'est le SEUL endroit où @'%' est droppé. */
+    if (!Utils::hostsDuCompteSQL(ur).contains("10.%"))
+        return false;                                            /*!< création ratée : on ne touche à rien */
+    exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
+    exec(QString("FLUSH PRIVILEGES"));
+    return !Utils::hostsDuCompteSQL(ur).contains("%");
+}
+
+/*!
  * \brief MySQLInstaller::securiserAdminrufusEtMdp
- * Pose `aleatoire` sur les comptes adminrufus (gaxt78iy retenu en 2e mot de passe), puis retire
- * adminrufus@'%' une fois le relais LAN en place. Tout passe par la connexion courante, qui est un
- * compte SYSTEM_USER. true si tous les buts sont atteints.
+ * SÉCURISATION : pose `aleatoire` sur tous les comptes adminrufus, en gardant le mot de passe courant
+ * (le générique) comme 2e, puis passe la main à l'entretien des comptes. Ne fait QUE ça — la création
+ * des comptes LAN ne lui appartient pas.
  * \param aleatoire     mot de passe à poser
- * \param LANonly       true = ENTRETIEN : comptes LAN seuls, sans réécrire ceux qui existent déjà
  * \param detailresult  si fourni, résultat but par but
  */
-bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LANonly,
+bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire,
                                               QMap<QString, bool>* detailresult)
 {
     const QString urSSL    = QString(LOGIN_SQL) + "SSL";
     const QString ur       = QString(LOGIN_SQL);
-    const QString legacy   = QString(MDP_SQL);
     const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
     const QString attr     = QString(" ATTRIBUTE '{\"securepar\":\"%1\"}'").arg(posteSql);
-
-    /*! Comptes déjà en place, relevés AVANT toute écriture : en entretien, on ne touche qu'au manquant. */
-    const QStringList dejaLa = Utils::hostsDuCompteSQL(ur);
-
-    auto poser = [&](auto exec) {
-        if (!LANonly)   /*!< adminrufusSSL@'%' (compte système, accès distant) : sécurisé EN PLUS */
-        {
-            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3'").arg(urSSL, "%", legacy));
-            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(urSSL, "%", aleatoire, attr));
-        }
-        for (const QString& h : hostsLANprives())   /*!< adminrufus (non-SSL) sur toutes les plages LOCALES */
-        {
-            const bool aCreer = !dejaLa.contains(h);
-            if (aCreer)
-                exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
-            /*! Chaque compte en deux temps : générique, puis aléatoire en RETENANT le générique (le
-             *  tampon securepar voyage dans le même ALTER, isolé il effacerait additional_password).
-             *  Mais en ENTRETIEN on ne réécrit PAS un compte existant : ce serait ressusciter gaxt78iy
-             *  après sa purge et repousser l'échéance des 30 jours à chaque démarrage. */
-            if (aCreer || !LANonly)
-            {
-                exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
-                exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
-            }
-            exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));   /*!< rend aussi SYSTEM_USER */
-        }
-        exec(QString("FLUSH PRIVILEGES"));   /*!< active les entrées créées ; adminrufus@'%' PAS encore droppé */
-    };
-
-    /*! Bilan but par but, interrogé via la connexion PRINCIPALE (elle voit le serveur dans les DEUX voies).
-     *  But (2) — entrées LAN : on vérifie qu'AU MOINS une porte son 2e mot de passe (existe ET sécurisée). */
-    auto bilan = [&]() -> QMap<QString, bool> {
-        QMap<QString, bool> res;
-        bool ok = false;
-        QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
-            "SELECT COUNT(*) FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host='%'", ok);
-        res["adminrufus@% supprimé"]    = ok && !r.isEmpty() && r.at(0).toInt() == 0;
-        ok = false;
-        r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
-            "SELECT COUNT(*) FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host<>'%'"
-            " AND User_attributes->>'$.additional_password' IS NOT NULL", ok);
-        res["adminrufus LAN sécurisés"] = ok && !r.isEmpty() && r.at(0).toInt() > 0;
-        if (!LANonly)
-            res["adminrufusSSL sécurisé"] = adminrufusEstSecurise();
-        return res;
-    };
-    /*! Renseigne *detailresult (si fourni) et renvoie true SEULEMENT si TOUS les buts sont atteints. */
-    auto conclure = [&](const QMap<QString, bool>& res) -> bool {
-        if (detailresult) *detailresult = res;
-        for (bool v : res) if (!v) return false;
-        return true;
-    };
-
-    /*! Connexion PRINCIPALE : on y est en adminrufus@'%', compte SYSTÈME (SYSTEM_USER) → il modifie tout, y
-     *  compris adminrufusSSL@'%'. On pose (création/sécurisation SANS drop), PUIS on ne supprime adminrufus@'%'
-     *  QUE si le RELAIS LAN est fonctionnel (≥ 1 entrée LAN sécurisée) — sinon plus AUCUNE connexion possible.
-     *  C'est le SEUL endroit où @'%' est droppé. */
     auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
-    poser(exec);
-    if (bilan().value("adminrufus LAN sécurisés"))
-    {
-        exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));   /*!< Option B : SEULEMENT si le relais LAN marche */
-        exec(QString("FLUSH PRIVILEGES"));
-    }
-    return conclure(bilan());
+
+    /*! UN SEUL ALTER par compte : RETAIN CURRENT PASSWORD garde comme 2e mot de passe celui qui est
+     *  courant — le générique, puisqu'on n'arrive ici que connecté avec lui (cf. securiserBaseSiNecessaire).
+     *  On ne le repose donc jamais, et l'échéance de son effacement n'est pas repoussée. Le tampon
+     *  securepar voyage DANS le même ALTER : isolé, il effacerait additional_password. Aucun plugin
+     *  imposé — le changer ferait rejeter RETAIN (ERROR 3894). */
+    exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(urSSL, "%", aleatoire, attr));
+    for (const QString& h : Utils::hostsDuCompteSQL(ur))
+        exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
+    exec(QString("FLUSH PRIVILEGES"));
+
+    /*! Les comptes LAN peuvent manquer (base sécurisée par une version qui ne les créait pas) : c'est
+     *  l'entretien qui s'en charge, avec l'aléatoire qu'on vient de poser. */
+    const bool entretienOK = entretienComptesAdminrufusLAN(aleatoire);
+
+    QMap<QString, bool> res;
+    res["adminrufus@% supprimé"]  = entretienOK;
+    res["adminrufusSSL sécurisé"] = adminrufusEstSecurise();
+    if (detailresult) *detailresult = res;
+    for (bool v : res) if (!v) return false;
+    return true;
 }
 
 /*!

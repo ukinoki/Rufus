@@ -242,17 +242,15 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         QSqlQuery(m_db).exec("USE " DB_RUFUS);   /*! base par défaut : les DELETE/UPDATE multi-tables l'exigent
                                                     (même tables qualifiées) ; no-op tant que rufus n'existe pas (1re install) */
         //qDebug() << connectSSLoptions << m_db.isValid() << m_db.isOpen() << m_db.isOpenError() << m_db.lastError().text();
-        //! Vérification des comptes adminrufus INTIMEMENT liée à la connexion : dès qu'on s'est connecté
-        //! AVEC un aléatoire (donc éprouvé) et en LOCAL, on impose CE même aléatoire à tous les comptes
-        //! et on régularise (cf. MySQLInstaller::verifierComptesAdminrufus). Jamais avec le générique,
-        //! jamais en distant → aucun mot de passe divergent, et on rattrape les bases sécurisées mais
-        //! non régularisées. No-op une fois adminrufus@'%' supprimé.
-        //! Ce contrôle est imposé à partir du 10/07/2026 parce que des versions précédentes de Rufus implémentaient le mdp aléatoire sans sécuriser en LAN les comptes adminrufus
+        //! ENTRETIEN des comptes adminrufus, lié à la connexion : des versions précédentes posaient un
+        //! mot de passe aléatoire sans créer les comptes restreints au LAN. On rattrape ça dès qu'on
+        //! s'est connecté AVEC un aléatoire (donc éprouvé) et en LOCAL — jamais avec le générique,
+        //! jamais en distant. No-op une fois adminrufus@'%' supprimé.
         if (password != QString(MDP_SQL)
             && MySQLInstaller().socleMySQLConforme()                           // < 8.0.14 : pas de double mot de passe
             && (Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%")      // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
                 || MySQLInstaller().unCompteLANaPerduSystemUser()))            // un compte LAN a perdu SYSTEM_USER (revoke ancien) → à régulariser
-            MySQLInstaller().securiserAdminrufusEtMdp(password, true);         // LANonly : entrées LAN + retrait adminrufus@'%' (adminrufusSSL@'%' non touché)
+            MySQLInstaller().entretienComptesAdminrufusLAN(password);          // crée les comptes LAN manquants + retire adminrufus@'%' ; ne touche à AUCUN mot de passe
          return QString();
     }
 

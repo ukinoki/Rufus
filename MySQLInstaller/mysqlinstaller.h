@@ -178,10 +178,15 @@ public:
     bool securiserBaseSiNecessaire();     /*!< pose l'aléatoire si la base ne l'a pas encore (gaxt78iy retenu 2e mdp) ; no-op si déjà fait / socle non compatible */
     bool poserEtSauvegarderAleatoire();   /*!< génère + sauve + pose un aléatoire sur adminrufus/SSL (local, socle conforme) */
 
-    /*! Pose `aleatoire` sur adminrufus (+ adminrufusSSL si !LANonly), gaxt78iy retenu ; true si tous les
-     * buts atteints, *detailresult renseigné but par but. */
-    bool securiserAdminrufusEtMdp(const QString& aleatoire, bool LANonly = false,
+    /*! Pose `aleatoire` sur tous les comptes adminrufus (le mot de passe courant restant en 2e), puis
+     * appelle l'entretien ci-dessous. true si tous les buts atteints, *detailresult but par but. */
+    bool securiserAdminrufusEtMdp(const QString& aleatoire,
                                      QMap<QString, bool>* detailresult = nullptr);
+
+    /*! ENTRETIEN des comptes, SANS toucher à aucun mot de passe existant : crée les adminrufus
+     * restreints au LAN s'ils manquent, redonne les privilèges (donc SYSTEM_USER), retire
+     * adminrufus@'%'. C'est ce qu'on appelle à chaque démarrage. */
+    bool entretienComptesAdminrufusLAN(const QString& mdpCourant);
 
     /*! ── État du socle / du serveur ──────────────────────────────────────────────────────────────────── */
     static bool socleMySQLConforme();                   /*!< socle MySQL conforme à Rufus (>= 8.0.14 et pas MariaDB) */
