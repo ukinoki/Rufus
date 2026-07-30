@@ -114,7 +114,7 @@ private:
     bool                    VerifVersionBase(QWidget *widg = Q_NULLPTR);
     bool                    MettreAJourSocleMySQL();                                    //! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL : sauvegarde validée -> désinstall/réinstall MySQL -> restauration -> relance
     bool                    SauvegardeBaseValide(QString dossier);                      //! true si le dump (rufus.sql) du dossier est complet (« Dump completed »)
-    void                    ReparerIni();                                                //! Rufus.ini absent ou invalide (spec § II.1) : carrefour UNIQUE (quitter / restaurer la sauvegarde / revoir les paramètres / créer-se connecter), en boucle jusqu'à obtenir un fichier exploitable
+    void                    ReparerIni();                                                //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable
     bool                    RecupererDemarrage(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
                                      QString msgInfo = "",
                                      bool RecupIni = true,

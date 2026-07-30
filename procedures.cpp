@@ -5063,12 +5063,14 @@ void Procedures::SauvegardeIni()
 /*!
  * \brief Procedures::ReparerIni
  * Rufus.ini absent, ou présent mais sans mode de connexion valide (§ II.1 de « initialisation
- * Rufus.txt ») : une SEULE fiche pour les deux cas, jusqu'à quatre issues — quitter ; restaurer la
- * sauvegarde (proposée seulement si elle est elle-même valide) ; revoir les paramètres de connexion ;
- * créer ou se connecter à une base patients. On boucle tant que le fichier n'est pas exploitable.
- * Dans les trois dernières issues on RELIT Rufus.ini et le lancement se POURSUIT : c'est
+ * Rufus.txt ») : une SEULE fiche pour les deux cas, qui ne fait QU'UNE chose — construire ou
+ * reconstruire Rufus.ini. Trois issues : quitter ; restaurer la sauvegarde (proposée seulement si elle
+ * est elle-même valide) ; revoir les paramètres de connexion. On boucle tant que le fichier n'est pas
+ * exploitable. Dans les deux dernières issues on RELIT Rufus.ini et le lancement se POURSUIT : c'est
  * Connexion_A_La_Base, juste après, qui dira si le fichier ouvre vraiment la base — ni cette fiche ni
- * dlg_paramconnexion ne le savent, et elles ne le prétendent pas.
+ * dlg_paramconnexion ne le savent, et elles ne le prétendent pas. Pas de bouton « créer une base »
+ * ici : la création n'appartient pas à ce carrefour (elle vit au § II.2, quand on constate l'absence
+ * de serveur ou de base).
  */
 void Procedures::ReparerIni()
 {
@@ -5083,12 +5085,11 @@ void Procedures::ReparerIni()
             return;                                     //! fichier exploitable → poursuite du lancement
 
         //! Le bouton de restauration n'existe QUE si une sauvegarde exploitable existe. Les libellés
-        //! sont créés AVANT le message : celui du bouton de création/connexion y est injecté à la
+        //! sont créés AVANT le message : celui du bouton de saisie des paramètres y est injecté à la
         //! place du repère « %1 » (un seul libellé source, la phrase ne peut pas dérailler).
         const bool sauvegardeOK   = sauvegardeIniValide();
         UpSmallButton *bAnnuler   = new UpSmallButton(QObject::tr("Abandonner et\nquitter Rufus"));
         UpSmallButton *bRevoir    = new UpSmallButton(QObject::tr("Revoir les paramètres\nde connexion"));
-        UpSmallButton *bPremDem   = new UpSmallButton(QObject::tr("Créer ou se connecter à\nune base patients"));
         UpSmallButton *bRestaurer = sauvegardeOK
                                   ? new UpSmallButton(QObject::tr("Restaurer la copie\nde sauvegarde"))
                                   : nullptr;
@@ -5099,7 +5100,7 @@ void Procedures::ReparerIni()
                         + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
                         + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois.") + "\n"
                         + QObject::tr("Si c'est le cas, choisissez l'option \"%1\"") + "\n";
-        msgInfo.replace("%1", bPremDem->text().replace('\n', ' '));
+        msgInfo.replace("%1", bRevoir->text().replace('\n', ' '));
         if (sauvegardeOK)
             msgInfo += "\n" + QObject::tr("Une copie de sauvegarde valide de ce fichier existe sur ce "
                                           "poste : voulez-vous la restaurer ?") + "\n";
@@ -5110,7 +5111,6 @@ void Procedures::ReparerIni()
         msgbox.setInformativeText(msgInfo);
         msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
         msgbox.addButton(bRevoir,   UpSmallButton::EDITBUTTON);
-        msgbox.addButton(bPremDem,  UpSmallButton::NOBUTTON);
         if (bRestaurer)
             msgbox.addButton(bRestaurer, UpSmallButton::STARTBUTTON);
         msgbox.exec();
@@ -5137,11 +5137,6 @@ void Procedures::ReparerIni()
                                     tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n"
                                   + tr("Le lancement de Rufus se poursuit."));
             }
-            continue;
-        }
-        if (msgbox.clickedButton() == bPremDem)
-        {
-            PremierDemarrage();                         //! base vierge (installe MySQL) / base existante
             continue;
         }
         exit(0);                                        //! Abandonner, ou fiche fermée → on quitte
