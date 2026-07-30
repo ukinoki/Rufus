@@ -37,28 +37,25 @@ namespace Ui {
 class dlg_paramconnexion;
 }
 
-/*! \brief Fenêtre de paramétrage de la connexion au serveur MySQL.
+/*! \brief Fiche de SAISIE des paramètres de connexion : elle ne sert QU'À RECONSTRUIRE un Rufus.ini.
  *
- * Cette fiche est présentée au démarrage quand Rufus ne parvient pas à se
- * connecter avec les paramètres enregistrés dans rufus.ini (premier lancement,
- * fichier ini absent ou serveur injoignable). Elle existe en deux variantes
- * (Rufus et RufusAdmin).
+ * Cette fiche ne teste RIEN et ne se connecte À RIEN : elle recueille de quoi écrire un Rufus.ini
+ * exploitable, et c'est tout. Savoir si ce fichier permet réellement d'ouvrir la base est l'affaire
+ * du démarrage normal (Procedures::Connexion_A_La_Base), qui s'exécute juste après — d'où l'absence
+ * de bouton « Tester » et de tout contrôle MySQL ici (cf. « initialisation Rufus.txt » § II.1).
  *
  * L'utilisateur y renseigne :
  *  - un identifiant et un mot de passe APPLICATIFS Rufus (table utilisateurs) ;
- *  - le mode d'accès au serveur : « Sur ce poste » (monoposte / localhost),
- *    « Réseau local » (IP du serveur du cabinet) ou « Distant » (accès par
- *    internet, chiffrement SSL obligatoire) ;
+ *  - le mode d'accès : « Sur ce poste » (monoposte / localhost), « Réseau local » (IP du serveur
+ *    du cabinet) ou « Distant » (accès par internet, chiffrement SSL obligatoire) ;
  *  - le port MySQL (3306 / 3307) et, en mode distant, le dossier des clés SSL.
  *
- * Le bouton « Tester » (Test) vérifie les paramètres sans fermer la fiche ;
- * « OK » (Verif) les valide puis ferme la fiche si la connexion réussit. La
- * connexion MySQL elle-même passe TOUJOURS par le compte fixe adminrufus
- * (MySQLInstaller::motDePasseSQL) ; les identifiants saisis sont ensuite
- * confrontés à la table utilisateurs (DataBase::verifExistUser).
+ * « OK » (Verif) contrôle seulement que la saisie est COMPLÈTE (VerifFiche) puis ferme la fiche ;
+ * c'est l'appelant (Procedures::VerifParamConnexion) qui écrit Rufus.ini. « Annuler » revient à la
+ * fiche précédente.
  *
- * À la première connexion monoposte réussie, la base est sécurisée à la volée
- * si elle est encore sur le mot de passe public (securiserBaseSiNecessaire).
+ * RecupererMotDePasseMySQL() n'appartient pas à la fiche : c'est un utilitaire STATIQUE de
+ * récupération du mot de passe MySQL du cabinet, appelé au démarrage (cf. déclaration ci-dessous).
  */
 class dlg_paramconnexion : public UpDialog
 {
@@ -80,14 +77,10 @@ public:
                                              bool *reinitialiserDemande = nullptr);
 
 private:
-    QString         m_adresseserveur = "";          //!< adresse effective utilisée pour la connexion (localhost ou IP)
-    void            DossierClesSSL();               //!< choisit le dossier des clés SSL (accès distant) et le mémorise dans rufus.ini
+    void            DossierClesSSL();                   //!< choisit le dossier des clés SSL (accès distant) et le renseigne dans le champ
     void            RegleAffichage(QRadioButton *butt); //!< adapte l'affichage (visibilité des champs, message accès distant) au mode d'accès choisi
-    void            Test();                         //!< teste les paramètres sans fermer la fiche (bouton « Tester »)
-    void            Verif();                        //!< valide les paramètres et ferme la fiche si la connexion réussit (bouton « OK »)
-    bool            VerifFiche();                   //!< contrôle que les champs obligatoires sont renseignés
-    bool            TestConnexion();                //!< tente la connexion MySQL et la validation du compte utilisateur
-    QString         TenterConnexionAvecRecuperation(); //!< cascade complète (MySQLInstaller) : candidats, puis récupération du mdp en dernier ressort, puis nouvel essai
+    void            Verif();                            //!< bouton « OK » : ferme la fiche si la saisie est complète
+    bool            VerifFiche();                       //!< la saisie est-elle complète (de quoi écrire un Rufus.ini valide) ?
 };
 
 #endif // DLG_PARAMCONNEXION_H

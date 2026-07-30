@@ -45,50 +45,14 @@ static bool iniContientModeValide(QSettings& s)
             && ports.contains(s.value(Utils::getBaseFromMode(Utils::Distant) + Param_Port).toInt()));
 }
 
-//! Issue du carrefour « Rufus.ini absent ou invalide » quand une sauvegarde valide existe.
-enum class IssueIni { Restauree, Recuperer, PasDeSauvegarde };
-
-//! Rufus.ini absent ou sans mode de connexion valide : on NE restaure PLUS en silence depuis
-//! ~/.rufus/.rufus.ini. Un poste qu'on a volontairement remis à zéro (Rufus.ini effacé exprès pour
-//! tout reparamétrer) verrait sinon sa sauvegarde ressuscitée à chaque lancement → boucle sans fin.
-//! On laisse donc l'utilisateur décider. On ne propose la restauration QUE si la sauvegarde est
-//! elle-même valide (inutile de restaurer un fichier cassé) :
-//!   • Restaurer la copie  → on écrase Rufus.ini par la sauvegarde et on repart normalement ;
-//!   • Revoir les paramètres → on passe au carrefour de récupération (RecupererDemarrage) ;
-//!   • Annuler / fermeture  → on quitte.
-//! Si aucune sauvegarde valide n'existe, pas de boîte ici : on renvoie PasDeSauvegarde et l'appelant
-//! enchaîne directement sur le carrefour de récupération.
-static IssueIni proposerRestaurationIni()
+//! Une sauvegarde de Rufus.ini (~/.rufus/.rufus.ini) existe-t-elle ET est-elle elle-même exploitable ?
+//! Inutile de proposer de restaurer un fichier cassé.
+static bool sauvegardeIniValide()
 {
     if (!QFile::exists(PATH_FILE_INI_BACKUP))
-        return IssueIni::PasDeSauvegarde;
+        return false;
     QSettings sauvegarde(PATH_FILE_INI_BACKUP, QSettings::IniFormat);
-    if (!iniContientModeValide(sauvegarde))
-        return IssueIni::PasDeSauvegarde;               // sauvegarde inexploitable → carrefour
-
-    UpMessageBox msgbox(Q_NULLPTR);
-    msgbox.setIcon(UpMessageBox::Quest);
-    msgbox.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
-    msgbox.setInformativeText(QObject::tr(
-        "Une copie de sauvegarde valide existe sur ce poste.\n\n"
-        "Voulez-vous la restaurer ?"));
-    UpSmallButton* bAnnuler   = new UpSmallButton(QObject::tr("Annuler et quitter"));
-    UpSmallButton* bRevoir    = new UpSmallButton(QObject::tr("Revoir les paramètres de connexion"));
-    UpSmallButton* bRestaurer = new UpSmallButton(QObject::tr("Restaurer la copie de sauvegarde"));
-    msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(bRevoir,    UpSmallButton::EDITBUTTON);
-    msgbox.addButton(bRestaurer, UpSmallButton::STARTBUTTON);
-    msgbox.exec();
-
-    if (msgbox.clickedButton() == bRestaurer)
-    {
-        QFile::remove(PATH_FILE_INI);                   // QFile::copy n'écrase pas une cible existante
-        QFile::copy(PATH_FILE_INI_BACKUP, PATH_FILE_INI);
-        return IssueIni::Restauree;
-    }
-    if (msgbox.clickedButton() == bRevoir)
-        return IssueIni::Recuperer;
-    exit(0);                                            // Annuler (ou fermeture) → on quitte
+    return iniContientModeValide(sauvegarde);
 }
 
 Procedures::Procedures(QObject *parent) :
@@ -196,62 +160,10 @@ Procedures::Procedures(QObject *parent) :
     if (startupTranslator.load(dirlocLang.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm"))
         QCoreApplication::installTranslator(&startupTranslator);
 
-    //! Rufus.ini absent : s'il existe une sauvegarde valide dans ~/.rufus, on DEMANDE à l'utilisateur
-    //! (restaurer / revoir les paramètres / quitter) plutôt que de restaurer en silence. S'il choisit
-    //! « Restaurer », FichierIni existe désormais → on saute le carrefour de récupération.
-    if (!FichierIni.exists())
-        proposerRestaurationIni();
-
-    if (!FichierIni.exists())
-    {
-        bool a = false;
-        while (!a)
-        {
-            QString msg =       QObject::tr("Le fichier d'initialisation de l'application est absent");
-            QString msgInfo =   QObject::tr("Le fichier d'initialisation") + "\n" + PATH_FILE_INI "\"\n" + tr("n'existe pas.") + "\n"
-                                + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
-                                + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois.") + "\n"
-                                + QObject::tr("Si c'est le cas, choisissez l'option \"%1\"") + "\n\n"
-                                + QObject::tr("Si le logiciel fonctionnait déjà sur ce poste et que le fichier a été effacé par erreur:") + "\n"
-                                + QObject::tr("1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"") + "\n"
-                                + QObject::tr("2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction.\"") + "\n"
-                                + QObject::tr("Il vous faudra alors compléter de nouveau") + "\n"
-                                + QObject::tr("les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après") + "\n"
-                                + QObject::tr("le démarrage complet du logiciel (Menu Edition/Paramètres).") + "\n";
-            m_connexionbaseOK = a;
-            a = RecupererDemarrage(msg, msgInfo, true, true, true, true);
-        }
-    }
-    if (m_settings == Q_NULLPTR)
-        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-    bool k = iniContientModeValide(*m_settings);
-    //! Rufus.ini présent mais SANS mode de connexion valide : même carrefour que l'absence de fichier.
-    //! Si une sauvegarde valide existe, on DEMANDE (restaurer / revoir / quitter) ; si l'utilisateur
-    //! restaure, on recharge m_settings et on revalide k.
-    if (!k && proposerRestaurationIni() == IssueIni::Restauree)
-    {
-        delete m_settings;
-        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-        k = iniContientModeValide(*m_settings);
-    }
-    if (!k)
-    {
-        while (!k)
-        {
-            QString msg =       QObject::tr("Le fichier d'initialisation de l'application est corrompu") + "\n";
-            QString msgInfo =   QObject::tr("Le fichier d'initialisation")+ "\n" + PATH_FILE_INI "\n"
-                    + QObject::tr("ne contient pas de renseignement valide") + "\n"
-                    + QObject::tr("permettant la connexion à la base de données.") + "\n\n"
-                    + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
-                    + QObject::tr("1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"") + "\n"
-                    + QObject::tr("2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction.") + "\n"
-                    + QObject::tr("Il vous faudra alors compléter de nouveau") + "\n"
-                    + QObject::tr("les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après") + "\n"
-                    + QObject::tr("le démarrage complet du logiciel (Menu Edition/Paramètres).")+ "\n";
-            m_connexionbaseOK = k;
-            k = RecupererDemarrage(msg, msgInfo, false, true, true, false);
-        }
-    }
+    //! Rufus.ini absent OU sans mode de connexion valide : UN SEUL carrefour pour les deux cas
+    //! (cf. « initialisation Rufus.txt » § II.1). Ne rend la main que quand le fichier est
+    //! exploitable, et laisse m_settings prêt à l'emploi.
+    ReparerIni();
 
     m_nomImprimante  = "";
 
@@ -3498,8 +3410,7 @@ bool Procedures::Connexion_A_La_Base()
                            tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
                            tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
                               "(le serveur sera installé automatiquement), ou quittez."),
-                           false /*DetruitIni*/, false /*RecupIni*/, false /*ReconstruitIni*/,
-                           true /*PremDemarrage*/, false /*RestaurerBase*/);
+                           false /*RecupIni*/, true /*PremDemarrage*/, false /*RestaurerBase*/);
         return false;
     }
 
@@ -3533,8 +3444,7 @@ bool Procedures::Connexion_A_La_Base()
         //! connexion/création d'une base (mode-aware : PremierDemarrage en monoposte,
         //! VerifParamConnexion en client). Sans ce bouton, un rufus.ini correct pointant vers un
         //! serveur/base disparu menait à une IMPASSE (on ne pouvait que reconstruire/restaurer
-        //! Rufus.ini). RestaurerBase=false (sans connexion, pas de restauration de base) ;
-        //! ReconstruitIni=false (en client, ce serait redondant avec le bouton « Connexion »).
+        //! Rufus.ini). RestaurerBase=false : sans connexion, pas de restauration de base.
         if (!errConnexion.isEmpty())
         {
             RecupererDemarrage(tr("Connexion à la base impossible"),
@@ -3542,8 +3452,7 @@ bool Procedures::Connexion_A_La_Base()
                                   "paramètres enregistrés.") + "\n" +
                                tr("Vous pouvez vous connecter à (ou créer) une base patients, "
                                   "restaurer le fichier Rufus.ini depuis une sauvegarde, ou quitter."),
-                               false /*DetruitIni*/, true /*RecupIni*/, false /*ReconstruitIni*/,
-                               true /*PremDemarrage*/, false /*RestaurerBase*/);
+                               true /*RecupIni*/, true /*PremDemarrage*/, false /*RestaurerBase*/);
             return false;
         }
     }
@@ -3586,8 +3495,7 @@ bool Procedures::Connexion_A_La_Base()
                 RecupererDemarrage(tr("Base de données endommagée"),
                                    tr("La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.") + "\n" +
                                    tr("Vous pouvez la restaurer depuis une sauvegarde, créer une nouvelle base patients, ou quitter."),
-                                   false /*DetruitIni*/, true /*RecupIni*/, false /*ReconstruitIni*/,
-                                   true /*PremDemarrage*/, true /*RestaurerBase*/);
+                                   true /*RecupIni*/, true /*PremDemarrage*/, true /*RestaurerBase*/);
                 return false;
             }
             //! Poste CLIENT (réseau local / distant) : il ne répare JAMAIS la base partagée des
@@ -4947,10 +4855,12 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         if (VerifParamConnexion())
         {
             PremierParametrageMateriel();
-            UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
-                                   tr("Bien, la connexion au serveur MySQL fonctionne,\n"
-                                       "le login ") + currentuser()->login() + tr(" est reconnu") + ".\n" +
-                                       tr("Le programme va redémarrer pour que les modifications puissent être prises en compte") + ".\n");
+            //! On n'annonce PAS « connexion réussie » : rien n'a été testé ici (dlg_paramconnexion ne
+            //! fait qu'écrire Rufus.ini). C'est le démarrage de l'instance relancée qui éprouvera
+            //! réellement ces paramètres, et qui reviendra ici si ça ne passe pas.
+            UpMessageBox::Watch(Q_NULLPTR, tr("Paramètres de connexion enregistrés"),
+                                   tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n" +
+                                   tr("Le programme va redémarrer pour se connecter à la base patients") + ".\n");
             //! Redémarrage automatique : on relance Rufus avant de quitter, pour que
             //! l'utilisateur n'ait rien à faire (la nouvelle instance repart sur la
             //! configuration fraîchement écrite). argsRelance() : sans -installMySQL (anti-boucle).
@@ -5150,12 +5060,99 @@ void Procedures::SauvegardeIni()
     QFile::copy(PATH_FILE_INI, PATH_FILE_INI_BACKUP);
 }
 
-bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIni, bool RecupIni, bool ReconstruitIni, bool PremDemarrage, bool RestaurerBase)
+/*!
+ * \brief Procedures::ReparerIni
+ * Rufus.ini absent, ou présent mais sans mode de connexion valide (§ II.1 de « initialisation
+ * Rufus.txt ») : une SEULE fiche pour les deux cas, jusqu'à quatre issues — quitter ; restaurer la
+ * sauvegarde (proposée seulement si elle est elle-même valide) ; revoir les paramètres de connexion ;
+ * créer ou se connecter à une base patients. On boucle tant que le fichier n'est pas exploitable.
+ * Dans les trois dernières issues on RELIT Rufus.ini et le lancement se POURSUIT : c'est
+ * Connexion_A_La_Base, juste après, qui dira si le fichier ouvre vraiment la base — ni cette fiche ni
+ * dlg_paramconnexion ne le savent, et elles ne le prétendent pas.
+ */
+void Procedures::ReparerIni()
+{
+    forever
+    {
+        //! Relecture à CHAQUE tour : le fichier vient peut-être d'être restauré ou réécrit. Le delete
+        //! du QSettings précédent écrit ses valeurs en attente sur le disque.
+        if (m_settings != Q_NULLPTR)
+            delete m_settings;
+        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
+        if (QFile::exists(PATH_FILE_INI) && iniContientModeValide(*m_settings))
+            return;                                     //! fichier exploitable → poursuite du lancement
+
+        //! Le bouton de restauration n'existe QUE si une sauvegarde exploitable existe. Les libellés
+        //! sont créés AVANT le message : celui du bouton de création/connexion y est injecté à la
+        //! place du repère « %1 » (un seul libellé source, la phrase ne peut pas dérailler).
+        const bool sauvegardeOK   = sauvegardeIniValide();
+        UpSmallButton *bAnnuler   = new UpSmallButton(QObject::tr("Abandonner et\nquitter Rufus"));
+        UpSmallButton *bRevoir    = new UpSmallButton(QObject::tr("Revoir les paramètres\nde connexion"));
+        UpSmallButton *bPremDem   = new UpSmallButton(QObject::tr("Créer ou se connecter à\nune base patients"));
+        UpSmallButton *bRestaurer = sauvegardeOK
+                                  ? new UpSmallButton(QObject::tr("Restaurer la copie\nde sauvegarde"))
+                                  : nullptr;
+
+        QString msgInfo = QObject::tr("Le fichier d'initialisation") + "\n" + PATH_FILE_INI "\n"
+                        + QObject::tr("est absent, ou ne contient pas de renseignement valide "
+                                      "permettant la connexion à la base de données.") + "\n\n"
+                        + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
+                        + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois.") + "\n"
+                        + QObject::tr("Si c'est le cas, choisissez l'option \"%1\"") + "\n";
+        msgInfo.replace("%1", bPremDem->text().replace('\n', ' '));
+        if (sauvegardeOK)
+            msgInfo += "\n" + QObject::tr("Une copie de sauvegarde valide de ce fichier existe sur ce "
+                                          "poste : voulez-vous la restaurer ?") + "\n";
+
+        UpMessageBox msgbox(Q_NULLPTR);
+        msgbox.setIcon(UpMessageBox::Warning);
+        msgbox.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
+        msgbox.setInformativeText(msgInfo);
+        msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(bRevoir,   UpSmallButton::EDITBUTTON);
+        msgbox.addButton(bPremDem,  UpSmallButton::NOBUTTON);
+        if (bRestaurer)
+            msgbox.addButton(bRestaurer, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+
+        if (bRestaurer && msgbox.clickedButton() == bRestaurer)
+        {
+            QFile::remove(PATH_FILE_INI);               //! QFile::copy n'écrase pas une cible existante
+            QFile::copy(PATH_FILE_INI_BACKUP, PATH_FILE_INI);
+            UpMessageBox::Watch(Q_NULLPTR, tr("Rufus.ini restauré"),
+                                tr("La configuration de ce poste a été restaurée à partir de la sauvegarde.") + "\n"
+                              + tr("Le lancement de Rufus se poursuit."));
+            continue;                                   //! relecture du fichier en haut de boucle
+        }
+        if (msgbox.clickedButton() == bRevoir)
+        {
+            //! dlg_paramconnexion ne teste RIEN : VerifParamConnexion recueille la saisie et écrit
+            //! Rufus.ini, un point. Annuler dans la fiche → on revient à ce carrefour.
+            if (VerifParamConnexion())
+            {
+                //! La langue du poste fait partie du fichier reconstruit (sinon le sélecteur de
+                //! langue reviendrait au prochain lancement).
+                m_settings->setValue(Param_Poste_Version, m_version);
+                UpMessageBox::Watch(Q_NULLPTR, tr("Rufus.ini reconstruit"),
+                                    tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n"
+                                  + tr("Le lancement de Rufus se poursuit."));
+            }
+            continue;
+        }
+        if (msgbox.clickedButton() == bPremDem)
+        {
+            PremierDemarrage();                         //! base vierge (installe MySQL) / base existante
+            continue;
+        }
+        exit(0);                                        //! Abandonner, ou fiche fermée → on quitte
+    }
+}
+
+bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool RecupIni, bool PremDemarrage, bool RestaurerBase)
 {
     UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
     UpSmallButton RecupIniBouton           (tr("Restaurer les paramétrages de Rufus\nà partir d'une sauvegarde"));
     UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
-    UpSmallButton ReconstruitIniBouton     (tr("Reparamétrer Rufus"));
     //! Libellé NEUTRE, vrai dans TOUS les modes : le bouton mène à « une base patients
     //! exploitable », qu'on s'y connecte ou qu'on la crée. On NE fait PAS dépendre le TEXTE du
     //! contexte réseau. Aujourd'hui un client ne peut que se connecter (pas créer), mais c'est une
@@ -5184,7 +5181,6 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
     msgbox->setInformativeText(msgInfo);
     msgbox->setIcon(UpMessageBox::Warning);
     if (PremDemarrage)                      msgbox->addButton(&PremierDemarrageBouton,   UpSmallButton::NOBUTTON);
-    if (ReconstruitIni)                     msgbox->addButton(&ReconstruitIniBouton,     UpSmallButton::NOBUTTON);
     //! 3e bouton (restauration), selon le CONTEXTE fixé par l'APPELANT (qui seul connaît le rôle
     //! du poste et l'état de la connexion) :
     //!   - RestaurerBase (poste hôte) -> « Restaurer la base de données » ;
@@ -5201,11 +5197,7 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
     bool reponse = false;
 
     if (msgbox->clickedButton()==&AnnulBouton)
-    {
-        if (DetruitIni)
-            QFile::remove(PATH_FILE_INI);
         exit(0);
-    }
     else if (msgbox->clickedButton()==&RecupIniBouton)
     {
         //! Cas courant : restauration depuis la sauvegarde AUTOMATIQUE écrite à chaque
@@ -5236,21 +5228,6 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
                                    "Rufus va redémarrer."));
             QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
             exit(0);
-        }
-    }
-    else if (msgbox->clickedButton()==&ReconstruitIniBouton)
-    {
-        //reconstruire le fichier rufus.ini
-        //1. on demande les paramètres de connexion au serveur - mode d'accès / user / mdp / port / SSL
-        QFile file(PATH_FILE_INI);
-        Utils::removeWithoutPermissions(file);
-        if (m_settings != Q_NULLPTR)
-            delete m_settings;
-        m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-        if (VerifParamConnexion())
-        {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
-            Utils::Redemarrage();
         }
     }
     else if (msgbox->clickedButton()==&RestaureBaseBouton)
@@ -5310,12 +5287,17 @@ bool Procedures::VerifParamConnexion()
         {
             Base = Utils::getBaseFromMode(Utils::Distant);
             m_settings->setValue(Base + Param_Serveur,    Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
+            //! Le dossier des clés SSL fait partie des paramètres de l'accès distant : il s'enregistre
+            //! ICI, avec le reste de la saisie (la fiche, elle, n'écrit rien dans Rufus.ini).
+            m_settings->setValue(Base + Dossier_ClesSSL,  Dlg_ParamConnex->ui->ClesSSLLineEdit->text());
             db->setModeacces(Utils::Distant);
         }
         m_settings->setValue(Base + Param_Active,    "YES");
         m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
-        m_connexionbaseOK = true;
+        //! On ne touche PAS à m_connexionbaseOK : aucune connexion n'a été tentée ici. Le poser à true
+        //! faisait croire à une base ouverte (SortieAppli déroulerait alors la fermeture de session
+        //! sur une connexion inexistante) ; c'est Connexion_A_La_Base qui le posera, une fois connecté.
         if (dirSQLExecutable() == "")
         {
             UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra pas s'intialiser"));

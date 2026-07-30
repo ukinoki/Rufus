@@ -659,26 +659,6 @@
        </widget>
       </item>
       <item>
-       <widget class="UpPushButton" name="TestuppushButton">
-        <property name="minimumSize">
-         <size>
-          <width>120</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="contextMenuPolicy">
-         <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-        </property>
-        <property name="text">
-         <string>Tester</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../assets/Images/images.qrc">
-          <normaloff>:/Test.ico</normaloff>:/Test.ico</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="UpPushButton" name="OKuppushButton">
         <property name="minimumSize">
          <size>
@@ -724,7 +704,6 @@
   <tabstop>DistantradioButton</tabstop>
   <tabstop>PortcomboBox</tabstop>
   <tabstop>AnnuluppushButton</tabstop>
-  <tabstop>TestuppushButton</tabstop>
   <tabstop>OKuppushButton</tabstop>
  </tabstops>
  <resources>

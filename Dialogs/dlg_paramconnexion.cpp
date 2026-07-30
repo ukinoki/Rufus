@@ -28,8 +28,8 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     //! Look Rufus : on hérite de UpDialog (fenêtre stylée, sans la barre de titre « brute » de l'OS).
     //! Le .ui ayant un layout de premier niveau, on REMONTE ses cadres dans le layout de UpDialog
     //! (dlglayout) — chaque insertWidget(0,…) reparente le cadre, l'ordre final (haut→bas) étant :
-    //! login, mode+IP, port, boutons. On garde les boutons du .ui (OK/Annuler/Tester) et leurs
-    //! connexions ; on NE refixe PAS setWindowFlags (UpDialog gère sa propre fenêtre stylée).
+    //! login, mode+IP, port, boutons. On garde les boutons du .ui (OK/Annuler) et leurs connexions ;
+    //! on NE refixe PAS setWindowFlags (UpDialog gère sa propre fenêtre stylée).
     dlglayout()->insertWidget(0, ui->ButtonsFrame);
     dlglayout()->insertWidget(0, ui->prtFrame);
     dlglayout()->insertWidget(0, ui->MainFrame);
@@ -48,7 +48,6 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
 
     connect(ui->AnnuluppushButton,          &QPushButton::clicked,          this,   &QDialog::reject);
     connect(ui->OKuppushButton,             &QPushButton::clicked,          this,   &dlg_paramconnexion::Verif);
-    connect(ui->TestuppushButton,           &QPushButton::clicked,          this,   &dlg_paramconnexion::Test);
     connect(ui->LocalradioButton,           &QRadioButton::clicked,         this,   [=, this] {RegleAffichage(ui->LocalradioButton);});
     connect(ui->PosteradioButton,           &QRadioButton::clicked,         this,   [=, this] {RegleAffichage(ui->PosteradioButton);});
     connect(ui->DistantradioButton,         &QRadioButton::clicked,         this,   [=, this] {RegleAffichage(ui->DistantradioButton);});
@@ -79,9 +78,9 @@ void dlg_paramconnexion::DossierClesSSL()
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<dir,false);
     if (url == QUrl())
         return;
+    //! On ne fait que RENSEIGNER le champ : la fiche n'écrit pas Rufus.ini elle-même, c'est
+    //! Procedures::VerifParamConnexion qui enregistre ce dossier avec le reste de la saisie.
     ui->ClesSSLLineEdit->setText(url.path());
-    QSettings settings(PATH_FILE_INI, QSettings::IniFormat);
-    settings.setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, url.path());
     ui->ClesSSLLineEdit ->setImmediateToolTip(ui->ClesSSLLineEdit->text());
 }
 
@@ -110,137 +109,15 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
     }
 }
 
-void dlg_paramconnexion::Test()
-{
-    if (TestConnexion())
-        UpMessageBox::Watch(this,tr("Paramètres OK!"));
-}
-
+/*!
+ * \brief dlg_paramconnexion::Verif
+ * Bouton « OK » : la fiche se ferme dès que la saisie est complète. AUCUN test de connexion — écrire
+ * Rufus.ini est tout ce qu'on a à faire ici (cf. le bloc de résumé en tête du .h).
+ */
 void dlg_paramconnexion::Verif()
 {
-    if (TestConnexion())
+    if (VerifFiche())
         accept();
-}
-
-bool dlg_paramconnexion::TestConnexion()
-{
-    if (!VerifFiche())
-        return false;
-
-    Utils::ModeAcces mode = Utils::Poste;
-    if (ui->PosteradioButton->isChecked())           mode = Utils::Poste;
-    else if (ui->LocalradioButton->isChecked())      mode = Utils::ReseauLocal;
-    else if (ui->DistantradioButton->isChecked())    mode = Utils::Distant;
-    DataBase::I()->setModeacces(mode);
-    //! Adresse effective du serveur : localhost en monoposte, sinon l'IP saisie (déjà
-    //! validée IPv4 par le validateur du champ). initParametresConnexionSQL la normalise
-    //! ensuite (Utils::calcIP) — plus besoin de la recalculer ici.
-    m_adresseserveur = (mode == Utils::Poste) ? QStringLiteral("localhost") : ui->IPlineEdit->text();
-    switch (mode) {
-    case Utils::Poste:
-    {
-        DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
-        QString Login = ui->LoginlineEdit->text();
-        QString Password = ui->MDPlineEdit->text();
-        if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return false;}
-        if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return false;}
-        Login    = LOGIN_SQL;
-        Password = MySQLInstaller::motDePasseSQL();
-        //! La connexion MySQL passe TOUJOURS par le compte fixe adminrufus
-        //! (motDePasseSQL() = mdp aléatoire du cabinet, repli legacy MDP_SQL).
-        //! Les identifiants saisis (Login/Password) sont l'identité APPLICATIVE
-        //! Rufus (table utilisateurs), pas un compte MySQL : plus de compte
-        //! temporaire. Ils restent validés par verifExistUser() ci-dessous.
-        QString error = TenterConnexionAvecRecuperation();
-
-        if( error.size() )
-        {
-            UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
-                                tr("Impossible de se connecter au serveur avec le login ") + Login
-                                    + tr(" et ce mot de passe") + "\n"
-                                    + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
-                                    + error);
-            return false;
-        }
-        //! Connexion réussie : on sécurise la base à la volée si besoin (pose d'un mot de
-        //! passe aléatoire en conservant gaxt78iy comme 2e mot de passe) et on supprime
-        //! gaxt78iy si la deadline (sécurisation + 30 j) est passée. No-op si déjà fait.
-        MySQLInstaller::entretienApresConnexion();
-        //! Validation de l'identité APPLICATIVE Rufus (login/mdp du praticien dans la table
-        //! utilisateurs), distincte de la connexion MySQL (compte adminrufus).
-        DataBase::QueryResult rep = DataBase::I()->verifExistUser(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
-        if (rep == DataBase::Error)
-        {
-            UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
-                                tr("Impossible d'ouvrir la table Utilisateurs"));
-            return false;
-        }
-        if( rep == DataBase::Empty )
-        {
-            UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
-                                tr("Identifiant ou mot de passe incorrect") );
-            return false;
-        }
-        return true;
-    }
-    default:
-    {
-        DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
-        QString Login       = ui->LoginlineEdit->text();
-        QString Password    = ui->MDPlineEdit->text();
-        QString IP          = ui->IPlineEdit->text();
-        QString DirSSL      = ui->ClesSSLLineEdit->text();
-        if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));              ui->LoginlineEdit->setFocus(); return false;}
-        if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));             ui->MDPlineEdit->setFocus();   return false;}
-        if ( IP.isEmpty() )       {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé l'adresse du serveur!"));           return false;}
-        if (mode == Utils::Distant)
-            if ( DirSSL.isEmpty() || !QDir(DirSSL).exists())
-                            {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé d'adresse valides pour les clés SSL!"));  return false;}
-        QString error = TenterConnexionAvecRecuperation();
-        if( error.size() )
-        {
-            UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
-                                tr("Impossible de se connecter au serveur avec le login ") + Login
-                                    + tr(" et ce mot de passe") + "\n"
-                                    + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
-                                    + error);
-            return false;
-        }
-        //! Connexion réseau réussie : même entretien qu'en monoposte — un poste LAN peut
-        //! sécuriser le serveur s'il ne l'est pas, et purger gaxt78iy une fois la deadline passée.
-        MySQLInstaller::entretienApresConnexion();
-        DataBase::QueryResult rep = DataBase::I()->verifExistUser(Login, Password);
-        if (rep == DataBase::Error)
-        {
-            UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
-                                    tr("Impossible d'ouvrir la table Utilisateurs"));
-            return false;
-        }
-        if( rep == DataBase::Empty )
-        {
-            UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
-                                    tr("Identifiant ou mot de passe incorrect") );
-            return false;
-        }
-        return true;
-    }
-    }
-}
-
-//! Cascade complète. On tente les candidats ; si tous échouent SUR UN REFUS
-//! D'AUTHENTIFICATION (la base répond mais aucun mot de passe connu ne l'ouvre →
-//! base sécurisée sur un autre poste), on propose de récupérer le mot de passe puis
-//! on réessaie une fois. Un serveur injoignable (réseau/IP) n'ouvre PAS la
-//! récupération : on renvoie l'erreur telle quelle.
-QString dlg_paramconnexion::TenterConnexionAvecRecuperation()
-{
-    //! Cascade + récupération mutualisées dans MySQLInstaller (mêmes règles au démarrage et ici) :
-    //! connecterAvecCandidats efface au passage un .dbkey périmé (refus d'auth) ; sur un refus
-    //! d'auth global (base sécurisée ailleurs), on propose de récupérer le mdp puis on réessaie.
-    QString error = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
-    if (!error.isEmpty() && MySQLInstaller::estErreurAuthentification(error) && RecupererMotDePasseMySQL(this))
-        error = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
-    return error;
 }
 
 //! Base sécurisée sur un autre poste : propose de récupérer le mot de passe
@@ -356,6 +233,12 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString
     return true;
 }
 
+/*!
+ * \brief dlg_paramconnexion::VerifFiche
+ * La saisie est-elle COMPLÈTE, c'est-à-dire suffisante pour écrire un Rufus.ini valide ? Login et mot
+ * de passe toujours ; + l'adresse du serveur en réseau local et en accès distant ; + le dossier des
+ * clés SSL en accès distant (sans elles, aucune connexion distante n'est possible).
+ */
 bool dlg_paramconnexion::VerifFiche()
 {
     if (ui->LoginlineEdit->text() == "")
@@ -389,6 +272,12 @@ bool dlg_paramconnexion::VerifFiche()
             && ui->IPlineEdit->text() == "")
     {
         UpMessageBox::Watch(this, tr("Vous n'avez pas précisé l'adresse du serveur."));
+        return false;
+    }
+    if (ui->DistantradioButton->isChecked()
+            && (ui->ClesSSLLineEdit->text() == "" || !QDir(ui->ClesSSLLineEdit->text()).exists()))
+    {
+        UpMessageBox::Watch(this, tr("Vous n'avez pas précisé d'adresse valide pour les clés SSL."));
         return false;
     }
     return true;
