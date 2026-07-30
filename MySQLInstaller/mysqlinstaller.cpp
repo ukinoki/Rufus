@@ -487,10 +487,9 @@ static inline QString NUL()
 
 /*!
  * \brief startShellProcess
- * Démarre « cmd » dans le shell système. Sous Windows, la ligne est passée TELLE QUELLE à cmd.exe via
- * setNativeArguments() et encadrée d'une paire de guillemets externe (cmd /C retire cette paire et
- * exécute l'intérieur verbatim) — sinon une commande mêlant chemin quoté et arguments quotés serait
- * corrompue.
+ * Démarre « cmd » dans le shell système. Sous Windows, la ligne va telle quelle à cmd.exe, encadrée
+ * d'une paire de guillemets que cmd /C retire — sans quoi une commande mêlant chemin et arguments
+ * quotés serait corrompue.
  * \param p    processus à démarrer
  * \param cmd  ligne de commande
  */
@@ -579,15 +578,10 @@ QString MySQLInstaller::genererMotDePasse()
     return pwd;
 }
 
-/*! Le mot de passe MySQL est lu dans le fichier CACHÉ PATH_FILE_DBKEY (~/.rufus/.dbkey), PAS dans
- *  Rufus.ini : il doit survivre à une réinitialisation par suppression de Rufus.ini. Un même poste peut
- *  se connecter à PLUSIEURS bases (une par mode d'accès) ; le .dbkey contient donc une ligne par mode :
- *      MONO=xxxxxxxxxxxx
- *      LAN=yyyyyyyyyyyy
- *      WAN=zzzzzzzzzzzz
- *  (rare mais réel : portable de test en monoposte + base du cabinet en local/distant). Rétro-compat :
- *  une ligne BRUTE (sans « = »), ou l'ancien INI « [Connexion]/MDPSQL=… », = entrée MONO. Repli legacy
- *  gaxt78iy (MDP_SQL) si le mode courant n'a pas d'entrée. */
+/*! Le mot de passe MySQL vit dans ~/.rufus/.dbkey et non dans Rufus.ini, pour survivre à la suppression
+ *  de Rufus.ini. Une ligne par mode d'accès (MONO= / LAN= / WAN=), un poste pouvant se connecter à
+ *  plusieurs bases. Rétro-compat : ligne brute ou « MDPSQL=… » = entrée MONO. Repli gaxt78iy si le mode
+ *  courant n'a pas d'entrée. */
 
 /*! Cache mémoire des mots de passe, par clé de mode (MONO/LAN/WAN). */
 QHash<QString,QString> MySQLInstaller::s_cacheMDP;
@@ -725,11 +719,8 @@ QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
             setMotDePasseSQL(mdp);                 /*!< mémorise le mdp qui fonctionne */
             break;
         }
-        /*! On NE SUPPRIME PLUS le .dbkey si l'aléatoire enregistré est refusé : c'est souvent l'UNIQUE
-         *  copie du mot de passe (le poste qui a sécurisé), et un refus peut être TRANSITOIRE (reconnexion
-         *  juste après un ALTER, aléa SSL, plugin d'auth…). Le détruire pouvait VERROUILLER la base. gaxt78iy
-         *  (candidat suivant) prend le relais tant qu'il existe ; un aléatoire périmé est de toute façon
-         *  écrasé à la récupération (proposerRecuperationAleatoire), et le coût d'un .dbkey obsolète est nul. */
+        /*! Un aléatoire refusé n'efface PAS le .dbkey : c'est souvent l'unique copie du mot de passe du
+         *  cabinet, et un refus peut être passager. Le détruire pouvait verrouiller la base. */
     }
     return err;
 }
@@ -806,11 +797,9 @@ MySQLRemoteConfig MySQLInstaller::defaultMySQLConfig()
      *  d'install est le 8.4.2 LTS (c.version), mais un serveur déjà >= 8.0.14 est accepté tel quel (le 8.0
      *  d'apt suffit, il sait déjà le double mot de passe). */
     c.minVersion  = seuilVersionMySQL();
-    /*! Binaires auto-hébergés sur la Release GitHub « mysqlinstaller-for-rufus » : URLs PERMANENTES (on
-     *  les contrôle), téléchargeables en automatique (pas de blocage CDN/Akamai comme dev.mysql.com), qui
-     *  ne « rotent » pas au prochain point-release. Le JSON distant (mysql_config.json) peut surcharger
-     *  ces valeurs sans recompiler. macOS : un DMG par archi ; le build « macos14 » d'Oracle est
-     *  compatible Ventura 13. */
+    /*! Binaires auto-hébergés sur notre Release GitHub : URLs permanentes et téléchargeables en
+     *  automatique, là où dev.mysql.com bloque et renomme à chaque point-release. Le JSON distant peut
+     *  surcharger ces valeurs sans recompiler. */
     c.winUrl      = "https://github.com/ukinoki/mysqlinstaller-for-rufus/releases/download/mysql-8.4.2/mysql-8.4.2-winx64.zip";
     c.macArm64Url = "https://github.com/ukinoki/mysqlinstaller-for-rufus/releases/download/mysql-8.4.2/mysql-8.4.2-macos14-arm64.dmg";
     c.macX86Url   = "https://github.com/ukinoki/mysqlinstaller-for-rufus/releases/download/mysql-8.4.2/mysql-8.4.2-macos14-x86_64.dmg";
@@ -1231,11 +1220,9 @@ bool MySQLInstaller::run()
             return false;                       /*!< retour au menu précédent */
 
         case QueFaireMySQL::Reinstaller: {
-            /*! « Réinitialiser totalement MySQL » : sert AUX DEUX cas — version incompatible (< 8.0.14 /
-             *  MariaDB) ET version compatible mais SANS mot de passe valide. On avertit (perte des données
-             *  non-Rufus), l'utilisateur sauvegarde lui-même, puis on DÉSINSTALLE MySQL et on RELANCE
-             *  Rufus : au redémarrage, le flux normal ne trouve aucun serveur → installation neuve. Pas de
-             *  logique en double et aucune connexion requise. */
+            /*! Sert aux DEUX impasses : version incompatible, et version compatible dont on n'a pas le
+             *  mot de passe. On désinstalle puis on relance Rufus, qui ne trouvera plus de serveur et
+             *  installera du neuf — aucune connexion requise, aucune logique en double. */
             offrirSauvegardeAvantEffacement();  /*!< (quitte Rufus s'il veut sauvegarder) */
             if (!assurerDroitsAdmin()) continue;
             MySQLProgressDialog* clean = new MySQLProgressDialog(
@@ -1426,10 +1413,8 @@ static void inviterANoterMotDePasse(const QString& mdp)
 
 /*!
  * \brief recolterClesClientSSL
- * SSL — RÉCOLTE DES CLÉS CLIENT (étape 7, point 2). MySQL auto-génère ses certificats dans le datadir à
- * l'--initialize ; on copie les SEULES clés CLIENT dans PATH_DIR_CLESSSL_SERVEUR pour pouvoir les
- * exporter vers les postes distants (JAMAIS server-cert/server-key/ca-key ; ca.pem renommé ca-cert.pem,
- * nom attendu côté client). Best-effort : un échec n'interrompt pas l'installation.
+ * Copie les SEULES clés CLIENT auto-générées par MySQL vers PATH_DIR_CLESSSL_SERVEUR, d'où elles seront
+ * exportées vers les postes distants — jamais les clés serveur ni ca-key. Best-effort.
  * \param datadir  répertoire de données MySQL où sont déposés les .pem
  */
 [[maybe_unused]] static bool recolterClesClientSSL(const QString& datadir)  /*!< appelée selon l'OS (Windows ici) */
@@ -1809,10 +1794,9 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
 
 /*!
  * \brief MySQLInstaller::sauvegarderClesSSLMigration
- * SSL (étape 7, point 4) — Sauvegarde les 6 .pem du datadir AVANT désinstallation (qui détruit le
- * datadir). On conserve TOUTE la chaîne (CA + serveur + client) pour que le nouveau serveur présente le
- * MÊME CA → les clés client déjà déployées restent valides. true si au moins le CA a pu être conservé
- * (stash dans ~/.rufus, qui survit à la désinstallation).
+ * Met les .pem du datadir à l'abri dans ~/.rufus avant une désinstallation, qui détruit le datadir. On
+ * garde TOUTE la chaîne pour que le nouveau serveur présente le même CA : les clés déjà distribuées aux
+ * postes distants restent alors valides. true si au moins le CA est sauvé.
  */
 bool MySQLInstaller::sauvegarderClesSSLMigration()
 {
@@ -1974,10 +1958,8 @@ bool MySQLInstaller::extraireClesSSLDepuisDatadir()
 
 /*!
  * \brief MySQLInstaller::regenererClesSSL
- * DESTRUCTIF : régénère DE NOUVELLES clés SSL. Arrête le serveur, SUPPRIME les certificats du datadir,
- * redémarre (MySQL les recrée via auto_generate_certs), attend leur réapparition, puis réextrait la copie
- * client. INVALIDE toute clé déjà distribuée : l'appelant DOIT prévenir l'utilisateur et RELANCER Rufus
- * (le redémarrage a coupé la connexion). true si une nouvelle copie client est disponible.
+ * DESTRUCTIF : supprime les certificats du datadir et laisse MySQL les recréer au redémarrage. Invalide
+ * toutes les clés déjà distribuées, et coupe la connexion : l'appelant doit prévenir et relancer Rufus.
  */
 bool MySQLInstaller::regenererClesSSL()
 {
@@ -2029,10 +2011,9 @@ bool MySQLInstaller::regenererClesSSL()
 
 /*!
  * \brief MySQLInstaller::controlerClesSSLMonoposte
- * Contrôle des clés SSL au démarrage (MONOPOSTE) : rattrape des clés effacées par erreur, jamais créées,
- * ou expirées. Distingue le cas BÉNIN (copie client manquante mais serveur a ses certificats → simple
- * réextraction, sans coupure) du cas DESTRUCTIF (certificats expirés/absents → régénération, qui invalide
- * les clés distribuées → consentement + relance).
+ * Rattrape au démarrage des clés SSL effacées, jamais créées ou expirées. Cas bénin (copie client
+ * manquante) : réextraction silencieuse ; cas destructif (certificats absents ou expirés) : régénération,
+ * donc consentement puis relance.
  */
 void MySQLInstaller::controlerClesSSLMonoposte()
 {
@@ -2142,16 +2123,9 @@ bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
 }
 
 /*!
- * \brief MySQLInstaller::socleMySQLConforme
- * true si le serveur MySQL courant (via la connexion Qt ouverte) atteint le seuil commun
- * (VERSION_MYSQL_MINI = 8.0.14) et n'est pas MariaDB. False si trop ancien / illisible.
- */
-/*!
  * \brief MySQLInstaller::socleLocalConforme
- * Conformité du socle relevée SANS connexion, en interrogeant le serveur LOCAL comme le fait run()
- * avant d'installer (binaire mysqld / client). À utiliser pour les décisions qui PRÉCÈDENT la
- * connexion — socleMySQLConforme(), lui, passe par la connexion Qt déjà ouverte. Même critère :
- * version >= seuil et pas MariaDB. N'a de sens que sur le poste qui héberge la base.
+ * Socle conforme (>= VERSION_MYSQL_MINI, pas MariaDB) relevé SANS connexion, sur le serveur LOCAL.
+ * Pour les décisions qui PRÉCÈDENT la connexion — après, c'est socleMySQLConforme().
  */
 bool MySQLInstaller::socleLocalConforme()
 {
@@ -2159,6 +2133,10 @@ bool MySQLInstaller::socleLocalConforme()
     return versionAtLeast(m.getMySQLServerVersion(), seuilVersionMySQL()) && !m.isMariaDB();
 }
 
+/*!
+ * \brief MySQLInstaller::socleMySQLConforme
+ * Idem, mais lu par la connexion Qt ouverte (SELECT VERSION()) : vaut donc aussi pour un serveur distant.
+ */
 bool MySQLInstaller::socleMySQLConforme()
 {
     bool ok = false;
@@ -2175,10 +2153,9 @@ bool MySQLInstaller::socleMySQLConforme()
 
 /*!
  * \brief MySQLInstaller::executerEtapesConfig
- * Étapes de configuration post-install/verify (PATH, dossier partagé, secure_file_priv, lecture/écriture,
- * privilèges…), avec mise à jour de la checklist. En mode CREATE : les comptes sont créés ici par
- * createUser() (root/pkexec) ; en mode VERIFY : ils l'ont déjà été par createUserAvecAdmin() (garde
- * m_comptesDejaCrees). true si toutes les étapes sont validées.
+ * Étapes de configuration après installation (PATH, dossier partagé, secure_file_priv, droits…), en
+ * cochant la checklist. Les comptes ne sont créés ici que s'ils ne l'ont pas déjà été (m_comptesDejaCrees).
+ * true si tout est validé.
  */
 bool MySQLInstaller::executerEtapesConfig()
 {
@@ -2247,10 +2224,8 @@ bool MySQLInstaller::executerEtapesConfig()
     m_dialog->checkStep(3);
 
     /*! ── Étape 5 : mysql lit et écrit dans le dossier partagé (fichier test) ───────
-     *  secure_file_priv est VÉRIFIÉ côté serveur par ensureSecureFilePriv (étape 4) : si on arrive ici, le
-     *  serveur l'applique. Un échec d'écriture ne vient donc PLUS du « Full Disk Access » (faux diagnostic :
-     *  /Users/Shared n'est pas protégé par TCC) mais d'une cause réelle — privilège FILE manquant, ou droits
-     *  du dossier. On le dit honnêtement, sans boucle ni renvoi vers les Réglages Système. */
+     *  L'étape 4 a déjà prouvé que le serveur applique secure_file_priv : un échec ici a donc une cause
+     *  réelle (privilège FILE, droits du dossier), pas le « Full Disk Access » qu'on accusait à tort. */
     if (!testSharedFolderRW()) {
         if (!tryConnect()) {
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
@@ -2298,11 +2273,10 @@ bool MySQLInstaller::executerEtapesConfig()
 bool MySQLInstaller::uninstallMySQL()
 {
 #if defined(Q_OS_WIN)
-    /*! L'application tourne déjà en administrateur. On NE code PAS la version ni le nom du service en dur :
-     *  l'utilisateur peut avoir « MySQL Server 8.0 » + service « MySQL80 ». On DÉCOUVRE le service réel par
-     *  son ImagePath (mysqld.exe), on le stoppe/supprime, on retire son dossier, PUIS on balaie les
-     *  installations SERVEUR de TOUTE version, on nettoie le PATH machine et la clé de désinstallation.
-     *  (Aucun guillemet double DANS $ps : tout en quotes simples ou via [char]34.) */
+    /*! Ni la version ni le nom du service ne sont codés en dur (« MySQL80 », « MySQL Server 8.0 »… selon
+     *  les postes) : on découvre le service réel par son ImagePath, puis on balaie les installations
+     *  serveur de toute version, le PATH machine et la clé de désinstallation.
+     *  (Aucun guillemet double DANS $ps : quotes simples ou [char]34.) */
     const QString ps =
         "$ErrorActionPreference='SilentlyContinue';"
         "$base=$null;"
@@ -2344,11 +2318,9 @@ bool MySQLInstaller::uninstallMySQL()
     QFile::remove(script);
     return !isMySQLInstalled();
 #elif defined(Q_OS_LINUX)
-    /*! apt purge (par motif individuel) + suppression données/config. On RETIRE le partage [Rufus] de
-     *  Samba mais on NE purge PAS samba/wsdd ni le dossier partagé (l'utilisateur peut s'en servir). On NE
-     *  purge PAS 'libmysqlclient.*' (la réinstall de mysql-server la ramène ; la purger faisait des dégâts
-     *  collatéraux). De même 'mysql.*' (filet trop large : mysql-workbench, php-mysql…) est remplacé par le
-     *  ciblage 'mysql-community-*' (dépôt Oracle), serveur/client/common restant couverts. */
+    /*! On retire le partage [Rufus] mais pas samba ni le dossier partagé, dont l'utilisateur peut se
+     *  servir. Motifs de purge CIBLÉS : ni 'libmysqlclient.*' ni 'mysql.*', filets trop larges qui
+     *  emportaient mysql-workbench ou php-mysql. */
     const QString script =
         "systemctl stop mysql mysqld mariadb 2>/dev/null;"
         "for pat in 'mysql-server.*' 'mysql-client.*' 'mysql-common' "
@@ -2452,13 +2424,9 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     m_login    = LOGIN_SQL;
     m_password = motDePasseSQL();
 
-    /*! Vérification BON MARCHÉ et SILENCIEUSE (filesystem + 1 requête, aucune élévation, aucun
-     *  sous-processus). Deux signaux ROBUSTES de dérive (sans faux positif) : le dossier partagé a disparu ;
-     *  secure_file_priv ne pointe plus sur un dossier valide (DataBase::dirsecure_file_priv(), même
-     *  validation que le reste de Rufus). Le PATH du client mysql n'est PAS testé ici (mysqlBin() peut
-     *  renvoyer un nom relatif → faux positif ; l'absence est déjà signalée par dirSQLExecutable()). Les
-     *  contrôles lourds (écriture, privilèges) sont (re)faits par executerEtapesConfig() PENDANT la
-     *  réparation. But : un démarrage normal ne paie rien. */
+    /*! Deux signaux sûrs, pour rien coûter à un démarrage normal : le dossier partagé a disparu, ou
+     *  secure_file_priv ne pointe plus sur un dossier valide. Le PATH du client n'est pas testé ici (faux
+     *  positifs), et les contrôles lourds sont refaits par executerEtapesConfig() pendant la réparation. */
     QStringList problemes;
     if (!QDir(sharedFolderPath()).exists())
         problemes << tr("le dossier partagé est introuvable");
@@ -2599,11 +2567,9 @@ QString MySQLInstaller::oraclePrefix() const
 
 /*!
  * \brief MySQLInstaller::serverVersionString
- * Chaîne VERSION() du SERVEUR EN COURS (ex. « 8.0.13 » ou « 10.5.8-MariaDB »), interrogée via le client
- * mysql : valeur du serveur, indépendante de la version du binaire client ; vide si serveur injoignable.
- * Méthode FIABLE sous AppImage : Rufus exporte son propre LD_LIBRARY_PATH ; un mysqld qu'il lance hérite
- * de cet environnement et « mysqld --version » reste muet jusqu'au timeout — interroger le serveur déjà
- * lancé évite ce blocage ET la lecture trompeuse du client.
+ * VERSION() du serveur en cours (ex. « 10.5.8-MariaDB »), vide s'il est injoignable. On interroge le
+ * serveur DÉJÀ LANCÉ plutôt que « mysqld --version », qui reste muet jusqu'au timeout sous AppImage
+ * (LD_LIBRARY_PATH hérité de Rufus).
  */
 QString MySQLInstaller::serverVersionString()
 {
@@ -2638,10 +2604,9 @@ QString MySQLInstaller::serverVersionString()
 
 /*!
  * \brief MySQLInstaller::getMySQLServerVersion
- * Version du SERVEUR MySQL (X.Y.Z), et NON du client — c'est elle qui décide de la compatibilité (RETAIN
- * CURRENT PASSWORD apparu en 8.0.14). Sous Ubuntu, l'installeur pose « mysql-client » qui écrase
- * /usr/bin/mysql par une version récente sans toucher au serveur en place → « mysql --version » serait
- * trompeur.
+ * Version du SERVEUR (X.Y.Z), jamais celle du client : c'est elle qui décide de la compatibilité
+ * (RETAIN CURRENT PASSWORD, apparu en 8.0.14), et sous Ubuntu le client est souvent plus récent que le
+ * serveur en place.
  */
 QString MySQLInstaller::getMySQLServerVersion()
 {
@@ -2712,10 +2677,9 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
 
 /*!
  * \brief MySQLInstaller::poserEtSauvegarderAleatoire
- * Cœur de la sécurisation : génère un aléatoire, le SAUVEGARDE (et le relit) AVANT de le poser sur le
- * serveur, le pose sur TOUS les hosts d'adminrufus/adminrufusSSL (gaxt78iy conservé en 2e mdp), VÉRIFIE
- * que ça a pris, et affiche le mot de passe à noter. Suppose l'accès NON distant + socle conforme. true
- * si OK. Partagé par securiserBaseSiNecessaire() et le bouton « mot de passe égaré ».
+ * Cœur de la sécurisation : génère un aléatoire, l'écrit et le RELIT avant de le poser sur le serveur
+ * (jamais de mot de passe posé qu'on ne saurait pas relire), vérifie qu'il a pris, puis l'affiche à
+ * noter. Réservé au local + socle conforme. true si OK.
  */
 bool MySQLInstaller::poserEtSauvegarderAleatoire()
 {
@@ -2770,13 +2734,12 @@ static QStringList hostsLANprives()
 
 /*!
  * \brief MySQLInstaller::securiserAdminrufusEtMdp
- * Sécurise les comptes adminrufus + pose l'aléatoire (+ gaxt78iy en 2e mdp, RETAIN) et le tampon securepar.
- * UNE seule voie : la connexion PRINCIPALE en adminrufus@'%' (compte SYSTÈME avec SYSTEM_USER) qui modifie
- * tout, y compris adminrufusSSL@'%'. Aucun SSL, aucune dépendance aux certificats. true si TOUS les buts
- * sont atteints.
- * \param aleatoire     nouveau mot de passe à poser
- * \param LANonly       true = ne traite QUE les comptes NON-SSL (LAN + retrait d'adminrufus@'%') ; false = sécurise EN PLUS adminrufusSSL@'%'
- * \param detailresult  si fourni, rempli but par but (pour détailler où ça a échoué)
+ * Pose `aleatoire` sur les comptes adminrufus (gaxt78iy retenu en 2e mot de passe), puis retire
+ * adminrufus@'%' une fois le relais LAN en place. Tout passe par la connexion courante, qui est un
+ * compte SYSTEM_USER. true si tous les buts sont atteints.
+ * \param aleatoire     mot de passe à poser
+ * \param LANonly       true = ENTRETIEN : comptes LAN seuls, sans réécrire ceux qui existent déjà
+ * \param detailresult  si fourni, résultat but par but
  */
 bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LANonly,
                                               QMap<QString, bool>* detailresult)
@@ -2787,12 +2750,9 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
     const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
     const QString attr     = QString(" ATTRIBUTE '{\"securepar\":\"%1\"}'").arg(posteSql);
 
-    /*! La séquence, PARAMÉTRÉE par l'exécuteur `exec` : écrite UNE fois, jouée sur la connexion PRINCIPALE.
-     *  Chaque compte en DEUX temps : on pose d'abord le mdp générique, puis on bascule sur l'aléatoire en
-     *  RETENANT le générique en 2e mdp (fallback réseau). securepar gravé DANS le même ALTER que le mdp (un
-     *  ATTRIBUTE isolé effacerait additional_password) ; ALTER … BY … sans REQUIRE laisse REQUIRE SSL intact.
-     *  On n'impose PAS de plugin (indisponible sur MySQL 8.4, ERROR 1524 ; forcer un plugin ferait rejeter
-     *  RETAIN, ERROR 3894) → on garde celui déjà choisi par createUser(). */
+    /*! Comptes déjà en place, relevés AVANT toute écriture : en entretien, on ne touche qu'au manquant. */
+    const QStringList dejaLa = Utils::hostsDuCompteSQL(ur);
+
     auto poser = [&](auto exec) {
         if (!LANonly)   /*!< adminrufusSSL@'%' (compte système, accès distant) : sécurisé EN PLUS */
         {
@@ -2801,10 +2761,19 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
         }
         for (const QString& h : hostsLANprives())   /*!< adminrufus (non-SSL) sur toutes les plages LOCALES */
         {
-            exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
-            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
-            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
-            exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
+            const bool aCreer = !dejaLa.contains(h);
+            if (aCreer)
+                exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
+            /*! Chaque compte en deux temps : générique, puis aléatoire en RETENANT le générique (le
+             *  tampon securepar voyage dans le même ALTER, isolé il effacerait additional_password).
+             *  Mais en ENTRETIEN on ne réécrit PAS un compte existant : ce serait ressusciter gaxt78iy
+             *  après sa purge et repousser l'échéance des 30 jours à chaque démarrage. */
+            if (aCreer || !LANonly)
+            {
+                exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
+                exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
+            }
+            exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));   /*!< rend aussi SYSTEM_USER */
         }
         exec(QString("FLUSH PRIVILEGES"));   /*!< active les entrées créées ; adminrufus@'%' PAS encore droppé */
     };
@@ -2849,11 +2818,8 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
 
 /*!
  * \brief MySQLInstaller::entretienApresConnexion
- * À appeler après toute connexion réussie. Entretien du mot de passe MySQL selon CE avec quoi ce poste
- * s'est connecté (aléatoire ou générique gaxt78iy). Chaque étape est AUTO-GARDÉE et les branches sont
- * MUTUELLEMENT EXCLUSIVES : securiserBaseSiNecessaire (pose l'aléatoire) / supprimerGaxt78iySiEchue
- * (retire gaxt78iy à échéance) / avertirEffacementImminent / proposerRecuperationAleatoire /
- * suggererSecurisationDepuisLocal.
+ * Entretien du mot de passe après toute connexion réussie, selon celui avec lequel ce poste s'est
+ * connecté. Chaque étape appelée ici est auto-gardée et ne fait rien hors de son cas.
  */
 void MySQLInstaller::entretienApresConnexion()
 {
@@ -2886,11 +2852,9 @@ void MySQLInstaller::avertirEffacementImminent()
     const QDateTime echeance = d.addDays(30);
     if (echeance <= QDateTime::currentDateTime()) return;   /*!< deadline passée → c'est supprimerGaxt78iySiEchue qui agit */
 
-    /*! « Ne plus afficher » : mémorisé dans rufus.ini DANS LA RUBRIQUE DE LA BASE COURANTE (getBaseFromMode)
-     *  — l'avis concerne LA base à laquelle on se connecte, et un poste peut viser plusieurs bases, chacune
-     *  avec sa PROPRE sécurisation. Masquer l'avis sur une base ne le masque pas sur une autre. La VALEUR
-     *  est la date de sécurisation : si la base est re-sécurisée (nouvelle date → nouvelle échéance), l'avis
-     *  réapparaît. */
+    /*! « Ne plus afficher » est mémorisé PAR BASE (rubrique du mode dans rufus.ini) : un poste peut en
+     *  viser plusieurs, chacune avec sa propre échéance. La valeur stockée est la date de sécurisation,
+     *  donc l'avis réapparaît si la base est re-sécurisée. */
     const QString cleMasque = Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + "/AvisGeneriqueMasque";
     const QString signature = d.toString(Qt::ISODate);
     QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
@@ -3672,14 +3636,10 @@ bool MySQLInstaller::ensureSecureFilePriv()
     const QString target = sharedFolderPath();
     const QList<QPair<QString, QString>> vars = rufusCnfVars();
 
-    /*! secure_file_priv TEL QUE LE SERVEUR L'APPLIQUE (et non tel qu'écrit dans le fichier) : SEULE preuve
-     *  que le my.cnf a été lu. Un fichier correct mais hors de la chaîne de config (cf. bug getCnfPath)
-     *  laissait la variable à NULL côté serveur tout en validant le fichier → fausse réussite, puis fausse
-     *  fenêtre « Full Disk Access ». Le serveur renvoie souvent le chemin avec un « / » final → on normalise. */
-    /*! normChemin : normalise un chemin pour comparaison robuste. On force « \ » → « / » (QDir::cleanPath
-     *  ne le fait pas hors Windows), puis cleanPath collapse les séparateurs MULTIPLES — ce qui avale aussi
-     *  les antislashs DOUBLÉS par le client mysql en mode -B — et retire le séparateur final. La comparaison
-     *  qui suit est insensible à la casse (chemins Windows). */
+    /*! On lit la variable TELLE QUE LE SERVEUR L'APPLIQUE : c'est la seule preuve que le my.cnf a bien
+     *  été lu (un fichier correct mais hors de la chaîne de config validait à tort).
+     *  normChemin : « \ » → « / » puis cleanPath, pour comparer des chemins qui diffèrent par leurs
+     *  séparateurs (dont ceux doublés par le client mysql en mode -B). */
     auto normChemin = [](QString s) { return QDir::cleanPath(s.replace('\\', '/')); };
     QString liveVu;     /*!< dernière valeur lue côté serveur (conservée pour le diagnostic) */
     auto serveurOk = [&]() -> bool {
@@ -3910,11 +3870,9 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
         "CREATE ROLE", "DROP ROLE"
     };
 
-    /*! SHOW GRANTS SANS clause FOR = SHOW GRANTS FOR CURRENT_USER() : on lit les privilèges du COMPTE
-     *  RÉELLEMENT utilisé par la connexion (adminrufus@<host qui matche 127.0.0.1>), quel que soit son host.
-     *  INDISPENSABLE depuis qu'adminrufus n'existe plus en @'%' mais seulement sur les hosts LAN/privés :
-     *  « SHOW GRANTS FOR 'adminrufus'@'%' » en dur échouait (compte inexistant) → aucune ligne → tous les
-     *  privilèges signalés manquants. */
+    /*! SHOW GRANTS sans clause FOR = celui du compte RÉELLEMENT utilisé par la connexion, quel que soit
+     *  son host. Depuis qu'adminrufus n'existe plus en @'%', le nommer en dur ne rendait aucune ligne :
+     *  tous les privilèges étaient signalés manquants. */
     QString raw = runCmdFull(
         QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
                 "\"SHOW GRANTS;\" 2>&1")
@@ -3958,16 +3916,10 @@ bool MySQLInstaller::createUser()
         return true;
 #endif
 
-    /*! Crée les comptes adminrufus / adminrufusSSL avec un DOUBLE mot de passe : PRIMAIRE = m_password
-     *  (aléatoire, .dbkey) ; SECONDAIRE = gaxt78iy (MDP_SQL) conservé via RETAIN CURRENT PASSWORD pour
-     *  qu'un futur poste réseau puisse se connecter (bootstrap) tant que la deadline de 30 j n'a pas purgé
-     *  gaxt78iy. adminrufus → ALL PRIVILEGES … WITH GRANT OPTION ; adminrufusSSL → idem + REQUIRE SSL. On
-     *  pose d'abord gaxt78iy comme mdp courant, puis on bascule sur l'aléatoire EN CONSERVANT gaxt78iy en 2e. */
-    /*! Plugin d'authentification : on PRÉFÈRE « mysql_native_password » (le driver Qt en a besoin pour les
-     *  POSTES RÉSEAU — TCP en clair, cache froid, où caching_sha2 refuse). Mais sur MySQL 8.4 il est
-     *  DÉSACTIVÉ par défaut : si le « mysql_native_password=ON » du my.cnf n'est pas pris en compte (macOS
-     *  launchd), « WITH mysql_native_password » échoue (ERROR 1524) → on REVIENT au défaut (caching_sha2) :
-     *  le monoposte se connecte par socket localhost ; l'accès réseau exigera un serveur où native est actif. */
+    /*! DOUBLE mot de passe : l'aléatoire en principal, gaxt78iy conservé en 2e (RETAIN) pour qu'un
+     *  poste réseau puisse encore se connecter tant que la purge des 30 j n'a pas eu lieu.
+     *  Plugin : mysql_native_password d'abord (le driver Qt ne fait pas caching_sha2 en TCP clair), avec
+     *  repli sur le plugin par défaut, ce plugin étant désactivé d'origine sur MySQL 8.4 (ERROR 1524). */
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     const QString legacy   = QString(MDP_SQL);
     /*! adminrufus (NON-SSL) n'est créé QUE sur les hosts LOCAUX/PRIVÉS (jamais @'%', joignable du WAN via
@@ -4036,13 +3988,8 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
 {
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     const QString legacy   = QString(MDP_SQL);
-    /*! DOUBLE mot de passe (comme createUser) : on pose d'abord gaxt78iy comme mdp courant, puis on
-     *  bascule sur l'aléatoire EN CONSERVANT gaxt78iy en 2e (RETAIN CURRENT PASSWORD). INDISPENSABLE : les
-     *  autres postes se connectent d'abord avec gaxt78iy (bootstrap) avant de récupérer l'aléatoire.
-     *  mysql_native_password : PRÉFÉRÉ (le driver Qt ne fait pas caching_sha2 en TCP non chiffré), mais le
-     *  serveur est PRÉEXISTANT et sur MySQL 8.4 ce plugin est désactivé par défaut → « WITH
-     *  mysql_native_password » échoue (ERROR 1524) → on REVIENT au plugin par défaut (caching_sha2 : socket
-     *  localhost OK ; réseau exigera un serveur où native est actif). */
+    /*! Même schéma que createUser : aléatoire en principal, gaxt78iy retenu en 2e, plugin
+     *  mysql_native_password avec repli (ERROR 1524 sur MySQL 8.4). */
     /*! adminrufus (NON-SSL) uniquement sur les hosts LOCAUX/PRIVÉS (jamais @'%' — cf. createUser) ;
      *  adminrufusSSL@'%' (SSL) pour l'accès distant. Double mot de passe : aléatoire + gaxt78iy (2e). */
     auto sqlAvecAuth = [&](const QString& auth) {
@@ -4094,26 +4041,18 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
 }
 
 /*! ═══ COMPTE DE SECOURS — et suppression de root ═══════════════════════════════════════════════════
- *  Le datadir MySQL est initialisé avec --initialize-insecure : 'root'@'localhost' existe SANS mot de
- *  passe. N'importe quelle session ouverte sur l'ordinateur lit alors TOUTE la base patients — pas
- *  acceptable sur un portable ou un poste de cabinet qu'on peut voler ou cambrioler. On le remplace
- *  donc par un compte de SECOURS dont le mot de passe n'est connu QUE du praticien qui a installé la
- *  base (jamais écrit sur le disque), et on supprime root.
- *  Ça ne casse rien : root ne sert qu'à CRÉER adminrufus à l'installation (createUser /
- *  prepareCreateMode*, sous m_freshInstall) ; ensuite, plus aucun chemin de Rufus ne l'utilise.
- *  À SAVOIR malgré tout : le datadir se lit sans aucun compte (mysqld --skip-grant-tables, ou disque
- *  monté ailleurs). Ceci ferme la porte de l'ORDINATEUR ALLUMÉ ; seule la mise sous chiffrement du
- *  disque (BitLocker / FileVault / LUKS) ferme celle du disque emporté.
- *  Toutes les opérations passent par le CLIENT mysql en adminrufus (comme createUserAvecAdmin) et non
- *  par la connexion Qt : le repli de plugin (MySQL 8.4) s'y fait SILENCIEUSEMENT, sans faire surgir la
- *  boîte d'erreur SQL sur un échec qui est prévu et rattrapé.
+ *  --initialize-insecure laisse 'root'@'localhost' SANS mot de passe : toute session ouverte sur
+ *  l'ordinateur lit la base patients. On le remplace par un compte de secours dont le praticien est
+ *  seul à connaître le mot de passe (jamais écrit sur le disque), puis on supprime root — que Rufus
+ *  n'utilise plus après l'installation.
+ *  Ne protège PAS du vol : le datadir se lit sans compte (mysqld --skip-grant-tables, disque monté
+ *  ailleurs). Contre le vol, seul le chiffrement du disque vaut.
  */
 
 /*!
  * \brief MySQLInstaller::supprimerCompteMySQL
- * Supprime un compte MySQL sur TOUS les hosts où il existe (Utils::hostsDuCompteSQL, déjà utilisé
- * pour purger gaxt78iy). Erreur SQL MUETTE : l'échec est prévu (supprimer un compte système exige
- * SYSTEM_USER) et l'appelant le CONSTATE lui-même en relisant mysql.user, avec son propre message.
+ * Supprime un compte sur tous ses hosts. Erreur SQL muette : l'échec est prévu (supprimer un compte
+ * système exige SYSTEM_USER) et l'appelant le constate en relisant mysql.user.
  * \param login  compte à supprimer
  */
 void MySQLInstaller::supprimerCompteMySQL(const QString& login)
@@ -4131,10 +4070,8 @@ bool MySQLInstaller::compteDeSecoursExiste(){ return !Utils::hostsDuCompteSQL(LO
 
 /*!
  * \brief demanderMotDePasseDeSecours
- * Fiche de saisie du mot de passe de secours (deux champs à la création, un seul à la restauration).
- * Volontairement alphanumérique 5-12 caractères, comme les autres mots de passe de Rufus : ce qui
- * compte est qu'il soit RETENU des années plus tard et retapé à l'identique — ni accent, ni casse
- * exotique à redevenir. Design repris de demanderNouvelUtilisateurRufus.
+ * Saisie du mot de passe de secours (avec confirmation à la création). Alphanumérique 5-12 caractères :
+ * il doit pouvoir être retapé à l'identique des années plus tard, sans accent ni casse à deviner.
  * \param parent            fiche parente
  * \param avecConfirmation  true = création (mot de passe + confirmation)
  * \param outMdp            mot de passe saisi
@@ -4289,9 +4226,8 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
 
 /*!
  * \brief MySQLInstaller::controlerCompteDeSecours
- * À CHAQUE démarrage, sur le poste qui héberge la base : met en place le compte de secours puis
- * supprime root. Sur une base installée avant cette version, on attend que l'utilisateur n°1 (celui
- * qui a installé la base) se connecte — lui seul choisit ce mot de passe.
+ * À chaque démarrage, sur le poste qui héberge la base : met en place le compte de secours, puis
+ * supprime root. Sur une base plus ancienne, on attend l'utilisateur n°1 — lui seul choisit ce mot de passe.
  * \param iduser  id de l'utilisateur Rufus qui vient de s'identifier
  */
 void MySQLInstaller::controlerCompteDeSecours(int iduser)
@@ -4313,10 +4249,8 @@ void MySQLInstaller::controlerCompteDeSecours(int iduser)
 
 /*!
  * \brief MySQLInstaller::restaurerAvecMotDePasseDeSecours
- * DERNIER RECOURS quand plus aucun mot de passe connu n'ouvre la base : le mot de passe de secours
- * rouvre une session privilégiée, avec laquelle on réécrit un aléatoire NEUF sur adminrufus/SSL
- * (gaxt78iy conservé en 2e, comme partout) et on le range dans le .dbkey. Les données ne sont pas
- * touchées. true si l'accès est rétabli.
+ * Dernier recours quand aucun mot de passe connu n'ouvre la base : le mot de passe de secours rouvre une
+ * session privilégiée, avec laquelle on réécrit un aléatoire neuf sur adminrufus. Données intactes.
  * \param parent  fiche parente des boîtes affichées
  */
 bool MySQLInstaller::restaurerAvecMotDePasseDeSecours(QWidget* parent)
@@ -4730,11 +4664,9 @@ QString MySQLInstaller::runCmdFull(const QString& cmd, int timeoutMs)
 
 /*!
  * \brief MySQLInstaller::lignesResultat
- * Lignes de DONNÉES d'une sortie du client mysql/mysqladmin (vides et bruit du client retirés).
- * INDISPENSABLE dès qu'on traite les lignes comme des données (noms de bases, de tables…) : lancé avec
- * -p<motdepasse>, le client imprime TOUJOURS « mysql: [Warning] Using a password on the command line
- * interface can be insecure. », et runCmdFull fusionne stderr dans la sortie — cette ligne parasite se
- * fait sinon passer pour un résultat.
+ * Lignes de DONNÉES d'une sortie du client mysql, débarrassées de son bruit. Indispensable dès qu'on
+ * traite les lignes comme des données : lancé avec -p<mdp>, le client imprime toujours son
+ * « [Warning] Using a password… », que runCmdFull fusionne dans la sortie.
  * \param sortie  sortie brute de runCmdFull
  */
 QStringList MySQLInstaller::lignesResultat(const QString& sortie)

@@ -3008,7 +3008,9 @@ bool Procedures::MettreAJourSocleMySQL()
            "faire pour vous, ou vous pouvez poursuivre si vous l'avez déjà faite (le dossier de "
            "sauvegarde vous sera alors demandé pour la restauration)."));
     msgbox.setIcon(UpMessageBox::Warning);
-    UpSmallButton *Annul   = new UpSmallButton(); Annul  ->setText(tr("Annuler"));
+    //! « Annuler » n'interrompt PAS Rufus : on ne bloque pas l'usage d'une base parce que son serveur
+    //! n'est pas à jour. Le libellé doit le dire, sinon on n'ose pas cliquer.
+    UpSmallButton *Annul   = new UpSmallButton(); Annul  ->setText(tr("Plus tard,\npoursuivre le démarrage"));
     UpSmallButton *Poursui = new UpSmallButton(); Poursui->setText(tr("Poursuivre,\nla sauvegarde a été faite"));
     UpSmallButton *Sauve   = new UpSmallButton(); Sauve  ->setText(tr("Sauvegarder les données\net mettre à jour"));
     msgbox.addButton(Annul,   UpSmallButton::CLOSEBUTTON);
@@ -3395,11 +3397,11 @@ bool Procedures::Connexion_A_La_Base()
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     if (!errConnexion.isEmpty())
     {
-        //! RÉSEAU LOCAL : la cause la plus fréquente n'est PAS le mot de passe mais l'ADRESSE du
-        //! serveur (box remplacée, IP fixe perdue, serveur déplacé). On la MONTRE et on la fait
-        //! confirmer avant de parler de mot de passe — sinon on cherche une clé alors que c'est la
-        //! porte qui a changé d'adresse.
-        if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+        //! POSTE CLIENT (réseau local ou distant) : la cause la plus fréquente n'est PAS le mot de
+        //! passe mais l'ADRESSE du serveur (box remplacée, IP fixe perdue, serveur déplacé). On la
+        //! MONTRE et on la fait confirmer avant de parler de mot de passe — sinon on cherche une clé
+        //! alors que c'est la porte qui a changé d'adresse.
+        if (!monoposte)
         {
             UpMessageBox msgbox(Q_NULLPTR);
             msgbox.setIcon(UpMessageBox::Quest);

@@ -133,7 +133,7 @@ II LANCEMENT DE RUFUS
 								→ si OK
 									→ MySQL >= 8.0.14
 								 		→ on s’est connecté avec le mdp aléatoire
-											→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
+											→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
 					 						→ enregistrement du mdp dans .dbkey
 											→ on vérifie si le mdp générique est toujours présent
 												si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
@@ -156,12 +156,12 @@ II LANCEMENT DE RUFUS
 															→ puis on lance rufus
 														→ on n'a pas récupéré de mdp
 															→ on en crée un
-															→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
+															→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
 															→ on l’enregistre dans .dbkey
 															→ on affiche le message pour pouvoir l'enregistrer et on lance rufus
 												→ non
 													→ on en crée un
-													→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
+													→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
 													→ on l’enregistre dans .dbkey
 													→ on affiche le message pour pouvoir l'enregistrer
 									→ MYSQL < 8.0.14 
@@ -213,7 +213,7 @@ II LANCEMENT DE RUFUS
 								→ si OK
 									→ MySQL >= 8.0.14
 								 		→ on s’est connecté avec le mdp aléatoire
-											→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
+											→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
 					 						→ enregistrement du mdp dans .dbkey
 											→ on vérifie si le mdp générique est toujours présent
 												si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
@@ -236,12 +236,12 @@ II LANCEMENT DE RUFUS
 															→ puis on lance rufus
 														→ on n'a pas récupéré de mdp
 															→ on en crée un
-															→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
+															→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
 															→ on l’enregistre dans .dbkey
 															→ on affiche le message pour pouvoir l'enregistrer et on lance rufus
 												→ non
 													→ on en crée un
-													→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
+													→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
 													→ on l’enregistre dans .dbkey
 													→ on affiche le message pour pouvoir l'enregistrer
 									→ MYSQL < 8.0.14 
@@ -279,7 +279,7 @@ II LANCEMENT DE RUFUS
 								"cette restauration ne peut se faire qu'à partir du poste serveur"
 					→ MySQL >= 8.0.14
 						→ on s’est connecté avec le mdp aléatoire
-							→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
+							→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
 							→ on vérifie si le mdp générique est toujours présent
 								si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
 									message prévenant que l'effacement du mdp est imminent avec date échéance

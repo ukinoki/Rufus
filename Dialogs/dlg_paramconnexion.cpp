@@ -221,20 +221,18 @@ dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &tit
     else
         return IssueMdp::Annule;   // « Annuler » ou fiche fermée
 
-    //! On n'INSCRIT le mot de passe dans le .dbkey qu'APRÈS avoir VÉRIFIÉ qu'il fonctionne : on l'écrit,
-    //! on se reconnecte (connecterAvecCandidats essaie le .dbkey en premier), puis on contrôle qu'on
-    //! s'est bien connecté AVEC lui. Sinon (mot de passe faux → on retombe sur le générique, ou serveur
-    //! injoignable), on le RETIRE du .dbkey et on prévient. Le poste ne touche ainsi qu'à son .dbkey, et
-    //! seulement avec un mot de passe éprouvé (cf. spec : « s'il marche et qu'on se connecte avec »).
-    MySQLInstaller::stockerMotDePasse(mdp);                                  // écrit .dbkey + cache
-    const QString err = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);    // reconnecte pour l'éprouver
-    if (!err.isEmpty() || MySQLInstaller::motDePasseSQL() != mdp)
+    //! On ÉPROUVE le mot de passe AVANT de toucher au .dbkey : on ouvre la connexion avec LUI. S'il
+    //! n'ouvre pas la base, le .dbkey n'a pas bougé — l'ancien mot de passe, parfois l'unique copie du
+    //! cabinet, reste intact. (On l'écrivait auparavant AVANT de l'éprouver, quitte à le retirer
+    //! ensuite : une saisie erronée effaçait donc un mot de passe valide.)
+    const QString err = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, mdp);
+    if (!err.isEmpty())
     {
-        MySQLInstaller::supprimerMotDePassePourMode(DataBase::I()->ModeAccesDataBase());   // faux → on le retire
         UpMessageBox::Watch(parent, tr("Mot de passe incorrect"),
             tr("Ce mot de passe ne permet pas de se connecter à la base de données."));
         return IssueMdp::EchecSaisie;
     }
+    MySQLInstaller::stockerMotDePasse(mdp);   //! éprouvé → .dbkey + cache
     return IssueMdp::Obtenu;
 }
 
