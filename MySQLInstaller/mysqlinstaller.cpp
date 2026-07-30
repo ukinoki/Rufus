@@ -2738,8 +2738,7 @@ static QStringList hostsLANprives()
  */
 bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
 {
-    const QString ur     = QString(LOGIN_SQL);
-    const QString legacy = QString(MDP_SQL);
+    const QString ur = QString(LOGIN_SQL);
     auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
 
     /*! Les comptes LAN sont créés d'un bloc : en tester UN suffit. On prend le plus improbable —
@@ -2747,14 +2746,11 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
      *  '127.0.0.1' peuvent traîner d'une installation ancienne et feraient croire au bloc complet. */
     if (!Utils::hostsDuCompteSQL(ur).contains("10.%"))
     {
-        /*! Comptes NEUFS, donc rien d'existant n'est réécrit et aucune échéance n'est déplacée. On leur
-         *  donne le mot de passe courant, avec le générique en 2e : sans lui, un poste qui n'a encore
-         *  que le générique perdrait l'accès dès le retrait d'adminrufus@'%'. */
+        /*! Créés avec le mot de passe aléatoire qu'on a en main, et RIEN d'autre : aucun générique posé
+         *  ici — ce n'est pas le rôle de l'entretien. Un poste resté sur le générique se verra refuser
+         *  la connexion et suivra la fiche de récupération du mot de passe, qui est faite pour ça. */
         for (const QString& h : hostsLANprives())
-        {
-            exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
-            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, mdpCourant));
-        }
+            exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, mdpCourant));
     }
 
     /*! Privilèges redonnés à chaque passage : c'est par eux que revient SYSTEM_USER, qu'une version
