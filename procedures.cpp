@@ -3478,6 +3478,21 @@ bool Procedures::Connexion_A_La_Base()
                 }
             }
         }
+        else
+        {
+            //! monoposte, socle < 8.0.14 : aucun aléatoire n'a pu être posé, réclamer un mdp n'a pas de sens
+            if (UpMessageBox::Question(Q_NULLPTR, tr("Connexion impossible au serveur MySQL"),
+                    tr("Impossible de se connecter à votre serveur MySQL.") + "\n" +
+                    tr("Il ne semble pas y avoir de base de données Rufus sur ce serveur.") + "\n\n" +
+                    tr("Voulez-vous le réinitialiser ?") + "\n" +
+                    tr("La version de votre serveur est trop ancienne : sa réinitialisation entraînera "
+                       "l'installation d'une version plus récente de MySQL."),
+                    UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                    QStringList() << tr("Annuler") << tr("Réinitialiser le serveur"))
+                == UpSmallButton::STARTBUTTON)
+                PremierDemarrage(/*forceBaseVierge=*/true);
+            return false;
+        }
 
         //! Toujours en échec
         if (!errConnexion.isEmpty())
