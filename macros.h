@@ -1047,7 +1047,7 @@ public:
 #define PATH_DIR_RUFUSKEY                       QDir::homePath() + NOM_DIR_RUFUSKEY
 #define PATH_FILE_DBKEY                         PATH_DIR_RUFUSKEY NOM_FILE_DBKEY
 //! Sauvegarde silencieuse de Rufus.ini, dans le dossier caché ~/.rufus (qui survit à
-//! la suppression de ~/Documents/Rufus). Écrite à chaque ouverture réussie, restaurée par RecupererDemarrage().
+//! la suppression de ~/Documents/Rufus). Écrite à chaque ouverture réussie, restaurée par ReparerIni().
 #define PATH_FILE_INI_BACKUP                   PATH_DIR_RUFUSKEY NOM_FILE_INI_BACKUP
 #define PATH_FILE_SCRIPTBACKUP                  PATH_DIR_RUFUS NOM_FILE_SCRIPTBACKUP
 #define PATH_FILE_SCRIPT_MACOS_PLIST            "/Library/LaunchAgents" NOM_FILE_SCRIPT_MACOS_PLIST

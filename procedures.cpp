@@ -3379,11 +3379,11 @@ bool Procedures::Connexion_A_La_Base()
 
     if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::serveurLocalPresent())
     {
-        RecupererDemarrage(tr("Aucun serveur de base de données"),
+        CreerOuRestaurerBase(tr("Aucun serveur de base de données"),
                            tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
                            tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
                               "(le serveur sera installé automatiquement), ou quittez."),
-                           false /*RestaurerBase*/);
+                           false /*proposerRestauration*/);
         return false;
     }
 
@@ -3550,10 +3550,10 @@ bool Procedures::Connexion_A_La_Base()
             if (db->ModeAccesDataBase() == Utils::Poste)
             {
                 //! poste hôte : restaurer la base, ou en créer une neuve s'il n'a pas de sauvegarde
-                RecupererDemarrage(tr("Base de données endommagée"),
+                CreerOuRestaurerBase(tr("Base de données endommagée"),
                                    tr("La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.") + "\n" +
                                    tr("Vous pouvez la restaurer depuis une sauvegarde, créer une nouvelle base patients, ou quitter."),
-                                   true /*RestaurerBase*/);
+                                   true /*proposerRestauration*/);
                 return false;
             }
             //! Poste CLIENT (réseau local / distant) : il ne répare JAMAIS la base partagée des
@@ -5108,7 +5108,7 @@ void Procedures::PremierParametrageMateriel()
 //! réussie la garantit (la connexion à la base vient d'aboutir). On ne risque donc jamais
 //! d'écraser une sauvegarde saine par un Rufus.ini corrompu. Chaque poste sauvegarde le SIEN,
 //! ce qui permet à un poste client de restaurer son propre Rufus.ini (pas celui du serveur).
-//! Comme personne ne pense à sauvegarder ce fichier, Rufus s'en charge : RecupererDemarrage() pourra le
+//! Comme personne ne pense à sauvegarder ce fichier, Rufus s'en charge : ReparerIni() pourra le
 //! restaurer si l'original est perdu. No-op si Rufus.ini n'existe pas (rien à sauvegarder).
 void Procedures::SauvegardeIni()
 {
@@ -5191,7 +5191,7 @@ void Procedures::ReparerIni()
     }
 }
 
-bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool RestaurerBase)
+bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool proposerRestauration)
 {
     UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
     UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
@@ -5202,7 +5202,7 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool Restaurer
     msgbox->setInformativeText(msgInfo);
     msgbox->setIcon(UpMessageBox::Warning);
     msgbox->addButton(&PremierDemarrageBouton, UpSmallButton::NOBUTTON);
-    if (RestaurerBase)
+    if (proposerRestauration)
         msgbox->addButton(&RestaureBaseBouton, UpSmallButton::NOBUTTON);
     msgbox->addButton(&AnnulBouton,            UpSmallButton::CANCELBUTTON);
     msgbox->exec();

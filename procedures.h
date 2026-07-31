@@ -116,11 +116,11 @@ private:
     bool                    MettreAJourSocleMySQL();                                    //! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL : sauvegarde validée -> désinstall/réinstall MySQL -> restauration -> relance
     bool                    SauvegardeBaseValide(QString dossier);                      //! true si le dump (rufus.sql) du dossier est complet (« Dump completed »)
     void                    ReparerIni();                                                //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable
-    bool                    RecupererDemarrage(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
-                                     bool RestaurerBase = false);
+    bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
+                                     bool proposerRestauration = false);
     bool                    VerifParamConnexion();            //! true =  le choix accès distant est validé ou non
 public:
-    static void             SauvegardeIni();                                            //! copie silencieuse de Rufus.ini vers ~/.rufus/.rufus.ini (appelée à chaque ouverture réussie) pour pouvoir le restaurer dans RecupererDemarrage()
+    static void             SauvegardeIni();                                            //! copie silencieuse de Rufus.ini vers ~/.rufus/.rufus.ini (appelée à chaque ouverture réussie) pour pouvoir le restaurer dans ReparerIni()
     void                    setDirSQLExecutable();                                      /*! fixe le chemin vers le dossier contenant les fichier mysql et mysqldump  */
     QString                 dirSQLExecutable();                                         /*! le chemin vers le dossier contenant les fichier mysql et mysqldump  */
     void                    setDirSSLKeys();                                            /*! fixe le chemin vers le dossier des clés SSL */

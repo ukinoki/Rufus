@@ -62,7 +62,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     switch (proc->ListeModesAcces().size()) {
     case 0:
         /*! si aucun mode d'accès n'est paramétré, sortie du programme
-         *  cette situation est impossible car elle a déjà été gérée en amont par Procedures::RecupererDemarrage()
+         *  cette situation est impossible car elle a déjà été gérée en amont par Procedures::CreerOuRestaurerBase()
          *  elle n'est écrite que pour éviter les warnings du compilateur
         */
         UpMessageBox::Watch(this, tr("Erreur fichier Rufus.ini"), tr("Aucun paramétrage valide de connexion retrouvé") + "\n" + tr("Le fichier rufus.ini est endommagé et doit être réparé"));
