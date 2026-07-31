@@ -5205,15 +5205,15 @@ void Procedures::ReparerIni()
 
 bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool proposerRestauration)
 {
-    UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
-    UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
-    UpSmallButton PremierDemarrageBouton   (tr("Créer une base patients"));
+    UpSmallButton AnnulBouton           (tr("Abandonner et\nquitter Rufus"));
+    UpSmallButton RestaureBaseBouton    (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
+    UpSmallButton CreerBaseBouton       (tr("Créer une base patients"));
 
     UpMessageBox *msgbox = new UpMessageBox;
     msgbox->setText(msg);
     msgbox->setInformativeText(msgInfo);
     msgbox->setIcon(UpMessageBox::Warning);
-    msgbox->addButton(&PremierDemarrageBouton, UpSmallButton::NOBUTTON);
+    msgbox->addButton(&CreerBaseBouton, UpSmallButton::NOBUTTON);
     if (proposerRestauration)
         msgbox->addButton(&RestaureBaseBouton, UpSmallButton::NOBUTTON);
     msgbox->addButton(&AnnulBouton,            UpSmallButton::CANCELBUTTON);

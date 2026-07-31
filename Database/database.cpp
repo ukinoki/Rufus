@@ -122,10 +122,10 @@ bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMes
     /*! À l'écran, seulement le message MÉTIER de l'appelant (« Impossible d'enregistrer… ») : sans lui,
      *  le praticien n'aurait qu'un nom de fonction et une requête SQL, et il les enchaînerait par
      *  dizaines sur une base abîmée. Le développeur, lui, a le log — et la boîte en build de debug. */
-    if (!ErrorMessage.isEmpty())
-        UpMessageBox::Watch(Q_NULLPTR, ErrorMessage);
+    //if (!ErrorMessage.isEmpty())
+        //UpMessageBox::Watch(Q_NULLPTR, ErrorMessage);
 #ifdef QT_DEBUG
-    else
+    //else
         UpMessageBox::Watch(Q_NULLPTR, origine + "\n" + erreur.text() + "\n" + tr("requete = ") + requete);
 #endif
     return true;
