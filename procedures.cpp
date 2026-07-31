@@ -3425,8 +3425,8 @@ bool Procedures::Connexion_A_La_Base()
             *  proposer de réinitialiser
             *  proposer de restaurer avec mdp de secours
          */
-        if (MySQLInstaller::estErreurAuthentification(errConnexion)
-            && (db->ModeAccesDataBase() != Utils::Poste || MySQLInstaller::socleLocalConforme()))
+        //! monoposte : seulement si le socle est conforme, sinon aucun aléatoire n'a jamais été posé
+        if (db->ModeAccesDataBase() != Utils::Poste || MySQLInstaller::socleLocalConforme())
         {
             forever
             {
@@ -3484,7 +3484,7 @@ bool Procedures::Connexion_A_La_Base()
         if (!errConnexion.isEmpty())
         {
             //! Poste client : il n'a rien à réparer ici, la clé se récupère ailleurs.
-            if (db->ModeAccesDataBase() != Utils::Poste && MySQLInstaller::estErreurAuthentification(errConnexion))
+            if (db->ModeAccesDataBase() != Utils::Poste)
             {
                 UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
                     tr("Aucun mot de passe connu de ce poste n'ouvre la base du cabinet.") + "\n\n" +
