@@ -1064,9 +1064,8 @@ QString Utils::calcSHA1(QString mdp)
     }
 }
 
-//  Liste des hosts existants d'un compte MySQL. adminrufus a souvent PLUSIEURS entrées sur les
-//  bases héritées (@'%', @'localhost', @'192.168.%'…). On applique pose ET purge du mot de passe à
-//  CHAQUE variante : une connexion matche le host le plus spécifique, qui doit donc être traité.
+/*!  Liste des hosts existants d'un compte MySQL
+ */
 QStringList Utils::hostsDuCompteSQL(const QString& user)
 {
     QStringList hosts;

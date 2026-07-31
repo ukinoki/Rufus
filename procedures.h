@@ -118,7 +118,6 @@ private:
     bool                    RecupererDemarrage(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
                                      QString msgInfo = "",
                                      bool RecupIni = true,
-                                     bool PremDemarrage = false,
                                      bool RestaurerBase = false);          //! true (poste hôte) = bouton « Restaurer la base » au lieu de « Restaurer Rufus.ini »
     bool                    VerifParamConnexion();            //! true =  le choix accès distant est validé ou non
 public:

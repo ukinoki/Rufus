@@ -221,7 +221,7 @@ public:
     static bool rootExiste();                                            /*!< un compte 'root' subsiste-t-il sur ce serveur ? */
     static bool compteDeSecoursExiste();                                 /*!< secoursrufus est-il déjà en place ? */
     static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);       /*!< demande le mdp confidentiel, crée secoursrufus (loopback, tous droits), l'ÉPROUVE puis supprime root */
-    static void controlerCompteDeSecours(int iduser);                    /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
+    static void controlerCompteDeSecours();                              /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
     bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = Q_NULLPTR);   /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
 
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };   /*!< résultat de createUserAvecAdmin() */
