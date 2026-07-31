@@ -648,6 +648,8 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
                             QDir(fileInfo.absoluteFilePath()).removeRecursively();
                         else if (fileInfo.isFile())
                             QFile(fileInfo.absoluteFilePath()).remove();
+                        /*! l'effacement d'une vieille sauvegarde est long : on garde la fiche vivante */
+                        qApp->processEvents(QEventLoop::ExcludeUserInputEvents, 10);
                     }
             }
         }

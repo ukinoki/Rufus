@@ -1169,7 +1169,12 @@ void Utils::countFilesInDirRecursively(const QString dirpath, int &tot)
         if (fileInfo.isDir())
             countFilesInDirRecursively(fileInfo.absoluteFilePath(), tot);
         else
+        {
             tot++;
+            /*! sans quoi le comptage fige la fenêtre et Ubuntu affiche « Rufus ne répond pas » */
+            if (tot % 500 == 0)
+                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 10);
+        }
     }
 }
 
