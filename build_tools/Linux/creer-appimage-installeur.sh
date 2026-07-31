@@ -104,7 +104,9 @@ export EXTRA_QT_PLUGINS="sqldrivers"              # force le pilote MySQL (charg
 rm -f "${APPDIR}/AppRun"
 cp "${SCRIPT_DIR}/AppRun" "${APPDIR}/AppRun"
 chmod +x "${APPDIR}/AppRun"
-cp "${SCRIPT_DIR}/rufus.png" "${APPDIR}/rufus.png"   # appimagetool veut l'icône à la racine
+# appimagetool veut l'icône à la racine ; rm -f d'abord, linuxdeploy y a posé un lien.
+rm -f "${APPDIR}/rufus.png"
+cp "${SCRIPT_DIR}/rufus.png" "${APPDIR}/rufus.png"
 
 # ── 6. Empaqueter ────────────────────────────────────────────────────────────
 OUT="${REPO}/Rufus-${VER}-x86_64.AppImage"
