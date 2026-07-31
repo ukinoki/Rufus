@@ -12,12 +12,25 @@
 #     ./creer-appimage-installeur.sh /chemin/Rufus   # part d'un binaire déjà compilé
 #
 #  Prérequis : Qt (qmake dans le PATH) + « sudo apt install libfuse2 ».
+#  À lancer SANS sudo (sudo remet un PATH neuf et HOME=/root : Qt devient introuvable).
 #  Mémo complet : LISEZMOI-creer-appimage.md
 #
 set -e
 
+if [ "$(id -u)" = 0 ]; then
+    echo "ERREUR : ne pas lancer ce script avec sudo — il écrit dans le dépôt et dans ~/.cache," >&2
+    echo "         et sudo fait perdre le PATH vers Qt. Relance simplement :" >&2
+    echo "         ./creer-appimage-installeur.sh" >&2
+    exit 1
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+if [ ! -f "${REPO}/rufus.cpp" ]; then
+    echo "ERREUR : dépôt Rufus introuvable (pas de rufus.cpp dans ${REPO})." >&2
+    echo "         Lance le script depuis sa place dans le dépôt : build_tools/Linux/" >&2
+    exit 1
+fi
 WORK="${REPO}/build-appimage"          # dossier jetable (recréé à chaque fois)
 APPDIR="${WORK}/AppDir"
 TOOLS="${HOME}/.cache/rufus-appimage-tools"   # outils téléchargés une fois
