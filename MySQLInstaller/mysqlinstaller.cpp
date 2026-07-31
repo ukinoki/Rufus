@@ -2907,33 +2907,52 @@ void MySQLInstaller::proposerRecuperationAleatoire()
                     "ou via le menu Édition / Paramètres) et enregistrez-le ici : sans lui, cet accès "
                     "cessera de fonctionner.");
 
-    UpMessageBox msgbox(nullptr);
-    msgbox.setText(tr("Mot de passe du cabinet à récupérer"));
-    msgbox.setInformativeText(corps);
-    msgbox.setIcon(UpMessageBox::Warning);
-    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Plus tard"));
-    UpSmallButton *Saisir = new UpSmallButton(); Saisir->setText(tr("Renseigner le nouveau\nmot de passe"));
-    UpSmallButton *Recreer = new UpSmallButton(); Recreer->setText(tr("Le mot de passe est égaré,\nen créer un nouveau"));
-    msgbox.addButton(Annul,   UpSmallButton::CLOSEBUTTON);
-    msgbox.addButton(Recreer, UpSmallButton::EDITBUTTON);
-    msgbox.addButton(Saisir,  UpSmallButton::STARTBUTTON);
-    msgbox.exec();
+    //! un poste distant ne recrée jamais l'aléatoire : pas de 3e bouton pour lui
+    const bool distant = (DataBase::I()->ModeAccesDataBase() == Utils::Distant);
 
-    /*! « Le mot de passe est égaré » : aucun poste ne détient l'aléatoire (typiquement le .dbkey a été
-     *  perdu par le bug de sécurisation). On en RECRÉE un, protégé par le mot de passe Administrateur. */
-    if (msgbox.clickedButton() == Recreer)
+    forever
     {
-        recreerMotDePasseApresVerifAdmin();
-        return;
-    }
-    if (msgbox.clickedButton() != Saisir)
-        return;
+        UpMessageBox msgbox(nullptr);
+        msgbox.setText(tr("Mot de passe du cabinet à récupérer"));
+        msgbox.setInformativeText(corps);
+        msgbox.setIcon(UpMessageBox::Warning);
+        UpSmallButton *Annul   = new UpSmallButton(tr("Continuer avec le\nmot de passe temporaire"));
+        UpSmallButton *Saisir  = new UpSmallButton(tr("Renseigner le nouveau\nmot de passe"));
+        UpSmallButton *Recreer = distant ? nullptr
+                                         : new UpSmallButton(tr("Le mot de passe est égaré,\nen créer un nouveau"));
+        msgbox.addButton(Annul, UpSmallButton::CLOSEBUTTON);
+        if (Recreer)
+            msgbox.addButton(Recreer, UpSmallButton::EDITBUTTON);
+        msgbox.addButton(Saisir, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
 
-    //! message adapté : le générique fonctionne encore, ce n'est pas un échec de connexion
-    RecupererMotDePasseMySQL(nullptr,
-        tr("Récupérer le mot de passe du cabinet"),
-        tr("Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur "
-           "laquelle il a été copié depuis un poste à jour."));
+        //! aucun poste ne détient plus l'aléatoire : on en recrée un, protégé par le mdp Administrateur
+        if (Recreer && msgbox.clickedButton() == Recreer)
+        {
+            recreerMotDePasseApresVerifAdmin();
+            return;
+        }
+        if (msgbox.clickedButton() != Saisir)
+            return;
+
+        //! message adapté : le générique fonctionne encore, ce n'est pas un échec de connexion
+        const IssueMdp issue = RecupererMotDePasseMySQL(nullptr,
+                tr("Récupérer le mot de passe du cabinet"),
+                tr("Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur "
+                   "laquelle il a été copié depuis un poste à jour."));
+        if (issue != IssueMdp::EchecSaisie)   //! obtenu, ou renoncé
+            return;
+
+        if (distant)   //! il ne peut ni réessayer utilement ni en créer un : on l'oriente et on sort
+        {
+            UpMessageBox::Information(nullptr,
+                tr("Mot de passe non récupéré"),
+                tr("Ce poste continue avec le mot de passe générique, qui sera désactivé.") + "\n\n" +
+                tr("Connectez-vous depuis un poste du réseau local ou depuis le serveur pour "
+                   "récupérer ou recréer le mot de passe sécurisé du cabinet."));
+            return;
+        }
+    }
 }
 
 /*!
