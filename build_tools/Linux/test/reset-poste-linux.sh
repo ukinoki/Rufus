@@ -7,7 +7,8 @@
 #    1. les paquets de configurer_systeme (AppRun) : polices, GStreamer, mysql-client ;
 #    2. (optionnel) le serveur MySQL + ses données (DESTRUCTIF) ;
 #    3. l'appartenance au groupe dialout ;
-#    4. les fichiers Rufus du home (~/.rufus, AppImage installée, raccourci, ~/Documents/Rufus).
+#    4. les fichiers Rufus du home (~/.rufus, AppImage installée, raccourci, ~/Documents/Rufus) ;
+#    5. le raccourci du bureau et l'épinglage dans les favoris GNOME.
 #
 #  ⚠️ Outil de TEST/DEV — pas livré aux utilisateurs. À lancer en root :
 #        sudo ./reset-poste-linux.sh
@@ -63,6 +64,25 @@ rm -rf "${HOME_REEL}/.rufus" \
        "${HOME_REEL}/.local/bin/Rufus.AppImage" \
        "${HOME_REEL}/.local/share/applications/rufus.desktop" \
        "${HOME_REEL}/Documents/Rufus"
-sudo -u "${USER_REEL}" update-desktop-database "${HOME_REEL}/.local/share/applications" 2>/dev/null || true
+rm -rf "${HOME_REEL}/.local/share/icons/hicolor/256x256/apps/rufus.png"
+
+# ── 5. Raccourci du bureau + favoris GNOME (posés par AppRun) ─────────────────
+echo "-- Étape 5 : retrait du raccourci du bureau et des favoris"
+# gsettings et xdg-user-dir ont besoin du bus de session de l'utilisateur.
+CMD_USER="sudo -u ${USER_REEL} env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${USER_REEL}")/bus"
+
+BUREAU="$(${CMD_USER} xdg-user-dir DESKTOP 2>/dev/null)"
+[ -z "${BUREAU}" ] && { [ -d "${HOME_REEL}/Bureau" ] && BUREAU="${HOME_REEL}/Bureau" || BUREAU="${HOME_REEL}/Desktop"; }
+rm -f "${BUREAU}/rufus.desktop"
+
+FAV="$(${CMD_USER} gsettings get org.gnome.shell favorite-apps 2>/dev/null)" || FAV=""
+case "${FAV}" in
+    *"'rufus.desktop'"*)
+        NOUV="$(printf '%s' "${FAV}" | sed "s/, \?'rufus\.desktop'//; s/'rufus\.desktop', \?//; s/'rufus\.desktop'//")"
+        ${CMD_USER} gsettings set org.gnome.shell favorite-apps "${NOUV}" 2>/dev/null || true ;;
+esac
+
+${CMD_USER} update-desktop-database "${HOME_REEL}/.local/share/applications" 2>/dev/null || true
+${CMD_USER} gtk-update-icon-cache -f -t "${HOME_REEL}/.local/share/icons/hicolor" 2>/dev/null || true
 
 echo "== Reset terminé. Déconnecte/reconnecte la session (groupe dialout) avant de retester. =="
