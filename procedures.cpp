@@ -679,10 +679,13 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         if (OKFactures) {
             dirNomSource = DirImagery + NOM_DIR_FACTURES;
             dirNomDest = pathdirdestination + NOM_DIR_FACTURES;
+            /*! fiche ouverte AVANT le comptage, en barre animée (0,0) : il dure et laissait l'écran figé */
+            UpProgressDialog *progdial = new UpProgressDialog(0,0, parent);
+            progdial->setLabelText(tr("Sauvegarde des factures"));
+            progdial->show();
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
-            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
-            progdial->show();
+            progdial->setRange(0,t);
             int n = 0;
             Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des factures"), progdial);
             delete progdial;
@@ -691,10 +694,12 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         if (OKImages) {
             dirNomSource = DirImagery + NOM_DIR_IMAGES;
             dirNomDest = pathdirdestination + NOM_DIR_IMAGES;
+            UpProgressDialog *progdial = new UpProgressDialog(0,0, parent);
+            progdial->setLabelText(tr("Sauvegarde des fichiers d'imagerie"));
+            progdial->show();
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
-            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
-            progdial->show();
+            progdial->setRange(0,t);
             int n = 0;
             Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des fichiers d'imagerie"), progdial);
             delete progdial;
@@ -703,10 +708,12 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         if (OKVideos) {
             dirNomSource = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString();
             dirNomDest = pathdirdestination + NOM_DIR_VIDEOS;
+            UpProgressDialog *progdial = new UpProgressDialog(0,0, parent);
+            progdial->setLabelText(tr("Sauvegarde des videos"));
+            progdial->show();
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
-            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
-            progdial->show();
+            progdial->setRange(0,t);
             int n = 0;
             Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des videos"), progdial);
             delete progdial;
@@ -2875,10 +2882,13 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         else
                         {
                             QString dirrestaureimagerie    = rootimg.absolutePath() + NOM_DIR_IMAGES;
+                            /*! fiche ouverte AVANT le comptage, en barre animée (0,0) : il dure et laissait l'écran figé */
+                            UpProgressDialog *progdial = new UpProgressDialog(0,0, parent);
+                            progdial->setLabelText(tr("Restauration des fichiers d'imagerie"));
+                            progdial->show();
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaureimagerie, t);
-                            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
-                            progdial->show();
+                            progdial->setRange(0,t);
                             int n = 0;
                             Utils::copyfolderrecursively(dirrestaureimagerie, dirdestinationimg, n, tr("Restauration des fichiers d'imagerie"), progdial);
                             delete progdial;
@@ -2904,10 +2914,12 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         else
                         {
                             QString dirrestaurefactures    = rootimg.absolutePath() + NOM_DIR_FACTURES;
+                            UpProgressDialog *progdial = new UpProgressDialog(0,0, parent);
+                            progdial->setLabelText(tr("Restauration des factures"));
+                            progdial->show();
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaurefactures, t);
-                            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
-                            progdial->show();
+                            progdial->setRange(0,t);
                             int n = 0;
                             Utils::copyfolderrecursively(dirrestaurefactures, dirdestinationfact, n, tr("Restauration des factures"), progdial);
                             delete progdial;
@@ -2933,10 +2945,12 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         else
                         {
                             QString dirrestaurevideo = rootimg.absolutePath() + NOM_DIR_VIDEOS;
+                            UpProgressDialog *progdial = new UpProgressDialog(0,0, parent);
+                            progdial->setLabelText(tr("Restauration des videos"));
+                            progdial->show();
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaurevideo, t);
-                            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
-                            progdial->show();
+                            progdial->setRange(0,t);
                             int n = 0;
                             Utils::copyfolderrecursively(dirrestaurevideo, dirdestinationvid, n, tr("Restauration des videos"), progdial);
                             delete progdial;
