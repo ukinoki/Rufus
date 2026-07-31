@@ -3425,7 +3425,6 @@ bool Procedures::Connexion_A_La_Base()
             *  proposer de réinitialiser
             *  proposer de restaurer avec mdp de secours
          */
-        //! monoposte : seulement si le socle est conforme, sinon aucun aléatoire n'a jamais été posé
         if (db->ModeAccesDataBase() != Utils::Poste || MySQLInstaller::socleLocalConforme())
         {
             forever

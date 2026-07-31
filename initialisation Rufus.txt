@@ -158,11 +158,11 @@ II LANCEMENT DE RUFUS
 																			→ puis on lance rufus
 																		→ non , message mdp non valide et retour à la fiche
 															→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
-																		→ on le crée et on l’enregistre dans .dbkey
-																		→ entretien des comptes adminrufus
-																		→ on ne modifie pas la date d'obsolescence du mdp générique dans la mesure du possible
-																		→ on affiche le message pour pouvoir l'enregistrer
-																		→ puis on lance rufus
+																→ on le crée et on l’enregistre dans .dbkey
+																→ entretien des comptes adminrufus
+																→ on ne modifie pas la date d'obsolescence du mdp générique dans la mesure du possible
+																→ on affiche le message pour pouvoir l'enregistrer
+																→ puis on lance rufus
 												→ non
 													→ on le crée et on l’enregistre dans .dbkey
 													→ entretien des comptes adminrufus
@@ -189,6 +189,10 @@ II LANCEMENT DE RUFUS
 														-> paramétrage de MySQL
 													-> restauration de la base en demandant le dossier de sauvegarde
 													-> relance de Rufus
+					→ pas de connexion et MySQL < 8.014
+						→ message
+							→ impossible de se connecter à votre serveur MySQL. Il ne semble pas y avoir de base de données Rufus sur ce serveurpas de connexion et MySQL >= 8.014
+							→ voulez vous le réinitialiser La version de votre serveur est trop ancienne et sa réinitialisation entrainera l'installation d'une version plus récente de MySQL
 	1b. Réseau local
 		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
 		→ pas de connexion
@@ -242,11 +246,11 @@ II LANCEMENT DE RUFUS
 																			→ puis on lance rufus
 																		→ non , message mdp non valide et retour à la fiche
 															→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
-																		→ on le crée et on l’enregistre dans .dbkey
-																		→ entretien des comptes adminrufus
-																		→ on ne modifie pas la date d'obsolescence du mdp générique dans la mesure du possible
-																		→ on affiche le message pour pouvoir l'enregistrer
-																		→ puis on lance rufus
+																→ on le crée et on l’enregistre dans .dbkey
+																→ entretien des comptes adminrufus
+																→ on ne modifie pas la date d'obsolescence du mdp générique dans la mesure du possible
+																→ on affiche le message pour pouvoir l'enregistrer
+																→ puis on lance rufus
 												→ non
 													→ on le crée et on l’enregistre dans .dbkey
 													→ entretien des comptes adminrufus
@@ -256,6 +260,7 @@ II LANCEMENT DE RUFUS
 										→ Après l'affichage de rufus.cpp à l'écran
 										→ message 	"serveur MySQL à mettre à jour"
 													" cette mise à jour doit se faire depuis le poste serveur"
+
 	1c. Accès distant 
 		RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
 		RÈGLE → on ne supprime pas le mdp générique depuis un poste WAN
