@@ -5139,10 +5139,14 @@ void Procedures::ReparerIni()
         //! Libellés créés avant le message : celui du bouton y est injecté à la place de « %1 ».
         const bool sauvegardeOK   = sauvegardeIniValide();
         UpSmallButton *bAnnuler   = new UpSmallButton(QObject::tr("Abandonner et\nquitter Rufus"));
-        UpSmallButton *bRevoir    = new UpSmallButton(QObject::tr("Revoir les paramètres\nde connexion"));
+        UpSmallButton *bSaisir    = new UpSmallButton(QObject::tr("Restaurer le fichier Rufus.ini en saisissant\nde nouveau les paramètres de connexion"));
+        UpSmallButton *bReseau    = new UpSmallButton(QObject::tr("Installation d'un poste Rufus\nsur un réseau"));
+        UpSmallButton *bPremiere  = new UpSmallButton(QObject::tr("Première installation\nde Rufus"));
         UpSmallButton *bRestaurer = sauvegardeOK
                                   ? new UpSmallButton(QObject::tr("Restaurer la copie\nde sauvegarde"))
                                   : nullptr;
+        bReseau  ->setImmediateToolTip(QObject::tr("Se connecter à une base patients Rufus existante sur ce réseau"));
+        bPremiere->setImmediateToolTip(QObject::tr("Créer une base patients"));
 
         QString msgInfo = QObject::tr("Le fichier d'initialisation") + "\n" + PATH_FILE_INI "\n"
                         + QObject::tr("est absent, ou ne contient pas de renseignement valide "
@@ -5150,7 +5154,7 @@ void Procedures::ReparerIni()
                         + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
                         + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois sur ce poste.") + "\n"
                         + QObject::tr("Si c'est le cas, choisissez l'option \"%1\"") + "\n";
-        msgInfo.replace("%1", bRevoir->text().replace('\n', ' '));
+        msgInfo.replace("%1", bPremiere->text().replace('\n', ' '));
         if (sauvegardeOK)
             msgInfo += "\n" + QObject::tr("Une copie de sauvegarde valide de ce fichier existe sur ce "
                                           "poste : voulez-vous la restaurer ?") + "\n";
@@ -5160,7 +5164,9 @@ void Procedures::ReparerIni()
         msgbox.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
         msgbox.setInformativeText(msgInfo);
         msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
-        msgbox.addButton(bRevoir,   UpSmallButton::EDITBUTTON);
+        msgbox.addButton(bSaisir,   UpSmallButton::EDITBUTTON);
+        msgbox.addButton(bReseau,   UpSmallButton::NOBUTTON);
+        msgbox.addButton(bPremiere, UpSmallButton::NOBUTTON);
         if (bRestaurer)
             msgbox.addButton(bRestaurer, UpSmallButton::STARTBUTTON);
         msgbox.exec();
@@ -5174,7 +5180,13 @@ void Procedures::ReparerIni()
                               + tr("Le lancement de Rufus se poursuit."));
             continue;
         }
-        if (msgbox.clickedButton() == bRevoir)
+        if (msgbox.clickedButton() == bPremiere)
+        {
+            PremierDemarrage(/*forceBaseVierge=*/true);
+            continue;
+        }
+        //! Mêmes gestes pour les deux : resaisir ses paramètres, ou brancher ce poste sur un réseau
+        if (msgbox.clickedButton() == bSaisir || msgbox.clickedButton() == bReseau)
         {
             //! La fiche ne teste rien : elle recueille la saisie, VerifParamConnexion écrit Rufus.ini.
             if (VerifParamConnexion())
