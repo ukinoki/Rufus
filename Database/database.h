@@ -155,7 +155,7 @@ public:
 
     //     REQUETES ------------------------------------------------------------------------------------------------------------------------------------------------------------------
     qint64                  countRecords(QString table, QString where = "");
-    bool                    erreurRequete(QSqlError type, QString requete, QString ErrorMessage = "");
+    bool                    erreurRequete(QSqlError type, QString requete, QString ErrorMessage = "", QString origine = "");
                                                                 //!> comme son nom l'indique
     int                     selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, QString errormsg="");
                                                                 //!> la valeur maximale d'un champ int
@@ -185,13 +185,13 @@ public:
                                                                 * - obligatoire pour insérer un QByteArray - ça ne fonctionne pas sinon
                                                                 * le hash énumère les couples nomchamp, valeur à écrire
                                                                 * affiche le message errormsg en cas de pb */
-    bool                    StandardSQL(QString req , QString errormsg = std::source_location::current().function_name());
+    bool                    StandardSQL(QString req , QString errormsg = "", std::source_location loc = std::source_location::current());
                                                                 //!> éxécute la requête req et affiche le message d'erreur errormsg en cas d'échec
-    QList<QVariantList>     StandardSelectSQL(QString req, bool &ok, QString errormsg = std::source_location::current().function_name());
+    QList<QVariantList>     StandardSelectSQL(QString req, bool &ok, QString errormsg = "", std::source_location loc = std::source_location::current());
                                                                 /*! éxécute le SELECT req et affiche le message d'erreur errormsg en cas d'échec
                                                                 * renvoie la réponse sous forme de QList<QVariantList>
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */
-    QVariantList            getFirstRecordFromStandardSelectSQL(QString req, bool &ok, QString errormsg = std::source_location::current().function_name());
+    QVariantList            getFirstRecordFromStandardSelectSQL(QString req, bool &ok, QString errormsg = "", std::source_location loc = std::source_location::current());
                                                                 /*! renvoie la première réponse de la requête SQL SELECT req et affiche le message d'erreur errormsg en cas d'échec
                                                                 * renvoie la réponse sous forme de QVariantList
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */
