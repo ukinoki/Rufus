@@ -214,7 +214,7 @@ dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &tit
             return IssueMdp::EchecSaisie;
     }
     else
-        return IssueMdp::Annule;   // « Annuler » ou fiche fermée
+        return IssueMdp::Annule;
 
     //! Éprouvé avant d'écrire le .dbkey : sinon une saisie erronée effaçait l'ancien mot de passe,
     //! parfois l'unique copie du cabinet.
@@ -225,7 +225,7 @@ dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &tit
             tr("Ce mot de passe ne permet pas de se connecter à la base de données."));
         return IssueMdp::EchecSaisie;
     }
-    MySQLInstaller::stockerMotDePasse(mdp);   //! éprouvé → .dbkey + cache
+    MySQLInstaller::stockerMotDePasse(mdp);
     return IssueMdp::Obtenu;
 }
 

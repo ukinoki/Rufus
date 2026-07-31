@@ -4216,14 +4216,14 @@ void MySQLInstaller::controlerCompteDeSecours(int iduser)
     if (DataBase::I()->ModeAccesDataBase() != Utils::Poste)
         return;
     if (!rootExiste())
-        return;                          /*!< cas normal dès le 2e démarrage : plus rien à faire */
+        return;
     if (compteDeSecoursExiste())
     {
         supprimerCompteMySQL("root");    /*!< secours déjà en place, root réapparu (mise à jour du serveur) */
         return;
     }
     if (iduser != 1)
-        return;                          /*!< on attend le premier utilisateur, celui qui a installé la base */
+        return;                          /*!< l'utilisateur n°1 seul choisit ce mot de passe */
     creerCompteDeSecours();
 }
 

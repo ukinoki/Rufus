@@ -3439,9 +3439,9 @@ bool Procedures::Connexion_A_La_Base()
                     break;
                 }
                 if (issue == dlg_paramconnexion::IssueMdp::Annule)
-                    return false;   //! « Annuler et sortir » : on ne va pas plus loin
+                    return false;
                 if (!monoposte)
-                    break;          //! client : ni secours ni réinitialisation ici → message ci-dessous
+                    break;
 
                 //! Avant toute opération destructive : le mot de passe de secours rouvre la base intacte.
                 if (issue == dlg_paramconnexion::IssueMdp::Inconnu
@@ -3455,7 +3455,7 @@ bool Procedures::Connexion_A_La_Base()
                             UpDialog::ButtonCancel | UpDialog::ButtonOK,
                             QStringList() << tr("Annuler") << tr("Rétablir l'accès"))
                         != UpSmallButton::STARTBUTTON)
-                        continue;                       //! → retour à la fiche précédente
+                        continue;
                     if (MySQLInstaller().restaurerAvecMotDePasseDeSecours())
                     {
                         errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
@@ -3474,7 +3474,7 @@ bool Procedures::Connexion_A_La_Base()
                             UpDialog::ButtonCancel | UpDialog::ButtonOK,
                             QStringList() << tr("Annuler") << tr("Nouvelle base patients"))
                         != UpSmallButton::STARTBUTTON)
-                        continue;                       //! → retour à la fiche précédente
+                        continue;
                     PremierDemarrage(/*forceBaseVierge=*/true);
                     return false;
                 }
@@ -5127,7 +5127,7 @@ void Procedures::ReparerIni()
             delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
         if (QFile::exists(PATH_FILE_INI) && iniContientModeValide(*m_settings))
-            return;                                     //! fichier exploitable → poursuite du lancement
+            return;
 
         //! Libellés créés avant le message : celui du bouton y est injecté à la place de « %1 ».
         const bool sauvegardeOK   = sauvegardeIniValide();
@@ -5165,7 +5165,7 @@ void Procedures::ReparerIni()
             UpMessageBox::Watch(Q_NULLPTR, tr("Rufus.ini restauré"),
                                 tr("La configuration de ce poste a été restaurée à partir de la sauvegarde.") + "\n"
                               + tr("Le lancement de Rufus se poursuit."));
-            continue;                                   //! relecture du fichier en haut de boucle
+            continue;
         }
         if (msgbox.clickedButton() == bRevoir)
         {
@@ -5180,7 +5180,7 @@ void Procedures::ReparerIni()
             }
             continue;
         }
-        exit(0);                                        //! Abandonner, ou fiche fermée → on quitte
+        exit(0);
     }
 }
 
