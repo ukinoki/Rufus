@@ -271,6 +271,7 @@ public:
                                                                     \param le mode d'accès */
     static QString                  calcSHA1(QString mdp);              /*! renvoie la valeur de mdp codée en SHA */
     static bool                     VerifMDP(QString MDP, QString Msg, QString &mdp, bool mdpverified = false, QWidget *parent = Q_NULLPTR);
+    static bool                     SaisirMDP(QString Msg, QString &mdp, QWidget *parent = Q_NULLPTR);   /*! saisit un mot de passe sans le vérifier, l'appelant en juge */
     // liste des hosts connus pour user (adminrufus / adminrufusSSL)
     static QStringList              hostsDuCompteSQL(const QString& user);
 

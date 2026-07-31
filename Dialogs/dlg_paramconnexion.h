@@ -18,15 +18,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_PARAMCONNEXION_H
 #define DLG_PARAMCONNEXION_H
 
-#include <QMessageBox>
-#include <QNetworkInterface>
-#include <QSqlDatabase>
-#include <QtSql>
-#include <QTimer>
 #include "upmessagebox.h"
 #include "upradiobutton.h"
 #include "updialog.h"
-#include "database.h"
 #include "icons.h"
 
 /* Cette classe sert à paramétrer la connexion au serveur
@@ -48,7 +42,6 @@ class dlg_paramconnexion;
  *  - le port MySQL et, en distant, le dossier des clés SSL.
  *
  * OK vérifie seulement que la saisie est complète ; c'est VerifParamConnexion qui écrit Rufus.ini.
- * RecupererMotDePasseMySQL() n'appartient pas à la fiche : utilitaire statique appelé au démarrage.
  */
 class dlg_paramconnexion : public UpDialog
 {
@@ -57,22 +50,6 @@ public:
     explicit dlg_paramconnexion(QWidget *parent = Q_NULLPTR);
     ~dlg_paramconnexion();
     Ui::dlg_paramconnexion *ui;
-    //! Issue de la fiche de récupération du mot de passe MySQL (cf. RecupererMotDePasseMySQL).
-    enum class IssueMdp {
-        Obtenu,         //!< un mot de passe a été récupéré ET ÉPROUVÉ : la base s'ouvre
-        Annule,         //!< « Annuler » (ou fiche fermée) : l'utilisateur veut sortir
-        Inconnu,        //!< « Passer cette étape » : il n'a aucun mot de passe à proposer
-        Reinitialiser,  //!< « Réinitialiser le programme » : il veut repartir d'une base neuve
-        EchecSaisie     //!< il a saisi/importé un mot de passe, mais il n'ouvre pas la base
-    };
-
-    //! Récupération du mot de passe aléatoire (saisie ou clé USB), appelée aussi au démarrage.
-    //! titre/corps vides → message d'échec de connexion ; renseignés → récupération proactive.
-    //! monoposte : ajoute les deux issues réservées au poste qui héberge la base.
-    static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(),
-                                             const QString &corps = QString(),
-                                             bool monoposte = false);
-
 private:
     void            DossierClesSSL();                   //!< choisit le dossier des clés SSL (accès distant) et le renseigne dans le champ
     void            RegleAffichage(QRadioButton *butt); //!< adapte l'affichage (visibilité des champs, message accès distant) au mode d'accès choisi

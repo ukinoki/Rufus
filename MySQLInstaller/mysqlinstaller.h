@@ -224,6 +224,21 @@ public:
     static void controlerCompteDeSecours();                              /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
     bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = Q_NULLPTR);   /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
 
+    /*! ── Récupération du mot de passe du cabinet ─────────────────────────────────────────────────────── */
+    enum class IssueMdp {
+        Obtenu,         /*!< mot de passe récupéré et éprouvé */
+        Annule,         /*!< annuler et sortir */
+        Inconnu,        /*!< je n'ai aucun mot de passe */
+        Reinitialiser,  /*!< repartir d'une base neuve */
+        EchecSaisie     /*!< mot de passe saisi ou importé, mais il n'ouvre pas la base */
+    };
+
+    /*! Saisie ou clé USB, puis épreuve du mot de passe. titre/corps vides → message d'échec de
+     * connexion ; monoposte → 5 boutons au lieu de 3 (cf. initialisation Rufus.txt § II.2). */
+    static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(),
+                                             const QString &corps = QString(),
+                                             bool monoposte = false);
+
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };   /*!< résultat de createUserAvecAdmin() */
 
 private:

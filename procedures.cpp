@@ -3430,21 +3430,21 @@ bool Procedures::Connexion_A_La_Base()
         {
             forever
             {
-                const dlg_paramconnexion::IssueMdp issue =
-                    dlg_paramconnexion::RecupererMotDePasseMySQL(Q_NULLPTR, QString(), QString(), db->ModeAccesDataBase() == Utils::Poste);
+                const MySQLInstaller::IssueMdp issue =
+                    MySQLInstaller::RecupererMotDePasseMySQL(Q_NULLPTR, QString(), QString(), db->ModeAccesDataBase() == Utils::Poste);
 
-                if (issue == dlg_paramconnexion::IssueMdp::Obtenu)
+                if (issue == MySQLInstaller::IssueMdp::Obtenu)
                 {
                     errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
                     break;
                 }
-                if (issue == dlg_paramconnexion::IssueMdp::Annule)
+                if (issue == MySQLInstaller::IssueMdp::Annule)
                     return false;
                 if (db->ModeAccesDataBase() != Utils::Poste)
                     break;
                 //! Pas de mot de passe valide -> restauration par le mot de passe de secours
-                if (issue == dlg_paramconnexion::IssueMdp::Inconnu
-                 || issue == dlg_paramconnexion::IssueMdp::EchecSaisie)
+                if (issue == MySQLInstaller::IssueMdp::Inconnu
+                 || issue == MySQLInstaller::IssueMdp::EchecSaisie)
                 {
                     if (UpMessageBox::Question(Q_NULLPTR, tr("Aucun mot de passe ne fonctionne"),
                             tr("Rufus peut rétablir l'accès à votre base avec le mot de passe de "
@@ -3464,7 +3464,7 @@ bool Procedures::Connexion_A_La_Base()
                 }
 
                 //! « Réinitialiser le programme
-                if (issue == dlg_paramconnexion::IssueMdp::Reinitialiser)
+                if (issue == MySQLInstaller::IssueMdp::Reinitialiser)
                 {
                     if (UpMessageBox::Question(Q_NULLPTR, tr("Réinitialiser le programme"),
                             tr("Rufus va installer une base patients NEUVE sur cet ordinateur.") + "\n" +

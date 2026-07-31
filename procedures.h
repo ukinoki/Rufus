@@ -55,6 +55,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <textprinter.h>
 #include <ostask.h>
+#include "database.h"
 #include <dlg_paramconnexion.h>
 #include <ui_dlg_paramconnexion.h>
 #include <dlg_choixdate.h>

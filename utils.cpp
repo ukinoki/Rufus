@@ -1001,6 +1001,41 @@ QString Utils::calcSHA1(QString mdp)
   * \param parent
   * \return
   */
+/*!
+ * \brief Utils::SaisirMDP
+ * Recueille un mot de passe, sans rien vérifier : c'est l'appelant qui sait ce qu'il en fait.
+ * \param Msg     texte affiché au-dessus du champ
+ * \param mdp     mot de passe saisi
+ * \param parent  fenêtre parente
+ */
+bool Utils::SaisirMDP(QString Msg, QString &mdp, QWidget *parent)
+{
+    UpDialog dlg(parent);
+    dlg.setWindowModality(Qt::WindowModal);
+
+    UpLabel *label = new UpLabel();
+    label   ->setText(Msg);
+    label   ->setAlignment(Qt::AlignCenter);
+    dlg     .dlglayout()->insertWidget(0, label);
+
+    UpLineEdit *champ = new UpLineEdit(&dlg);
+    champ   ->setEchoMode(QLineEdit::Password);
+    champ   ->setAlignment(Qt::AlignCenter);
+    champ   ->setMaxLength(25);
+    dlg     .dlglayout()->insertWidget(1, champ);
+
+    dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg.OKButton, &QPushButton::clicked, &dlg, &QDialog::accept);
+    connect(champ, &UpLineEdit::returnPressed, dlg.OKButton, &QPushButton::click);
+    dlg.dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    champ->setFocus();
+
+    if (dlg.exec() != QDialog::Accepted)
+        return false;
+    mdp = champ->text().trimmed();
+    return !mdp.isEmpty();
+}
+
  bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified, QWidget *parent)
 {
     if (mdpverified)
