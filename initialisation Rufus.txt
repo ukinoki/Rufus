@@ -73,7 +73,8 @@ II LANCEMENT DE RUFUS
 			→ restaure le fichier Rufus.ini
 			→ lit les infos de Rufus.ini
 			→ message "Rufus.ini reconstruit - poursuite du lancement"
-	→ bouton Installation d'un poste Rufus sur un réseau - Se connecter à une base patients Rufus existante sur ce réseau
+	→ bouton Restaurer le fichier Rufus.ini en saisissant de nouveau les paramètres de connexion (même action que le bouton Installation d'un poste Rufus sur un réseau)
+	→ bouton Installation d'un poste Rufus sur un réseau -> Tooltip = Se connecter à une base patients Rufus existante sur ce réseau
 		→ dlg_paramconnexion() ne teste pas la connexion à MySQL
 			→ pas de bouton tester sur dlg_paramconnexion()
 			→ le bouton OK 
@@ -87,7 +88,7 @@ II LANCEMENT DE RUFUS
 					→ lit les infos de Rufus.ini
 					→ message "Rufus.ini reconstruit - poursuite du lancement"
 			→ Annuler revient à la fiche précédente
-	→ bouton Première installation de Rufus - Créer une base patients
+	→ bouton Première installation de Rufus -> Tooltip = Créer une base patients
 		→ mysqlinstaller -> nouvelle base patients vierge
 	
 2. rufus.ini paramétré correctement avec un ou plusieurs modes de connexion
