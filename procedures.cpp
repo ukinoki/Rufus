@@ -3383,7 +3383,7 @@ bool Procedures::Connexion_A_La_Base()
                            tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
                            tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
                               "(le serveur sera installé automatiquement), ou quittez."),
-                           false /*RecupIni*/, false /*RestaurerBase*/);
+                           false /*RestaurerBase*/);
         return false;
     }
 
@@ -3549,15 +3549,11 @@ bool Procedures::Connexion_A_La_Base()
         {
             if (db->ModeAccesDataBase() == Utils::Poste)
             {
-                //! Poste HÔTE : on propose de RESTAURER la base depuis une sauvegarde (bouton
-                //! « Restaurer la base ») ET de créer une NOUVELLE base patients vierge (bouton
-                //! « Accéder à une base patients » → PremierDemarrage). Sans ce 2e bouton, un poste
-                //! avec un .dbkey valide mais une base altérée ET sans sauvegarde restait en
-                //! CUL-DE-SAC : la seule issue était de bricoler MySQL à la main ou d'effacer .dbkey.
+                //! poste hôte : restaurer la base, ou en créer une neuve s'il n'a pas de sauvegarde
                 RecupererDemarrage(tr("Base de données endommagée"),
                                    tr("La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.") + "\n" +
                                    tr("Vous pouvez la restaurer depuis une sauvegarde, créer une nouvelle base patients, ou quitter."),
-                                   true /*RecupIni*/, true /*RestaurerBase*/);
+                                   true /*RestaurerBase*/);
                 return false;
             }
             //! Poste CLIENT (réseau local / distant) : il ne répare JAMAIS la base partagée des
@@ -5195,10 +5191,9 @@ void Procedures::ReparerIni()
     }
 }
 
-bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool RecupIni, bool RestaurerBase)
+bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool RestaurerBase)
 {
     UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
-    UpSmallButton RecupIniBouton           (tr("Restaurer les paramétrages de Rufus\nà partir d'une sauvegarde"));
     UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
     UpSmallButton PremierDemarrageBouton   (tr("Créer une base patients"));
 
@@ -5206,69 +5201,26 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool RecupIni,
     msgbox->setText(msg);
     msgbox->setInformativeText(msgInfo);
     msgbox->setIcon(UpMessageBox::Warning);
-
-    msgbox->addButton(&PremierDemarrageBouton,   UpSmallButton::NOBUTTON);
-
-    if (RecupIni)
-    {
-        if (RestaurerBase)                  msgbox->addButton(&RestaureBaseBouton,       UpSmallButton::NOBUTTON);
-        else if (QFile::exists(PATH_FILE_INI_BACKUP))
-                                            msgbox->addButton(&RecupIniBouton,           UpSmallButton::NOBUTTON);
-    }
-    msgbox->addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
+    msgbox->addButton(&PremierDemarrageBouton, UpSmallButton::NOBUTTON);
+    if (RestaurerBase)
+        msgbox->addButton(&RestaureBaseBouton, UpSmallButton::NOBUTTON);
+    msgbox->addButton(&AnnulBouton,            UpSmallButton::CANCELBUTTON);
     msgbox->exec();
-    bool reponse = false;
 
-    if (msgbox->clickedButton()==&AnnulBouton)
+    if (msgbox->clickedButton() == &AnnulBouton)
         exit(0);
-    else if (msgbox->clickedButton()==&RecupIniBouton)
+    if (msgbox->clickedButton() == &RestaureBaseBouton)
     {
-        //! Cas courant : restauration depuis la sauvegarde AUTOMATIQUE écrite à chaque
-        //! fermeture (~/.rufus/.rufus.ini). Repli : si elle n'existe pas (jamais lancé
-        //! avec cette version, ou dossier ~/.rufus effacé), on laisse choisir un fichier.
-        QString source;
-        if (QFile::exists(PATH_FILE_INI_BACKUP))
-            source = PATH_FILE_INI_BACKUP;
-        else
-        {
-            QFileDialog dialog(Q_NULLPTR, tr("Choisir le fichier d'initialisation Rufus.ini"), PATH_DIR_RUFUS,"Text files (Rufus*.ini)");
-            dialog.setViewMode(QFileDialog::List);
-            dialog.setFileMode(QFileDialog::ExistingFile);
-            if (dialog.exec() == QDialog::Accepted)
-                source = dialog.selectedFiles().at(0);
-        }
-        if (!source.isEmpty())
-        {
-            QFile FichierIni(PATH_FILE_INI);
-            if (FichierIni.exists())
-                Utils::removeWithoutPermissions(FichierIni);
-            QFile rufusini(source);
-            Utils::copyWithPermissions(rufusini, PATH_FILE_INI);
-            //! Fichier restauré : on relance Rufus pour qu'il reparte proprement du
-            //! Rufus.ini retrouvé (l'initialisation a déjà supposé son absence).
-            UpMessageBox::Watch(Q_NULLPTR, tr("Fichier d'initialisation restauré"),
-                                tr("Le fichier d'initialisation a été restauré à partir de la sauvegarde.\n"
-                                   "Rufus va redémarrer."));
-            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-            exit(0);
-        }
-    }
-    else if (msgbox->clickedButton()==&RestaureBaseBouton)
-    {
-        //! Restauration de la base depuis une sauvegarde (la sélection fine de RestaureBase permet
-        //! au besoin de ne restaurer QUE Rufus.ini). Réservé au poste HÔTE (RestaurerBase) : un poste
-        //! client ne restaure jamais la base partagée. Succès -> relance pour repartir proprement.
         if (RestaureBase(false, false, true, Q_NULLPTR))
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Base restaurée"),
                                 tr("La base de données a été restaurée. Rufus va redémarrer."));
             Utils::Redemarrage();
         }
+        return false;
     }
-    else if (msgbox->clickedButton()==&PremierDemarrageBouton)
-        //! s'y connecter se joue dans la saisie des paramètres (ReparerIni), ici on la crée
-        reponse = PremierDemarrage(/*forceBaseVierge=*/true);
-    return reponse;
+    //! s'y connecter se joue dans la saisie des paramètres (ReparerIni), ici on la crée
+    return PremierDemarrage(/*forceBaseVierge=*/true);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
