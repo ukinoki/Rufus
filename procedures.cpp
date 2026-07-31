@@ -3508,12 +3508,9 @@ bool Procedures::Connexion_A_La_Base()
                        "s'exécutant sur le poste serveur."));
                 return false;
             }
-            RecupererDemarrage(tr("Connexion à la base impossible"),
-                               tr("Rufus n'a pas pu se connecter à la base de données avec les "
-                                  "paramètres enregistrés.") + "\n" +
-                               tr("Vous pouvez vous connecter à (ou créer) une base patients, "
-                                  "restaurer le fichier Rufus.ini depuis une sauvegarde, ou quitter."),
-                               true /*RecupIni*/, false /*RestaurerBase*/);
+            UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
+                tr("Le mot de passe vient pourtant d'ouvrir la base.") + "\n" +
+                tr("Vérifiez que le serveur MySQL de ce poste fonctionne, puis relancez Rufus."));
             return false;
         }
     }
@@ -5203,14 +5200,7 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool RecupIni,
     UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
     UpSmallButton RecupIniBouton           (tr("Restaurer les paramétrages de Rufus\nà partir d'une sauvegarde"));
     UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
-    UpSmallButton PremierDemarrageBouton;
-
-    const bool clientReseau = (db->ModeAccesDataBase() == Utils::ReseauLocal
-                            || db->ModeAccesDataBase() == Utils::Distant);
-    if (clientReseau)
-        PremierDemarrageBouton.setText(tr("Se connecter à une base patients"));
-    else
-        PremierDemarrageBouton.setText(tr("Créer une base patients"));
+    UpSmallButton PremierDemarrageBouton   (tr("Créer une base patients"));
 
     UpMessageBox *msgbox = new UpMessageBox;
     msgbox->setText(msg);
@@ -5276,23 +5266,8 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool RecupIni,
         }
     }
     else if (msgbox->clickedButton()==&PremierDemarrageBouton)
-    {
-        if (clientReseau)
-        {
-            //! Client réseau : pas de création de base ; on (re)saisit les paramètres de connexion.
-            //! Succès → relance pour repartir proprement (comme la reconstruction de Rufus.ini).
-            if (VerifParamConnexion())
-            {
-                UpMessageBox::Watch(Q_NULLPTR, tr("Paramètres de connexion enregistrés"),
-                                    tr("Rufus va redémarrer."));
-                Utils::Redemarrage();
-            }
-        }
-        else
-            //! Monoposte : « une base patients » veut dire une base NEUVE. S'y connecter se joue
-            //! dans la saisie des paramètres (ReparerIni), d'où le raccourci.
-            reponse = PremierDemarrage(/*forceBaseVierge=*/true);
-    }
+        //! s'y connecter se joue dans la saisie des paramètres (ReparerIni), ici on la crée
+        reponse = PremierDemarrage(/*forceBaseVierge=*/true);
     return reponse;
 }
 
