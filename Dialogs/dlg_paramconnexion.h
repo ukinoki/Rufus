@@ -37,25 +37,18 @@ namespace Ui {
 class dlg_paramconnexion;
 }
 
-/*! \brief Fiche de SAISIE des paramètres de connexion : elle ne sert QU'À RECONSTRUIRE un Rufus.ini.
+/*! \brief Fiche de saisie des paramètres de connexion : elle ne sert qu'à reconstruire un Rufus.ini.
  *
- * Cette fiche ne teste RIEN et ne se connecte À RIEN : elle recueille de quoi écrire un Rufus.ini
- * exploitable, et c'est tout. Savoir si ce fichier permet réellement d'ouvrir la base est l'affaire
- * du démarrage normal (Procedures::Connexion_A_La_Base), qui s'exécute juste après — d'où l'absence
- * de bouton « Tester » et de tout contrôle MySQL ici (cf. « initialisation Rufus.txt » § II.1).
+ * Elle ne teste rien et ne se connecte à rien — savoir si le fichier ouvre la base est l'affaire de
+ * Connexion_A_La_Base, juste après (§ II.1). D'où l'absence de bouton « Tester ».
  *
  * L'utilisateur y renseigne :
- *  - un identifiant et un mot de passe APPLICATIFS Rufus (table utilisateurs) ;
- *  - le mode d'accès : « Sur ce poste » (monoposte / localhost), « Réseau local » (IP du serveur
- *    du cabinet) ou « Distant » (accès par internet, chiffrement SSL obligatoire) ;
- *  - le port MySQL (3306 / 3307) et, en mode distant, le dossier des clés SSL.
+ *  - un identifiant et un mot de passe applicatifs Rufus (table utilisateurs) ;
+ *  - le mode d'accès : ce poste, réseau local (IP du serveur) ou distant (SSL obligatoire) ;
+ *  - le port MySQL et, en distant, le dossier des clés SSL.
  *
- * « OK » (Verif) contrôle seulement que la saisie est COMPLÈTE (VerifFiche) puis ferme la fiche ;
- * c'est l'appelant (Procedures::VerifParamConnexion) qui écrit Rufus.ini. « Annuler » revient à la
- * fiche précédente.
- *
- * RecupererMotDePasseMySQL() n'appartient pas à la fiche : c'est un utilitaire STATIQUE de
- * récupération du mot de passe MySQL du cabinet, appelé au démarrage (cf. déclaration ci-dessous).
+ * OK vérifie seulement que la saisie est complète ; c'est VerifParamConnexion qui écrit Rufus.ini.
+ * RecupererMotDePasseMySQL() n'appartient pas à la fiche : utilitaire statique appelé au démarrage.
  */
 class dlg_paramconnexion : public UpDialog
 {
@@ -73,14 +66,9 @@ public:
         EchecSaisie     //!< il a saisi/importé un mot de passe, mais il n'ouvre pas la base
     };
 
-    //! Récupération du mot de passe aléatoire (saisie ou clé USB). STATIQUE et PUBLIQUE : appelée
-    //! aussi AU DÉMARRAGE (Connexion_A_La_Base), hors de toute instance du dialogue.
-    //! titre/corps optionnels : permettent d'adapter le message d'introduction au CONTEXTE — échec
-    //! d'authentification (défaut) OU récupération PROACTIVE alors que le générique fonctionne encore
-    //! (cf. MySQLInstaller::proposerRecuperationAleatoire). Vides → le message « échec » par défaut.
-    //! monoposte : ajoute les deux issues qui n'ont de sens que sur le poste qui HÉBERGE la base —
-    //! « Passer cette étape » (aucun mot de passe) et « Réinitialiser le programme ». Un poste client
-    //! ne les voit pas : il ne répare ni ne remplace la base des autres.
+    //! Récupération du mot de passe aléatoire (saisie ou clé USB), appelée aussi au démarrage.
+    //! titre/corps vides → message d'échec de connexion ; renseignés → récupération proactive.
+    //! monoposte : ajoute les deux issues réservées au poste qui héberge la base.
     static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(),
                                              const QString &corps = QString(),
                                              bool monoposte = false);

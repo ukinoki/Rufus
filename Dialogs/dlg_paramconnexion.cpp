@@ -78,8 +78,7 @@ void dlg_paramconnexion::DossierClesSSL()
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<dir,false);
     if (url == QUrl())
         return;
-    //! On ne fait que RENSEIGNER le champ : la fiche n'écrit pas Rufus.ini elle-même, c'est
-    //! Procedures::VerifParamConnexion qui enregistre ce dossier avec le reste de la saisie.
+    //! On renseigne le champ ; c'est VerifParamConnexion qui l'enregistrera avec le reste.
     ui->ClesSSLLineEdit->setText(url.path());
     ui->ClesSSLLineEdit ->setImmediateToolTip(ui->ClesSSLLineEdit->text());
 }
@@ -111,8 +110,7 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 
 /*!
  * \brief dlg_paramconnexion::Verif
- * Bouton « OK » : la fiche se ferme dès que la saisie est complète. AUCUN test de connexion — écrire
- * Rufus.ini est tout ce qu'on a à faire ici (cf. le bloc de résumé en tête du .h).
+ * Bouton OK : la fiche se ferme dès que la saisie est complète, sans aucun test de connexion.
  */
 void dlg_paramconnexion::Verif()
 {
@@ -143,11 +141,8 @@ dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &tit
     SaisirBouton->setText(tr("Saisir le mot de passe"));
     USBBouton   ->setText(tr("Importer depuis une clé USB"));
     msgbox.addButton(AnnulBouton,  UpSmallButton::CLOSEBUTTON);
-    //! Deux boutons de plus sur le poste qui HÉBERGE la base, pour les deux impasses possibles :
-    //!   • « Passer cette étape » = je n'ai aucun mot de passe → l'appelant proposera la procédure de
-    //!     restauration par le mot de passe de secours (la base et ses données sont conservées) ;
-    //!   • « Réinitialiser le programme » = je repars d'une base neuve (données abandonnées).
-    //! Un poste client ne voit ni l'un ni l'autre : il ne répare pas la base des autres.
+    //! Deux issues de plus sur le poste hôte : récupérer la base par le mot de passe de secours, ou
+    //! repartir d'une base neuve. Un client ne répare pas la base des autres.
     UpSmallButton *PasserBouton = nullptr;
     UpSmallButton *ReinitBouton = nullptr;
     if (monoposte)
@@ -221,10 +216,8 @@ dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &tit
     else
         return IssueMdp::Annule;   // « Annuler » ou fiche fermée
 
-    //! On ÉPROUVE le mot de passe AVANT de toucher au .dbkey : on ouvre la connexion avec LUI. S'il
-    //! n'ouvre pas la base, le .dbkey n'a pas bougé — l'ancien mot de passe, parfois l'unique copie du
-    //! cabinet, reste intact. (On l'écrivait auparavant AVANT de l'éprouver, quitte à le retirer
-    //! ensuite : une saisie erronée effaçait donc un mot de passe valide.)
+    //! Éprouvé avant d'écrire le .dbkey : sinon une saisie erronée effaçait l'ancien mot de passe,
+    //! parfois l'unique copie du cabinet.
     const QString err = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, mdp);
     if (!err.isEmpty())
     {
@@ -238,9 +231,8 @@ dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &tit
 
 /*!
  * \brief dlg_paramconnexion::VerifFiche
- * La saisie est-elle COMPLÈTE, c'est-à-dire suffisante pour écrire un Rufus.ini valide ? Login et mot
- * de passe toujours ; + l'adresse du serveur en réseau local et en accès distant ; + le dossier des
- * clés SSL en accès distant (sans elles, aucune connexion distante n'est possible).
+ * Saisie suffisante pour écrire un Rufus.ini valide ? Login et mot de passe, l'adresse du serveur hors
+ * monoposte, le dossier des clés SSL en distant.
  */
 bool dlg_paramconnexion::VerifFiche()
 {

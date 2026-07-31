@@ -138,6 +138,23 @@ du logiciel — et la grille de lecture de toutes ses décisions.
   `.h`***, corps en accolades sur la ligne (modèle `Items/cls_intervention.h`) —
   pour ne PAS encombrer le `.cpp` de définitions évidentes. Le `.cpp` ne contient
   que les fonctions qui font vraiment quelque chose.
+### Commentaires : plafond DUR (règle comptable, comme le §0)
+
+> **1 ligne.** Un commentaire interne tient sur **une** ligne. Un *brief* tient en
+> **une phrase**. Deux lignes = exception qu'on doit pouvoir justifier. **Trois lignes
+> et plus = interdit : on coupe, on ne « résume » pas.**
+
+Ce n'est pas un idéal, c'est un compteur : avant de valider un bloc, on compte les
+lignes. Corollaires, à appliquer sans discuter :
+
+- Un commentaire qui **redit ce que le code dit déjà** se supprime, il ne se raccourcit pas.
+- On garde **le pourquoi**, jamais le comment ni l'historique. Pas de récit du bug
+  d'avant, pas de « INDISPENSABLE », pas de mise en garde à rallonge : le fait suffit.
+- **Pas de MAJUSCULES d'insistance** ni de gras dans le code : si c'est important, c'est
+  déjà écrit.
+- Un pavé de 5 lignes n'est jamais « nécessaire » : c'est le signe que le code, lui,
+  n'est pas assez clair — c'est le code qu'on corrige.
+
 - **Documenter les fonctions — au plus léger.**
     - Le *brief* d'une fonction vit dans le **`.cpp`**, au-dessus de la définition,
       au **format Doxygen** (modèle `ItemsLists/cls_itemslist.h`) :
