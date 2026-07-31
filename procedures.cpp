@@ -160,7 +160,9 @@ Procedures::Procedures(QObject *parent) :
     if (startupTranslator.load(dirlocLang.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm"))
         QCoreApplication::installTranslator(&startupTranslator);
 
-    //! Ne rend la main qu'avec un Rufus.ini exploitable et m_settings prêt à l'emploi (§ II.1).
+    //! Rufus.ini absent OU sans mode de connexion valide : UN SEUL carrefour pour les deux cas
+    //! (cf. « initialisation Rufus.txt » § II.1). Ne rend la main que quand le fichier est
+    //! exploitable, et laisse m_settings prêt à l'emploi.
     ReparerIni();
 
     m_nomImprimante  = "";
@@ -3006,7 +3008,8 @@ bool Procedures::MettreAJourSocleMySQL()
            "faire pour vous, ou vous pouvez poursuivre si vous l'avez déjà faite (le dossier de "
            "sauvegarde vous sera alors demandé pour la restauration)."));
     msgbox.setIcon(UpMessageBox::Warning);
-    //! Refuser n'interrompt pas Rufus : le libellé doit le dire, sinon on n'ose pas cliquer.
+    //! « Annuler » n'interrompt PAS Rufus : on ne bloque pas l'usage d'une base parce que son serveur
+    //! n'est pas à jour. Le libellé doit le dire, sinon on n'ose pas cliquer.
     UpSmallButton *Annul   = new UpSmallButton(); Annul  ->setText(tr("Plus tard,\npoursuivre le démarrage"));
     UpSmallButton *Poursui = new UpSmallButton(); Poursui->setText(tr("Poursuivre,\nla sauvegarde a été faite"));
     UpSmallButton *Sauve   = new UpSmallButton(); Sauve  ->setText(tr("Sauvegarder les données\net mettre à jour"));
@@ -3394,8 +3397,10 @@ bool Procedures::Connexion_A_La_Base()
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     if (!errConnexion.isEmpty())
     {
-        //! Poste client : la panne la plus fréquente est l'adresse du serveur, pas le mot de passe.
-        //! On la montre et on la fait confirmer avant de chercher une clé.
+        //! POSTE CLIENT (réseau local ou distant) : la cause la plus fréquente n'est PAS le mot de
+        //! passe mais l'ADRESSE du serveur (box remplacée, IP fixe perdue, serveur déplacé). On la
+        //! MONTRE et on la fait confirmer avant de parler de mot de passe — sinon on cherche une clé
+        //! alors que c'est la porte qui a changé d'adresse.
         if (!monoposte)
         {
             UpMessageBox msgbox(Q_NULLPTR);
@@ -3416,15 +3421,19 @@ bool Procedures::Connexion_A_La_Base()
                 return false;
             if (msgbox.clickedButton() == bCorriger)
             {
-                //! On relance : la nouvelle instance repartira sur le Rufus.ini corrigé.
+                //! Adresse à revoir : on ressaisit les paramètres puis on relance — la nouvelle
+                //! instance repartira sur le Rufus.ini corrigé.
                 if (VerifParamConnexion())
                     Utils::Redemarrage();
                 return false;
             }
         }
 
-        //! Mot de passe refusé : on propose de le récupérer, avec deux issues de plus en monoposte.
-        //! Socle < 8.0.14 : jamais sécurisée, donc aucun aléatoire à réclamer.
+        //! Échec d'AUTHENTIFICATION : on propose de récupérer le bon mot de passe. MONOPOSTE : la
+        //! fiche porte deux issues de plus (« je n'ai aucun mot de passe » et « réinitialiser le
+        //! programme »), et on boucle dessus tant que l'utilisateur n'a ni renoncé ni abouti.
+        //! Socle < 8.0.14 : la base n'a jamais été sécurisée, il n'existe aucun aléatoire à
+        //! récupérer — inutile de réclamer un mot de passe qu'on sait inexistant.
         if (MySQLInstaller::estErreurAuthentification(errConnexion)
             && (!monoposte || MySQLInstaller::socleLocalConforme()))
         {
@@ -3439,11 +3448,13 @@ bool Procedures::Connexion_A_La_Base()
                     break;
                 }
                 if (issue == dlg_paramconnexion::IssueMdp::Annule)
-                    return false;
+                    return false;   //! « Annuler et sortir » : on ne va pas plus loin
                 if (!monoposte)
-                    break;
+                    break;          //! client : ni secours ni réinitialisation ici → message ci-dessous
 
-                //! Avant toute opération destructive : le mot de passe de secours rouvre la base intacte.
+                //! « Je n'ai aucun mot de passe », ou un mot de passe qui n'ouvre pas la base : AVANT
+                //! toute opération destructive, la vraie chance — la restauration par le mot de passe
+                //! de secours, qui rouvre la base SANS toucher aux données.
                 if (issue == dlg_paramconnexion::IssueMdp::Inconnu
                  || issue == dlg_paramconnexion::IssueMdp::EchecSaisie)
                 {
@@ -3455,7 +3466,7 @@ bool Procedures::Connexion_A_La_Base()
                             UpDialog::ButtonCancel | UpDialog::ButtonOK,
                             QStringList() << tr("Annuler") << tr("Rétablir l'accès"))
                         != UpSmallButton::STARTBUTTON)
-                        continue;
+                        continue;                       //! → retour à la fiche précédente
                     if (MySQLInstaller().restaurerAvecMotDePasseDeSecours())
                     {
                         errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
@@ -3464,7 +3475,8 @@ bool Procedures::Connexion_A_La_Base()
                     continue;
                 }
 
-                //! Base vierge : irréversible pour les données de l'ancienne, d'où la confirmation.
+                //! « Réinitialiser le programme » : on repart d'une base VIERGE. Irréversible pour les
+                //! données de l'ancienne base → confirmation explicite.
                 if (issue == dlg_paramconnexion::IssueMdp::Reinitialiser)
                 {
                     if (UpMessageBox::Question(Q_NULLPTR, tr("Réinitialiser le programme"),
@@ -3474,7 +3486,7 @@ bool Procedures::Connexion_A_La_Base()
                             UpDialog::ButtonCancel | UpDialog::ButtonOK,
                             QStringList() << tr("Annuler") << tr("Nouvelle base patients"))
                         != UpSmallButton::STARTBUTTON)
-                        continue;
+                        continue;                       //! → retour à la fiche précédente
                     PremierDemarrage(/*forceBaseVierge=*/true);
                     return false;
                 }
@@ -3484,7 +3496,8 @@ bool Procedures::Connexion_A_La_Base()
         //! Toujours en échec. Le message dépend de ce qui bloque, et de ce que CE poste peut faire :
         if (!errConnexion.isEmpty())
         {
-            //! Poste client : il n'a rien à réparer ici, la clé se récupère ailleurs.
+            //! Poste CLIENT + mot de passe refusé : il n'a rien à réparer ici. La clé se récupère sur
+            //! un poste à jour, ou se recrée depuis le serveur — pas d'ici.
             if (!monoposte && MySQLInstaller::estErreurAuthentification(errConnexion))
             {
                 UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
@@ -3514,8 +3527,13 @@ bool Procedures::Connexion_A_La_Base()
     //! ACCÈS DISTANT : avertir PROACTIVEMENT si les clés SSL approchent de l'expiration.
     MySQLInstaller().avertirExpirationClesSSLDistant();
 
-    //! Le partage réseau d'imagerie peut ne pas être monté alors que la base répond : les images
-    //! seraient introuvables sans explication. On lit le réglage brut, dirimagerie() créerait le dossier.
+    //! RÉSEAU LOCAL : le dossier d'imagerie du cabinet est un PARTAGE RÉSEAU monté sur ce poste. La
+    //! base peut répondre alors que le partage, lui, n'est pas monté (session ouverte avant le
+    //! serveur, montage non permanent) : les images seraient alors introuvables SANS explication, une
+    //! fois Rufus ouvert. On le contrôle donc ici, et on invite à monter le partage — sans bloquer le
+    //! lancement : Rufus reste utilisable pour tout ce qui n'est pas l'imagerie. On lit le réglage du
+    //! Rufus.ini (pas db->dirimagerie(), qui tenterait de CRÉER le dossier et n'afficherait qu'un
+    //! message fugace).
     if (db->ModeAccesDataBase() == Utils::ReseauLocal)
     {
         const QString dirimg = m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
@@ -3572,7 +3590,9 @@ bool Procedures::Connexion_A_La_Base()
     if (!IdentificationUser())
         return false;
 
-    //! Bases antérieures au compte de secours : root y est encore, on le remplace dès que l'utilisateur n°1 se connecte.
+    //! Bases installées AVANT le compte de secours : root (sans mot de passe) y est encore. On le
+    //! remplace dès que l'utilisateur n°1 — celui qui a installé la base — se connecte : lui seul
+    //! choisit ce mot de passe. No-op ensuite, et no-op sur un poste client.
     MySQLInstaller::controlerCompteDeSecours(currentuser()->id());
 
     if (dirSQLExecutable() == "")
@@ -4905,7 +4925,9 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         if (VerifParamConnexion())
         {
             PremierParametrageMateriel();
-            //! Pas de « connexion réussie » : rien n'a été testé, c'est la relance qui éprouvera ces paramètres.
+            //! On n'annonce PAS « connexion réussie » : rien n'a été testé ici (dlg_paramconnexion ne
+            //! fait qu'écrire Rufus.ini). C'est le démarrage de l'instance relancée qui éprouvera
+            //! réellement ces paramètres, et qui reviendra ici si ça ne passe pas.
             UpMessageBox::Watch(Q_NULLPTR, tr("Paramètres de connexion enregistrés"),
                                    tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n" +
                                    tr("Le programme va redémarrer pour se connecter à la base patients") + ".\n");
@@ -4977,8 +4999,11 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         //! Inscription de l'utilisateur applicatif dans rufus.utilisateurs (mdp SHA1).
         m_connexionbaseOK = CreerPremierUser(login, MDP);
 
-        //! Mot de passe de secours connu du seul praticien, puis suppression du root sans mot de passe
-        //! hérité de l'initialisation de MySQL.
+        //! Compte de SECOURS + suppression de root : le praticien qui installe la base choisit ici un
+        //! mot de passe qu'il est seul à connaître (écrit nulle part). Il n'existe qu'en loopback et ne
+        //! sert qu'à reprendre la main si tous les autres mots de passe sont perdus. Dans la foulée,
+        //! Rufus supprime le compte root SANS mot de passe hérité de l'initialisation de MySQL — sans
+        //! quoi n'importe quelle session ouverte sur cet ordinateur lirait toute la base patients.
         MySQLInstaller::creerCompteDeSecours();
         PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
         Datas::I()->sites->initListe();
@@ -5114,22 +5139,31 @@ void Procedures::SauvegardeIni()
 
 /*!
  * \brief Procedures::ReparerIni
- * Rufus.ini absent ou sans mode de connexion valide (§ II.1) : une seule fiche, qui ne fait que
- * construire le fichier — quitter, restaurer la sauvegarde, ou revoir les paramètres. Boucle jusqu'à
- * obtenir un fichier exploitable ; c'est Connexion_A_La_Base qui dira ensuite s'il ouvre la base.
+ * Rufus.ini absent, ou présent mais sans mode de connexion valide (§ II.1 de « initialisation
+ * Rufus.txt ») : une SEULE fiche pour les deux cas, qui ne fait QU'UNE chose — construire ou
+ * reconstruire Rufus.ini. Trois issues : quitter ; restaurer la sauvegarde (proposée seulement si elle
+ * est elle-même valide) ; revoir les paramètres de connexion. On boucle tant que le fichier n'est pas
+ * exploitable. Dans les deux dernières issues on RELIT Rufus.ini et le lancement se POURSUIT : c'est
+ * Connexion_A_La_Base, juste après, qui dira si le fichier ouvre vraiment la base — ni cette fiche ni
+ * dlg_paramconnexion ne le savent, et elles ne le prétendent pas. Pas de bouton « créer une base »
+ * ici : la création n'appartient pas à ce carrefour (elle vit au § II.2, quand on constate l'absence
+ * de serveur ou de base).
  */
 void Procedures::ReparerIni()
 {
     forever
     {
-        //! Relu à chaque tour ; le delete du QSettings précédent écrit ses valeurs en attente.
+        //! Relecture à CHAQUE tour : le fichier vient peut-être d'être restauré ou réécrit. Le delete
+        //! du QSettings précédent écrit ses valeurs en attente sur le disque.
         if (m_settings != Q_NULLPTR)
             delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
         if (QFile::exists(PATH_FILE_INI) && iniContientModeValide(*m_settings))
-            return;
+            return;                                     //! fichier exploitable → poursuite du lancement
 
-        //! Libellés créés avant le message : celui du bouton y est injecté à la place de « %1 ».
+        //! Le bouton de restauration n'existe QUE si une sauvegarde exploitable existe. Les libellés
+        //! sont créés AVANT le message : celui du bouton de saisie des paramètres y est injecté à la
+        //! place du repère « %1 » (un seul libellé source, la phrase ne peut pas dérailler).
         const bool sauvegardeOK   = sauvegardeIniValide();
         UpSmallButton *bAnnuler   = new UpSmallButton(QObject::tr("Abandonner et\nquitter Rufus"));
         UpSmallButton *bRevoir    = new UpSmallButton(QObject::tr("Revoir les paramètres\nde connexion"));
@@ -5165,14 +5199,16 @@ void Procedures::ReparerIni()
             UpMessageBox::Watch(Q_NULLPTR, tr("Rufus.ini restauré"),
                                 tr("La configuration de ce poste a été restaurée à partir de la sauvegarde.") + "\n"
                               + tr("Le lancement de Rufus se poursuit."));
-            continue;
+            continue;                                   //! relecture du fichier en haut de boucle
         }
         if (msgbox.clickedButton() == bRevoir)
         {
-            //! La fiche ne teste rien : elle recueille la saisie, VerifParamConnexion écrit Rufus.ini.
+            //! dlg_paramconnexion ne teste RIEN : VerifParamConnexion recueille la saisie et écrit
+            //! Rufus.ini, un point. Annuler dans la fiche → on revient à ce carrefour.
             if (VerifParamConnexion())
             {
-                //! Sans la langue, le sélecteur reviendrait au prochain lancement.
+                //! La langue du poste fait partie du fichier reconstruit (sinon le sélecteur de
+                //! langue reviendrait au prochain lancement).
                 m_settings->setValue(Param_Poste_Version, m_version);
                 UpMessageBox::Watch(Q_NULLPTR, tr("Rufus.ini reconstruit"),
                                     tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n"
@@ -5180,7 +5216,7 @@ void Procedures::ReparerIni()
             }
             continue;
         }
-        exit(0);
+        exit(0);                                        //! Abandonner, ou fiche fermée → on quitte
     }
 }
 
@@ -5292,8 +5328,10 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool RecupIni,
             }
         }
         else
-            //! Monoposte : « une base patients » veut dire une base NEUVE. S'y connecter se joue
-            //! dans la saisie des paramètres (ReparerIni), d'où le raccourci.
+            //! MONOPOSTE : « une base patients » veut dire ici une base NEUVE — installation du
+            //! serveur et création d'une base vierge. Se CONNECTER à une base existante ne se joue
+            //! plus ici mais dans la saisie des paramètres de connexion (ReparerIni), qui écrit le
+            //! Rufus.ini : d'où le raccourci direct, sans repasser par le choix vierge/existante.
             reponse = PremierDemarrage(/*forceBaseVierge=*/true);
     }
     return reponse;
@@ -5325,14 +5363,17 @@ bool Procedures::VerifParamConnexion()
         {
             Base = Utils::getBaseFromMode(Utils::Distant);
             m_settings->setValue(Base + Param_Serveur,    Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
-            //! Le dossier des clés s'enregistre ici, avec le reste : la fiche n'écrit rien dans Rufus.ini.
+            //! Le dossier des clés SSL fait partie des paramètres de l'accès distant : il s'enregistre
+            //! ICI, avec le reste de la saisie (la fiche, elle, n'écrit rien dans Rufus.ini).
             m_settings->setValue(Base + Dossier_ClesSSL,  Dlg_ParamConnex->ui->ClesSSLLineEdit->text());
             db->setModeacces(Utils::Distant);
         }
         m_settings->setValue(Base + Param_Active,    "YES");
         m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
-        //! Pas de m_connexionbaseOK ici : aucune connexion tentée. SortieAppli fermerait une session inexistante.
+        //! On ne touche PAS à m_connexionbaseOK : aucune connexion n'a été tentée ici. Le poser à true
+        //! faisait croire à une base ouverte (SortieAppli déroulerait alors la fermeture de session
+        //! sur une connexion inexistante) ; c'est Connexion_A_La_Base qui le posera, une fois connecté.
         if (dirSQLExecutable() == "")
         {
             UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra pas s'intialiser"));

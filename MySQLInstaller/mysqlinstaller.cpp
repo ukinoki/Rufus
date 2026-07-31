@@ -2731,20 +2731,25 @@ static QStringList hostsLANprives()
 
 /*!
  * \brief MySQLInstaller::entretienComptesAdminrufusLAN
- * Crée les adminrufus restreints au LAN s'ils manquent, redonne les privilèges, retire adminrufus@'%'.
- * Ne touche à aucun mot de passe existant. true si @'%' a disparu.
- * \param mdpCourant  mot de passe de la connexion en cours, donné aux comptes créés
+ * ENTRETIEN des comptes, sans jamais toucher à un mot de passe existant : crée les adminrufus
+ * restreints au LAN s'ils manquent (versions antérieures qui posaient un aléatoire sans les créer),
+ * redonne les privilèges, puis retire adminrufus@'%'. true si @'%' a bien disparu.
+ * \param mdpCourant  mot de passe avec lequel ce poste est connecté (donné aux comptes à créer)
  */
 bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
 {
     const QString ur = QString(LOGIN_SQL);
     auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
 
-    /*! Création groupée : un seul témoin, et le plus improbable — localhost peut traîner d'une install ancienne. */
+    /*! Les comptes LAN sont créés d'un bloc : en tester UN suffit. On prend le plus improbable —
+     *  '10.%' n'est jamais apparu autrement que par cette création, alors que 'localhost' ou
+     *  '127.0.0.1' peuvent traîner d'une installation ancienne et feraient croire au bloc complet. */
     if (!Utils::hostsDuCompteSQL(ur).contains("10.%"))
     {
-        /*! Générique encore vivant sur le compte qu'on va supprimer ? On le reconduit, sinon les postes
-         *  qui n'ont pas l'aléatoire seraient coupés net. */
+        /*! Le compte qu'on s'apprête à supprimer porte-t-il encore un 2e mot de passe — le générique ?
+         *  Si oui on le reconduit sur les comptes LAN, sinon un poste du cabinet qui n'a pas encore
+         *  l'aléatoire perdrait l'accès du jour au lendemain. Sinon (générique déjà purgé), l'aléatoire
+         *  seul : on ne le ressuscite pas. */
         bool ok = false;
         const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
             "SELECT User_attributes->>'$.additional_password' IS NOT NULL"
@@ -2755,7 +2760,9 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
         {
             if (generiqueEncoreLa)
             {
-                /*! Comptes neufs : l'échéance du générique, lue sur adminrufusSSL@'%', n'est pas déplacée. */
+                /*! Comptes NEUFS : le générique posé puis retenu en 2e ne réécrit rien d'existant, et ne
+                 *  déplace pas l'échéance de son effacement (elle se lit sur adminrufusSSL@'%', qu'on ne
+                 *  touche pas ici). */
                 exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, QString(MDP_SQL)));
                 exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, mdpCourant));
             }
@@ -2764,12 +2771,14 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
         }
     }
 
-    /*! Redonnés à chaque passage : c'est par eux que revient SYSTEM_USER, qu'une version ancienne révoquait. */
+    /*! Privilèges redonnés à chaque passage : c'est par eux que revient SYSTEM_USER, qu'une version
+     *  antérieure avait pu révoquer — et sans lequel ces comptes ne peuvent plus rien administrer. */
     for (const QString& h : hostsLANprives())
         exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
     exec(QString("FLUSH PRIVILEGES"));
 
-    /*! @'%' (joignable du WAN) retiré seulement une fois le relais LAN en place. Seul endroit où on le droppe. */
+    /*! adminrufus@'%' (joignable du WAN par une box mal configurée) n'est retiré QU'UNE FOIS le relais
+     *  LAN en place — sinon plus aucune connexion possible. C'est le SEUL endroit où @'%' est droppé. */
     if (!Utils::hostsDuCompteSQL(ur).contains("10.%"))
         return false;                                            /*!< création ratée : on ne touche à rien */
     exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
@@ -2779,7 +2788,9 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
 
 /*!
  * \brief MySQLInstaller::securiserAdminrufusEtMdp
- * Pose `aleatoire` sur les comptes adminrufus, le mot de passe courant restant en 2e, puis appelle l'entretien.
+ * SÉCURISATION : pose `aleatoire` sur tous les comptes adminrufus, en gardant le mot de passe courant
+ * (le générique) comme 2e, puis passe la main à l'entretien des comptes. Ne fait QUE ça — la création
+ * des comptes LAN ne lui appartient pas.
  * \param aleatoire     mot de passe à poser
  * \param detailresult  si fourni, résultat but par but
  */
@@ -2792,14 +2803,18 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire,
     const QString attr     = QString(" ATTRIBUTE '{\"securepar\":\"%1\"}'").arg(posteSql);
     auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
 
-    /*! Un seul ALTER : RETAIN garde en 2e le mot de passe courant, le générique, qu'on ne repose donc pas.
-     *  securepar voyage dans le même ALTER, isolé il effacerait additional_password. */
+    /*! UN SEUL ALTER par compte : RETAIN CURRENT PASSWORD garde comme 2e mot de passe celui qui est
+     *  courant — le générique, puisqu'on n'arrive ici que connecté avec lui (cf. securiserBaseSiNecessaire).
+     *  On ne le repose donc jamais, et l'échéance de son effacement n'est pas repoussée. Le tampon
+     *  securepar voyage DANS le même ALTER : isolé, il effacerait additional_password. Aucun plugin
+     *  imposé — le changer ferait rejeter RETAIN (ERROR 3894). */
     exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(urSSL, "%", aleatoire, attr));
     for (const QString& h : Utils::hostsDuCompteSQL(ur))
         exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
     exec(QString("FLUSH PRIVILEGES"));
 
-    /*! Comptes LAN éventuellement absents : l'entretien s'en charge avec l'aléatoire qu'on vient de poser. */
+    /*! Les comptes LAN peuvent manquer (base sécurisée par une version qui ne les créait pas) : c'est
+     *  l'entretien qui s'en charge, avec l'aléatoire qu'on vient de poser. */
     const bool entretienOK = entretienComptesAdminrufusLAN(aleatoire);
 
     QMap<QString, bool> res;
@@ -3838,8 +3853,10 @@ bool MySQLInstaller::baseRufusComplete()
     if (!dbFound)
         return false;
 
-    /*! …et contient-elle au moins une table ? Seules les vraies lignes comptent : l'avertissement du
-     *  client suffisait à faire passer une base vide pour complète. */
+    /*! …et contient-elle au moins une table ? On ne compte QUE de vraies lignes de résultat
+     *  (lignesResultat) : sans ce filtre, le « [Warning] Using a password… » du client faisait à lui seul
+     *  conclure « base complète » sur une base rufus VIDE — d'où un « Une base Rufus existe déjà » sur un
+     *  poste qui n'avait qu'un serveur MySQL et une install inachevée. */
     const QString tables = runCmdFull(
         QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
                 "\"SHOW TABLES FROM %4;\" 2>&1")
@@ -4033,15 +4050,18 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
 }
 
 /*! ═══ COMPTE DE SECOURS — et suppression de root ═══════════════════════════════════════════════════
- *  --initialize-insecure laisse root@localhost sans mot de passe : on le remplace par un compte connu
- *  du seul praticien, puis on supprime root, que Rufus n'utilise plus après l'installation.
- *  Ne protège pas du vol de la machine : le datadir se lit sans aucun compte.
+ *  --initialize-insecure laisse 'root'@'localhost' SANS mot de passe : toute session ouverte sur
+ *  l'ordinateur lit la base patients. On le remplace par un compte de secours dont le praticien est
+ *  seul à connaître le mot de passe (jamais écrit sur le disque), puis on supprime root — que Rufus
+ *  n'utilise plus après l'installation.
+ *  Ne protège PAS du vol : le datadir se lit sans compte (mysqld --skip-grant-tables, disque monté
+ *  ailleurs). Contre le vol, seul le chiffrement du disque vaut.
  */
 
 /*!
  * \brief MySQLInstaller::supprimerCompteMySQL
- * Supprime un compte sur tous ses hosts. Erreur muette : supprimer un compte système exige SYSTEM_USER,
- * et l'appelant constate lui-même le résultat.
+ * Supprime un compte sur tous ses hosts. Erreur SQL muette : l'échec est prévu (supprimer un compte
+ * système exige SYSTEM_USER) et l'appelant le constate en relisant mysql.user.
  * \param login  compte à supprimer
  */
 void MySQLInstaller::supprimerCompteMySQL(const QString& login)
@@ -4059,7 +4079,8 @@ bool MySQLInstaller::compteDeSecoursExiste(){ return !Utils::hostsDuCompteSQL(LO
 
 /*!
  * \brief demanderMotDePasseDeSecours
- * Saisie du mot de passe de secours, alphanumérique 5-12 caractères pour être retapable des années plus tard.
+ * Saisie du mot de passe de secours (avec confirmation à la création). Alphanumérique 5-12 caractères :
+ * il doit pouvoir être retapé à l'identique des années plus tard, sans accent ni casse à deviner.
  * \param parent            fiche parente
  * \param avecConfirmation  true = création (mot de passe + confirmation)
  * \param outMdp            mot de passe saisi
@@ -4140,7 +4161,8 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
 
 /*!
  * \brief MySQLInstaller::creerCompteDeSecours
- * Crée secoursrufus sur le loopback seul, l'éprouve, puis seulement alors supprime root.
+ * Crée secoursrufus sur le LOOPBACK uniquement (jamais le LAN), avec tous les privilèges et le mot de
+ * passe confidentiel du praticien, l'ÉPROUVE, puis — et seulement alors — supprime root.
  * \param parent  fiche parente des boîtes affichées
  */
 bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
@@ -4150,7 +4172,8 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
         return false;
 
     MySQLInstaller m;
-    /*! Loopback seul, sous ses deux formes : ce compte ne s'atteint que depuis la machine qui héberge la base. */
+    /*! Loopback SEUL : ce compte ne doit être atteignable que depuis la machine qui héberge la base.
+     *  Les deux formes, comme adminrufus, selon ce que le serveur résout pour 127.0.0.1. */
     auto sqlAvecAuth = [&](const QString& auth) {
         QString sql;
         for (const QString& h : { QString("localhost"), QString("127.0.0.1") })
@@ -4166,14 +4189,17 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
         return m.runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
                             .arg(m.mysqlBin("mysql"), QString(LOGIN_SQL), motDePasseSQL(), sql));
     };
-    /*! native d'abord, repli silencieux : le plugin est désactivé d'origine sur MySQL 8.4. */
+    /*! mysql_native_password d'abord (cf. createUser) ; désactivé par défaut sur MySQL 8.4 → repli
+     *  silencieux sur le plugin par défaut du serveur. */
     QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
     const QString up = out.toUpper();
     if (up.contains("ERROR 1524")
         || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
         out = executer(sqlAvecAuth("IDENTIFIED BY"));
 
-    /*! Éprouvé avant de supprimer root : sinon un échec silencieux laisserait le poste sans l'un ni l'autre. */
+    /*! ON ÉPROUVE AVANT DE SUPPRIMER root : le compte de secours doit RÉELLEMENT ouvrir une session.
+     *  Sans cette épreuve, un échec silencieux laisserait le poste sans root ET sans secours — c'est
+     *  exactement la situation qu'on cherche à rendre impossible. */
     if (!m.tryConnectAs(LOGIN_SQL_SECOURS, mdp))
     {
         UpMessageBox::Watch(parent, tr("Compte de secours non créé"),
@@ -4182,7 +4208,10 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
         return false;
     }
 
-    /*! On relit mysql.user au lieu de supposer : le DROP échoue sans SYSTEM_USER, qu'une base héritée peut avoir perdu. */
+    /*! Suppression de root, puis CONSTAT (relecture de mysql.user) : supprimer un compte système exige
+     *  le privilège SYSTEM_USER, qu'adminrufus tient de son « GRANT ALL … WITH GRANT OPTION » posé par
+     *  root — mais une base héritée d'une version qui l'avait révoqué ne l'a pas. On ne PRÉTEND donc
+     *  pas que root a disparu : on regarde. */
     supprimerCompteMySQL("root");
     if (rootExiste())
     {
@@ -4206,8 +4235,8 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
 
 /*!
  * \brief MySQLInstaller::controlerCompteDeSecours
- * Met en place le compte de secours puis supprime root, à chaque démarrage du poste hôte. Sur une base
- * ancienne, attend l'utilisateur n°1 : lui seul choisit ce mot de passe.
+ * À chaque démarrage, sur le poste qui héberge la base : met en place le compte de secours, puis
+ * supprime root. Sur une base plus ancienne, on attend l'utilisateur n°1 — lui seul choisit ce mot de passe.
  * \param iduser  id de l'utilisateur Rufus qui vient de s'identifier
  */
 void MySQLInstaller::controlerCompteDeSecours(int iduser)
@@ -4216,21 +4245,21 @@ void MySQLInstaller::controlerCompteDeSecours(int iduser)
     if (DataBase::I()->ModeAccesDataBase() != Utils::Poste)
         return;
     if (!rootExiste())
-        return;
+        return;                          /*!< cas normal dès le 2e démarrage : plus rien à faire */
     if (compteDeSecoursExiste())
     {
         supprimerCompteMySQL("root");    /*!< secours déjà en place, root réapparu (mise à jour du serveur) */
         return;
     }
     if (iduser != 1)
-        return;                          /*!< l'utilisateur n°1 seul choisit ce mot de passe */
+        return;                          /*!< on attend le premier utilisateur, celui qui a installé la base */
     creerCompteDeSecours();
 }
 
 /*!
  * \brief MySQLInstaller::restaurerAvecMotDePasseDeSecours
- * Dernier recours : le mot de passe de secours rouvre une session privilégiée, qui réécrit un aléatoire
- * neuf sur adminrufus. Données intactes.
+ * Dernier recours quand aucun mot de passe connu n'ouvre la base : le mot de passe de secours rouvre une
+ * session privilégiée, avec laquelle on réécrit un aléatoire neuf sur adminrufus. Données intactes.
  * \param parent  fiche parente des boîtes affichées
  */
 bool MySQLInstaller::restaurerAvecMotDePasseDeSecours(QWidget* parent)
@@ -4248,7 +4277,8 @@ bool MySQLInstaller::restaurerAvecMotDePasseDeSecours(QWidget* parent)
         return false;
     }
 
-    /*! Voie normale de recréation des comptes : seul le compte qui l'exécute change. */
+    /*! Réutilise la voie normale de (re)création des comptes : mêmes hosts, mêmes privilèges, même
+     *  double mot de passe. Rien de spécifique au secours au-delà du compte qui exécute. */
     m_login    = LOGIN_SQL;
     m_password = genererMotDePasse();
     if (createUserAvecAdmin(LOGIN_SQL_SECOURS, mdp) != CreateUserResult::Ok)
@@ -4643,8 +4673,9 @@ QString MySQLInstaller::runCmdFull(const QString& cmd, int timeoutMs)
 
 /*!
  * \brief MySQLInstaller::lignesResultat
- * Lignes de données d'une sortie du client mysql : son « [Warning] Using a password… », fusionné par
- * runCmdFull, se ferait sinon passer pour un résultat.
+ * Lignes de DONNÉES d'une sortie du client mysql, débarrassées de son bruit. Indispensable dès qu'on
+ * traite les lignes comme des données : lancé avec -p<mdp>, le client imprime toujours son
+ * « [Warning] Using a password… », que runCmdFull fusionne dans la sortie.
  * \param sortie  sortie brute de runCmdFull
  */
 QStringList MySQLInstaller::lignesResultat(const QString& sortie)
@@ -4654,7 +4685,8 @@ QStringList MySQLInstaller::lignesResultat(const QString& sortie)
         const QString l = ligne.trimmed();
         if (l.isEmpty())
             continue;
-        /*! Diagnostics du client : jamais un nom de base ni de table. */
+        /*! Diagnostics du client : toujours de la forme « <programme>: [Warning|ERROR|Note] … » — jamais
+         *  un nom de base ni de table. */
         if (l.contains("[Warning]") || l.contains("[ERROR]") || l.contains("[Note]"))
             continue;
         lignes << l;
