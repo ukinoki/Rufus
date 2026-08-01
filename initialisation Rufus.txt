@@ -87,7 +87,13 @@ II LANCEMENT DE RUFUS
 					→ fermeture de la fiche en créant un nouveau fichier Rufus.ini
 					→ lecture des infos de Rufus.ini
 					→ AskMdpLoginMySQL(true)
-						→ si QStringList(), message impossible de se connecter à la base de données - vérifier le mot de passe de connexion et les données du serveur (adresse, clésSSL...etc;;;"")
+						→ si QStringList()
+							→ tentative de connexion avec ldp générique
+								→ si échec
+									→ message impossible de se connecter à la base de données - vérifier le mot de passe de connexion et les données du serveur (adresse, clésSSL...etc...)
+									→ effacement rufus.ini
+								→ si OK
+									→ message la connexion n'a été possible qu'avec le mdp générique...etc...
 			→ Annuler revient à la fiche précédente
 	→ bouton Première installation de Rufus - Créer une base patients
 		→ pas de MySQL présent → installation MySQL/Rufus
