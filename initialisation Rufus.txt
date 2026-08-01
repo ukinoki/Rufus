@@ -88,9 +88,13 @@ II LANCEMENT DE RUFUS
 					→ lecture des infos de Rufus.ini
 					→ AskMdpLoginMySQL(true)
 						→ si QStringList()
-							→ tentative de connexion avec ldp générique
+							→ tentative de connexion avec le mdp générique
 								→ si échec
-									→ message impossible de se connecter à la base de données - vérifier le mot de passe de connexion et les données du serveur (adresse, clésSSL...etc...)
+									FAIRE LA DIFFÉRENCE ENTRE UN SERVEUR QUI REFUSE LA CONNEXION ET UNE ABSENCE DE SERVEUR
+									→ pas de serveur à cette adresse → revenir à dlg_paramconnexion
+									→ le serveur refuse la connexion
+									 	→ accès distant - clés invalides
+									 	→ accés local ou distant - vérifier le mot de passe de connexion
 									→ effacement rufus.ini
 								→ si OK
 									→ message la connexion n'a été possible qu'avec le mdp générique...etc...
@@ -120,7 +124,8 @@ FONCTION QStringList AskMdpLoginMySQL(bool onlymdp = false)
 	→ essai connexion avec ce mdp/login - si onlymdp => connexion avec adminrufus et mdp
 		→ OK → return QStingList() << mdp << login
 		→ Pas OK → return QStingList()
-
+	FAIRE LA DIFFÉRENCE ENTRE UN SERVEUR QUI REFUSE LA CONNEXION (ClES SSL ou MDP) ET UNE ABSENCE DE SERVEUR
+	
 FONCTION isBaseRufus(QStringLis mdp/login)
 	→ connexion avec ce mdp/login
 	→ return recherche d'une base Rufus OK
