@@ -103,16 +103,15 @@ II LANCEMENT DE RUFUS
 								→ Bouton Oui - Sauvegarder le base
 									→ sauvegarde sur un dossier figé dans macros.h
 						→ installation MySQL(QStringList(mdp/login))/installation Rufus(true)
-						→ redémarrage
 					→ list empty (pas de mdp/Login valide)
+						→ Bouton Annuler
 						→ installation MySQL(QStringList())/installation Rufus(false)
-						→ redémarrage
 
 FONCTION QStringList AskMdpLoginMySQL()
 	→ message demandant si on dispose d'un mdp/login
-	→ oui → essai connexion avec ce mdp/login
-		→ OK → return QStingList() << mdp << login
-		→ Pas OK → return QStingList()
+		→ oui → essai connexion avec ce mdp/login
+			→ OK → return QStingList() << mdp << login
+			→ Pas OK → return QStingList()
 
 FONCTION isBaseRufus(QStringLis mdp/login)
 	→ connexion avec ce mdp/login
@@ -142,8 +141,8 @@ FONCTION → installation Rufus(bool demanderestauration)
 	1a . Monoposte
 		On vérifie la présence d'un serveur
 			→ pas de serveur 
-				→ message "Pas de serveur MySQL installé...etc... " mysqlinstaller -> nouvelle base patients vierge
-					→ OK, installation MySQL/Rufus
+				→ message "Pas de serveur MySQL installé...etc... "
+					→ OK	→ installation MySQL(QStringList())/installation Rufus(false)
 					→ Annuler
 			→ présence d'un serveur
 				→ recueil de la version de MySQL
@@ -170,11 +169,17 @@ FONCTION → installation Rufus(bool demanderestauration)
 									→ bouton Créer une nouvelle base patients
 										→ message "l'installation d'une base Rufus va effacer les données"
 											→ Annuler, je vais sauvegarder les données			
-											→ OK
-												→ message demandant si on dispose d'un mdp/login
-													→ oui, connexion avec ce login et création de la base rufus
-													→ non, désinstallation/installation MySQL/Rufus
-													→ Annuler
+											→ OK → QStingList list = AskMdpLoginMySQL()
+												→ list not empty
+													→ isBaseRufus()
+														→ true → message, une base Rufus est présente, voulez-vous la sauvegarder?
+															→ Bouton Annuler
+															→ Bouton Non - Effacer la base
+															→ Bouton Oui - Sauvegarder le base
+																→ sauvegarde sur un dossier figé dans macros.h
+															→ installation MySQL(QStringList(mdp/login))/installation Rufus(true)
+												→ list empty (pas de mdp/Login valide)
+													→ installation MySQL(QStringList())/installation Rufus(false)
 						→ connexion établie
 							→ on vérifie la cohérence de la configuration de Rufus pour MySQL
 						 		→ path
@@ -191,11 +196,7 @@ FONCTION → installation Rufus(bool demanderestauration)
 									→ bouton Créer une nouvelle base patients
 										→ message "l'installation d'une base Rufus va effacer les données"
 											→ Annuler, je vais sauvegarder les données		
-											→ OK
-												→ message demandant si on dispose d'un mdp/login
-													→ oui, connexion avec ce login et création de la base rufus
-													→ non, désinstallation/installation MySQL/Rufus
-												→ Annuler
+											→ OK → installation MySQL(QStringList(mdp/login))/installation Rufus(true)
 								→ si OK
 									→ MySQL >= 8.0.14
 								 		→ on s’est connecté avec le mdp aléatoire
