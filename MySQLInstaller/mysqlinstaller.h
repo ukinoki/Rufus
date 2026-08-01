@@ -130,7 +130,7 @@ private:
 
     * POINT D'ENTRÉE — run() (synchrone) :
         * MySQL absent / trop vieux   -> faireCreate()      : installe MySQL, crée les comptes, configure.
-        * MySQL présent & compatible  -> demanderQueFaireMySQL (Effacer / Conserver / Réinstaller) puis
+        * MySQL présent & compatible  -> réutilisation via un compte admin MySQL, ou remplacement, puis
           faireReutiliser() : réutilise l'existant, crée les comptes, configure.
         * renvoie true si un MySQL conforme est prêt.
     * ÉTAPES DE CONFIG — executerEtapesConfig(), affichées dans la checklist de MySQLInstallerDialog :
@@ -261,10 +261,9 @@ private:
     bool faireCreate(const MySQLRemoteConfig& cfg);             /*!< chemin création : installe MySQL + crée adminrufus + config */
     bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);   /*!< section install de faireCreate, sans saisie (migration) */
 
-    enum class QueFaireMySQL { Annuler, Effacer, Conserver, Reinstaller };   /*!< choix de l'utilisateur face à un MySQL existant */
-    QueFaireMySQL demanderQueFaireMySQL(bool compatible);                                              /*!< boîte « MySQL déjà présent : que faire ? » */
     bool          isMariaDB();                                                                         /*!< le serveur local est-il MariaDB ? (incompatible) */
-    void          offrirSauvegardeAvantEffacement();                                                   /*!< prévient avant d'effacer des données non-Rufus (option : quitter pour sauvegarder) */
+    void          offrirSauvegardeAvantEffacement();                                                   /*!< prévient que les données du serveur vont disparaître (option : quitter pour sauvegarder) */
+    bool          remplacerServeurParUnNeuf();                                                         /*!< désinstalle MySQL et relance Rufus, qui en installera un neuf */
     bool          faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout);                     /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
     void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);   /*!< supprime toutes les bases non système */
 
@@ -312,7 +311,6 @@ private:
     bool isServerRunning();                                        /*!< le serveur répond-il ? */
     bool tryConnect();                                             /*!< connexion adminrufus (mdp courant) */
     bool tryConnectAs(const QString& login, const QString& mdp);   /*!< connexion avec login/mdp arbitraires (compte admin saisi) */
-    bool baseRufusComplete();                                      /*!< adminrufus se connecte ET le schéma Rufus (>=1 table) existe ? */
     bool checkPrivileges(QStringList& outMissing);                 /*!< adminrufus a-t-il tous les privilèges requis ? (manquants -> outMissing) */
     bool createUser();                                             /*!< crée adminrufus/SSL (mode création) */
 
