@@ -3455,15 +3455,15 @@ bool Procedures::Connexion_A_La_Base()
                 }
                 if (issue == MySQLInstaller::IssueMdp::Annule)
                     return false;
-                if (db->ModeAccesDataBase() != Utils::Poste)
-                    break;
+                if (db->ModeAccesDataBase() == Utils::Distant)
+                    break;   //! le secours ne s'atteint pas depuis internet
                 //! Pas de mot de passe valide -> restauration par le mot de passe de secours
                 if (issue == MySQLInstaller::IssueMdp::Inconnu
                  || issue == MySQLInstaller::IssueMdp::EchecSaisie)
                 {
                     if (UpMessageBox::Question(Q_NULLPTR, tr("Aucun mot de passe ne fonctionne"),
-                            tr("Rufus peut rétablir l'accès à votre base avec le mot de passe de "
-                               "SECOURS choisi à l'installation, sur cet ordinateur.") + "\n" +
+                            tr("Rufus peut rétablir l'accès à la base avec le mot de passe de "
+                               "SECOURS choisi à l'installation de la base.") + "\n" +
                             tr("Vos données ne seront pas touchées.") + "\n\n" +
                             tr("Voulez-vous utiliser cette procédure ?"),
                             UpDialog::ButtonCancel | UpDialog::ButtonOK,
@@ -3513,15 +3513,16 @@ bool Procedures::Connexion_A_La_Base()
         //! Toujours en échec
         if (!errConnexion.isEmpty())
         {
-            //! Poste client : il n'a rien à réparer ici, la clé se récupère ailleurs.
             if (db->ModeAccesDataBase() != Utils::Poste)
             {
-                UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
-                    tr("Aucun mot de passe connu de ce poste n'ouvre la base du cabinet.") + "\n\n" +
-                    tr("Vous devez récupérer un mot de passe valide (copié sur une clé USB depuis un "
-                       "poste qui fonctionne, menu Édition / Paramètres) ;") + "\n" +
-                    tr("si c'est impossible, un nouveau mot de passe doit être créé depuis Rufus "
-                       "s'exécutant sur le poste serveur."));
+                //! le secours passe par un compte que seul le réseau local atteint
+                QString corps = tr("Aucun mot de passe connu de ce poste n'ouvre la base du cabinet.") + "\n\n" +
+                                tr("Vous devez récupérer un mot de passe valide, copié sur une clé USB "
+                                   "depuis un poste qui fonctionne (menu Édition / Paramètres).");
+                if (db->ModeAccesDataBase() == Utils::Distant)
+                    corps += "\n\n" + tr("À défaut, le mot de passe peut être rétabli par la procédure de "
+                                          "secours, mais seulement depuis un poste du réseau local du cabinet.");
+                UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"), corps);
                 return false;
             }
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),

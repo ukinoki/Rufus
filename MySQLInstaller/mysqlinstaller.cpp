@@ -1149,165 +1149,80 @@ bool MySQLInstaller::run()
      *  ≥ <min> installé ». fetchRemoteConfig() se replie sur les valeurs par défaut si le réseau manque. */
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
 
-    const bool installed = isMySQLInstalled();
-
-    /*! A. Aucun MySQL → CRÉATION complète. */
-    if (!installed) {
+    if (!isMySQLInstalled())
+    {
         if (!askYesNo(tr("Installation de MySQL"),
-                tr("Pour installer Rufus, il est nécessaire d'installer une base de "
-                   "données MySQL sur cet ordinateur.\n\nVoulez-vous l'installer "
-                   "maintenant ?")))
+                tr("Pour installer Rufus, il est nécessaire d'installer une base de données MySQL "
+                   "sur cet ordinateur.\n\nVoulez-vous l'installer maintenant ?")))
             return false;
-        if (!assurerDroitsAdmin())   /*!< l'installation exige les droits admin */
+        if (!assurerDroitsAdmin())
             return false;
         return faireCreate(cfg);
     }
 
-    /*! MySQL DÉJÀ présent → on demande quoi en faire. Plus de « mode Verify » automatique : on reste en
-     *  logique Create, avec ou sans (ré)installation, avec ou sans effacement des données. */
     if (!isServerRunning()) startMySQL();
 
-    /*! Une base Rufus COMPLÈTE existe déjà ? On propose de la CONSERVER, la SUPPRIMER ou ANNULER.
-     *  Conserver/Annuler → retour à PremierDemarrage() (return false) ; Supprimer → on retire les bases
-     *  Rufus puis on continue le flux. */
-    if (baseRufusComplete()) {
-        UpMessageBox msgbox(nullptr);
-        msgbox.setIcon(UpMessageBox::Quest);
-        msgbox.setText(tr("Une base Rufus existe déjà"));
-        msgbox.setInformativeText(tr(
-            "Une base de données Rufus existe déjà sur cet ordinateur.\n\n"
-            "Pour vous y connecter, choisissez « Conserver » puis, depuis l'écran de "
-            "premier démarrage, « Base patients existante sur le serveur ».\n\n"
-            "Voulez-vous la conserver ou la supprimer ?"));
-        UpSmallButton* bAnnuler   = new UpSmallButton(tr("Annuler"));
-        UpSmallButton* bSupprimer = new UpSmallButton(tr("Supprimer la base Rufus existante"));
-        UpSmallButton* bConserver = new UpSmallButton(tr("Conserver la base existante"));
-        msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
-        msgbox.addButton(bSupprimer, UpSmallButton::OUPSBUTTON);
-        msgbox.addButton(bConserver, UpSmallButton::STARTBUTTON);
-        msgbox.exec();
-        if (msgbox.clickedButton() != bSupprimer)
-            return false;                       /*!< Conserver / Annuler → PremierDemarrage() */
+    //! Tout ce que contient ce serveur va disparaître : on laisse sortir pour sauvegarder d'abord
+    offrirSauvegardeAvantEffacement();
 
-        /*! Suppression : action IRRÉVERSIBLE (données patients) → confirmation explicite. */
-        if (!askYesNo(tr("Supprimer la base Rufus ?"),
-                tr("Cette opération supprimera DÉFINITIVEMENT la base de données Rufus "
-                   "(patients, comptabilité, ophtalmologie, imagerie) présente sur ce "
-                   "serveur.\n\nCette action est IRRÉVERSIBLE. Voulez-vous continuer ?")))
-            return false;                       /*!< non confirmé → PremierDemarrage() */
-
-        /*! On retire les bases Rufus via le mot de passe qui a permis la détection (LOGIN_SQL +
-         *  motDePasseSQL(), cf. baseRufusComplete), puis on continue. */
-        const QString mdp = motDePasseSQL();
-        const QString dropSql =
-            "DROP DATABASE IF EXISTS " DB_RUFUS ";"
-            "DROP DATABASE IF EXISTS " DB_COMPTA ";"
-            "DROP DATABASE IF EXISTS " DB_OPHTA ";"
-            "DROP DATABASE IF EXISTS " DB_IMAGES ";";
-        runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, dropSql));
+    //! Socle trop ancien : rien à réutiliser, on ne peut que remplacer le serveur
+    if (!socleLocalConforme())
+    {
+        if (!askYesNo(tr("Version de MySQL trop ancienne"),
+                tr("Le serveur MySQL installé sur cet ordinateur est trop ancien pour cette version "
+                   "de Rufus (ou il s'agit de MariaDB).\n\n"
+                   "Rufus doit le remplacer par une version récente. Voulez-vous continuer ?")))
+            return false;
+        return remplacerServeurParUnNeuf();
     }
 
-    /*! Compatibilité DÉTECTÉE par Rufus (on ne demande pas à l'utilisateur de juger) : MySQL >= 8.0.14 et
-     *  PAS MariaDB. */
-    const QString ver = getMySQLServerVersion();
-    const bool compatible = versionAtLeast(ver, seuilVersionMySQL()) && !isMariaDB();
-
-    forever {
-        switch (demanderQueFaireMySQL(compatible)) {
-
-        case QueFaireMySQL::Annuler:
-            return false;                       /*!< retour au menu précédent */
-
-        case QueFaireMySQL::Reinstaller: {
-            /*! Sert aux DEUX impasses : version incompatible, et version compatible dont on n'a pas le
-             *  mot de passe. On désinstalle puis on relance Rufus, qui ne trouvera plus de serveur et
-             *  installera du neuf — aucune connexion requise, aucune logique en double. */
-            offrirSauvegardeAvantEffacement();  /*!< (quitte Rufus s'il veut sauvegarder) */
-            if (!assurerDroitsAdmin()) continue;
-            MySQLProgressDialog* clean = new MySQLProgressDialog(
-                tr("Désinstallation de MySQL…"));
-            clean->show();
-            QApplication::processEvents();
-            const bool desinstalle = uninstallMySQL();
-            clean->close();
-            delete clean;
-            if (!desinstalle) {
-                /*! Annulation (mot de passe administrateur refusé) ou échec : MySQL est TOUJOURS en place.
-                 *  On NE wipe PAS ~/.rufus, on NE relance PAS, et on N'affiche PAS « MySQL supprimé » (ce
-                 *  serait mentir) : retour au menu « MySQL est déjà présent ». */
-                continue;
-            }
-            /*! On efface aussi ~/.rufus : il contient le .dbkey (mots de passe MySQL) — devenu
-             *  inutile/trompeur puisqu'on repart de zéro — ainsi que les clés SSL et le journal. Sans ça,
-             *  le poste réessaierait l'ancien mot de passe au redémarrage. */
-            QDir(PATH_DIR_RUFUSKEY).removeRecursively();
-            UpMessageBox::Watch(nullptr, tr("MySQL supprimé"),
-                tr("MySQL a été supprimé. Rufus va redémarrer pour installer un serveur neuf."));
-            /*! On relance AVEC le drapeau « -installMySQL » : au redémarrage, Connexion_A_La_Base() va
-             *  DIRECTEMENT à l'installation d'un serveur neuf + base vierge, sans repasser par le carrefour
-             *  « Aucun serveur » ni le choix vierge/existante (ergonomie après un « tout effacer et
-             *  réinstaller » délibéré). Drapeau posé À CE SEUL endroit. */
-            Utils::Redemarrage();
-            return true;                        /*!< jamais atteint */
-        }
-
-        case QueFaireMySQL::Effacer:
-            offrirSauvegardeAvantEffacement();
-            if (faireReutiliser(cfg, /*effacerTout=*/true)) return true;
-            break;                              /*!< échec/annulation → retour au choix */
-
-        case QueFaireMySQL::Conserver:
-            if (faireReutiliser(cfg, /*effacerTout=*/false)) return true;
-            break;                              /*!< échec/annulation → retour au choix */
-        }
-    }
-}
-
-/*! ═══ Boîte « MySQL est déjà présent… que voulez-vous faire ? » ═══════════════════════════════════ */
-MySQLInstaller::QueFaireMySQL MySQLInstaller::demanderQueFaireMySQL(bool compatible)
-{
+    //! Socle conforme : réutilisable si on a un compte MySQL pour y créer la base
     UpMessageBox msgbox(nullptr);
     msgbox.setIcon(UpMessageBox::Quest);
-    msgbox.setText(tr("MySQL est déjà présent sur cet ordinateur"));
-
-    UpSmallButton* bAnnuler = new UpSmallButton(tr("Annuler (retour au menu)"));
-
-    if (compatible) {
-        msgbox.setInformativeText(tr(
-            "Cette version de MySQL est compatible avec Rufus.\n\n"
-            "Que voulez-vous faire ?"));
-        UpSmallButton* bEffacer   = new UpSmallButton(
-            tr("L'utiliser en EFFAÇANT toutes les données déjà présentes"));
-        UpSmallButton* bConserver = new UpSmallButton(
-            tr("L'utiliser en CONSERVANT les données déjà présentes"));
-        /*! Échappatoire pour une base compatible dont on n'a PAS le mot de passe : « Effacer » et
-         *  « Conserver » exigent de se connecter (drop / configuration). Sans identifiants valides, on
-         *  serait bloqué → on offre la réinstallation COMPLÈTE (désinstall + install neuve), sans
-         *  connexion. Réutilise le chemin Reinstaller. */
-        UpSmallButton* bReinstall = new UpSmallButton(
-            tr("Réinstaller entièrement MySQL\n(si le mot de passe est perdu)"));
-        msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
-        msgbox.addButton(bReinstall, UpSmallButton::OUPSBUTTON);
-        msgbox.addButton(bEffacer,   UpSmallButton::NOBUTTON);
-        msgbox.addButton(bConserver, UpSmallButton::STARTBUTTON);
-        msgbox.exec();
-        if (msgbox.clickedButton() == bEffacer)   return QueFaireMySQL::Effacer;
-        if (msgbox.clickedButton() == bConserver) return QueFaireMySQL::Conserver;
-        if (msgbox.clickedButton() == bReinstall) return QueFaireMySQL::Reinstaller;
-        return QueFaireMySQL::Annuler;
-    }
-
-    msgbox.setInformativeText(tr(
-        "Cette version de MySQL n'est PAS compatible avec Rufus (MariaDB, ou version "
-        "antérieure à 8.0.14).\n\nQue voulez-vous faire ?"));
-    UpSmallButton* bReinstall = new UpSmallButton(
-        tr("Tout effacer et réinstaller MySQL"));
+    msgbox.setText(tr("Un serveur MySQL est déjà installé"));
+    msgbox.setInformativeText(
+        tr("Rufus peut créer votre base patients dans ce serveur, à condition de s'y connecter.") + "\n\n" +
+        tr("Disposez-vous d'un identifiant et d'un mot de passe administrateur de ce serveur "
+           "MySQL (par exemple root) ?"));
+    UpSmallButton* bAnnuler   = new UpSmallButton(tr("Annuler"));
+    UpSmallButton* bReinstall = new UpSmallButton(tr("Non, remplacer\nle serveur MySQL"));
+    UpSmallButton* bIdentifie = new UpSmallButton(tr("Oui, j'ai un\nidentifiant"));
     msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(bReinstall, UpSmallButton::STARTBUTTON);
+    msgbox.addButton(bReinstall, UpSmallButton::OUPSBUTTON);
+    msgbox.addButton(bIdentifie, UpSmallButton::STARTBUTTON);
     msgbox.exec();
-    if (msgbox.clickedButton() == bReinstall) return QueFaireMySQL::Reinstaller;
-    return QueFaireMySQL::Annuler;
+
+    if (msgbox.clickedButton() == bIdentifie)
+        return faireReutiliser(cfg, /*effacerTout=*/true);
+    if (msgbox.clickedButton() == bReinstall)
+        return remplacerServeurParUnNeuf();
+    return false;
+}
+
+/*!
+ * \brief MySQLInstaller::remplacerServeurParUnNeuf
+ * Désinstalle MySQL puis relance Rufus, qui ne trouvera plus de serveur et en installera un neuf :
+ * aucune connexion requise, aucune logique d'installation en double. Ne rend la main qu'en cas d'échec.
+ */
+bool MySQLInstaller::remplacerServeurParUnNeuf()
+{
+    if (!assurerDroitsAdmin())
+        return false;
+    MySQLProgressDialog* clean = new MySQLProgressDialog(tr("Désinstallation de MySQL…"));
+    clean->show();
+    QApplication::processEvents();
+    const bool desinstalle = uninstallMySQL();
+    clean->close();
+    delete clean;
+    if (!desinstalle)
+        return false;   //! mot de passe administrateur refusé : MySQL est toujours là, on ne ment pas
+
+    //! ~/.rufus part aussi : son .dbkey rouvrirait l'ancien mot de passe au redémarrage
+    QDir(PATH_DIR_RUFUSKEY).removeRecursively();
+    UpMessageBox::Watch(nullptr, tr("MySQL supprimé"),
+        tr("MySQL a été supprimé. Rufus va redémarrer pour installer un serveur neuf."));
+    Utils::Redemarrage();   //! avec -installMySQL : au redémarrage, installation directe
+    return true;
 }
 
 /*!
@@ -1339,16 +1254,14 @@ void MySQLInstaller::offrirSauvegardeAvantEffacement()
 {
     UpMessageBox msgbox(m_dialog);
     msgbox.setIcon(UpMessageBox::Warning);
-    msgbox.setText(tr("Des données vont être effacées"));
+    msgbox.setText(tr("L'installation d'une base Rufus va effacer les données"));
     msgbox.setInformativeText(tr(
-        "Cette opération va supprimer des données présentes sur ce serveur MySQL "
-        "qui ne sont PAS gérées par Rufus.\n\n"
-        "Si ces données vous importent, arrêtez Rufus pour les sauvegarder vous-même "
-        "avant de poursuivre."));
+        "Les données déjà présentes sur le serveur MySQL de cet ordinateur seront perdues.\n\n"
+        "Si elles vous importent, arrêtez Rufus pour les sauvegarder vous-même avant de poursuivre."));
     UpSmallButton* bArreter   = new UpSmallButton(
-        tr("Arrêter Rufus pour sauvegarder d'abord"));
+        tr("Annuler, je vais\nsauvegarder les données"));
     UpSmallButton* bContinuer = new UpSmallButton(
-        tr("Continuer (effacer les données)"));
+        tr("Continuer"));
     msgbox.addButton(bArreter,   UpSmallButton::CANCELBUTTON);
     msgbox.addButton(bContinuer, UpSmallButton::STARTBUTTON);
     msgbox.exec();
@@ -3913,48 +3826,9 @@ bool MySQLInstaller::tryConnect()
 bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
 {
     const QString out = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" ping 2>&1")
-            .arg(mysqlBin("mysqladmin"), login, mdp));
+        QString("\"%1\" %2 -u \"%3\" -p\"%4\" ping 2>&1")
+            .arg(mysqlBin("mysqladmin"), argsServeurCourant(), login, mdp));
     return out.contains("mysqld is alive");
-}
-
-/*!
- * \brief MySQLInstaller::baseRufusComplete
- * true ssi adminrufus se connecte avec motDePasseSQL() ET la base Rufus (DB_RUFUS) existe avec au moins
- * une table → base Rufus complète.
- */
-bool MySQLInstaller::baseRufusComplete()
-{
-    const QString mdp = motDePasseSQL();
-
-    /*! adminrufus se connecte-t-il ? */
-    const QString ping = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" ping 2>&1")
-            .arg(mysqlBin("mysqladmin"), QString(LOGIN_SQL), mdp));
-    if (!ping.contains("mysqld is alive"))
-        return false;
-
-    /*! La base DB_RUFUS existe-t-elle ? */
-    const QString dbs = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
-                "\"SHOW DATABASES LIKE '%4';\" 2>&1")
-            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, QString(DB_RUFUS)));
-    bool dbFound = false;
-    for (const QString& l : lignesResultat(dbs))
-        if (l == QString(DB_RUFUS)) { dbFound = true; break; }
-    if (!dbFound)
-        return false;
-
-    /*! …et contient-elle au moins une table ? Seules les vraies lignes comptent : l'avertissement du
-     *  client suffisait à faire passer une base vide pour complète. */
-    const QString tables = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
-                "\"SHOW TABLES FROM %4;\" 2>&1")
-            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, QString(DB_RUFUS)));
-    for (const QString& t : lignesResultat(tables))
-        if (!t.startsWith("ERROR", Qt::CaseInsensitive))
-            return true;
-    return false;
 }
 
 bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
@@ -4108,8 +3982,8 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
         return sql;
     };
     auto executer = [&](const QString& sql) {
-        return runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-                              .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
+        return runCmdFull(QString("\"%1\" %2 -u \"%3\" -p\"%4\" -e \"%5\" 2>&1")
+                              .arg(mysqlBin("mysql"), argsServeurCourant(), adminLogin, adminMdp, sql));
     };
 
     QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
@@ -4162,7 +4036,8 @@ void MySQLInstaller::supprimerCompteMySQL(const QString& login)
 }
 
 bool MySQLInstaller::rootExiste()           { return !Utils::hostsDuCompteSQL("root").isEmpty(); }
-bool MySQLInstaller::compteDeSecoursExiste(){ return !Utils::hostsDuCompteSQL(LOGIN_SQL_SECOURS).isEmpty(); }
+//! « 10.% » comme témoin : une install antérieure n'avait le secours qu'en loopback, donc incomplet
+bool MySQLInstaller::compteDeSecoursExiste(){ return Utils::hostsDuCompteSQL(LOGIN_SQL_SECOURS).contains("10.%"); }
 
 /*!
  * \brief demanderMotDePasseDeSecours
@@ -4247,7 +4122,7 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
 
 /*!
  * \brief MySQLInstaller::creerCompteDeSecours
- * Crée secoursrufus en monoposte, le teste et seulement alors — supprime root.
+ * Crée secoursrufus sur les hosts du LAN, le teste et seulement alors — supprime root.
  * \param parent
  */
 bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
@@ -4257,10 +4132,11 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
         return false;
 
     MySQLInstaller m;
-    /*! Les deux formes, comme adminrufus, selon ce que le serveur résout pour 127.0.0.1. */
+    //! Mêmes hosts qu'adminrufus : un poste du cabinet doit pouvoir lancer le secours quand le serveur
+    //! est une boîte sans écran. Jamais @'%' : ce mot de passe mémorisable ne va pas sur internet.
     auto sqlAvecAuth = [&](const QString& auth) {
         QString sql;
-        for (const QString& h : { QString("localhost"), QString("127.0.0.1") })
+        for (const QString& h : hostsLANprives())
         {
             sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(QString(LOGIN_SQL_SECOURS), h, auth, mdp);
             sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(QString(LOGIN_SQL_SECOURS), h, auth, mdp);
@@ -4290,8 +4166,9 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
     }
 
     /*! Suppression de root, vérification (relecture de mysql.user)*/
+    const bool rootAsupprimer = rootExiste();
     supprimerCompteMySQL("root");
-    if (rootExiste())
+    if (rootAsupprimer && rootExiste())
     {
         UpMessageBox::Watch(parent, tr("Mot de passe de secours enregistré"),
             tr("Votre mot de passe de secours est en place.") + "\n\n" +
@@ -4309,14 +4186,13 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
  * \brief MySQLInstaller::controlerCompteDeSecours
  * Met en place le compte de secours puis supprime root, à chaque démarrage du poste hôte. Sur une base
  * ancienne, attend l'utilisateur n°1 : lui seul choisit ce mot de passe.
- * \param iduser  id de l'utilisateur Rufus qui vient de s'identifier
  */
 void MySQLInstaller::controlerCompteDeSecours()
 {
     if (compteDeSecoursExiste())
     {
-        if (!rootExiste())
-            supprimerCompteMySQL("root");    /*!< secours déjà en place, root réapparu (mise à jour du serveur) */
+        if (rootExiste())
+            supprimerCompteMySQL("root");    /*!< root réapparu, typiquement après une mise à jour du serveur */
         return;
     }
     creerCompteDeSecours();
@@ -4335,9 +4211,9 @@ bool MySQLInstaller::restaurerAvecMotDePasseDeSecours(QWidget* parent)
     if (!tryConnectAs(LOGIN_SQL_SECOURS, mdp))
     {
         UpMessageBox::Watch(parent, tr("Mot de passe de secours refusé"),
-            tr("Ce mot de passe n'ouvre pas de session sur le serveur MySQL de ce poste.") + "\n" +
+            tr("Ce mot de passe n'ouvre pas de session sur le serveur MySQL du cabinet.") + "\n" +
             tr("Vérifiez qu'il s'agit bien du mot de passe de secours choisi à l'installation "
-               "de la base, sur CET ordinateur."));
+               "de la base."));
         return false;
     }
 
@@ -4715,6 +4591,19 @@ bool MySQLInstaller::askYesNo(const QString& title, const QString& text)
         UpDialog::ButtonCancel | UpDialog::ButtonOK,
         QStringList() << tr("Non") << tr("Oui"));
     return rep == UpSmallButton::STARTBUTTON;
+}
+
+/*!
+ * \brief MySQLInstaller::argsServeurCourant
+ * Arguments du client mysql vers le serveur du mode courant. En monoposte on garde 127.0.0.1 : « -h
+ * localhost » passerait par la socket Unix, pas par TCP comme le pilote Qt.
+ */
+QString MySQLInstaller::argsServeurCourant()
+{
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Poste)
+        return QString(LOCAL_TCP_ARGS);
+    return QString("--protocol=TCP -h %1 -P %2").arg(DataBase::I()->AdresseServer())
+                                                .arg(DataBase::I()->port());
 }
 
 QString MySQLInstaller::runCmd(const QString& cmd, int timeoutMs)

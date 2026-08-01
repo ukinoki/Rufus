@@ -130,7 +130,7 @@ private:
 
     * POINT D'ENTRÉE — run() (synchrone) :
         * MySQL absent / trop vieux   -> faireCreate()      : installe MySQL, crée les comptes, configure.
-        * MySQL présent & compatible  -> demanderQueFaireMySQL (Effacer / Conserver / Réinstaller) puis
+        * MySQL présent & compatible  -> réutilisation via un compte admin MySQL, ou remplacement, puis
           faireReutiliser() : réutilise l'existant, crée les comptes, configure.
         * renvoie true si un MySQL conforme est prêt.
     * ÉTAPES DE CONFIG — executerEtapesConfig(), affichées dans la checklist de MySQLInstallerDialog :
@@ -219,8 +219,8 @@ public:
 
     /*! ── Compte de secours (et suppression de root) ──────────────────────────────────────────────────── */
     static bool rootExiste();                                            /*!< un compte 'root' subsiste-t-il sur ce serveur ? */
-    static bool compteDeSecoursExiste();                                 /*!< secoursrufus est-il déjà en place ? */
-    static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);       /*!< demande le mdp confidentiel, crée secoursrufus (loopback, tous droits), l'ÉPROUVE puis supprime root */
+    static bool compteDeSecoursExiste();                                 /*!< secoursrufus est-il en place sur TOUS les hosts LAN ? */
+    static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);       /*!< demande le mdp confidentiel, crée secoursrufus sur les hosts LAN, l'éprouve puis supprime root */
     static void controlerCompteDeSecours();                              /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
     bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = Q_NULLPTR);   /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
 
@@ -261,10 +261,9 @@ private:
     bool faireCreate(const MySQLRemoteConfig& cfg);             /*!< chemin création : installe MySQL + crée adminrufus + config */
     bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);   /*!< section install de faireCreate, sans saisie (migration) */
 
-    enum class QueFaireMySQL { Annuler, Effacer, Conserver, Reinstaller };   /*!< choix de l'utilisateur face à un MySQL existant */
-    QueFaireMySQL demanderQueFaireMySQL(bool compatible);                                              /*!< boîte « MySQL déjà présent : que faire ? » */
     bool          isMariaDB();                                                                         /*!< le serveur local est-il MariaDB ? (incompatible) */
-    void          offrirSauvegardeAvantEffacement();                                                   /*!< prévient avant d'effacer des données non-Rufus (option : quitter pour sauvegarder) */
+    void          offrirSauvegardeAvantEffacement();                                                   /*!< prévient que les données du serveur vont disparaître (option : quitter pour sauvegarder) */
+    bool          remplacerServeurParUnNeuf();                                                         /*!< désinstalle MySQL et relance Rufus, qui en installera un neuf */
     bool          faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout);                     /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
     void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);   /*!< supprime toutes les bases non système */
 
@@ -312,7 +311,6 @@ private:
     bool isServerRunning();                                        /*!< le serveur répond-il ? */
     bool tryConnect();                                             /*!< connexion adminrufus (mdp courant) */
     bool tryConnectAs(const QString& login, const QString& mdp);   /*!< connexion avec login/mdp arbitraires (compte admin saisi) */
-    bool baseRufusComplete();                                      /*!< adminrufus se connecte ET le schéma Rufus (>=1 table) existe ? */
     bool checkPrivileges(QStringList& outMissing);                 /*!< adminrufus a-t-il tous les privilèges requis ? (manquants -> outMissing) */
     bool createUser();                                             /*!< crée adminrufus/SSL (mode création) */
 
@@ -345,6 +343,7 @@ private:
     bool        askYesNo(const QString& title, const QString& text);     /*!< question Oui/Non (UpMessageBox::Question) */
     QString     runCmd(const QString& cmd, int timeoutMs = 30000);       /*!< exécute une commande, renvoie sa sortie */
     QString     runCmdFull(const QString& cmd, int timeoutMs = 30000);   /*!< comme runCmd, sortie complète (stdout + stderr) */
+    static QString argsServeurCourant();                                 /*!< arguments du client mysql vers le serveur du mode courant */
     QStringList lignesResultat(const QString& sortie);                   /*!< lignes de DONNÉES d'une sortie mysql (sans « [Warning] … password … ») */
 
     static void supprimerCompteMySQL(const QString& login);   /*!< supprime un compte MySQL sur TOUS ses hosts (erreur SQL muette : l'appelant constate) */
