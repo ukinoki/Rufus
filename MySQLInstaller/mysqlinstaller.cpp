@@ -1191,11 +1191,15 @@ bool MySQLInstaller::run()
 
 /*!
  * \brief MySQLInstaller::AskMdpLoginMySQL
- * Demande un compte administrateur du serveur MySQL en place et l'éprouve. Renvoie { mdp, login }, ou une
- * liste vide si l'utilisateur n'en a pas ou renonce.
+ * Compte administrateur du serveur MySQL en place, éprouvé : celui de Rufus s'il ouvre encore le serveur,
+ * sinon demandé à l'utilisateur. Liste vide s'il n'en a pas ou renonce.
  */
 QStringList MySQLInstaller::AskMdpLoginMySQL()
 {
+    //! adminrufus ouvre déjà ce serveur (base endommagée, réinitialisation) : inutile de demander
+    if (tryConnectAs(LOGIN_SQL, motDePasseSQL()))
+        return QStringList() << motDePasseSQL() << QString(LOGIN_SQL);
+
     if (!askYesNo(tr("Un serveur MySQL est déjà installé"),
             tr("Rufus peut sauvegarder ce qu'il contient et y créer votre base patients, à condition "
                "de s'y connecter.\n\n"
