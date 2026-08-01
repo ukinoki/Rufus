@@ -219,6 +219,7 @@ public:
     static QMap<QString, qint64>    dir_size(const QString DirPath);
     static QString                  getExpressionSize(qint64 size);                                                 //! convertit en Go, To, Mo ou Ko la taille du qint64 passé en paramètre
     static bool                     mkpath(QString path);
+    static QString                  quoteShell(QString texte);                                                      //! protège un argument pour bash : espaces et apostrophes ne coupent plus la commande
     static void                     cleanfolder(QString path, bool evenNonEmptyDirs = false);
     static void                     countFilesInDirRecursively(const QString dirpath, int &tot); // compte le nombre de fichiers présents dans un dossier et ses sous-dossiers
     static void                     copyfolderrecursively(const QString origindirpath, const QString destdirpath,
@@ -244,7 +245,7 @@ public:
     static void                     rendDossierAccessibleAuServeurSQL(const QString &dirpath);   // rend un dossier traversable+lisible par tous, dont le compte du serveur MySQL (cf. .cpp)
     static bool                     removeWithoutPermissions(QFile &file);      // efface le fichier file vers la destination path même s'il est enlecture seule
     static double                   mmToInches(double mm);
-    static QUrl                     getExistingDirectoryUrl(QWidget *parent = Q_NULLPTR, QString title = "", QUrl Dirdefaut = QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList listnomsaeliminer = QStringList(), bool ExclureNomAvecEspace = true);
+    static QUrl                     getExistingDirectoryUrl(QWidget *parent = Q_NULLPTR, QString title = "", QUrl Dirdefaut = QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList listnomsaeliminer = QStringList());
     static QString                  ProvDir();
     static void                     RemoveProvDir();
     static QString                  EchecDir();

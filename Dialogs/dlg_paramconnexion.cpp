@@ -73,7 +73,7 @@ void dlg_paramconnexion::DossierClesSSL()
     QString dir = ui->ClesSSLLineEdit->text();
     if (dir == "" || !QDir(dir).exists())
         ui->ClesSSLLineEdit ->clear();
-    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<dir,false);
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<dir);
     if (url == QUrl())
         return;
     //! On renseigne le champ ; c'est VerifParamConnexion qui l'enregistrera avec le reste.

@@ -1123,6 +1123,17 @@ bool Utils::mkpath(QString path)
 }
 
 /*!
+ * \brief Utils::quoteShell
+ * Protège un argument passé à bash. Apostrophes simples : QProcess::splitCommand ne retire que les
+ * guillemets doubles, elles arrivent donc intactes jusqu'au shell.
+ * \param texte  argument à protéger (typiquement un chemin)
+ */
+QString Utils::quoteShell(QString texte)
+{
+    return "'" + texte.replace("'", "'\\''") + "'";
+}
+
+/*!
  * \brief Utils::cleanfolder
  * \param dirpath = chemin du dossier
  * \param evenNonEmptyDirs élimine aussi les sousdossiers non vides
@@ -1286,7 +1297,7 @@ bool Utils::removeWithoutPermissions(QFile &file)
 
 double Utils::mmToInches(double mm )  { return mm * 0.039370147; }
 
-QUrl   Utils::getExistingDirectoryUrl(QWidget *parent, QString title, QUrl Dirdefaut, QStringList listnomsaeliminer, bool ExclureNomAvecEspace)
+QUrl   Utils::getExistingDirectoryUrl(QWidget *parent, QString title, QUrl Dirdefaut, QStringList listnomsaeliminer)
 {
     /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
      * avec la fonction static, on utilise la boîte de dialog du système
@@ -1301,12 +1312,6 @@ QUrl   Utils::getExistingDirectoryUrl(QWidget *parent, QString title, QUrl Dirde
         url.setPath(url.path().last(url.path().length()-1));
     }
 #endif
-    if (ExclureNomAvecEspace)
-            if (url.path().contains(" "))
-            {
-                UtilsMessageBox::Watch(parent, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
-                return QUrl();
-            }
     if (listnomsaeliminer.contains(url.path()))
     {
         UtilsMessageBox::Watch(parent, tr("Nom de dossier non conforme"),tr("Le dossier doit être différent"));

@@ -548,9 +548,9 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
         DefinitScriptBackup(pathbackupbase, loginSQL, mdpSQL);
 #ifdef Q_OS_WIN
-        const QString task = QDir::toNativeSeparators(PATH_FILE_SCRIPTBACKUP);
+        const QString task = "\"" + QDir::toNativeSeparators(PATH_FILE_SCRIPTBACKUP) + "\"";
 #else
-        const QString task = "sh " + PATH_FILE_SCRIPTBACKUP;
+        const QString task = "sh \"" + PATH_FILE_SCRIPTBACKUP + "\"";
 #endif
         msg += tr("Base de données sauvegardée!\n");
 
@@ -777,11 +777,11 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase, QString loginSQL, Q
         return;
 #ifdef Q_OS_WIN
     QString CRLF="\r\n";
-    QString executabledump = QDir::toNativeSeparators(dirSQLExecutable()+ "/mysqldump.exe");
+    QString executabledump = "\"" + QDir::toNativeSeparators(dirSQLExecutable()+ "/mysqldump.exe") + "\"";
     QString scriptbackup;
 #else
     QString CRLF="\n";
-    QString executabledump = QDir::toNativeSeparators(dirSQLExecutable() + "/mysqldump");
+    QString executabledump = "\"" + QDir::toNativeSeparators(dirSQLExecutable() + "/mysqldump") + "\"";
     QString scriptbackup= "#!/bin/bash";
     scriptbackup += CRLF;
 #endif
@@ -1047,8 +1047,9 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts, std::function<void()> 
         << "-h" << host
         << "-P" << QString::number(db->port());
 #ifndef Q_OS_WIN
+    sqlCommand = Utils::quoteShell(sqlCommand);
     for (int i = 0; i < args.size() ; ++i)
-        sqlCommand += " " + args.at(i);
+        sqlCommand += " " + Utils::quoteShell(args.at(i));
 #endif
 
     for (int i=0; i<ListScripts.size(); i++)
@@ -1064,7 +1065,7 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts, std::function<void()> 
             /*! https://www.qtcentre.org/threads/23460-QProcess-and-mysql-lt-backup-sql
              *  dumpProcess.setStandardInputFile(path);
              *  dumpProcess.start(sqlCommand, args);                    NE MARCHE PLUS DEPUIS Qt6 sous MacOS ou Linux */
-            QString command = sqlCommand + " < " + path;
+            QString command = sqlCommand + " < " + Utils::quoteShell(path);
             QString bat = "bash -c \"" + command + "\"";
             dumpProcess.startCommand(bat);
 #endif
@@ -2635,19 +2636,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                       "contenant la sauvegarde de la base.") + "<br/><br/>" +
                                       tr("Une fois le dossier sélectionné, "
                                       "la sauvegarde commencera automatiquement.") + "<br/>" +
-                                      tr("Ce processus est long et peut durer plusieurs minutes (environ 1' pour 2 Go)") +
-                                      "<br/><br/><font color=\"red\"><b>" +
-                                      tr("Vous ne pouvez pas choisir un dossier dont le chemin contient des espaces") + "</b></font>");
+                                      tr("Ce processus est long et peut durer plusieurs minutes (environ 1' pour 2 Go)"));
             QString dir = PATH_DIR_RUFUS;
-            QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Restaurer à partir du dossier"), QUrl::fromLocalFile(dir), QStringList(), false);
-            if (url.path().contains(" "))
-            {
-                QString path = url.path();
-                path.replace(" ", "<font color=\"red\">X<font color=\"blue\">");
-                UpMessageBox::Information(parent,tr("Chemin invalide"), tr("Le chemin ") + "<br/><font color=\"blue\"><b>" + path + "</b></font><br/>" +
-                                                 tr(" contient des espaces et ne permettra pas de faire une restauration!"));
-                return false;
-            }
+            QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Restaurer à partir du dossier"), QUrl::fromLocalFile(dir));
             if (url == QUrl())
                 return false;
             dirtorestore = QDir(url.path());
