@@ -129,11 +129,11 @@ FONCTION → installation MySQL(QStringList(mdp, login) log = QStringList())
 FONCTION → installation Rufus(bool demanderestauration)
 	→ recherche d'une sauvegarde précédente sur le disque sur le dossier figé dans macros.h
 		→ OK → proposer la restauration
-		→ pas OK → if demanderestauration → demande si sauvegarde à restaurer
+		→ pas OK → if demanderestauration => demande si sauvegarde à restaurer
 			→ OK → proposer la restauration
 	→ si OK pour la restauration de la sauvegarde		
 		→ restaurer
-		→ détruire les fichiers de restauration si sauvegarde découverte sur le disque
+		→ détruire les fichiers de restauration sur le dossier figé dans macros.h
 	→ sinon
 		→ RestaureBase(base vierge) et la suite du programme d'install
 	→ redémarrer
