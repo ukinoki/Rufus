@@ -115,6 +115,7 @@ private:
     bool                    VerifVersionBase(QWidget *widg = Q_NULLPTR);
     bool                    MettreAJourSocleMySQL();                                    //! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL : sauvegarde validée -> désinstall/réinstall MySQL -> restauration -> relance
     bool                    SauvegardeBaseValide(QString dossier);                      //! true si le dump (rufus.sql) du dossier est complet (« Dump completed »)
+    QString                 DerniereSauvegardeInstallation();                           //! dossier de la sauvegarde valide la plus récente dans PATH_DIR_MIGRATIONMYSQL, vide s'il n'y en a pas
     void                    ReparerIni();                                                //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
                                      bool proposerRestauration = false);
@@ -163,6 +164,10 @@ private:
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     bool                    PremierDemarrage(bool forceBaseVierge = false);  //! forceBaseVierge : saute le choix vierge/existante (raccourci -installMySQL)
     void                    PremierParametrageMateriel();
+    bool                    InstallationRufus(bool demanderRestauration);   //! crée la base du poste : sauvegarde retrouvée -> restauration, sinon base vierge
+public:
+    bool                    SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL);   //! dump de la base Rufus du serveur qui va être effacé, avec un compte admin MySQL
+private:
     int         protoc = BaseExistante;
     enum protoc {BaseExistante, BaseVierge};
 
@@ -411,14 +416,15 @@ signals:
         QString                 m_dumpexecutable;
         void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
-        bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false, QWidget *parent = Q_NULLPTR);
+        bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false, QWidget *parent = Q_NULLPTR,
+                                       QString loginSQL = "", QString mdpSQL = "");   //! login/mdp du dump : vides = adminrufus, renseignés pour un serveur où adminrufus n'existe pas encore
                                 /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore()
                                 * et par le timer t_timerbackup pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
         void                    BackupWakeUp();
                                 /*! déclenche le backup au moment programmé */
         void                    CalcTimeBupRestore();
                                 /*! calcule la durée approximative du backup */
-        void                    DefinitScriptBackup(QString pathbackupbase);
+        void                    DefinitScriptBackup(QString pathbackupbase, QString loginSQL = "", QString mdpSQL = "");
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
         int                     ExecuteScriptSQL(QStringList ListScripts, std::function<void()> onProgress = nullptr);
                                 /*! Exécute une liste de scripts SQL (restauration de la base MySQL p.e.).

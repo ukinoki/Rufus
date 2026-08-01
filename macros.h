@@ -1016,6 +1016,8 @@ public:
 
 
 #define PATH_DIR_RESSOURCES                     PATH_DIR_RUFUS NOM_DIR_RESSOURCES
+//! figé : c'est une autre instance de Rufus, sans Rufus.ini, qui doit y retrouver la sauvegarde
+#define PATH_DIR_MIGRATIONMYSQL                 PATH_DIR_RUFUS "/MigrationMySQL"
 
 //! on local PC
 

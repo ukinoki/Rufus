@@ -497,7 +497,8 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
 //! offset déjà lu de chaque .sql, nombre de tables déjà écrites, dernière table vue.
 namespace { struct EtatBkp { QMap<QString, qint64> offsets; int done = 0; QString table; }; }
 
-bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool verifmdp, QWidget *parent)
+bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool verifmdp, QWidget *parent,
+                        QString loginSQL, QString mdpSQL)
 {
     auto result = [] (qintptr handle, Procedures *proc)
     {
@@ -545,7 +546,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 
         /*! sauvegarde de la base */
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
-        DefinitScriptBackup(pathbackupbase);
+        DefinitScriptBackup(pathbackupbase, loginSQL, mdpSQL);
 #ifdef Q_OS_WIN
         const QString task = QDir::toNativeSeparators(PATH_FILE_SCRIPTBACKUP);
 #else
@@ -762,8 +763,13 @@ void Procedures::BackupWakeUp()
     }
 }
 
-void Procedures::DefinitScriptBackup(QString pathbackupbase)
+void Procedures::DefinitScriptBackup(QString pathbackupbase, QString loginSQL, QString mdpSQL)
 {
+    if (loginSQL.isEmpty())
+    {
+        loginSQL = LOGIN_SQL;
+        mdpSQL   = MySQLInstaller::motDePasseSQL();
+    }
     if (!QDir(pathbackupbase).exists())
         if (!Utils::mkpath(pathbackupbase))
             return;
@@ -784,16 +790,16 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase)
     QString host = "";
     if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal)
         host = " -h " + DataBase::I()->dbase().hostName();
-    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" --skip-lock-tables --events --databases " DB_RUFUS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_RUFUS ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_RUFUS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_RUFUS ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
     scriptbackup += CRLF;
     // Sauvegarde de la table des utilisateurs
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
+    scriptbackup += executabledump + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
     scriptbackup += CRLF;
 
     if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
@@ -2980,6 +2986,50 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     }
 }
 
+/*!
+ * \brief Procedures::DerniereSauvegardeInstallation
+ * Dossier de la sauvegarde valide la plus récente laissée par Rufus avant un effacement du serveur.
+ */
+QString Procedures::DerniereSauvegardeInstallation()
+{
+    QDir dir(PATH_DIR_MIGRATIONMYSQL);
+    for (const QString& sub : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time))
+        if (SauvegardeBaseValide(dir.absolutePath() + "/" + sub))
+            return dir.absolutePath() + "/" + sub;
+    return "";
+}
+
+/*!
+ * \brief Procedures::SauvegarderBaseAvantInstallation
+ * Sauvegarde la base Rufus d'un serveur qui va être effacé, dans le dossier figé.
+ * \param loginSQL  compte administrateur MySQL du serveur à sauvegarder
+ * \param mdpSQL    son mot de passe
+ */
+bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL)
+{
+    setDirSQLExecutable();
+    db->initParametresConnexionSQL("localhost", 3306);
+    if (!db->connectToDataBase(DB_RUFUS, loginSQL, mdpSQL).isEmpty())
+        return false;
+
+    //! adminrufus peut ne pas exister (ou son mdp être perdu) : le dump passe par le compte admin saisi
+    if (!Backup(PATH_DIR_MIGRATIONMYSQL, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL))
+        return false;
+    m_ostask.waitForFinished(-1);
+
+    const QString dossier = DerniereSauvegardeInstallation();
+    if (dossier.isEmpty())
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde incomplète"),
+            tr("La sauvegarde de votre base a échoué. Rien n'a été effacé."));
+        return false;
+    }
+    UpMessageBox::Watch(Q_NULLPTR, tr("Base sauvegardée"),
+        tr("Votre base a été sauvegardée dans :") + "\n" + dossier + "\n\n" +
+        tr("Rufus vous proposera de la restaurer après l'installation."));
+    return true;
+}
+
 //! Vérifie qu'une sauvegarde de base (mysqldump) dans 'dossier' est complète AVANT toute
 //! destruction : le fichier rufus.sql existe, n'est pas vide, et se termine par la marque
 //! « Dump completed » que mysqldump écrit en fin de fichier réussi.
@@ -3049,7 +3099,7 @@ bool Procedures::MettreAJourSocleMySQL()
         //    eu lieu, donc l'annulation est sans danger.
         const qint64 tailleBase   = db->DatabaseSize();
         const qint64 espaceRequis = qMax<qint64>(tailleBase * 2, 50LL * 1024 * 1024);
-        QString dossierMig = QString(PATH_DIR_RUFUS) + "/MigrationMySQL";
+        QString dossierMig = QString(PATH_DIR_MIGRATIONMYSQL);
         forever
         {
             Utils::mkpath(dossierMig);
@@ -3336,8 +3386,7 @@ bool Procedures::FicheChoixConnexion()
 --------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Connexion_A_La_Base()
 {
-    //! Raccourci « -installMySQL » : posé par le case Reinstaller (mysqlinstaller.cpp) au
-    //! redémarrage, après désinstallation d'un MySQL trop ancien
+    //! Raccourci de lancement « -installMySQL » : va droit à l'installation d'un serveur neuf
     if (QApplication::arguments().contains(QStringLiteral("-installMySQL")))
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Installation de MySQL"),
@@ -4993,8 +5042,8 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         login = installeurMySQL.loginRufus();
         MDP   = installeurMySQL.mdpRufus();
 
-        //! Création de la base : toute la structure (tables + schémas) de Rufus.
-        if (!RestaureBase(true, true))
+        //! Création de la base : sauvegarde retrouvée -> restauration, sinon toute la structure vierge.
+        if (!InstallationRufus(installeurMySQL.restaurationPossible()))
             return false;
         m_parametres = db->parametres();
 
@@ -5026,6 +5075,42 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         Utils::Redemarrage();
     }
     return false;
+}
+
+/*!
+ * \brief Procedures::InstallationRufus
+ * Crée la base du poste : restauration d'une sauvegarde si on en retrouve une, sinon base vierge. Une base
+ * restaurée étant déjà complète, ce cas relance Rufus au lieu de rendre la main.
+ * \param demanderRestauration  proposer d'en désigner une même si le disque n'en contient aucune
+ */
+bool Procedures::InstallationRufus(bool demanderRestauration)
+{
+    const QString trouvee = DerniereSauvegardeInstallation();
+    bool restaurer = false;
+
+    if (!trouvee.isEmpty())
+        restaurer = (UpMessageBox::Question(Q_NULLPTR, tr("Sauvegarde de votre base retrouvée"),
+                        tr("Rufus a retrouvé la sauvegarde faite avant l'installation :") + "\n" + trouvee + "\n\n" +
+                        tr("Voulez-vous restaurer cette base plutôt que d'en créer une vierge ?"))
+                     == UpSmallButton::STARTBUTTON);
+    else if (demanderRestauration)
+        restaurer = (UpMessageBox::Question(Q_NULLPTR, tr("Restaurer une base existante ?"),
+                        tr("Disposez-vous d'une sauvegarde d'une base patients Rufus à restaurer sur ce poste ?"))
+                     == UpSmallButton::STARTBUTTON);
+
+    //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
+    if (restaurer && RestaureBase(false, true, false, Q_NULLPTR, trouvee))
+    {
+        if (!trouvee.isEmpty())
+            QDir(trouvee).removeRecursively();
+        if (!QFile::exists(PATH_FILE_INI))
+            PremierParametrageMateriel();
+        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+        UpMessageBox::Watch(Q_NULLPTR, tr("Base restaurée"),
+            tr("Votre base patients a été restaurée. Rufus va redémarrer."));
+        Utils::Redemarrage();
+    }
+    return RestaureBase(true, true);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
