@@ -606,8 +606,7 @@ void conversionbase::conversionbaseoplus()
     if (NomBase=="")
         return;
     dirimagerieoplus    = QFileDialog::getExistingDirectory(Q_NULLPTR,
-                                                            tr("Choisissez le dossier dans lequel se trouvent les images O+\n"
-                                                               "Le nom de dossier ne doit pas contenir d'espace"),
+                                                            tr("Choisissez le dossier dans lequel se trouvent les images O+"),
                                                             QDir::homePath() + NOM_DIR_RUFUS,
                                                             QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     bool okdirimagerie = QDir(dirimagerieoplus).exists();

@@ -527,7 +527,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     if (!Utils::mkpath(pathdirdestination))
     {
         QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Choisissez un dossier de sauvegarde"),
-                                                  QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList(), false);
+                                                  QUrl::fromLocalFile(PATH_DIR_RUFUS));
         if (url == QUrl())
             return false;                                   // annulé par l'utilisateur
         pathdirdestination = url.path();
@@ -3018,7 +3018,7 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
             tr("Espace disponible : ") + Utils::getExpressionSize(dispo) + "\n\n" +
             tr("Choisissez un autre support de sauvegarde (clé USB, disque externe…)."));
         QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Choisissez un dossier de sauvegarde"),
-                                                  QUrl::fromLocalFile(QDir::homePath()), QStringList(), false);
+                                                  QUrl::fromLocalFile(QDir::homePath()));
         if (url == QUrl())
             return false;   //! sans sauvegarde, on n'efface rien
         dossier = url.path();

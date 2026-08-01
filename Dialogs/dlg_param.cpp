@@ -1357,8 +1357,8 @@ void dlg_param::startImmediateBackup()
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
         dirsauvorigin = QDir::homePath();
-    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
-                                                       "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin), QStringList(), false);
+    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base"),
+                                              QUrl::fromLocalFile(dirsauvorigin));
     if (url == QUrl())
         return;
     if (QDir(url.path()).exists())
@@ -1885,8 +1885,8 @@ void dlg_param::ModifDirBackup()
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
         dirsauvorigin = db->dirimagerie();
-    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
-                                                       "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin));
+    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base"),
+                                              QUrl::fromLocalFile(dirsauvorigin));
     if (dirsauvorigin == url.path() || url == QUrl())
         return;
     if (!QDir(url.path()).exists())
@@ -1908,8 +1908,7 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
      * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
     QString pathappareil;
     QUrl url;
-    QString title = tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'appareil\n"
-                                "Le nom de dossier ne doit pas contenir d'espace");
+    QString title = tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'appareil");
     switch (appareil) {
     case Procedures::Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortFronto_DossierEchange).toString();
@@ -1986,8 +1985,7 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appar
      * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
     QUrl url = QUrl();
     QString pathappareil;
-    QString title = tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'appareil\n"
-                                "Le nom de dossier ne doit pas contenir d'espace");
+    QString title = tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'appareil");
     switch (appareil) {
     case Procedures::Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange_Fronto).toString();
@@ -2175,7 +2173,7 @@ void dlg_param::ExporterClesSSLversUSB()
 
     //! Destination : la clé USB choisie par l'utilisateur.
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Sélectionnez la clé USB de destination"),
-                                              QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup(), false);
+                                              QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
         return;
     //! Sous-dossier dédié « SSLKeys » dans l'emplacement choisi : les clés ne se perdent pas au
@@ -2241,7 +2239,7 @@ void dlg_param::ExporterClesSSLDistantversUSB()
 
     //! Destination : la clé USB choisie par l'utilisateur.
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Sélectionnez la clé USB de destination"),
-                                              QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup(), false);
+                                              QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
         return;
     //! Sous-dossier dédié « SSLKeys » dans l'emplacement choisi (même principe que l'export serveur).
