@@ -3592,7 +3592,7 @@ bool MySQLInstaller::startMySQL()
         runCmdFull("brew services start mysql@8.4 2>&1", 15000);
     }
 #endif
-    return waitForMySQL(30);
+    return waitForMySQL(120);   //! premier démarrage : mysqld initialise le datadir
 }
 
 bool MySQLInstaller::waitForMySQL(int maxSeconds)
@@ -4282,6 +4282,11 @@ bool MySQLInstaller::prepareCreateModeLinux()
         /*! Journal de support /tmp/rufus_prepare.log : conserve la sortie de l'install. Le mot de passe n'y
          *  apparaît JAMAIS. */
         "exec >/tmp/rufus_prepare.log 2>&1\n"
+        /*! Le premier démarrage de mysqld initialise le datadir : sur une machine lente il n'a pas
+         *  répondu quand le script s'exécute, et « mysql -u root » échouerait sur la socket. */
+        "echo '### demarrage mysqld ###'; systemctl start mysql; "
+        "for i in $(seq 1 120); do mysqladmin ping >/dev/null 2>&1 && break; sleep 1; done; "
+        "mysqladmin ping; "
         "echo '### createUser ###'; "
         + userSql
         + " echo \"### createUser rc=$? ###\"; "
@@ -4301,7 +4306,7 @@ bool MySQLInstaller::prepareCreateModeLinux()
 
     const bool ok = runCmdElevated(script, m_password + "\n");
     QFile::remove(cnfTmp);
-    waitForMySQL(20);                 /*!< le serveur redémarre en fin de script */
+    waitForMySQL(60);                 /*!< le serveur redémarre en fin de script */
 
     dlg->close();
     delete dlg;
