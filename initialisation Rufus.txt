@@ -101,18 +101,12 @@ II LANCEMENT DE RUFUS
 								→ Bouton Annuler
 								→ Bouton Non - Effacer la base
 								→ Bouton Oui - Sauvegarder le base
-									→ sauvegarde
-								→ si non ou oui
-									→ installation MySQL(QStringList(mdp/login))/installation Rufus(true)
-									→ redémarrage
-							→ Pas OK (pas de base)
-								→ installation MySQL(QStringList(mdp/login))/installation Rufus(true)
-								→ redémarrage
-						→ Pas OK (pas de connexion)
-								→ installation MySQL(QStringList())/installation Rufus(false)
-								→ redémarrage
-					→ list empty (pas de mdp/Login)
-						→ installation MySQL(QStringList())/installation Rufusfalse)
+									→ sauvegarde sur un dossier figé dans macros.h
+						→ installation MySQL(QStringList(mdp/login))/installation Rufus(true)
+						→ redémarrage
+					→ list empty (pas de mdp/Login valide)
+						→ installation MySQL(QStringList())/installation Rufus(false)
+						→ redémarrage
 
 FONCTION QStringList AskMdpLoginMySQL()
 	→ message demandant si on dispose d'un mdp/login
@@ -133,7 +127,7 @@ FONCTION → installation MySQL(QStringList(mdp, login) log = QStringList())
 	→ configuration MySQL
 	 
 FONCTION → installation Rufus(bool demanderestauration)
-	→ recherche d'une sauvegarde précédente sur le disque
+	→ recherche d'une sauvegarde précédente sur le disque sur le dossier figé dans macros.h
 		→ OK → proposer la restauration
 		→ pas OK → if demanderestauration → demande si sauvegarde à restaurer
 			→ OK → proposer la restauration
