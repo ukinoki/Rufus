@@ -3012,6 +3012,21 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
     if (!db->connectToDataBase(DB_RUFUS, loginSQL, mdpSQL).isEmpty())
         return false;
 
+    //! Le dossier étant figé, un disque plein ne se contourne pas : mieux vaut le dire avant le dump,
+    //! qui sinon serait tronqué. Marge ×2, plancher 50 Mo pour le SQL et ses entêtes.
+    Utils::mkpath(PATH_DIR_MIGRATIONMYSQL);
+    const qint64 requis = qMax<qint64>(db->DatabaseSize() * 2, 50LL * 1024 * 1024);
+    const qint64 dispo  = QStorageInfo(PATH_DIR_MIGRATIONMYSQL).bytesAvailable();
+    if (dispo < requis)
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Espace disque insuffisant"),
+            tr("Rufus ne peut pas sauvegarder votre base : il manque de place sur ce disque.") + "\n\n" +
+            tr("Espace nécessaire (estimé) : ") + Utils::getExpressionSize(requis) + "\n" +
+            tr("Espace disponible : ") + Utils::getExpressionSize(dispo) + "\n\n" +
+            tr("Faites de la place, puis relancez Rufus. Rien n'a été effacé."));
+        return false;
+    }
+
     //! adminrufus peut ne pas exister (ou son mdp être perdu) : le dump passe par le compte admin saisi
     if (!Backup(PATH_DIR_MIGRATIONMYSQL, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL))
         return false;
