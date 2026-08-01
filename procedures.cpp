@@ -3012,36 +3012,46 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
     if (!db->connectToDataBase(DB_RUFUS, loginSQL, mdpSQL).isEmpty())
         return false;
 
-    //! Le dossier étant figé, un disque plein ne se contourne pas : mieux vaut le dire avant le dump,
-    //! qui sinon serait tronqué. Marge ×2, plancher 50 Mo pour le SQL et ses entêtes.
-    Utils::mkpath(PATH_DIR_MIGRATIONMYSQL);
+    //! Marge ×2, plancher 50 Mo pour le SQL et ses entêtes
     const qint64 requis = qMax<qint64>(db->DatabaseSize() * 2, 50LL * 1024 * 1024);
-    const qint64 dispo  = QStorageInfo(PATH_DIR_MIGRATIONMYSQL).bytesAvailable();
-    if (dispo < requis)
+    QString dossier = QString(PATH_DIR_MIGRATIONMYSQL);
+    forever
     {
+        Utils::mkpath(dossier);
+        const qint64 dispo = QStorageInfo(dossier).bytesAvailable();
+        if (dispo >= requis)
+            break;
         UpMessageBox::Watch(Q_NULLPTR, tr("Espace disque insuffisant"),
-            tr("Rufus ne peut pas sauvegarder votre base : il manque de place sur ce disque.") + "\n\n" +
+            tr("Le support de sauvegarde ne dispose pas d'assez d'espace libre.") + "\n\n" +
             tr("Espace nécessaire (estimé) : ") + Utils::getExpressionSize(requis) + "\n" +
             tr("Espace disponible : ") + Utils::getExpressionSize(dispo) + "\n\n" +
-            tr("Faites de la place, puis relancez Rufus. Rien n'a été effacé."));
-        return false;
+            tr("Choisissez un autre support de sauvegarde (clé USB, disque externe…)."));
+        QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Choisissez un dossier de sauvegarde"),
+                                                  QUrl::fromLocalFile(QDir::homePath()), QStringList(), false);
+        if (url == QUrl())
+            return false;   //! sans sauvegarde, on n'efface rien
+        dossier = url.path();
     }
 
     //! adminrufus peut ne pas exister (ou son mdp être perdu) : le dump passe par le compte admin saisi
-    if (!Backup(PATH_DIR_MIGRATIONMYSQL, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL))
+    if (!Backup(dossier, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL))
         return false;
     m_ostask.waitForFinished(-1);
 
-    const QString dossier = DerniereSauvegardeInstallation();
-    if (dossier.isEmpty())
+    //! sous-dossier horodaté que Backup vient de créer
+    const QStringList sub = QDir(dossier).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time);
+    m_sauvegardeInstallation = sub.isEmpty() ? "" : dossier + "/" + sub.first();
+    if (m_sauvegardeInstallation.isEmpty() || !SauvegardeBaseValide(m_sauvegardeInstallation))
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde incomplète"),
             tr("La sauvegarde de votre base a échoué. Rien n'a été effacé."));
+        m_sauvegardeInstallation = "";
         return false;
     }
     UpMessageBox::Watch(Q_NULLPTR, tr("Base sauvegardée"),
-        tr("Votre base a été sauvegardée dans :") + "\n" + dossier + "\n\n" +
-        tr("Rufus vous proposera de la restaurer après l'installation."));
+        tr("Votre base a été sauvegardée dans :") + "\n" + m_sauvegardeInstallation + "\n\n" +
+        tr("Notez cet emplacement : Rufus vous proposera de restaurer cette sauvegarde après "
+           "l'installation, et vous demandera où elle se trouve si ce n'est pas sur ce disque."));
     return true;
 }
 
@@ -3094,7 +3104,7 @@ bool Procedures::MettreAJourSocleMySQL()
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Réinstallation impossible"),
             tr("La réinstallation de MySQL a échoué.") + "\n" +
-            tr("Votre sauvegarde est conservée dans :") + "\n" + DerniereSauvegardeInstallation());
+            tr("Votre sauvegarde est conservée dans :") + "\n" + m_sauvegardeInstallation);
         return false;
     }
     if (InstallationRufus(true))
@@ -3103,7 +3113,7 @@ bool Procedures::MettreAJourSocleMySQL()
     //! serveur neuf mais base vide : sans ce rappel, on ne sait plus où est la sauvegarde
     UpMessageBox::Watch(Q_NULLPTR, tr("Base non restaurée"),
         tr("Le serveur MySQL a été mis à jour, mais votre base n'a pas été restaurée.") + "\n" +
-        tr("Votre sauvegarde est conservée dans :") + "\n" + DerniereSauvegardeInstallation());
+        tr("Votre sauvegarde est conservée dans :") + "\n" + m_sauvegardeInstallation);
     return false;
 }
 
