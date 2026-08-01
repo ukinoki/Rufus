@@ -326,6 +326,7 @@ private:
 #if defined(Q_OS_LINUX)
     bool    prepareCreateModeLinux();                                                 /*!< Linux : tout le paramétrage root du mode Create en UNE élévation */
     QString linuxFolderSambaScript(const QString& path, const QString& user) const;   /*!< fragment shell dossier + Samba (réutilisé) */
+    QString linuxForceMysqlCnfScript() const;                                         /*!< fragment shell remettant l'aiguillage my.cnf sur mysql-server */
 #endif
 #if defined(Q_OS_MACOS)
     bool prepareCreateModeMacOS();   /*!< macOS : tout le paramétrage root du mode Create en UNE invite admin */

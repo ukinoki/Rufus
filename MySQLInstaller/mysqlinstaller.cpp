@@ -3698,8 +3698,8 @@ bool MySQLInstaller::ensureSecureFilePriv()
     bool ok;
 
 #if defined(Q_OS_LINUX)
-    /*! Copie + redémarrage en UNE SEULE élévation (pkexec). */
-    ok = runCmdElevated(QString(
+    /*! Aiguillage my.cnf remis sur MySQL, puis copie + redémarrage en UNE SEULE élévation (pkexec). */
+    ok = runCmdElevated(linuxForceMysqlCnfScript() + QString(
         "cp '%1' '%2' && chmod 644 '%2' && systemctl restart mysql")
         .arg(tmp, path));
     QFile::remove(tmp);
@@ -4272,8 +4272,8 @@ bool MySQLInstaller::prepareCreateModeLinux()
         "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" | mysql -u root; ")
         .arg(m_login, sslLogin, legacy);
 
-    /*! 3. Copie de my.cnf en place + redémarrage du serveur. */
-    const QString cnfFragment = QString(
+    /*! 3. Aiguillage my.cnf remis sur MySQL, copie de my.cnf en place + redémarrage du serveur. */
+    const QString cnfFragment = linuxForceMysqlCnfScript() + QString(
         "cp '%1' '%2' && chmod 644 '%2' && systemctl restart mysql; ")
         .arg(cnfTmp, cnfDst);
 
@@ -4306,6 +4306,22 @@ bool MySQLInstaller::prepareCreateModeLinux()
     dlg->close();
     delete dlg;
     return ok;
+}
+
+/*!
+ * \brief MySQLInstaller::linuxForceMysqlCnfScript
+ * Fragment shell (root) remettant l'aiguillage /etc/mysql/my.cnf sur la variante de mysql-server.
+ * Ubuntu gère ce fichier par update-alternatives, et mariadb-common s'y enregistre en priorité 500
+ * contre 200 pour mysql-server : il suffit qu'un paquet MariaDB arrive sur la machine (libmariadb3 le
+ * tire) pour que le lien bascule sur mariadb.cnf, qui n'inclut PAS /etc/mysql/mysql.conf.d/ — le dossier
+ * où Rufus écrit ses réglages. Le fichier reste alors parfaitement écrit mais HORS de la chaîne de
+ * config : le serveur démarre avec ses valeurs d'usine (secure_file_priv et sql_mode faux) et Rufus
+ * refuse d'ouvrir la base. Un « --set » fige l'aiguillage : aucune installation ultérieure ne le rebascule.
+ */
+QString MySQLInstaller::linuxForceMysqlCnfScript() const
+{
+    return "[ -f /etc/mysql/mysql.cnf ] && "
+           "update-alternatives --set my.cnf /etc/mysql/mysql.cnf >/dev/null 2>&1; ";
 }
 
 /*!
