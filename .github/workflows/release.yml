@@ -54,27 +54,18 @@ jobs:
           version: ${{ env.QT_VERSION }}
           modules: 'qtmultimedia qtpdf qtserialport'
 
-      - name: Dépendances système (client MySQL/MariaDB, FUSE pour AppImage, outils)
+      - name: Dépendances système (client MySQL, FUSE pour AppImage, outils)
         run: |
           sudo apt-get update
-          # Le plugin qsqlmysql se lie au client MariaDB OU MySQL → on installe les
-          # deux bibliothèques RUNTIME (sans les -dev, qui se déclarent mutuellement
-          # « Conflicts » et feraient échouer apt) pour qu'il se charge au runtime,
-          # quel que soit celui contre lequel Qt a été construit. linuxdeploy
-          # embarquera ensuite la lib utile dans l'AppImage.
+          # Le plugin qsqlmysql de Qt est lié à libmysqlclient : pas de client MariaDB, qui
+          # tirerait mariadb-common et détournerait /etc/mysql/my.cnf vers mariadb.cnf.
           # libpcsclite-dev : en-têtes PC/SC + lib pour compiler/lier lecteurvitale.cpp
           # (lecture directe de la carte Vitale). linuxdeploy embarque ensuite
           # libpcsclite.so.1 dans l'AppImage ; le démon pcscd, lui, s'installe côté poste.
           sudo apt-get install -y \
-            libmariadb3 libmysqlclient21 \
+            libmysqlclient21 \
             libfuse2 libgl1-mesa-dev libxkbcommon-dev \
             libpcsclite-dev
-
-      # Mesure temporaire : décider si libmariadb3 ci-dessus est encore nécessaire.
-      - name: Client SQL du pilote qsqlmysql livré par Qt
-        run: |
-          ls -l "$QT_ROOT_DIR/plugins/sqldrivers" || true
-          ldd "$QT_ROOT_DIR/plugins/sqldrivers/libqsqlmysql.so" || true
 
       - name: Compiler (qmake + make, Release)
         run: |
