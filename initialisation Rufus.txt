@@ -90,43 +90,52 @@ II LANCEMENT DE RUFUS
 			→ Annuler revient à la fiche précédente
 	→ bouton Première installation de Rufus - Créer une base patients
 		→ pas de MySQL présent → installation MySQL/Rufus
-			→ installation MySQL(QStringList())/installation Rufus()
+			→ installation MySQL(QStringList())/installation Rufus(false)
 		→ MySQL présent
 			→ message "l'installation d'une base Rufus va effacer les données"
 				→ Annuler, je vais sauvegarder les données			
-				→ OK → message demandant si on dispose d'un mdp/login
-					→ oui → essai connexion avec ce mdp/login
-						→ OK → recherche d'une base Rufus
-							→ OK
-								→ message, une base Rufus est présente, voulez-vous la sauvegarder?
-									→ Bouton Annuler
-									→ Bouton Non → Effacer la base
-									→ Bouton Oui - Sauvegarder le base
-										→ sauvegarde
+				→ OK → QStingList list = AskMdpLoginMySQL()
+					→ list not empty
+						→ isBaseRufus()
+							→ true → message, une base Rufus est présente, voulez-vous la sauvegarder?
+								→ Bouton Annuler
+								→ Bouton Non - Effacer la base
+								→ Bouton Oui - Sauvegarder le base
+									→ sauvegarde
 								→ si non ou oui
-									→ installation MySQL(QStringList(mdp/login))/installation Rufus()
+									→ installation MySQL(QStringList(mdp/login))/installation Rufus(true)
 									→ redémarrage
 							→ Pas OK (pas de base)
-								→ installation MySQL(QStringList(mdp/login))/installation Rufus()
+								→ installation MySQL(QStringList(mdp/login))/installation Rufus(true)
 								→ redémarrage
 						→ Pas OK (pas de connexion)
-								→ installation MySQL(QStringList())/installation Rufus()
+								→ installation MySQL(QStringList())/installation Rufus(false)
 								→ redémarrage
-					→ non (pas de mdp/Login)
-						→ installation MySQL(QStringList())/installation Rufus()
+					→ list empty (pas de mdp/Login)
+						→ installation MySQL(QStringList())/installation Rufusfalse)
 
+FONCTION QStringList AskMdpLoginMySQL()
+	→ message demandant si on dispose d'un mdp/login
+	→ oui → essai connexion avec ce mdp/login
+		→ OK → return QStingList() << mdp << login
+		→ Pas OK → return QStingList()
+
+FONCTION isBaseRufus(QStringLis mdp/login)
+	→ connexion avec ce mdp/login
+	→ return recherche d'une base Rufus OK
 
 FONCTION → installation MySQL(QStringList(mdp, login) log = QStringList())
 	→ MySQL <= 8.0.14 ou MariaDB ou log = QStringList()
-		→ message "cette version de MySQL..etc..." → OK
-		→ désinstallation
+		→ message "cette version de MySQL..etc..."
+		 	→ OK → désinstallation
+		 	→ pas OK → reurn		 	
 	→ installation MySQL
 	→ configuration MySQL
 	 
-FONCTION → installation Rufus()
+FONCTION → installation Rufus(bool demanderestauration)
 	→ recherche d'une sauvegarde précédente sur le disque
 		→ OK → proposer la restauration
-		→ pas OK → demande si sauvegarde à restaurer
+		→ pas OK → if demanderestauration → demande si sauvegarde à restaurer
 			→ OK → proposer la restauration
 	→ si OK pour la restauration de la sauvegarde		
 		→ restaurer
