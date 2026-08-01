@@ -3473,7 +3473,7 @@ bool Procedures::Connexion_A_La_Base()
                     QStringList() << tr("Annuler, je vais\nsauvegarder les données")
                                   << tr("Installer un\nserveur neuf"))
                 == UpSmallButton::STARTBUTTON)
-                PremierDemarrage(/*forceBaseVierge=*/true);
+                PremierDemarrage(/*forceBaseVierge=*/true, /*demanderRestauration=*/true);
             return false;
         }
 
@@ -4846,7 +4846,7 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::PremierDemarrage(bool forceBaseVierge)
+bool Procedures::PremierDemarrage(bool forceBaseVierge, bool demanderRestauration)
 {
     if (forceBaseVierge)
     {
@@ -4919,7 +4919,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
             //! En mode FORCÉ (raccourci -installMySQL), on NE recurse PAS : la msgbox étant sautée,
             //! une récursion sur échec n'offrirait aucune sortie. On rend la main (return false) → le
             //! flux normal de Connexion_A_La_Base présente le carrefour « Aucun serveur » (avec Quitter).
-            return forceBaseVierge ? false : PremierDemarrage(false);
+            return forceBaseVierge ? false : PremierDemarrage(false, demanderRestauration);
 
         //! nbp = TOUJOURS monoposte / serveur local. On reloge ici les effets de bord
         //! « Poste » qu'assurait dlg_paramconnexion (qu'on n'appelle plus pour nbp :
@@ -4950,7 +4950,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion au serveur MySQL"),
                                 tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreurConnexion);
-            return forceBaseVierge ? false : PremierDemarrage(false);   //! cf. note ci-dessus (pas de récursion en mode forcé)
+            return forceBaseVierge ? false : PremierDemarrage(false, demanderRestauration);   //! cf. note ci-dessus (pas de récursion en mode forcé)
         }
         m_connexionbaseOK = true;
 
@@ -4961,7 +4961,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         MDP   = installeurMySQL.mdpRufus();
 
         //! Création de la base : sauvegarde retrouvée -> restauration, sinon toute la structure vierge.
-        if (!InstallationRufus(installeurMySQL.restaurationPossible()))
+        if (!InstallationRufus(demanderRestauration || installeurMySQL.baseRufusTrouvee()))
             return false;
         m_parametres = db->parametres();
 
@@ -4999,7 +4999,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
  * \brief Procedures::InstallationRufus
  * Crée la base du poste : restauration d'une sauvegarde si on en retrouve une, sinon base vierge. Une base
  * restaurée étant déjà complète, ce cas relance Rufus au lieu de rendre la main.
- * \param demanderRestauration  proposer d'en désigner une même si le disque n'en contient aucune
+ * \param demanderRestauration  à défaut, proposer d'en désigner une sur clé USB ou disque externe
  */
 bool Procedures::InstallationRufus(bool demanderRestauration)
 {
@@ -5013,7 +5013,8 @@ bool Procedures::InstallationRufus(bool demanderRestauration)
                      == UpSmallButton::STARTBUTTON);
     else if (demanderRestauration)
         restaurer = (UpMessageBox::Question(Q_NULLPTR, tr("Restaurer une base existante ?"),
-                        tr("Disposez-vous d'une sauvegarde d'une base patients Rufus à restaurer sur ce poste ?"))
+                        tr("Disposez-vous d'une sauvegarde de votre base patients, sur une clé USB "
+                           "ou un disque externe, à restaurer sur ce poste ?"))
                      == UpSmallButton::STARTBUTTON);
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
@@ -5252,7 +5253,7 @@ bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool propose
         return false;
     }
     //! s'y connecter se joue dans la saisie des paramètres (ReparerIni), ici on la crée
-    return PremierDemarrage(/*forceBaseVierge=*/true);
+    return PremierDemarrage(/*forceBaseVierge=*/true, proposerRestauration);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

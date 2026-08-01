@@ -162,7 +162,8 @@ public:
 private:
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
-    bool                    PremierDemarrage(bool forceBaseVierge = false);  //! forceBaseVierge : saute le choix vierge/existante (raccourci -installMySQL)
+    bool                    PremierDemarrage(bool forceBaseVierge = false,   //! forceBaseVierge : saute le choix vierge/existante (raccourci -installMySQL)
+                                             bool demanderRestauration = false);   //! une base Rufus existait sur ce poste : proposer d'en restaurer une sauvegarde extérieure
     void                    PremierParametrageMateriel();
     bool                    InstallationRufus(bool demanderRestauration);   //! crée la base du poste : sauvegarde retrouvée -> restauration, sinon base vierge
 public:
