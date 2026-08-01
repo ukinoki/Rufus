@@ -128,10 +128,12 @@ private:
     Garantit au démarrage qu'un serveur MySQL conforme est prêt (installé, configuré, sécurisé), et fournit
     l'entretien qui suit (mot de passe, clés SSL). Tout est LOCAL : les données ne quittent jamais le cabinet.
 
-    * POINT D'ENTRÉE — run() (synchrone) :
-        * MySQL absent / trop vieux   -> faireCreate()      : installe MySQL, crée les comptes, configure.
-        * MySQL présent & compatible  -> réutilisation via un compte admin MySQL, ou remplacement, puis
-          faireReutiliser() : réutilise l'existant, crée les comptes, configure.
+    * POINT D'ENTRÉE — run() (synchrone), cf. initialisation Rufus.txt § II.1 :
+        * MySQL absent                -> faireCreate() : installe MySQL, crée les comptes, configure.
+        * MySQL présent               -> avertissement d'effacement, AskMdpLoginMySQL(), et si le serveur
+          porte déjà une base Rufus (isBaseRufus) offre de la sauvegarder AVANT de rien détruire.
+            * socle conforme + compte admin -> faireReutiliser() : on garde le serveur.
+            * sinon -> reinstallerSocleMySQLpourMigration() : désinstallation puis serveur neuf.
         * renvoie true si un MySQL conforme est prêt.
     * ÉTAPES DE CONFIG — executerEtapesConfig(), affichées dans la checklist de MySQLInstallerDialog :
         * 0 connexion admin   1 PATH   2 dossier partagé   3 secure_file_priv
@@ -161,6 +163,7 @@ public:
 
     QString loginRufus() const { return m_loginRufus; }   /*!< login du futur utilisateur Rufus (vide si run() a échoué) */
     QString mdpRufus()   const { return m_mdpRufus; }     /*!< son mot de passe EN CLAIR */
+    bool    restaurationPossible() const { return m_restaurationPossible; }   /*!< un compte admin a ouvert l'ancien serveur : une sauvegarde peut exister */
 
     /*! ── Mot de passe aléatoire / .dbkey (helpers statiques) ─────────────────────────────────────────── */
     static QString     genererMotDePasse();                                                    /*!< mot de passe aléatoire fort (12 car., [A-Za-z0-9]) */
@@ -252,6 +255,7 @@ private:
     QString                       m_brewPrefix;                              /*!< préfixe Homebrew (cache) */
     MySQLInstallerDialog*         m_dialog = nullptr;                        /*!< la fiche de l'installeur */
     bool                          m_freshInstall = false;                    /*!< MySQL vient d'être installé */
+    bool                          m_restaurationPossible = false;            /*!< un compte admin a ouvert l'ancien serveur */
     bool                          m_comptesDejaCrees = false;                /*!< adminrufus déjà créé (mode Verify) */
     QString                       m_initLog = "/tmp/rufus_mysql_init.log";   /*!< journal d'init du datadir (macOS) */
     MySQLRemoteConfig             m_remoteConfig;                            /*!< config distante (chargée une seule fois) */
@@ -262,8 +266,10 @@ private:
     bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);   /*!< section install de faireCreate, sans saisie (migration) */
 
     bool          isMariaDB();                                                                         /*!< le serveur local est-il MariaDB ? (incompatible) */
-    void          offrirSauvegardeAvantEffacement();                                                   /*!< prévient que les données du serveur vont disparaître (option : quitter pour sauvegarder) */
-    bool          remplacerServeurParUnNeuf();                                                         /*!< désinstalle MySQL et relance Rufus, qui en installera un neuf */
+    bool          offrirSauvegardeAvantEffacement();                                                   /*!< prévient que les données du serveur vont disparaître ; false = renoncer */
+    QStringList   AskMdpLoginMySQL();                                                                  /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide si l'utilisateur n'en a pas */
+    static bool   isBaseRufus(const QStringList& log);                                                 /*!< une base Rufus est-elle présente sur ce serveur ? */
+    bool          offrirSauvegardeBaseRufus(const QStringList& log);                                   /*!< base Rufus trouvée : sauvegarder / effacer / renoncer */
     bool          faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout);                     /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
     void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);   /*!< supprime toutes les bases non système */
 
