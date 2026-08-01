@@ -70,6 +70,12 @@ jobs:
             libfuse2 libgl1-mesa-dev libxkbcommon-dev \
             libpcsclite-dev
 
+      # Mesure temporaire : décider si libmariadb3 ci-dessus est encore nécessaire.
+      - name: Client SQL du pilote qsqlmysql livré par Qt
+        run: |
+          ls -l "$QT_ROOT_DIR/plugins/sqldrivers" || true
+          ldd "$QT_ROOT_DIR/plugins/sqldrivers/libqsqlmysql.so" || true
+
       - name: Compiler (qmake + make, Release)
         run: |
           qmake RufusQt6.pro CONFIG+=release
