@@ -5162,6 +5162,39 @@ void Procedures::SauvegardeIni()
  * construire le fichier — quitter, restaurer la sauvegarde, ou revoir les paramètres. Boucle jusqu'à
  * obtenir un fichier exploitable ; c'est Connexion_A_La_Base qui dira ensuite s'il ouvre la base.
  */
+/*!
+ * \brief Procedures::EprouverConnexionApresSaisie
+ * Éprouve les paramètres tout juste saisis : mot de passe du cabinet, à défaut le générique.
+ */
+bool Procedures::EprouverConnexionApresSaisie()
+{
+    const QString base = Utils::getBaseFromMode(db->ModeAccesDataBase());
+    db->initParametresConnexionSQL(m_settings->value(base + Param_Serveur).toString(),
+                                   m_settings->value(base + Param_Port).toInt());
+
+    //! Obtenu = mot de passe éprouvé ET enregistré dans .dbkey
+    if (MySQLInstaller::RecupererMotDePasseMySQL(Q_NULLPTR, tr("Mot de passe de la base du cabinet"),
+            tr("Indiquez le mot de passe de connexion à la base du cabinet.") + "\n" +
+            tr("Il se récupère sur une clé USB depuis le poste qui héberge la base "
+               "(menu Édition / Paramètres)."))
+        == MySQLInstaller::IssueMdp::Obtenu)
+        return true;
+
+    if (db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MDP_SQL).isEmpty())
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Connexion établie sans mot de passe personnel"),
+            tr("La base du cabinet ne s'ouvre qu'avec le mot de passe générique de Rufus.") + "\n" +
+            tr("Faites-la sécuriser depuis le poste qui l'héberge."));
+        return true;
+    }
+
+    UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
+        tr("Aucun mot de passe n'ouvre la base avec ces paramètres.") + "\n\n" +
+        tr("Vérifiez le mot de passe de connexion, l'adresse du serveur et, en accès distant, "
+           "le dossier des clés SSL."));
+    return false;
+}
+
 void Procedures::ReparerIni()
 {
     forever
@@ -5230,9 +5263,17 @@ void Procedures::ReparerIni()
             {
                 //! Sans la langue, le sélecteur reviendrait au prochain lancement.
                 m_settings->setValue(Param_Poste_Version, m_version);
+                m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
                 UpMessageBox::Watch(Q_NULLPTR, tr("Rufus.ini reconstruit"),
                                     tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n"
                                   + tr("Le lancement de Rufus se poursuit."));
+                if (!EprouverConnexionApresSaisie())
+                {
+                    //! le delete écrirait les valeurs en attente et recréerait le fichier qu'on efface
+                    delete m_settings;
+                    m_settings = Q_NULLPTR;
+                    QFile::remove(PATH_FILE_INI);
+                }
             }
             continue;
         }
