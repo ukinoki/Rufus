@@ -2241,6 +2241,22 @@ bool MySQLInstaller::uninstallMySQL()
           "DEBIAN_FRONTEND=noninteractive apt-get purge -y \"$pat\" 2>/dev/null || true; "
         "done;"
         "DEBIAN_FRONTEND=noninteractive apt-get autoremove -y --purge 2>/dev/null || true;"
+        /*! Un lien d'unité orphelin fait échouer les scripts du paquet (« Link has been severed ») et
+         *  interdit toute réinstallation : la machine devient impossible à rattraper depuis Rufus. */
+        "rm -f /etc/systemd/system/mysql.service "
+              "/etc/systemd/system/multi-user.target.wants/mysql.service;"
+        "rm -rf /var/lib/systemd/deb-systemd-helper-enabled/mysql.service.dsh-also;"
+        "systemctl daemon-reload 2>/dev/null || true;"
+        /*! Paquet resté coincé (postinst en échec) : apt n'en sort plus, on neutralise ses scripts. */
+        "RESTE=$(dpkg-query -f '${binary:Package} ${db:Status-Status}\\n' -W 'mysql-server*' "
+                 "2>/dev/null | grep -v ' not-installed$' | cut -d' ' -f1);"
+        "if [ -n \"$RESTE\" ]; then "
+          "for p in $RESTE; do "
+            "rm -f /var/lib/dpkg/info/$p.preinst /var/lib/dpkg/info/$p.postinst "
+                  "/var/lib/dpkg/info/$p.prerm /var/lib/dpkg/info/$p.postrm; "
+          "done;"
+          "dpkg --purge --force-all $RESTE 2>/dev/null || true; "
+        "fi;"
         "rm -rf /etc/mysql /var/lib/mysql /var/log/mysql /var/lib/mysql-files "
                "/var/lib/mysql-keyring;"
         "rm -f /etc/profile.d/mysql.sh;"
@@ -3592,7 +3608,7 @@ bool MySQLInstaller::startMySQL()
         runCmdFull("brew services start mysql@8.4 2>&1", 15000);
     }
 #endif
-    return waitForMySQL(30);
+    return waitForMySQL(120);   //! premier démarrage : mysqld initialise le datadir
 }
 
 bool MySQLInstaller::waitForMySQL(int maxSeconds)
@@ -4282,6 +4298,11 @@ bool MySQLInstaller::prepareCreateModeLinux()
         /*! Journal de support /tmp/rufus_prepare.log : conserve la sortie de l'install. Le mot de passe n'y
          *  apparaît JAMAIS. */
         "exec >/tmp/rufus_prepare.log 2>&1\n"
+        /*! Le premier démarrage de mysqld initialise le datadir : sur une machine lente il n'a pas
+         *  répondu quand le script s'exécute, et « mysql -u root » échouerait sur la socket. */
+        "echo '### demarrage mysqld ###'; systemctl start mysql; "
+        "for i in $(seq 1 120); do mysqladmin ping >/dev/null 2>&1 && break; sleep 1; done; "
+        "mysqladmin ping; "
         "echo '### createUser ###'; "
         + userSql
         + " echo \"### createUser rc=$? ###\"; "
@@ -4301,7 +4322,7 @@ bool MySQLInstaller::prepareCreateModeLinux()
 
     const bool ok = runCmdElevated(script, m_password + "\n");
     QFile::remove(cnfTmp);
-    waitForMySQL(20);                 /*!< le serveur redémarre en fin de script */
+    waitForMySQL(60);                 /*!< le serveur redémarre en fin de script */
 
     dlg->close();
     delete dlg;
