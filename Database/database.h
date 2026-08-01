@@ -99,6 +99,7 @@ private:
     QString m_dirsecurefilepriv = QString();
     QString m_base;
     QString m_server;
+    QString m_codeErreurConnexion;                      //! numéro d'erreur MySQL de la dernière connexion (vide si elle a réussi)
     int m_port = 3306;
     bool ok;
     QByteArray m_cotationsXml;      //!< cache du fichier de cotations téléchargé (une seule fois par session)
@@ -128,6 +129,10 @@ public:
 
     QString                 versionMySQL();                     /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
     QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
+
+    /*! Pourquoi la dernière connexion a échoué, d'après le numéro d'erreur MySQL. */
+    enum CauseEchec { Aucune, ServeurInjoignable, ClesSSL, Identifiants, Indeterminee };
+    CauseEchec              causeEchecConnexion() const;   //! qui de l'adresse, des clés ou du mot de passe est en cause
     bool                    verifglobalvariablesSQL();          /*! vérifie les variales Sql_mode et secure_file_priv */
     bool                    dirsecure_file_priv();              /*! reads dir secure-file-priv registered on server */
 

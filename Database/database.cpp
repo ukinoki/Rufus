@@ -242,6 +242,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     if( m_db.open() )
     {
+        m_codeErreurConnexion.clear();
         QSqlQuery(m_db).exec("USE " DB_RUFUS);   /*! base par défaut : les DELETE/UPDATE multi-tables l'exigent
                                                     (même tables qualifiées) ; no-op tant que rufus n'existe pas (1re install) */
         //qDebug() << connectSSLoptions << m_db.isValid() << m_db.isOpen() << m_db.isOpenError() << m_db.lastError().text();
@@ -258,6 +259,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     }
 
     QString error = m_db.lastError().text();
+    m_codeErreurConnexion = m_db.lastError().nativeErrorCode();
     Logs::LogSQL("m_db.lastError().text()               - " + m_db.lastError().text());
     Logs::LogSQL("m_db.lastError().nativeErrorCode()    - " + m_db.lastError().nativeErrorCode());  // le code MySQL (ex. "1045", "2026"…)
     Logs::LogSQL("m_db.lastError().databaseText()       - " + m_db.lastError().databaseText());      // côté serveur/driver
@@ -266,6 +268,25 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     return error;
 
 }
+
+/*!
+ * \brief DataBase::causeEchecConnexion
+ * Traduit le numéro d'erreur MySQL de la dernière connexion : un code < 2000 vient du serveur, qui a donc
+ * répondu ; au-delà, c'est le client qui n'est pas allé jusqu'à lui.
+ */
+DataBase::CauseEchec DataBase::causeEchecConnexion() const
+{
+    if (m_codeErreurConnexion.isEmpty())
+        return Aucune;
+    switch (m_codeErreurConnexion.toInt())
+    {
+        case 2002: case 2003: case 2005: return ServeurInjoignable;
+        case 2026:                       return ClesSSL;
+        case 1045:                       return Identifiants;
+        default:                         return Indeterminee;
+    }
+}
+
 bool DataBase::verifglobalvariablesSQL()
 {
     QString result ;

@@ -1171,8 +1171,13 @@ QStringList MySQLInstaller::AskMdpLoginMySQL()
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
         if (!m_dialog->validerSaisie()) return;
         if (!tryConnectAs(m_dialog->login(), m_dialog->password())) {
+            //! serveur muet : accuser l'identifiant enverrait chercher au mauvais endroit
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
-                tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
+                m_serveurInjoignable
+                    ? tr("Le serveur MySQL de cet ordinateur ne répond pas.") + "\n" +
+                      tr("Il est installé mais non démarré : ni l'identifiant ni le mot de passe "
+                         "ne sont en cause.")
+                    : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
             return;                                 /*!< fiche ouverte : on réessaie */
         }
         log << m_dialog->password() << m_dialog->login();
@@ -1535,8 +1540,13 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
         if (!m_dialog->validerSaisie()) return;
         if (!tryConnectAs(m_dialog->login(), m_dialog->password())) {
+            //! serveur muet : accuser l'identifiant enverrait chercher au mauvais endroit
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
-                tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
+                m_serveurInjoignable
+                    ? tr("Le serveur MySQL de cet ordinateur ne répond pas.") + "\n" +
+                      tr("Il est installé mais non démarré : ni l'identifiant ni le mot de passe "
+                         "ne sont en cause.")
+                    : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
             return;                                 /*!< fiche ouverte : on réessaie */
         }
         m_dialog->checkStep(0);
@@ -3844,6 +3854,8 @@ bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
     const QString out = runCmdFull(
         QString("\"%1\" %2 -u \"%3\" -p\"%4\" ping 2>&1")
             .arg(mysqlBin("mysqladmin"), argsServeurCourant(), login, mdp));
+    m_serveurInjoignable = out.contains("ERROR 2002") || out.contains("ERROR 2003")
+                        || out.contains("ERROR 2005");
     return out.contains("mysqld is alive");
 }
 

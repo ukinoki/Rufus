@@ -251,6 +251,7 @@ private:
     MySQLInstallerDialog*         m_dialog = nullptr;                        /*!< la fiche de l'installeur */
     bool                          m_freshInstall = false;                    /*!< MySQL vient d'être installé */
     bool                          m_baseRufusTrouvee = false;                /*!< une base Rufus était présente sur le serveur effacé */
+    bool                          m_serveurInjoignable = false;              /*!< dernier tryConnectAs : le serveur n'a pas répondu (ERROR 2002/2003/2005) */
     bool                          m_comptesDejaCrees = false;                /*!< adminrufus déjà créé (mode Verify) */
     QString                       m_initLog = "/tmp/rufus_mysql_init.log";   /*!< journal d'init du datadir (macOS) */
     MySQLRemoteConfig             m_remoteConfig;                            /*!< config distante (chargée une seule fois) */

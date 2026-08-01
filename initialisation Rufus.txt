@@ -125,6 +125,12 @@ FONCTION QStringList AskMdpLoginMySQL(bool onlymdp = false)
 		→ OK → return QStingList() << mdp << login
 		→ Pas OK → return QStingList()
 	FAIRE LA DIFFÉRENCE ENTRE UN SERVEUR QUI REFUSE LA CONNEXION (ClES SSL ou MDP) ET UNE ABSENCE DE SERVEUR
+		→ le numéro d'erreur MySQL tranche : < 2000 = le serveur a répondu, >= 2000 = on ne l'a pas atteint
+			2002 / 2003 / 2005 → pas de serveur à cette adresse
+			2026 → le serveur répond, la liaison chiffrée est refusée (clés SSL)
+			1045 → le serveur répond, il refuse le mot de passe (donc l'adresse et les clés sont bonnes)
+		→ côté pilote Qt : DataBase::causeEchecConnexion()
+		→ côté client mysql (AskMdpLoginMySQL) : « ERROR 2002/2003/2005 » dans la sortie de mysqladmin
 	
 FONCTION isBaseRufus(QStringLis mdp/login)
 	→ connexion avec ce mdp/login

@@ -3389,8 +3389,16 @@ bool Procedures::Connexion_A_La_Base()
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     if (!errConnexion.isEmpty())
     {
+        //! Le serveur a répondu et refusé (mdp, clés SSL) : son adresse est bonne, ne la mettons pas en doute
+        if (db->causeEchecConnexion() == DataBase::ClesSSL)
+            UpMessageBox::Watch(Q_NULLPTR, tr("Liaison chiffrée refusée"),
+                tr("Le serveur du cabinet répond, mais il refuse la liaison chiffrée.") + "\n\n" +
+                tr("Les clés SSL de ce poste sont invalides ou périmées : faites-vous en transmettre "
+                   "de nouvelles depuis le poste serveur."));
+
         //! Réseau : vérifier l'adresse du serveur
-        if (db->ModeAccesDataBase() != Utils::Poste)
+        if (db->ModeAccesDataBase() != Utils::Poste
+         && db->causeEchecConnexion() == DataBase::ServeurInjoignable)
         {
             UpMessageBox msgbox(Q_NULLPTR);
             msgbox.setIcon(UpMessageBox::Quest);
@@ -5188,10 +5196,30 @@ bool Procedures::EprouverConnexionApresSaisie()
         return true;
     }
 
-    UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
-        tr("Aucun mot de passe n'ouvre la base avec ces paramètres.") + "\n\n" +
-        tr("Vérifiez le mot de passe de connexion, l'adresse du serveur et, en accès distant, "
-           "le dossier des clés SSL."));
+    QString corps;
+    switch (db->causeEchecConnexion())
+    {
+    case DataBase::ServeurInjoignable:
+        corps = tr("Aucun serveur ne répond à cette adresse.") + "\n\n" +
+                tr("Vérifiez l'adresse du serveur, qu'il est bien allumé et, en accès distant, "
+                   "la redirection de ports de votre box.");
+        break;
+    case DataBase::ClesSSL:
+        corps = tr("Le serveur du cabinet répond, mais il refuse la liaison chiffrée.") + "\n\n" +
+                tr("Les clés SSL de ce poste sont invalides ou périmées : faites-vous en transmettre "
+                   "de nouvelles depuis le poste serveur.");
+        break;
+    case DataBase::Identifiants:
+        corps = tr("Le serveur du cabinet répond, mais il refuse ce mot de passe.") + "\n\n" +
+                tr("L'adresse du serveur est donc correcte : c'est le mot de passe de connexion "
+                   "qu'il faut récupérer sur le poste qui héberge la base.");
+        break;
+    default:
+        corps = tr("Aucun mot de passe n'ouvre la base avec ces paramètres.") + "\n\n" +
+                tr("Vérifiez le mot de passe de connexion, l'adresse du serveur et, en accès distant, "
+                   "le dossier des clés SSL.");
+    }
+    UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"), corps);
     return false;
 }
 
