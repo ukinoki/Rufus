@@ -180,7 +180,7 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     dlglayout() ->insertWidget(row++, m_mdp);
 
     /*! Confirmation du mot de passe : seulement à la CRÉATION d'un compte (voir configurer*()). Masquée
-     *  par défaut ; affichée par configurerCreateUserRufus / configurerNewUserRufus. */
+     *  par défaut ; affichée par configurerCreateUserRufus. */
     m_mdpConfirmLbl = new UpLabel(this, tr("Confirmez le mot de passe :"));
     dlglayout()     ->insertWidget(row++, m_mdpConfirmLbl);
     m_mdpConfirm = new UpLineEdit(this);
@@ -332,21 +332,6 @@ void MySQLInstallerDialog::configurerVerifyAdminMySQL()
     m_steps[0] ->setText(tr("Connexion OK"));
 }
 
-void MySQLInstallerDialog::configurerNewUserRufus()
-{
-    configurer(tr("Compte utilisateur Rufus"),
-               tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
-                  "dans Rufus."),
-               tr("Créer le compte"));
-    appliquerValidateursRufus(m_login, m_mdp, this);   /*!< user Rufus → format imposé */
-
-    /*! CRÉATION d'un compte → champ de confirmation du mot de passe visible ET exigé à la validation. */
-    m_confirmMdpRequis = true;
-    if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(true);
-    if (m_mdpConfirm)    { m_mdpConfirm->setVisible(true);
-                           m_mdpConfirm->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this)); }
-}
-
 QString MySQLInstallerDialog::login() const
 {
     return m_login ? m_login ->text() : QString();
@@ -401,10 +386,7 @@ QString MySQLInstallerDialog::baseStepLabel(int i) const
 void MySQLInstallerDialog::applyStepLabel(int i)
 {
     if (i < 0 || i > 6) return;
-    QString label = baseStepLabel(i);
-    if (!m_stepDetail[i].isEmpty())
-        label += " : " + m_stepDetail[i];
-    m_steps[i] ->setText(label);
+    m_steps[i] ->setText(baseStepLabel(i));
 }
 
 /*!
@@ -429,20 +411,6 @@ void MySQLInstallerDialog::checkStep(int i)
      *  entre les appels) → s'applique AUSSI à la dernière coche avant fermeture. Utils::Pause traite les
      *  événements (l'UI reste vivante). */
     Utils::Pause(450);
-}
-
-void MySQLInstallerDialog::uncheckAllSteps()
-{
-    for (int i = 0; i < 7; i++)
-        m_steps[i] ->setChecked(false);
-    QApplication::processEvents();
-}
-
-void MySQLInstallerDialog::setStepDetail(int i, const QString& detail)
-{
-    if (i < 0 || i > 6) return;
-    m_stepDetail[i] = detail;
-    applyStepLabel(i);
 }
 
 void MySQLInstallerDialog::setMinVersion(const QString& v)
@@ -726,17 +694,6 @@ QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
          *  cabinet, et un refus peut être passager. Le détruire pouvait verrouiller la base. */
     }
     return err;
-}
-
-/*!
- * \brief MySQLInstaller::estErreurAuthentification
- * Refus d'authentification (mauvais mdp : MySQL 1045 / « Access denied ») vs serveur injoignable.
- * \param erreur  message d'erreur de connexion à classer
- */
-bool MySQLInstaller::estErreurAuthentification(const QString& erreur)
-{
-    return erreur.contains("denied", Qt::CaseInsensitive)
-        || erreur.contains("1045");
 }
 
 /*!
@@ -1170,9 +1127,9 @@ bool MySQLInstaller::run()
         return false;
 
     const QStringList log = AskMdpLoginMySQL();
-    m_restaurationPossible = !log.isEmpty();
 
-    if (!log.isEmpty() && isBaseRufus(log))
+    m_baseRufusTrouvee = !log.isEmpty() && isBaseRufus(log);
+    if (m_baseRufusTrouvee)
         if (!offrirSauvegardeBaseRufus(log))
             return false;
 
@@ -1191,11 +1148,15 @@ bool MySQLInstaller::run()
 
 /*!
  * \brief MySQLInstaller::AskMdpLoginMySQL
- * Demande un compte administrateur du serveur MySQL en place et l'éprouve. Renvoie { mdp, login }, ou une
- * liste vide si l'utilisateur n'en a pas ou renonce.
+ * Compte administrateur du serveur MySQL en place, éprouvé : celui de Rufus s'il ouvre encore le serveur,
+ * sinon demandé à l'utilisateur. Liste vide s'il n'en a pas ou renonce.
  */
 QStringList MySQLInstaller::AskMdpLoginMySQL()
 {
+    //! adminrufus ouvre déjà ce serveur (base endommagée, réinitialisation) : inutile de demander
+    if (tryConnectAs(LOGIN_SQL, motDePasseSQL()))
+        return QStringList() << motDePasseSQL() << QString(LOGIN_SQL);
+
     if (!askYesNo(tr("Un serveur MySQL est déjà installé"),
             tr("Rufus peut sauvegarder ce qu'il contient et y créer votre base patients, à condition "
                "de s'y connecter.\n\n"

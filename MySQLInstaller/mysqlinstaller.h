@@ -85,7 +85,6 @@ public:
     /*! ── Configuration selon le contexte (titre / sous-titre / bouton OK + reset des champs) ─────────── */
     void configurerCreateUserRufus(const QString& minVersion);                    /*!< contexte : saisie du futur utilisateur Rufus */
     void configurerVerifyAdminMySQL();                                            /*!< contexte : saisie d'un compte ADMIN MySQL existant */
-    void configurerNewUserRufus();                                                /*!< contexte : nouvel utilisateur Rufus (2e étape) */
     void passerEnConfiguration(const QString& titre, const QString& sousTitre);   /*!< bascule en « paramétrage en cours » (champs figés, boutons masqués) */
     void masquerSaisieUtilisateur();                                              /*!< cache la ligne login/mdp (réinstallation lors d'une migration) */
 
@@ -96,8 +95,6 @@ public:
 
     /*! ── Checklist ──────────────────────────────────────────────────────────────────────────────────── */
     void checkStep(int i);                              /*!< coche la case i + repaint */
-    void uncheckAllSteps();                             /*!< décoche tout */
-    void setStepDetail(int i, const QString& detail);   /*!< ajoute « : detail » au libellé de la case i */
     void setMinVersion(const QString& v);               /*!< re-libelle l'étape 0 */
     bool wasCancelled() const { return m_cancelled; }   /*!< l'utilisateur a-t-il annulé ? */
     void reject() override;                             /*!< marque l'annulation (slot public, comme QDialog) */
@@ -119,7 +116,6 @@ private:
     bool           m_confirmMdpRequis = false;          /*!< mode CRÉATION : validerSaisie() exige mdp == confirmation */
     UpSmallButton* m_btnSupprMySQL = nullptr;           /*!< « Supprimer MySQL » (mode Verify) */
     UpCheckBox*    m_steps[7];                          /*!< 0..5 = config ; 6 = clés SSL (accès distant) */
-    QString        m_stepDetail[7];
     QString        m_minVersion = VERSION_MYSQL_MINI;   /*!< seuil commun (8.0.14), écrasé par setMinVersion() */
     bool           m_cancelled  = false;
 };
@@ -163,7 +159,7 @@ public:
 
     QString loginRufus() const { return m_loginRufus; }   /*!< login du futur utilisateur Rufus (vide si run() a échoué) */
     QString mdpRufus()   const { return m_mdpRufus; }     /*!< son mot de passe EN CLAIR */
-    bool    restaurationPossible() const { return m_restaurationPossible; }   /*!< un compte admin a ouvert l'ancien serveur : une sauvegarde peut exister */
+    bool    baseRufusTrouvee() const { return m_baseRufusTrouvee; }   /*!< une base Rufus était présente sur le serveur effacé */
 
     /*! ── Mot de passe aléatoire / .dbkey (helpers statiques) ─────────────────────────────────────────── */
     static QString     genererMotDePasse();                                                    /*!< mot de passe aléatoire fort (12 car., [A-Za-z0-9]) */
@@ -171,7 +167,6 @@ public:
     static void        setMotDePasseSQL(const QString& mdp);                                   /*!< met à jour le mdp du mode courant EN MÉMOIRE (cache) */
     static QStringList motsDePasseSQLCandidats();                                              /*!< mdp à essayer dans l'ordre : [aléatoire du mode, gaxt78iy] */
     static QString     connecterAvecCandidats(const QString& basename);                        /*!< connexion adminrufus en essayant tous les candidats ; retient celui qui marche */
-    static bool        estErreurAuthentification(const QString& erreur);                       /*!< refus d'auth (1045) et non serveur injoignable ? */
     static void        stockerMotDePasse(const QString& mdp);                                  /*!< écrit le mdp du mode courant dans .dbkey + cache */
     static QString     motDePasseStockePourMode(Utils::ModeAcces mode);                        /*!< mdp brut stocké pour un mode ("" si aucun) */
     static void        stockerMotDePassePourMode(Utils::ModeAcces mode, const QString& mdp);   /*!< écrit le mdp d'un mode explicite */
@@ -255,7 +250,7 @@ private:
     QString                       m_brewPrefix;                              /*!< préfixe Homebrew (cache) */
     MySQLInstallerDialog*         m_dialog = nullptr;                        /*!< la fiche de l'installeur */
     bool                          m_freshInstall = false;                    /*!< MySQL vient d'être installé */
-    bool                          m_restaurationPossible = false;            /*!< un compte admin a ouvert l'ancien serveur */
+    bool                          m_baseRufusTrouvee = false;                /*!< une base Rufus était présente sur le serveur effacé */
     bool                          m_comptesDejaCrees = false;                /*!< adminrufus déjà créé (mode Verify) */
     QString                       m_initLog = "/tmp/rufus_mysql_init.log";   /*!< journal d'init du datadir (macOS) */
     MySQLRemoteConfig             m_remoteConfig;                            /*!< config distante (chargée une seule fois) */

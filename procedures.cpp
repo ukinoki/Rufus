@@ -3012,21 +3012,46 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
     if (!db->connectToDataBase(DB_RUFUS, loginSQL, mdpSQL).isEmpty())
         return false;
 
+    //! Marge ×2, plancher 50 Mo pour le SQL et ses entêtes
+    const qint64 requis = qMax<qint64>(db->DatabaseSize() * 2, 50LL * 1024 * 1024);
+    QString dossier = QString(PATH_DIR_MIGRATIONMYSQL);
+    forever
+    {
+        Utils::mkpath(dossier);
+        const qint64 dispo = QStorageInfo(dossier).bytesAvailable();
+        if (dispo >= requis)
+            break;
+        UpMessageBox::Watch(Q_NULLPTR, tr("Espace disque insuffisant"),
+            tr("Le support de sauvegarde ne dispose pas d'assez d'espace libre.") + "\n\n" +
+            tr("Espace nécessaire (estimé) : ") + Utils::getExpressionSize(requis) + "\n" +
+            tr("Espace disponible : ") + Utils::getExpressionSize(dispo) + "\n\n" +
+            tr("Choisissez un autre support de sauvegarde (clé USB, disque externe…)."));
+        QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Choisissez un dossier de sauvegarde"),
+                                                  QUrl::fromLocalFile(QDir::homePath()), QStringList(), false);
+        if (url == QUrl())
+            return false;   //! sans sauvegarde, on n'efface rien
+        dossier = url.path();
+    }
+
     //! adminrufus peut ne pas exister (ou son mdp être perdu) : le dump passe par le compte admin saisi
-    if (!Backup(PATH_DIR_MIGRATIONMYSQL, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL))
+    if (!Backup(dossier, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL))
         return false;
     m_ostask.waitForFinished(-1);
 
-    const QString dossier = DerniereSauvegardeInstallation();
-    if (dossier.isEmpty())
+    //! sous-dossier horodaté que Backup vient de créer
+    const QStringList sub = QDir(dossier).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time);
+    m_sauvegardeInstallation = sub.isEmpty() ? "" : dossier + "/" + sub.first();
+    if (m_sauvegardeInstallation.isEmpty() || !SauvegardeBaseValide(m_sauvegardeInstallation))
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde incomplète"),
             tr("La sauvegarde de votre base a échoué. Rien n'a été effacé."));
+        m_sauvegardeInstallation = "";
         return false;
     }
     UpMessageBox::Watch(Q_NULLPTR, tr("Base sauvegardée"),
-        tr("Votre base a été sauvegardée dans :") + "\n" + dossier + "\n\n" +
-        tr("Rufus vous proposera de la restaurer après l'installation."));
+        tr("Votre base a été sauvegardée dans :") + "\n" + m_sauvegardeInstallation + "\n\n" +
+        tr("Notez cet emplacement : Rufus vous proposera de restaurer cette sauvegarde après "
+           "l'installation, et vous demandera où elle se trouve si ce n'est pas sur ce disque."));
     return true;
 }
 
@@ -3049,130 +3074,47 @@ bool Procedures::SauvegardeBaseValide(QString dossier)
     return fin.contains("Dump completed", Qt::CaseInsensitive);
 }
 
-//! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL (serveur local trop ancien, monoposte).
-//! Chronologie SÛRE : sauvegarde -> VALIDATION de la sauvegarde -> (seulement alors)
-//! désinstallation/réinstallation de MySQL -> restauration automatique -> relance.
-//! On ne désinstalle JAMAIS sans une sauvegarde validée : en cas d'échec à n'importe
-//! quelle étape, la sauvegarde est conservée et rien d'irréversible n'est tenté.
+/*!
+ * \brief Procedures::MettreAJourSocleMySQL
+ * Migration du socle MySQL du poste hôte : sauvegarde validée, puis désinstallation/réinstallation et
+ * restauration. Ne désinstalle jamais sans sauvegarde valide.
+ */
 bool Procedures::MettreAJourSocleMySQL()
 {
-    // 1. Avertissement + CHOIX (même schéma à 3 boutons que Procedures::VerifVersionBase) :
-    //    - « Sauvegarder les données et mettre à jour » : Rufus fait la sauvegarde lui-même, la
-    //      valide, puis migre et restaure DEPUIS cette sauvegarde (sans interaction) ;
-    //    - « Poursuivre, la sauvegarde a été faite » : l'utilisateur a DÉJÀ sa sauvegarde, on saute
-    //      l'étape de sauvegarde et on lui DEMANDERA le dossier de sauvegarde au moment de restaurer ;
-    //    - « Annuler » : on ne touche à rien.
     UpMessageBox msgbox(Q_NULLPTR);
     msgbox.setText(tr("Mise à jour du serveur MySQL nécessaire"));
     msgbox.setInformativeText(
         tr("Cette version de Rufus nécessite une version plus récente du serveur MySQL.") + "\n\n" +
-        tr("Rufus va désinstaller l'ancien MySQL, installer la nouvelle version, puis restaurer "
-           "votre base.") + "\n\n" +
-        tr("Une sauvegarde de la base est indispensable AVANT la désinstallation : Rufus peut la "
-           "faire pour vous, ou vous pouvez poursuivre si vous l'avez déjà faite (le dossier de "
-           "sauvegarde vous sera alors demandé pour la restauration)."));
+        tr("Rufus va sauvegarder votre base, désinstaller l'ancien MySQL, installer la nouvelle "
+           "version, puis vous proposer de restaurer votre base."));
     msgbox.setIcon(UpMessageBox::Warning);
     //! Refuser n'interrompt pas Rufus : le libellé doit le dire, sinon on n'ose pas cliquer.
-    UpSmallButton *Annul   = new UpSmallButton(); Annul  ->setText(tr("Plus tard,\npoursuivre le démarrage"));
-    UpSmallButton *Poursui = new UpSmallButton(); Poursui->setText(tr("Poursuivre,\nla sauvegarde a été faite"));
-    UpSmallButton *Sauve   = new UpSmallButton(); Sauve  ->setText(tr("Sauvegarder les données\net mettre à jour"));
-    msgbox.addButton(Annul,   UpSmallButton::CLOSEBUTTON);
-    msgbox.addButton(Poursui, UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(Sauve,   UpSmallButton::STARTBUTTON);
+    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Plus tard,\npoursuivre le démarrage"));
+    UpSmallButton *Maj   = new UpSmallButton(); Maj  ->setText(tr("Mettre à jour le serveur,\nje dispose d'une sauvegarde"));
+    msgbox.addButton(Annul, UpSmallButton::CLOSEBUTTON);
+    msgbox.addButton(Maj,   UpSmallButton::STARTBUTTON);
     msgbox.exec();
-    if (msgbox.clickedButton() == Annul)
+    if (msgbox.clickedButton() != Maj)
         return false;
-    const bool sauvegarderDabord = (msgbox.clickedButton() == Sauve);
 
-    //! Dossier de la sauvegarde à restaurer. VIDE => restauration INTERACTIVE (RestaureBase
-    //! demandera le dossier). Renseigné => restauration AUTOMATIQUE depuis ce dossier.
-    QString dossierSauvegarde;
+    if (!SauvegarderBaseAvantInstallation(LOGIN_SQL, MySQLInstaller::motDePasseSQL()))
+        return false;   //! rien n'a été désinstallé
 
-    if (sauvegarderDabord)
-    {
-        // 2. Sauvegarde de la base SEULE, sur un support ayant ASSEZ DE PLACE. La migration
-        //    appelle Backup() directement (sans la boîte dlg_buprestore qui, elle, vérifie
-        //    l'espace libre) : on refait donc ici l'estimation. Taille nécessaire estimée à
-        //    partir de la taille de la base (marge ×2, plancher 50 Mo pour couvrir le dump SQL
-        //    et ses entêtes). Tant que le support choisi est trop petit, on propose d'en choisir
-        //    un autre (clé USB, disque externe…) et on boucle ; aucune désinstallation n'a encore
-        //    eu lieu, donc l'annulation est sans danger.
-        const qint64 tailleBase   = db->DatabaseSize();
-        const qint64 espaceRequis = qMax<qint64>(tailleBase * 2, 50LL * 1024 * 1024);
-        QString dossierMig = QString(PATH_DIR_MIGRATIONMYSQL);
-        forever
-        {
-            Utils::mkpath(dossierMig);
-            const qint64 dispo = QStorageInfo(dossierMig).bytesAvailable();
-            if (dispo >= espaceRequis)
-                break;
-            UpMessageBox::Watch(Q_NULLPTR, tr("Espace insuffisant"),
-                tr("Le support de sauvegarde ne dispose pas d'assez d'espace libre.") + "\n\n" +
-                tr("Espace nécessaire (estimé) : ") + Utils::getExpressionSize(espaceRequis) + "\n" +
-                tr("Espace disponible : ") + Utils::getExpressionSize(dispo) + "\n\n" +
-                tr("Choisissez un autre support de sauvegarde (clé USB, disque externe…)."));
-            QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Choisissez un dossier de sauvegarde"),
-                                                      QUrl::fromLocalFile(QDir::homePath()), QStringList(), false);
-            if (url == QUrl())
-                return false;                 // annulé : rien n'a été désinstallé
-            dossierMig = url.path();
-        }
-        if (!Backup(dossierMig, true, false, false, false, false, Q_NULLPTR))
-        {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
-                tr("La sauvegarde a échoué. La mise à jour est annulée : rien n'a été désinstallé."));
-            return false;
-        }
-        //! Backup lance le dump de la base de façon ASYNCHRONE (m_ostask) : on ATTEND sa fin avant de
-        //! valider, sinon on lirait un .sql encore incomplet.
-        m_ostask.waitForFinished(-1);
-
-        // 3. Localiser le sous-dossier horodaté que Backup vient de créer (le plus récent).
-        QDir d(dossierMig);
-        const QStringList sub = d.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time);
-        if (sub.isEmpty())
-            return false;
-        dossierSauvegarde = dossierMig + "/" + sub.first();
-
-        // 4. VALIDER la sauvegarde AVANT toute destruction.
-        if (!SauvegardeBaseValide(dossierSauvegarde))
-        {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde incomplète"),
-                tr("La sauvegarde semble incomplète. La mise à jour est annulée : rien n'a été désinstallé.") + "\n" +
-                tr("Sauvegarde conservée dans :") + "\n" + dossierSauvegarde);
-            return false;
-        }
-    }
-
-    //! Rappel du lieu de la sauvegarde dans les messages d'erreur ci-dessous : selon le chemin
-    //! choisi, c'est la sauvegarde que Rufus vient de faire, ou celle de l'utilisateur (intacte).
-    const QString rappelSauvegarde = dossierSauvegarde.isEmpty()
-        ? tr("Votre sauvegarde n'a pas été touchée.")
-        : tr("Votre sauvegarde est conservée dans :") + "\n" + dossierSauvegarde;
-
-    // 5. Désinstallation + réinstallation du socle MySQL (recrée adminrufus + gaxt78iy).
     if (!MySQLInstaller().reinstallerSocleMySQLpourMigration())
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Réinstallation impossible"),
-            tr("La réinstallation de MySQL a échoué.") + "\n" + rappelSauvegarde);
+            tr("La réinstallation de MySQL a échoué.") + "\n" +
+            tr("Votre sauvegarde est conservée dans :") + "\n" + m_sauvegardeInstallation);
         return false;
     }
+    if (InstallationRufus(true))
+        return true;
 
-    // 6. Restauration de la base : AUTOMATIQUE depuis la sauvegarde validée (chemin renseigné), ou
-    //    INTERACTIVE — RestaureBase demande alors le dossier — si l'utilisateur a poursuivi avec sa
-    //    propre sauvegarde (chemin vide).
-    if (!RestaureBase(false, false, false, Q_NULLPTR, dossierSauvegarde))
-    {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Restauration impossible"),
-            tr("La base n'a pas pu être restaurée.") + "\n" + rappelSauvegarde);
-        return false;
-    }
-
-    // 7. Tout est OK : relance de Rufus sur le nouveau socle.
-    UpMessageBox::Watch(Q_NULLPTR, tr("Mise à jour terminée"),
-        tr("MySQL a été mis à jour et votre base restaurée. Rufus va redémarrer."));
-    Utils::Redemarrage();
-    return true;   // jamais atteint
+    //! serveur neuf mais base vide : sans ce rappel, on ne sait plus où est la sauvegarde
+    UpMessageBox::Watch(Q_NULLPTR, tr("Base non restaurée"),
+        tr("Le serveur MySQL a été mis à jour, mais votre base n'a pas été restaurée.") + "\n" +
+        tr("Votre sauvegarde est conservée dans :") + "\n" + m_sauvegardeInstallation);
+    return false;
 }
 
 bool Procedures::VerifVersionBase(QWidget* parent)
@@ -3531,11 +3473,11 @@ bool Procedures::Connexion_A_La_Base()
                 if (issue == MySQLInstaller::IssueMdp::Reinitialiser)
                 {
                     if (UpMessageBox::Question(Q_NULLPTR, tr("Réinitialiser le programme"),
-                            tr("Rufus va installer une base patients NEUVE sur cet ordinateur.") + "\n" +
+                            tr("Rufus va installer une base patients neuve sur cet ordinateur.") + "\n" +
                             tr("Les données de la base actuelle ne seront plus accessibles.") + "\n\n" +
                             tr("Voulez-vous continuer ?"),
                             UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                            QStringList() << tr("Annuler") << tr("Nouvelle base patients"))
+                            QStringList() << tr("Annuler") << tr("Créer une nouvelle\nbase patients"))
                         != UpSmallButton::STARTBUTTON)
                         continue;
                     PremierDemarrage(/*forceBaseVierge=*/true);
@@ -3546,16 +3488,17 @@ bool Procedures::Connexion_A_La_Base()
         else
         {
             //! monoposte, socle < 8.0.14 : aucun aléatoire n'a pu être posé, réclamer un mdp n'a pas de sens
-            if (UpMessageBox::Question(Q_NULLPTR, tr("Connexion impossible au serveur MySQL"),
-                    tr("Impossible de se connecter à votre serveur MySQL.") + "\n" +
-                    tr("Il ne semble pas y avoir de base de données Rufus sur ce serveur.") + "\n\n" +
-                    tr("Voulez-vous le réinitialiser ?") + "\n" +
-                    tr("La version de votre serveur est trop ancienne : sa réinitialisation entraînera "
-                       "l'installation d'une version plus récente de MySQL."),
+            if (UpMessageBox::Question(Q_NULLPTR, tr("Version de MySQL trop ancienne"),
+                    tr("Impossible de se connecter à votre serveur MySQL, et sa version est trop "
+                       "ancienne pour cette version de Rufus.") + "\n\n" +
+                    tr("Rufus doit installer un serveur neuf : tout ce que contient l'actuel sera "
+                       "perdu.") + "\n" +
+                    tr("Rufus vous proposera ensuite de restaurer une sauvegarde de votre base."),
                     UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                    QStringList() << tr("Annuler") << tr("Réinitialiser le serveur"))
+                    QStringList() << tr("Annuler, je vais\nsauvegarder les données")
+                                  << tr("Installer un\nserveur neuf"))
                 == UpSmallButton::STARTBUTTON)
-                PremierDemarrage(/*forceBaseVierge=*/true);
+                PremierDemarrage(/*forceBaseVierge=*/true, /*demanderRestauration=*/true);
             return false;
         }
 
@@ -4928,7 +4871,7 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::PremierDemarrage(bool forceBaseVierge)
+bool Procedures::PremierDemarrage(bool forceBaseVierge, bool demanderRestauration)
 {
     if (forceBaseVierge)
     {
@@ -5001,7 +4944,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
             //! En mode FORCÉ (raccourci -installMySQL), on NE recurse PAS : la msgbox étant sautée,
             //! une récursion sur échec n'offrirait aucune sortie. On rend la main (return false) → le
             //! flux normal de Connexion_A_La_Base présente le carrefour « Aucun serveur » (avec Quitter).
-            return forceBaseVierge ? false : PremierDemarrage(false);
+            return forceBaseVierge ? false : PremierDemarrage(false, demanderRestauration);
 
         //! nbp = TOUJOURS monoposte / serveur local. On reloge ici les effets de bord
         //! « Poste » qu'assurait dlg_paramconnexion (qu'on n'appelle plus pour nbp :
@@ -5032,7 +4975,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion au serveur MySQL"),
                                 tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreurConnexion);
-            return forceBaseVierge ? false : PremierDemarrage(false);   //! cf. note ci-dessus (pas de récursion en mode forcé)
+            return forceBaseVierge ? false : PremierDemarrage(false, demanderRestauration);   //! cf. note ci-dessus (pas de récursion en mode forcé)
         }
         m_connexionbaseOK = true;
 
@@ -5043,7 +4986,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         MDP   = installeurMySQL.mdpRufus();
 
         //! Création de la base : sauvegarde retrouvée -> restauration, sinon toute la structure vierge.
-        if (!InstallationRufus(installeurMySQL.restaurationPossible()))
+        if (!InstallationRufus(demanderRestauration || installeurMySQL.baseRufusTrouvee()))
             return false;
         m_parametres = db->parametres();
 
@@ -5081,7 +5024,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
  * \brief Procedures::InstallationRufus
  * Crée la base du poste : restauration d'une sauvegarde si on en retrouve une, sinon base vierge. Une base
  * restaurée étant déjà complète, ce cas relance Rufus au lieu de rendre la main.
- * \param demanderRestauration  proposer d'en désigner une même si le disque n'en contient aucune
+ * \param demanderRestauration  à défaut, proposer d'en désigner une sur clé USB ou disque externe
  */
 bool Procedures::InstallationRufus(bool demanderRestauration)
 {
@@ -5095,7 +5038,8 @@ bool Procedures::InstallationRufus(bool demanderRestauration)
                      == UpSmallButton::STARTBUTTON);
     else if (demanderRestauration)
         restaurer = (UpMessageBox::Question(Q_NULLPTR, tr("Restaurer une base existante ?"),
-                        tr("Disposez-vous d'une sauvegarde d'une base patients Rufus à restaurer sur ce poste ?"))
+                        tr("Disposez-vous d'une sauvegarde de votre base patients, sur une clé USB "
+                           "ou un disque externe, à restaurer sur ce poste ?"))
                      == UpSmallButton::STARTBUTTON);
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
@@ -5334,7 +5278,7 @@ bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool propose
         return false;
     }
     //! s'y connecter se joue dans la saisie des paramètres (ReparerIni), ici on la crée
-    return PremierDemarrage(/*forceBaseVierge=*/true);
+    return PremierDemarrage(/*forceBaseVierge=*/true, proposerRestauration);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

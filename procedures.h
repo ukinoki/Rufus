@@ -116,6 +116,7 @@ private:
     bool                    MettreAJourSocleMySQL();                                    //! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL : sauvegarde validée -> désinstall/réinstall MySQL -> restauration -> relance
     bool                    SauvegardeBaseValide(QString dossier);                      //! true si le dump (rufus.sql) du dossier est complet (« Dump completed »)
     QString                 DerniereSauvegardeInstallation();                           //! dossier de la sauvegarde valide la plus récente dans PATH_DIR_MIGRATIONMYSQL, vide s'il n'y en a pas
+    QString                 m_sauvegardeInstallation = "";                              //! dossier de la sauvegarde faite avant d'effacer le serveur (hors dossier figé si le disque manquait de place)
     void                    ReparerIni();                                                //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
                                      bool proposerRestauration = false);
@@ -162,7 +163,8 @@ public:
 private:
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
-    bool                    PremierDemarrage(bool forceBaseVierge = false);  //! forceBaseVierge : saute le choix vierge/existante (raccourci -installMySQL)
+    bool                    PremierDemarrage(bool forceBaseVierge = false,   //! forceBaseVierge : saute le choix vierge/existante (raccourci -installMySQL)
+                                             bool demanderRestauration = false);   //! une base Rufus existait sur ce poste : proposer d'en restaurer une sauvegarde extérieure
     void                    PremierParametrageMateriel();
     bool                    InstallationRufus(bool demanderRestauration);   //! crée la base du poste : sauvegarde retrouvée -> restauration, sinon base vierge
 public:
