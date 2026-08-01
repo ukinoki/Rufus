@@ -77,16 +77,17 @@ II LANCEMENT DE RUFUS
 	→ bouton Installation d'un poste Rufus sur un réseau -> Tooltip = Se connecter à une base patients Rufus existante sur ce réseau
 		→ dlg_paramconnexion() ne teste pas la connexion à MySQL
 			→ pas de bouton tester sur dlg_paramconnexion()
-			→ le bouton OK 
-				→ contrôle que les renseignements sont complets et suffisants pour créer un Rufus.ini valide
+			→ bouton OK
+				→ contrôle des renseignements (complets et suffisants pour créer un Rufus.ini valide)
 					→ login et mdp remplis
 					→ + en réseau local, adresse du serveur
 					→ + en accès distant l'adresse du dossier des cléSSL
-				→ ferme la fiche en créant un nouveau fichier Rufus.ini
-				→ si OK
-					→ fermeture de dlg_paramconnexion()
-					→ lit les infos de Rufus.ini
+				→ si contrôle OK
 					→ message "Rufus.ini reconstruit - poursuite du lancement"
+					→ fermeture de la fiche en créant un nouveau fichier Rufus.ini
+					→ lecture des infos de Rufus.ini
+					→ AskMdpLoginMySQL(true)
+						→ si QStringList(), message impossible de se connecter à la base de données - vérifier le mot de passe de connexion et les données du serveur (adresse, clésSSL...etc;;;"")
 			→ Annuler revient à la fiche précédente
 	→ bouton Première installation de Rufus - Créer une base patients
 		→ pas de MySQL présent → installation MySQL/Rufus
@@ -108,11 +109,11 @@ II LANCEMENT DE RUFUS
 						→ Bouton Annuler
 						→ installation MySQL(QStringList())/installation Rufus(false)
 
-FONCTION QStringList AskMdpLoginMySQL()
-	→ message demandant si on dispose d'un mdp/login
-		→ oui → essai connexion avec ce mdp/login
-			→ OK → return QStingList() << mdp << login
-			→ Pas OK → return QStingList()
+FONCTION QStringList AskMdpLoginMySQL(bool onlymdp = false)
+	→ message demandant si on dispose d'un mdp/login - uniquement le mdp si onlymdp = true
+	→ essai connexion avec ce mdp/login - si onlymdp => connexion avec adminrufus et mdp
+		→ OK → return QStingList() << mdp << login
+		→ Pas OK → return QStingList()
 
 FONCTION isBaseRufus(QStringLis mdp/login)
 	→ connexion avec ce mdp/login
