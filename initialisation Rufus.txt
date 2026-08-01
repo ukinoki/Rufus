@@ -101,7 +101,8 @@ II LANCEMENT DE RUFUS
 								→ Bouton Annuler
 								→ Bouton Non - Effacer la base
 								→ Bouton Oui - Sauvegarder le base
-									→ sauvegarde sur un dossier figé dans macros.h
+									→ sauvegarde sur un dossier figé dans macros.h ou sur un support externe si pas assez de place
+									→ annuler si sauvegarde avortée
 						→ installation MySQL(QStringList(mdp/login))/installation Rufus(true)
 					→ list empty (pas de mdp/Login valide)
 						→ Bouton Annuler
@@ -176,7 +177,8 @@ FONCTION → installation Rufus(bool demanderestauration)
 															→ Bouton Annuler
 															→ Bouton Non - Effacer la base
 															→ Bouton Oui - Sauvegarder le base
-																→ sauvegarde sur un dossier figé dans macros.h
+																→ sauvegarde sur un dossier figé dans macros.h ou sur un support externe si pas assez de place
+																→ annuler si sauvegarde avortée
 															→ installation MySQL(QStringList(mdp/login))/installation Rufus(true)
 												→ list empty (pas de mdp/Login valide)
 													→ installation MySQL(QStringList())/installation Rufus(false)
@@ -240,7 +242,8 @@ FONCTION → installation Rufus(bool demanderestauration)
 										→ message "serveur MySQL à mettre à jour"
 											→ bouton annuler et poursuivre le démarrage
 											→ bouton mettre à jour le serveur - je dispose d'une sauvegarde (ceinture et bretelles)
-												→ sauvegarde sur le dossier figé par macros.h
+												→ sauvegarde sur un dossier figé dans macros.h ou sur un support externe si pas assez de place
+												→ annuler si sauvegarde avortée
 												→ si sauvegarde OK → installation MySQL(QStringList())/installation Rufus(true)
 					→ pas de connexion et MySQL < 8.014
 						→ message "cette version de MySQL..etc..." 
