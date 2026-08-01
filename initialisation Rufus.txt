@@ -312,6 +312,10 @@ II LANCEMENT DE RUFUS
  									→ IMPORTER DEPUIS UNE CLÉ USB
 					 	c. → annuler et sortir
 									→ ANNULER
+			→ toujours pas de connexion après b ou c
+				→ question
+					→ bouton annuler → retour à la fiche précédente
+					→ bouton voulez vous utiliser la procédure de restauration du mot de passe?	→ restauration des comptes adminrufus à l'aide du mdp de secours et poursuite du programme
 			→ connexion OK
 				→ (config SERVEUR non vérifiée ici : un poste distant ne peut rien corriger ; ses propres clés SSL ont déjà été pré-contrôlées avant la connexion)
 				→ pas d'implantation de mdp sécurisé depuis un poste distant
