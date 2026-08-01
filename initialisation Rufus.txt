@@ -239,21 +239,12 @@ FONCTION → installation Rufus(bool demanderestauration)
 										→ Après l'affichage de rufus.cpp à l'écran
 										→ message "serveur MySQL à mettre à jour"
 											→ bouton annuler et poursuivre le démarrage
-											→ bouton mettre à jour le serveur
-												→ messageBox (cette messageBox existe déjà dans Procedures::VerifVersionBase() → s'en inspirer)
-													→ sauvegarder les données et mettre à jour MySQL
-														→ fermeture de Rufus
-														→ démarrage d'une sauvegarde
-														→ désinstallation/installation MySQL/Rufus
-														→ restauration de la base
-														→ relance de Rufus
-													→ bouton poursuivre, la sauvegarde a été faite
-														→ fermeture de Rufus
-														→ désinstallation/installation MySQL/Rufus
-														→ relance de Rufus
+											→ bouton mettre à jour le serveur - je dispose d'une sauvegarde (ceinture et bretelles)
+												→ sauvegarde sur le dossier figé par macros.h
+												→ si sauvegarde OK → installation MySQL(QStringList())/installation Rufus(true)
 					→ pas de connexion et MySQL < 8.014
 						→ message "cette version de MySQL..etc..." 
-							→ OK, désinstallation/réinstallation MySQL
+							→ OK → installation MySQL(QStringList())/installation Rufus(true)
 							→ Annuler, je vais sauvegarder les données
 	1b. Réseau local
 		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
