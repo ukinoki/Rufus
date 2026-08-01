@@ -3826,8 +3826,8 @@ bool MySQLInstaller::tryConnect()
 bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
 {
     const QString out = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" ping 2>&1")
-            .arg(mysqlBin("mysqladmin"), login, mdp));
+        QString("\"%1\" %2 -u \"%3\" -p\"%4\" ping 2>&1")
+            .arg(mysqlBin("mysqladmin"), argsServeurCourant(), login, mdp));
     return out.contains("mysqld is alive");
 }
 
@@ -3982,8 +3982,8 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
         return sql;
     };
     auto executer = [&](const QString& sql) {
-        return runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-                              .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
+        return runCmdFull(QString("\"%1\" %2 -u \"%3\" -p\"%4\" -e \"%5\" 2>&1")
+                              .arg(mysqlBin("mysql"), argsServeurCourant(), adminLogin, adminMdp, sql));
     };
 
     QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
@@ -4036,7 +4036,8 @@ void MySQLInstaller::supprimerCompteMySQL(const QString& login)
 }
 
 bool MySQLInstaller::rootExiste()           { return !Utils::hostsDuCompteSQL("root").isEmpty(); }
-bool MySQLInstaller::compteDeSecoursExiste(){ return !Utils::hostsDuCompteSQL(LOGIN_SQL_SECOURS).isEmpty(); }
+//! « 10.% » comme témoin : une install antérieure n'avait le secours qu'en loopback, donc incomplet
+bool MySQLInstaller::compteDeSecoursExiste(){ return Utils::hostsDuCompteSQL(LOGIN_SQL_SECOURS).contains("10.%"); }
 
 /*!
  * \brief demanderMotDePasseDeSecours
@@ -4121,7 +4122,7 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
 
 /*!
  * \brief MySQLInstaller::creerCompteDeSecours
- * Crée secoursrufus en monoposte, le teste et seulement alors — supprime root.
+ * Crée secoursrufus sur les hosts du LAN, le teste et seulement alors — supprime root.
  * \param parent
  */
 bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
@@ -4131,10 +4132,11 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
         return false;
 
     MySQLInstaller m;
-    /*! Les deux formes, comme adminrufus, selon ce que le serveur résout pour 127.0.0.1. */
+    //! Mêmes hosts qu'adminrufus : un poste du cabinet doit pouvoir lancer le secours quand le serveur
+    //! est une boîte sans écran. Jamais @'%' : ce mot de passe mémorisable ne va pas sur internet.
     auto sqlAvecAuth = [&](const QString& auth) {
         QString sql;
-        for (const QString& h : { QString("localhost"), QString("127.0.0.1") })
+        for (const QString& h : hostsLANprives())
         {
             sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(QString(LOGIN_SQL_SECOURS), h, auth, mdp);
             sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(QString(LOGIN_SQL_SECOURS), h, auth, mdp);
@@ -4164,8 +4166,9 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
     }
 
     /*! Suppression de root, vérification (relecture de mysql.user)*/
+    const bool rootAsupprimer = rootExiste();
     supprimerCompteMySQL("root");
-    if (rootExiste())
+    if (rootAsupprimer && rootExiste())
     {
         UpMessageBox::Watch(parent, tr("Mot de passe de secours enregistré"),
             tr("Votre mot de passe de secours est en place.") + "\n\n" +
@@ -4183,14 +4186,13 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
  * \brief MySQLInstaller::controlerCompteDeSecours
  * Met en place le compte de secours puis supprime root, à chaque démarrage du poste hôte. Sur une base
  * ancienne, attend l'utilisateur n°1 : lui seul choisit ce mot de passe.
- * \param iduser  id de l'utilisateur Rufus qui vient de s'identifier
  */
 void MySQLInstaller::controlerCompteDeSecours()
 {
     if (compteDeSecoursExiste())
     {
-        if (!rootExiste())
-            supprimerCompteMySQL("root");    /*!< secours déjà en place, root réapparu (mise à jour du serveur) */
+        if (rootExiste())
+            supprimerCompteMySQL("root");    /*!< root réapparu, typiquement après une mise à jour du serveur */
         return;
     }
     creerCompteDeSecours();
@@ -4209,9 +4211,9 @@ bool MySQLInstaller::restaurerAvecMotDePasseDeSecours(QWidget* parent)
     if (!tryConnectAs(LOGIN_SQL_SECOURS, mdp))
     {
         UpMessageBox::Watch(parent, tr("Mot de passe de secours refusé"),
-            tr("Ce mot de passe n'ouvre pas de session sur le serveur MySQL de ce poste.") + "\n" +
+            tr("Ce mot de passe n'ouvre pas de session sur le serveur MySQL du cabinet.") + "\n" +
             tr("Vérifiez qu'il s'agit bien du mot de passe de secours choisi à l'installation "
-               "de la base, sur CET ordinateur."));
+               "de la base."));
         return false;
     }
 
@@ -4589,6 +4591,19 @@ bool MySQLInstaller::askYesNo(const QString& title, const QString& text)
         UpDialog::ButtonCancel | UpDialog::ButtonOK,
         QStringList() << tr("Non") << tr("Oui"));
     return rep == UpSmallButton::STARTBUTTON;
+}
+
+/*!
+ * \brief MySQLInstaller::argsServeurCourant
+ * Arguments du client mysql vers le serveur du mode courant. En monoposte on garde 127.0.0.1 : « -h
+ * localhost » passerait par la socket Unix, pas par TCP comme le pilote Qt.
+ */
+QString MySQLInstaller::argsServeurCourant()
+{
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Poste)
+        return QString(LOCAL_TCP_ARGS);
+    return QString("--protocol=TCP -h %1 -P %2").arg(DataBase::I()->AdresseServer())
+                                                .arg(DataBase::I()->port());
 }
 
 QString MySQLInstaller::runCmd(const QString& cmd, int timeoutMs)

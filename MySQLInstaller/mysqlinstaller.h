@@ -219,8 +219,8 @@ public:
 
     /*! ── Compte de secours (et suppression de root) ──────────────────────────────────────────────────── */
     static bool rootExiste();                                            /*!< un compte 'root' subsiste-t-il sur ce serveur ? */
-    static bool compteDeSecoursExiste();                                 /*!< secoursrufus est-il déjà en place ? */
-    static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);       /*!< demande le mdp confidentiel, crée secoursrufus (loopback, tous droits), l'ÉPROUVE puis supprime root */
+    static bool compteDeSecoursExiste();                                 /*!< secoursrufus est-il en place sur TOUS les hosts LAN ? */
+    static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);       /*!< demande le mdp confidentiel, crée secoursrufus sur les hosts LAN, l'éprouve puis supprime root */
     static void controlerCompteDeSecours();                              /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
     bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = Q_NULLPTR);   /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
 
@@ -343,6 +343,7 @@ private:
     bool        askYesNo(const QString& title, const QString& text);     /*!< question Oui/Non (UpMessageBox::Question) */
     QString     runCmd(const QString& cmd, int timeoutMs = 30000);       /*!< exécute une commande, renvoie sa sortie */
     QString     runCmdFull(const QString& cmd, int timeoutMs = 30000);   /*!< comme runCmd, sortie complète (stdout + stderr) */
+    static QString argsServeurCourant();                                 /*!< arguments du client mysql vers le serveur du mode courant */
     QStringList lignesResultat(const QString& sortie);                   /*!< lignes de DONNÉES d'une sortie mysql (sans « [Warning] … password … ») */
 
     static void supprimerCompteMySQL(const QString& login);   /*!< supprime un compte MySQL sur TOUS ses hosts (erreur SQL muette : l'appelant constate) */

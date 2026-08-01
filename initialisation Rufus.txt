@@ -292,6 +292,7 @@ II LANCEMENT DE RUFUS
 
 	1c. Accès distant 
 		RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
+		RÈGLE → pas de procédure de secours depuis un poste WAN (secoursrufus n'existe que sur les hosts du LAN)
 		RÈGLE → on ne supprime pas le mdp générique depuis un poste WAN
 		→ pas de clés SSL
 			→ on demande où elles se trouvent
@@ -313,9 +314,8 @@ II LANCEMENT DE RUFUS
 					 	c. → annuler et sortir
 									→ ANNULER
 			→ toujours pas de connexion après b ou c
-				→ question
-					→ bouton annuler → retour à la fiche précédente
-					→ bouton voulez vous utiliser la procédure de restauration du mot de passe?	→ restauration des comptes adminrufus à l'aide du mdp de secours et poursuite du programme
+				→ message : le mot de passe peut être rétabli par la procédure de secours, mais seulement depuis un poste du réseau local du cabinet
+				   (pas de procédure de secours depuis internet)
 			→ connexion OK
 				→ (config SERVEUR non vérifiée ici : un poste distant ne peut rien corriger ; ses propres clés SSL ont déjà été pré-contrôlées avant la connexion)
 				→ pas d'implantation de mdp sécurisé depuis un poste distant
@@ -372,3 +372,14 @@ III. COMPTES adminrufus (SÉCURITÉ DES ACCÈS MySQL)
 	2. À CHAQUE LANCEMENT
 	   — on revérifie, pour les cas où une install Rufus antérieure aurait créé des mdp aléatoires sans sécuriser les adminrufus
 
+
+IV. COMPTE DE SECOURS (MOT DE PASSE PERDU)
+	→ root sans mot de passe (créé par --initialize-insecure) est détruit en fin d'installation
+	  et sa disparition est revérifiée à chaque lancement : un portable volé ne doit pas ouvrir la base
+	→ secoursrufus : créé à l'installation, mot de passe choisi par l'installateur à partir d'une
+	  question confidentielle (nom du premier chien...) — lui seul le connaît
+	→ il vit sur les MÊMES hosts qu'adminrufus (localhost, 127.0.0.1, 10.%, 172.16.%…172.31.%,
+	  192.168.%), JAMAIS sur @'%' : un mot de passe mémorisable ne va pas sur internet, mais un
+	  poste du cabinet doit pouvoir lancer le secours quand le serveur est une boîte sans écran
+	→ utilisation : à la demande, quand plus aucun mdp adminrufus ne fonctionne — on rétablit
+	  le mdp générique sur les comptes adminrufus et on poursuit le démarrage
