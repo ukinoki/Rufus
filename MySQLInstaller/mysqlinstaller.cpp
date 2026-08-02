@@ -4499,8 +4499,9 @@ static const QString NOM_PARTAGE_IMAGERIE = "RufusImagerie";
  * \brief MySQLInstaller::windowsPartageImagerieScript
  * Partage réseau du seul dossier d'imagerie. « Tout le monde » est résolu depuis son SID : son nom
  * change avec la langue de Windows.
+ * \param path  dossier partagé (C:/Users/Public)
  */
-QString MySQLInstaller::windowsPartageImagerieScript() const
+QString MySQLInstaller::windowsPartageImagerieScript(const QString& path) const
 {
     return QString(
         "powershell -NoProfile -Command \""
@@ -4513,7 +4514,7 @@ QString MySQLInstaller::windowsPartageImagerieScript() const
         "'ObjectInherit,ContainerInherit','InheritOnly','Deny'))); Set-Acl $c $a; "
         "if (Get-SmbShare -Name '%2' -ErrorAction SilentlyContinue) { Remove-SmbShare -Name '%2' -Force }; "
         "New-SmbShare -Name '%2' -Path $c -FullAccess $t | Out-Null\"")
-        .arg(QDir::toNativeSeparators(sharedFolderPath() + "/Rufus/Imagerie"), NOM_PARTAGE_IMAGERIE);
+        .arg(QDir::toNativeSeparators(path + "/Rufus/Imagerie"), NOM_PARTAGE_IMAGERIE);
 }
 #endif
 
@@ -4544,7 +4545,7 @@ bool MySQLInstaller::setupSharedFolder()
      *  réseau du dossier d'imagerie manque. */
     QDir().mkpath(path + "/Rufus/Imagerie");
     if (!partageImageriePresent())
-        runCmdElevated(windowsPartageImagerieScript());
+        runCmdElevated(windowsPartageImagerieScript(path));
     return QDir(path).exists();
 #elif defined(Q_OS_LINUX)
     /*! Déjà configuré ? Vérifications NON privilégiées (aucune invite pkexec). */

@@ -327,7 +327,7 @@ private:
     bool dossierImagerieOuvertATous();  /*!< dossier d'imagerie inscriptible par les autres comptes (postes du réseau, mysql) */
     bool partageImageriePresent();      /*!< dossier d'imagerie visible des postes du réseau */
 #if defined(Q_OS_WIN)
-    QString windowsPartageImagerieScript() const;   /*!< fragment PowerShell créant le partage du dossier d'imagerie */
+    QString windowsPartageImagerieScript(const QString& path) const;   /*!< fragment PowerShell créant le partage du dossier d'imagerie */
 #endif
 #if defined(Q_OS_LINUX)
     bool    prepareCreateModeLinux();                                                 /*!< Linux : tout le paramétrage root du mode Create en UNE élévation */
