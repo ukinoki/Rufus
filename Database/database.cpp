@@ -145,7 +145,7 @@ bool DataBase::serveurRepondAuReseau(const QString &adresse, int port)
 {
     QTcpSocket socket;
     socket.connectToHost(adresse, port);
-    return socket.waitForConnected(2000);
+    return socket.waitForConnected(5000);   /*!< 2 s ne suffisaient pas à un serveur qui sortait de veille */
 }
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
