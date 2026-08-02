@@ -113,21 +113,18 @@ qint64 DataBase::countRecords(QString table, QString where)
     return count;
 }
 
-bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage, QString origine)
+bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage)
 {
     if (erreur.type() == QSqlError::NoError)
         return false;
-    Logs::ERROR(ErrorMessage.isEmpty() ? origine : ErrorMessage,
-                tr("\nErreur\n") + erreur.text() + tr("\nrequete = ") + requete);
-    /*! À l'écran, seulement le message MÉTIER de l'appelant (« Impossible d'enregistrer… ») : sans lui,
-     *  le praticien n'aurait qu'un nom de fonction et une requête SQL, et il les enchaînerait par
-     *  dizaines sur une base abîmée. Le développeur, lui, a le log — et la boîte en build de debug. */
-    //if (!ErrorMessage.isEmpty())
-        //UpMessageBox::Watch(Q_NULLPTR, ErrorMessage);
-#ifdef QT_DEBUG
-    //else
-        UpMessageBox::Watch(Q_NULLPTR, origine + "\n" + erreur.text() + "\n" + tr("requete = ") + requete);
-#endif
+    /*! le détail (requête + erreur MySQL) part dans le log, qu'on consulte après coup ;
+        à l'écran, l'utilisateur final ne voit que le libellé transmis par l'appelant
+        (le nom de la fonction) - rien de cabalistique */
+    Logs::ERROR(ErrorMessage, tr("\nErreur\n") + erreur.text() +  tr("\nrequete = ") + requete);
+    if (!ErrorMessage.isEmpty())                 /*! pas de libellé → pas de boîte vide : le log suffit */
+            UpMessageBox::Watch(Q_NULLPTR, ErrorMessage);
+    else
+            UpMessageBox::Watch(Q_NULLPTR, erreur.text() + "\n" + tr("requete = ") + requete);
     return true;
 }
 
@@ -242,7 +239,6 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     if( m_db.open() )
     {
-        m_codeErreurConnexion.clear();
         QSqlQuery(m_db).exec("USE " DB_RUFUS);   /*! base par défaut : les DELETE/UPDATE multi-tables l'exigent
                                                     (même tables qualifiées) ; no-op tant que rufus n'existe pas (1re install) */
         //qDebug() << connectSSLoptions << m_db.isValid() << m_db.isOpen() << m_db.isOpenError() << m_db.lastError().text();
@@ -259,7 +255,6 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     }
 
     QString error = m_db.lastError().text();
-    m_codeErreurConnexion = m_db.lastError().nativeErrorCode();
     Logs::LogSQL("m_db.lastError().text()               - " + m_db.lastError().text());
     Logs::LogSQL("m_db.lastError().nativeErrorCode()    - " + m_db.lastError().nativeErrorCode());  // le code MySQL (ex. "1045", "2026"…)
     Logs::LogSQL("m_db.lastError().databaseText()       - " + m_db.lastError().databaseText());      // côté serveur/driver
@@ -268,6 +263,8 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     return error;
 
 }
+<<<<<<< HEAD
+=======
 
 /*!
  * \brief DataBase::causeEchecConnexion
@@ -285,6 +282,11 @@ DataBase::CauseEchec DataBase::causeEchecConnexion() const
         case 1045:                       return Identifiants;
         default:                         return Indeterminee;
     }
+}
+
+void DataBase::setCodeErreurServeurInjoignable()
+{
+    m_codeErreurConnexion = "2003";    /*!< "2003" = Bad hostname (alias pour ServeurInjoignable) */
 }
 
 bool DataBase::verifglobalvariablesSQL()
@@ -349,7 +351,6 @@ QString DataBase::dirimagerie()
                     error();
                     return QString();
                 }
-                Utils::rendDossierAccessibleAuServeurSQL(m_dirimagerie);    /*!< sinon né sans écriture pour les autres postes ni traversée pour mysql */
             }
         }
         else
@@ -376,7 +377,6 @@ QString DataBase::dirimagerie()
                         error();
                         return QString();
                     }
-                    Utils::rendDossierAccessibleAuServeurSQL(m_dirimagerie);    /*!< sinon né sans écriture pour les autres postes ni traversée pour mysql */
                 }
             }
         }
@@ -627,15 +627,15 @@ bool DataBase::UpdateTablebyBinds(QString nomtable,
     return a;
 }
 
-bool DataBase::StandardSQL(QString req , QString errormsg, std::source_location loc)
+bool DataBase::StandardSQL(QString req , QString errormsg)
 {
     QSqlQuery query(req, m_db);
-    bool a = !erreurRequete(query.lastError(), req, errormsg, loc.function_name());
+    bool a = !erreurRequete(query.lastError(), req, errormsg);
     query.finish();
     return a;
 }
 
-QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg, std::source_location loc)
+QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg)
 {
     /*
     exemple:
@@ -646,7 +646,7 @@ QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString 
      */
     QList<QVariantList> listreponses = QList<QVariantList>();
     QSqlQuery query(req, m_db);
-    if( erreurRequete(query.lastError(), req, errormsg, loc.function_name()))
+    if( erreurRequete(query.lastError(), req, errormsg))
     {
         OK = false;
         query.finish();
@@ -671,7 +671,7 @@ QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString 
     return listreponses;
 }
 
-QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &OK, QString errormsg, std::source_location loc)
+QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &OK, QString errormsg)
 {
     /*
      exemple:
@@ -681,7 +681,7 @@ QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &O
      if (recorddata.size()==0)               // réponse vide
     */
     //qDebug() << req;
-    QList<QVariantList> listreponses = StandardSelectSQL(req , OK, errormsg, loc);
+    QList<QVariantList> listreponses = StandardSelectSQL(req , OK, errormsg);
     if (listreponses.size()>0)
         return listreponses.at(0);
     else

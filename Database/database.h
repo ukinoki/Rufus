@@ -99,7 +99,6 @@ private:
     QString m_dirsecurefilepriv = QString();
     QString m_base;
     QString m_server;
-    QString m_codeErreurConnexion;                      //! numéro d'erreur MySQL de la dernière connexion (vide si elle a réussi)
     int m_port = 3306;
     bool ok;
     QByteArray m_cotationsXml;      //!< cache du fichier de cotations téléchargé (une seule fois par session)
@@ -133,6 +132,7 @@ public:
     /*! Pourquoi la dernière connexion a échoué, d'après le numéro d'erreur MySQL. */
     enum CauseEchec { Aucune, ServeurInjoignable, ClesSSL, Identifiants, Indeterminee };
     CauseEchec              causeEchecConnexion() const;   //! qui de l'adresse, des clés ou du mot de passe est en cause
+    void                    setCodeErreurServeurInjoignable();    //! force le code d'erreur (test reseau pre-MySQL)
     bool                    verifglobalvariablesSQL();          /*! vérifie les variales Sql_mode et secure_file_priv */
     bool                    dirsecure_file_priv();              /*! reads dir secure-file-priv registered on server */
 
@@ -160,7 +160,7 @@ public:
 
     //     REQUETES ------------------------------------------------------------------------------------------------------------------------------------------------------------------
     qint64                  countRecords(QString table, QString where = "");
-    bool                    erreurRequete(QSqlError type, QString requete, QString ErrorMessage = "", QString origine = "");
+    bool                    erreurRequete(QSqlError type, QString requete, QString ErrorMessage = "");
                                                                 //!> comme son nom l'indique
     int                     selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, QString errormsg="");
                                                                 //!> la valeur maximale d'un champ int
@@ -190,13 +190,13 @@ public:
                                                                 * - obligatoire pour insérer un QByteArray - ça ne fonctionne pas sinon
                                                                 * le hash énumère les couples nomchamp, valeur à écrire
                                                                 * affiche le message errormsg en cas de pb */
-    bool                    StandardSQL(QString req , QString errormsg = "", std::source_location loc = std::source_location::current());
+    bool                    StandardSQL(QString req , QString errormsg = std::source_location::current().function_name());
                                                                 //!> éxécute la requête req et affiche le message d'erreur errormsg en cas d'échec
-    QList<QVariantList>     StandardSelectSQL(QString req, bool &ok, QString errormsg = "", std::source_location loc = std::source_location::current());
+    QList<QVariantList>     StandardSelectSQL(QString req, bool &ok, QString errormsg = std::source_location::current().function_name());
                                                                 /*! éxécute le SELECT req et affiche le message d'erreur errormsg en cas d'échec
                                                                 * renvoie la réponse sous forme de QList<QVariantList>
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */
-    QVariantList            getFirstRecordFromStandardSelectSQL(QString req, bool &ok, QString errormsg = "", std::source_location loc = std::source_location::current());
+    QVariantList            getFirstRecordFromStandardSelectSQL(QString req, bool &ok, QString errormsg = std::source_location::current().function_name());
                                                                 /*! renvoie la première réponse de la requête SQL SELECT req et affiche le message d'erreur errormsg en cas d'échec
                                                                 * renvoie la réponse sous forme de QVariantList
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */

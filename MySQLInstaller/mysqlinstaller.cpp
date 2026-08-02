@@ -672,6 +672,20 @@ static void ecrireDBKey(const QHash<QString,QString>& table)
 }
 
 /*!
+ * \brief MySQLInstaller::testerConnectiviteServeur
+ * Test rapide (1-2 s) : le serveur configuré répond-il au TCP ? Avorte sans passer par MySQL.
+ * Permet de détecter les adresses IP fausses sans attendre le timeout TCP du système.
+ */
+bool MySQLInstaller::testerConnectiviteServeur()
+{
+    QTcpSocket socket;
+    socket.connectToHost(DataBase::I()->hostName(), DataBase::I()->port());
+    const bool connecte = socket.waitForConnected(2000);   /*!< 2 s max */
+    socket.disconnectFromHost();
+    return connecte;
+}
+
+/*!
  * \brief MySQLInstaller::connecterAvecCandidats
  * Connexion en cascade : essaie les mots de passe candidats (aléatoire .dbkey PUIS gaxt78iy) et mémorise
  * celui qui marche. Protège contre l'échec de la TOUTE PREMIÈRE connexion avec l'aléatoire fraîchement
@@ -680,6 +694,12 @@ static void ecrireDBKey(const QHash<QString,QString>& table)
  */
 QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
 {
+    if (!testerConnectiviteServeur())
+    {
+        DataBase::I()->setCodeErreurServeurInjoignable();
+        return QObject::tr("Le serveur n'est pas accessible à cette adresse");
+    }
+
     QString err;
     const QStringList candidats = motsDePasseSQLCandidats();
     for (const QString &mdp : candidats)
