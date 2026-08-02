@@ -685,6 +685,8 @@ QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
     for (const QString &mdp : candidats)
     {
         err = DataBase::I()->connectToDataBase(basename, LOGIN_SQL, mdp);
+        qDebug() << "[DIAG] candidat" << (mdp == QString(MDP_SQL) ? "generique" : "aleatoire")
+                 << "-> cause" << DataBase::I()->causeEchecConnexion() << "|" << err;
         if (err.isEmpty())
         {
             setMotDePasseSQL(mdp);                 /*!< mémorise le mdp qui fonctionne */
