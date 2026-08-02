@@ -4379,6 +4379,8 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
         /*! force user écrit tout au nom du propriétaire : lui seul a besoin d'écrire. */
         "find '%1/Rufus/Imagerie' -type d -exec chmod 0755 {} +; "
         "find '%1/Rufus/Imagerie' -type f -exec chmod 0644 {} +; "
+        /*! Reprise d'un 777 posé par une version antérieure, sans toucher aux autres bits. */
+        "chmod -R o-w '%1'; "
         /*! AppArmor : DÉSACTIVER le profil mysqld (sinon lecture des images bloquée). */
         "mkdir -p /etc/apparmor.d/disable; "
         "if [ -f /etc/apparmor.d/usr.sbin.mysqld ]; then "
@@ -4457,6 +4459,7 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         /*! mêmes droits que sous Linux : dossiers 0755, fichiers 0644 jamais exécutables */
         "find '%4/Rufus/Imagerie' -type d -exec chmod 0755 {} +\n"
         "find '%4/Rufus/Imagerie' -type f -exec chmod 0644 {} +\n"
+        "chmod -R o-w '%4'\n"                                                /*!< 777 d'une version antérieure */
         /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
@@ -4493,10 +4496,15 @@ bool MySQLInstaller::droitsDossierPartageConformes()
 #if defined(Q_OS_WIN)
     return true;                                  /*!< C:\Users\Public est ouvert à tous par le système */
 #else
-    const QString dir = sharedFolderPath() + "/Rufus/Imagerie";
+    const QString partage = sharedFolderPath();
+    const QString dir     = partage + "/Rufus/Imagerie";
     /*! absent : c'est l'autre anomalie, déjà signalée — inutile de la doubler */
     if (!QDir(dir).exists())
         return true;
+    /*! le partage et Rufus n'ont qu'à ne pas être ouverts en écriture ; Imagerie doit en plus se traverser */
+    for (const QString &d : { partage, partage + "/Rufus" })
+        if (QFile::permissions(d).testFlag(QFileDevice::WriteOther))
+            return false;
     const QFileDevice::Permissions p = QFile::permissions(dir);
     return p.testFlag(QFileDevice::ExeOther) && !p.testFlag(QFileDevice::WriteOther);
 #endif
@@ -4591,7 +4599,8 @@ bool MySQLInstaller::setupSharedFolder()
     /*! Reprise d'une version antérieure, qui a pu laisser l'arborescence en 777. */
     const QString droits = QString("mkdir -p '%1/Rufus/Imagerie'; "
                                    "find '%1/Rufus/Imagerie' -type d -exec chmod 0755 {} +; "
-                                   "find '%1/Rufus/Imagerie' -type f -exec chmod 0644 {} +").arg(path);
+                                   "find '%1/Rufus/Imagerie' -type f -exec chmod 0644 {} +; "
+                                   "chmod -R o-w '%1'").arg(path);
 
     /*! Déjà partagé ? (lecture seule, aucune élévation) */
     if (runCmd("sharing -l 2>/dev/null").contains(path))
