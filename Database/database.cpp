@@ -26,7 +26,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QEventLoop>
-#include <QTcpSocket>
 
 
 DataBase* DataBase::instance = Q_NULLPTR;
@@ -141,13 +140,6 @@ QString DataBase::versionMySQL()
     return version;
 }
 
-bool DataBase::serveurRepondAuReseau(const QString &adresse, int port)
-{
-    QTcpSocket socket;
-    socket.connectToHost(adresse, port);
-    return socket.waitForConnected(5000);   /*!< 2 s ne suffisaient pas à un serveur qui sortait de veille */
-}
-
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
     m_codeErreurConnexion.clear();      /*!< sinon un retour anticipé laisserait causeEchecConnexion() sur la tentative précédente */
@@ -160,15 +152,6 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     {
         QString error = "DataBase::connectToDataBase()\n"
                         + tr("Mode d'accès non défini : appelez setModeacces() avant de vous connecter.");
-        Logs::ERROR(error);
-        return error;
-    }
-
-    /*! Sans ce préalable, une adresse fausse laisse filer le délai TCP du système (plus d'une minute). */
-    if (m_modeacces != Utils::Poste && !serveurRepondAuReseau(m_server, m_port))
-    {
-        m_codeErreurConnexion = "2003";     /*!< le code MySQL « serveur injoignable », pour causeEchecConnexion() */
-        QString error = "DataBase::connectToDataBase()\n" + tr("Le serveur n'est pas accessible à cette adresse");
         Logs::ERROR(error);
         return error;
     }
