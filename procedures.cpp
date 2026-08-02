@@ -3380,6 +3380,9 @@ bool Procedures::Connexion_A_La_Base()
     bool secondechance = false;
     while (!errConnexion.isEmpty())
     {
+        qDebug() << "[DIAG] boucle : mode" << db->ModeAccesDataBase() << "cause" << db->causeEchecConnexion()
+                 << "serveur" << server << port << "secondechance" << secondechance;
+
         //! Réseau local : vérifier l'adresse du serveur
         if (db->ModeAccesDataBase() == Utils::ReseauLocal
          && db->causeEchecConnexion() == DataBase::ServeurInjoignable)

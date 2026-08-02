@@ -27,6 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QNetworkReply>
 #include <QEventLoop>
 #include <QTcpSocket>
+#include <QElapsedTimer>
 
 
 DataBase* DataBase::instance = Q_NULLPTR;
@@ -150,11 +151,16 @@ QString DataBase::versionMySQL()
  */
 DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port, int delaims)
 {
+    QElapsedTimer chrono;
+    chrono.start();
     QTcpSocket socket;
     socket.connectToHost(adresse, port);
-    if (socket.waitForConnected(delaims))
-        return ServeurOuvert;
-    return socket.error() == QAbstractSocket::ConnectionRefusedError ? PosteSansServeur : Deserte;
+    const bool connecte = socket.waitForConnected(delaims);
+    const EtatAdresse etat = connecte ? ServeurOuvert
+                           : (socket.error() == QAbstractSocket::ConnectionRefusedError ? PosteSansServeur : Deserte);
+    qDebug() << "[DIAG] etatAdresse" << adresse << port << "->" << etat
+             << "en" << chrono.elapsed() << "ms, erreur socket =" << socket.error() << socket.errorString();
+    return etat;
 }
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
@@ -278,6 +284,8 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     QString error = m_db.lastError().text();
     m_codeErreurConnexion = m_db.lastError().nativeErrorCode();
+    qDebug() << "[DIAG] connexion refusee" << m_server << m_port << "login" << login
+             << "code" << m_codeErreurConnexion << "|" << error;
     Logs::LogSQL("m_db.lastError().text()               - " + m_db.lastError().text());
     Logs::LogSQL("m_db.lastError().nativeErrorCode()    - " + m_db.lastError().nativeErrorCode());  // le code MySQL (ex. "1045", "2026"…)
     Logs::LogSQL("m_db.lastError().databaseText()       - " + m_db.lastError().databaseText());      // côté serveur/driver
