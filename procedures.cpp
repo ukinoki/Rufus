@@ -3379,8 +3379,8 @@ bool Procedures::Connexion_A_La_Base()
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     while (!errConnexion.isEmpty())
     {
-        //! Réseau : vérifier l'adresse du serveur
-        if (db->ModeAccesDataBase() != Utils::Poste
+        //! Réseau local : vérifier l'adresse du serveur
+        if (db->ModeAccesDataBase() == Utils::ReseauLocal
          && db->causeEchecConnexion() == DataBase::ServeurInjoignable)
         {
             //! 2. l'adresse est bonne, c'est le serveur qui manque : ne pas la mettre en cause
