@@ -4481,12 +4481,12 @@ bool MySQLInstaller::prepareCreateModeMacOS()
  */
 bool MySQLInstaller::dossierImagerieOuvertATous()
 {
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN)
+    return true;                                  /*!< C:\Users\Public est ouvert à tous par le système */
+#else
     const QString dir = sharedFolderPath() + "/Rufus/Imagerie";
     /*! absent : c'est l'autre anomalie, déjà signalée — inutile de la doubler */
     return !QDir(dir).exists() || QFile::permissions(dir).testFlag(QFileDevice::WriteOther);
-#else
-    return true;
 #endif
 }
 
@@ -4531,16 +4531,26 @@ bool MySQLInstaller::setupSharedFolder()
                    m_password + "\n");
     return QDir(path).exists();
 #else
+    /*! Droits du dossier : dossiers 0777, fichiers 0666 — le x d'un dossier est la traversée, pas l'exécution. */
+    const QString droits = QString("mkdir -p '%1/Rufus/Imagerie'; "
+                                   "find '%1/Rufus' -type d -exec chmod 0777 {} +; "
+                                   "find '%1/Rufus' -type f -exec chmod 0666 {} +").arg(path);
+
     /*! Déjà partagé ? (lecture seule, aucune élévation) */
     if (runCmd("sharing -l 2>/dev/null").contains(path))
+    {
+        if (dossierImagerieOuvertATous())
+            return true;
+        runCmdElevated(droits);                   /*!< poste installé avant : le partage est là, seuls les droits sont à reprendre */
         return true;
+    }
 
     /*! Activer SMB et déclarer le partage — opérations privilégiées (une invite macOS). */
     runCmdElevated(
         "launchctl enable system/com.apple.smbd; "
         "launchctl kickstart -k system/com.apple.smbd; "
         "sharing -a '/Users/Shared' -n 'Partagé' -s 001 -g 000; "
-        "launchctl kickstart -k system/com.apple.smbd");
+        "launchctl kickstart -k system/com.apple.smbd; " + droits);
 
     return runCmd("sharing -l 2>/dev/null").contains(path);
 #endif
