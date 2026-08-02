@@ -146,12 +146,13 @@ QString DataBase::versionMySQL()
  * Frappe une fois à l'adresse : un refus prouve qu'un poste est là, un silence qu'il n'y a personne.
  * \param adresse  adresse à éprouver
  * \param port     port du serveur
+ * \param delaims  temps laissé pour répondre, plus large en accès distant
  */
-DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port)
+DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port, int delaims)
 {
     QTcpSocket socket;
     socket.connectToHost(adresse, port);
-    if (socket.waitForConnected(5000))
+    if (socket.waitForConnected(delaims))
         return ServeurOuvert;
     return socket.error() == QAbstractSocket::ConnectionRefusedError ? PosteSansServeur : Deserte;
 }

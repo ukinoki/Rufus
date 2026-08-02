@@ -3425,9 +3425,15 @@ bool Procedures::Connexion_A_La_Base()
         if (db->ModeAccesDataBase() == Utils::Distant
          && db->causeEchecConnexion() == DataBase::ServeurInjoignable)
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Le serveur du cabinet est injoignable"),
-                tr("Rufus cherche la base du cabinet à cette adresse :") + "\n\n" + server + "\n\n" +
-                tr("Vérifiez cette adresse et, sur la box du cabinet, la redirection du port vers le serveur."));
+            if (DataBase::etatAdresse(server, port, 15000) == DataBase::PosteSansServeur)
+                UpMessageBox::Watch(Q_NULLPTR, tr("Le port du serveur n'est pas ouvert"),
+                    tr("La box du cabinet répond bien à cette adresse :") + "\n\n" + server + "\n\n" +
+                    tr("mais elle ne dirige pas la connexion vers le serveur.") + "\n\n" +
+                    tr("Faites vérifier, sur la box du cabinet, la redirection du port %1 vers le poste serveur.").arg(port));
+            else
+                UpMessageBox::Watch(Q_NULLPTR, tr("Le serveur du cabinet est injoignable"),
+                    tr("Rufus cherche la base du cabinet à cette adresse :") + "\n\n" + server + "\n\n" +
+                    tr("Vérifiez cette adresse et, sur la box du cabinet, la redirection du port vers le serveur."));
             return false;
         }
 

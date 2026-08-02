@@ -131,7 +131,7 @@ public:
     QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
     /*! Ce qu'on trouve à une adresse : personne, un poste sans serveur, ou un serveur qui ouvre. */
     enum EtatAdresse { Deserte, PosteSansServeur, ServeurOuvert };
-    static EtatAdresse      etatAdresse(const QString &adresse, int port);
+    static EtatAdresse      etatAdresse(const QString &adresse, int port, int delaims = 5000);
 
     /*! Pourquoi la dernière connexion a échoué, d'après le numéro d'erreur MySQL. */
     enum CauseEchec { Aucune, ServeurInjoignable, ServeurMuet, ClesSSL, Identifiants, Indeterminee };
