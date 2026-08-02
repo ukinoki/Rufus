@@ -4554,8 +4554,13 @@ bool MySQLInstaller::partageImageriePresent()
     return runCmd("powershell -NoProfile -Command \"if (Get-SmbShare -Name '"
                   + NOM_PARTAGE_IMAGERIE + "' -ErrorAction SilentlyContinue) { 'present' }\"")
            .contains("present");
+#elif defined(Q_OS_LINUX)
+    QFile smb("/etc/samba/smb.conf");
+    if (!smb.open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
+    return QString::fromUtf8(smb.readAll()).contains("[Rufus]");
 #else
-    return true;
+    return runCmd("sharing -l 2>/dev/null").contains(sharedFolderPath());
 #endif
 }
 
