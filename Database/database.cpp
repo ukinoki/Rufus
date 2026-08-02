@@ -241,6 +241,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         //! se fait sur le défaut. On ne le remplace PAS par MYSQL_OPT_SSL_MODE (cassait le distant).
         connectSSLoptions = "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
     }
+    connectSSLoptions += "MYSQL_OPT_CONNECT_TIMEOUT=15;";   /*!< sans plafond, le délai TCP du système passe la minute */
     m_db.setConnectOptions(connectSSLoptions);
 
     m_db.setUserName(login);
