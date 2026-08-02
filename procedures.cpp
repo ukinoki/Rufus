@@ -3389,30 +3389,21 @@ bool Procedures::Connexion_A_La_Base()
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     if (!errConnexion.isEmpty())
     {
-        //! Le serveur a répondu et refusé (mdp, clés SSL) : son adresse est bonne, ne la mettons pas en doute
-        if (db->causeEchecConnexion() == DataBase::ClesSSL)
-            UpMessageBox::Watch(Q_NULLPTR, tr("Liaison chiffrée refusée"),
-                tr("Le serveur du cabinet répond, mais il refuse la liaison chiffrée.") + "\n\n" +
-                tr("Les clés SSL de ce poste sont invalides ou périmées : faites-vous en transmettre "
-                   "de nouvelles depuis le poste serveur."));
-
         //! Réseau : vérifier l'adresse du serveur
         if (db->ModeAccesDataBase() != Utils::Poste
          && db->causeEchecConnexion() == DataBase::ServeurInjoignable)
         {
             UpMessageBox msgbox(Q_NULLPTR);
             msgbox.setIcon(UpMessageBox::Quest);
-            msgbox.setText(tr("Le serveur du cabinet est introuvable"));
+            msgbox.setText(tr("L'adresse du serveur est inexacte"));
             msgbox.setInformativeText(
                 tr("Rufus cherche la base de données du cabinet à cette adresse :") + "\n\n" +
                 server + "\n\n" +
-                tr("Est-ce toujours la bonne adresse ?"));
+                tr("Il n'y a pas de poste connecté à cette adresse"));
             UpSmallButton *bAnnuler = new UpSmallButton(tr("Abandonner et\nquitter Rufus"));
             UpSmallButton *bCorriger= new UpSmallButton(tr("Non, corriger\nl'adresse"));
-            UpSmallButton *bOui     = new UpSmallButton(tr("Oui, l'adresse\nest correcte"));
             msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
             msgbox.addButton(bCorriger, UpSmallButton::EDITBUTTON);
-            msgbox.addButton(bOui,      UpSmallButton::STARTBUTTON);
             msgbox.exec();
             if (msgbox.clickedButton() == bAnnuler)
                 return false;
@@ -3424,6 +3415,13 @@ bool Procedures::Connexion_A_La_Base()
                 return false;
             }
         }
+        //! Le serveur a répondu et refusé (mdp, clés SSL) : son adresse est bonne, ne la mettons pas en doute
+        if (db->causeEchecConnexion() == DataBase::ClesSSL)
+            UpMessageBox::Watch(Q_NULLPTR, tr("Liaison chiffrée refusée"),
+                tr("Le serveur du cabinet répond, mais il refuse la liaison chiffrée.") + "\n\n" +
+                tr("Les clés SSL de ce poste sont invalides ou périmées : faites-vous en transmettre "
+                   "de nouvelles depuis le poste serveur."));
+
 
         /*! 2. Toujours pas de connexion
          *  demander un mdp
