@@ -4624,7 +4624,7 @@ bool MySQLInstaller::setupSharedFolder()
                                    "chmod -R o-w '%1'").arg(path);
 
     /*! Déjà partagé ? (lecture seule, aucune élévation) */
-    if (runCmd("sharing -l 2>/dev/null").contains(path))
+    if (partageImageriePresent())
     {
         if (droitsDossierPartageConformes())
             return true;
@@ -4636,10 +4636,10 @@ bool MySQLInstaller::setupSharedFolder()
     runCmdElevated(
         "launchctl enable system/com.apple.smbd; "
         "launchctl kickstart -k system/com.apple.smbd; "
-        "sharing -a '/Users/Shared' -n 'Partagé' -s 001 -g 000; "
+        "sharing -a '" + path + "' -n 'Partagé' -s 001 -g 000; "
         "launchctl kickstart -k system/com.apple.smbd; " + droits);
 
-    return runCmd("sharing -l 2>/dev/null").contains(path);
+    return partageImageriePresent();
 #endif
 }
 
