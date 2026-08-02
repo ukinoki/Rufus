@@ -3377,14 +3377,17 @@ bool Procedures::Connexion_A_La_Base()
 
     //! CONNEXION + CONTRÔLE DE VERSION + SÉCURISATION — AVANT l'identification
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+    bool secondechance = false;
     while (!errConnexion.isEmpty())
     {
         //! Réseau local : vérifier l'adresse du serveur
         if (db->ModeAccesDataBase() == Utils::ReseauLocal
          && db->causeEchecConnexion() == DataBase::ServeurInjoignable)
         {
+            const DataBase::EtatAdresse etat = DataBase::etatAdresse(server, port);
+
             //! 2. l'adresse est bonne, c'est le serveur qui manque : ne pas la mettre en cause
-            if (DataBase::etatAdresse(server, port) == DataBase::PosteSansServeur)
+            if (etat == DataBase::PosteSansServeur)
             {
                 UpMessageBox::Watch(Q_NULLPTR, tr("Le serveur du cabinet ne fonctionne pas"),
                     tr("Un poste répond bien à cette adresse :") + "\n\n" + server + "\n\n" +
@@ -3393,33 +3396,45 @@ bool Procedures::Connexion_A_La_Base()
                 return false;
             }
 
-            UpMessageBox msgbox(Q_NULLPTR);
-            msgbox.setIcon(UpMessageBox::Quest);
-            msgbox.setText(tr("L'adresse du serveur est inexacte"));
-            msgbox.setInformativeText(
-                tr("Rufus cherche la base de données du cabinet à cette adresse :") + "\n\n" +
-                server + "\n\n" +
-                tr("Il n'y a pas de poste connecté à cette adresse"));
-            UpSmallButton *bAnnuler = new UpSmallButton(tr("Annuler"));
-            UpSmallButton *bCorriger= new UpSmallButton(tr("Corriger l'adresse"));
-            msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
-            msgbox.addButton(bCorriger, UpSmallButton::EDITBUTTON);
-            msgbox.exec();
-            if (msgbox.clickedButton() != bCorriger)
-                return false;
+            //! le serveur écoute : l'adresse n'est pas en cause, on retente une fois avant de la mettre en doute
+            if (etat == DataBase::ServeurOuvert && !secondechance)
+            {
+                secondechance = true;
+                errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+                continue;
+            }
 
-            QString nouvelle = server;
-            if (!Utils::SaisirAdresseIP(tr("Adresse du serveur du cabinet :"), nouvelle))
-                return false;
-            server = Utils::calcIP(nouvelle, false);
-            if (DataBase::etatAdresse(server, port) == DataBase::Deserte)
-                continue;               /*!< personne non plus à celle-ci : on la redemande, Rufus.ini intact */
+            //! 1. plus personne à cette adresse : la faire corriger
+            if (etat == DataBase::Deserte)
+            {
+                UpMessageBox msgbox(Q_NULLPTR);
+                msgbox.setIcon(UpMessageBox::Quest);
+                msgbox.setText(tr("L'adresse du serveur est inexacte"));
+                msgbox.setInformativeText(
+                    tr("Rufus cherche la base de données du cabinet à cette adresse :") + "\n\n" +
+                    server + "\n\n" +
+                    tr("Il n'y a pas de poste connecté à cette adresse"));
+                UpSmallButton *bAnnuler = new UpSmallButton(tr("Annuler"));
+                UpSmallButton *bCorriger= new UpSmallButton(tr("Corriger l'adresse"));
+                msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
+                msgbox.addButton(bCorriger, UpSmallButton::EDITBUTTON);
+                msgbox.exec();
+                if (msgbox.clickedButton() != bCorriger)
+                    return false;
 
-            m_settings  ->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur, server);
-            m_settings  ->sync();
-            db          ->initParametresConnexionSQL(server, port);
-            errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
-            continue;                   /*!< connectée, on sort ; sinon la cause a changé et la suite s'en charge */
+                QString nouvelle = server;
+                if (!Utils::SaisirAdresseIP(tr("Adresse du serveur du cabinet :"), nouvelle))
+                    return false;
+                server = Utils::calcIP(nouvelle, false);
+                if (DataBase::etatAdresse(server, port) == DataBase::Deserte)
+                    continue;           /*!< personne non plus à celle-ci : on la redemande, Rufus.ini intact */
+
+                m_settings  ->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur, server);
+                m_settings  ->sync();
+                db          ->initParametresConnexionSQL(server, port);
+                errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+                continue;               /*!< connectée, on sort ; sinon la cause a changé et la suite s'en charge */
+            }
         }
         //! Distant : ni l'adresse publique ni la box ne se corrigent depuis ce poste
         if (db->ModeAccesDataBase() == Utils::Distant
