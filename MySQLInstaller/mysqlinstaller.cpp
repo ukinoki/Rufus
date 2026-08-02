@@ -4485,28 +4485,34 @@ bool MySQLInstaller::prepareCreateModeMacOS()
 }
 #endif
 
+/*!
+ * \brief MySQLInstaller::retirerEcriturePourTous
+ * Un 777 posé par une version antérieure ouvrait l'imagerie à quiconque atteint le réseau : on le retire
+ * sans rien demander, l'utilisateur n'ayant ni à en juger ni à pouvoir refuser.
+ */
+void MySQLInstaller::retirerEcriturePourTous()
+{
+#if !defined(Q_OS_WIN)
+    const QString partage = sharedFolderPath();
+    if (QDir(partage + "/Rufus/Imagerie").exists())      /*!< un poste client n'a rien en local à corriger */
+        runCmd("chmod -R o-w '" + partage + "'");
+#endif
+}
+
 /*! ── Dossier partagé : existe et est partagé ──────────────────────────────────── */
 /*!
  * \brief MySQLInstaller::droitsDossierPartageConformes
- * Traversable par le compte du serveur MySQL, mais JAMAIS inscriptible par tous : un 777 laissé par une
- * version antérieure ouvre les images à quiconque atteint le poste.
+ * Le compte du serveur MySQL peut-il entrer dans le dossier d'imagerie ? L'écriture pour tous, elle, est
+ * retirée en silence par retirerEcriturePourTous : inutile d'en faire une anomalie à signaler.
  */
 bool MySQLInstaller::droitsDossierPartageConformes()
 {
 #if defined(Q_OS_WIN)
     return true;                                  /*!< C:\Users\Public est ouvert à tous par le système */
 #else
-    const QString partage = sharedFolderPath();
-    const QString dir     = partage + "/Rufus/Imagerie";
+    const QString dir = sharedFolderPath() + "/Rufus/Imagerie";
     /*! absent : c'est l'autre anomalie, déjà signalée — inutile de la doubler */
-    if (!QDir(dir).exists())
-        return true;
-    /*! le partage et Rufus n'ont qu'à ne pas être ouverts en écriture ; Imagerie doit en plus se traverser */
-    for (const QString &d : { partage, partage + "/Rufus" })
-        if (QFile::permissions(d).testFlag(QFileDevice::WriteOther))
-            return false;
-    const QFileDevice::Permissions p = QFile::permissions(dir);
-    return p.testFlag(QFileDevice::ExeOther) && !p.testFlag(QFileDevice::WriteOther);
+    return !QDir(dir).exists() || QFile::permissions(dir).testFlag(QFileDevice::ExeOther);
 #endif
 }
 

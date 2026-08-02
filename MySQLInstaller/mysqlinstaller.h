@@ -325,6 +325,9 @@ private:
     bool ensureSecureFilePriv();   /*!< secure_file_priv = dossier partagé (my.cnf) */
     bool testSharedFolderRW();     /*!< mysql lit ET écrit un fichier test dans le dossier partagé */
     bool droitsDossierPartageConformes();  /*!< dossier partagé traversable par mysql, et jamais inscriptible par tous */
+public:
+    void retirerEcriturePourTous();     /*!< retire en silence le w des « autres » sous le dossier partagé */
+private:
     bool partageImageriePresent();      /*!< dossier d'imagerie visible des postes du réseau */
 #if defined(Q_OS_WIN)
     QString windowsPartageImagerieScript(const QString& path) const;   /*!< fragment PowerShell créant le partage du dossier d'imagerie */
