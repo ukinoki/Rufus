@@ -4394,13 +4394,16 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
         /*! protocole NT1/SMB1 (appareils de mesure anciens) */
         "grep -q 'server min protocol' /etc/samba/smb.conf 2>/dev/null || "
           "sed -i '/^\\[global\\]/a server min protocol = NT1' /etc/samba/smb.conf; "
-        /*! partage [Rufus] -> /Users/Shared/Rufus */
+        /*! partage [Rufus] -> /Users/Shared/Rufus ; force user écrit tout au nom du propriétaire. */
         "grep -q '^\\[Rufus\\]' /etc/samba/smb.conf 2>/dev/null || "
           "printf '\\n[Rufus]\\n   comment = Rufus\\n   path = %1/Rufus\\n"
-          "   browseable = yes\\n   read only = no\\n   guest ok = yes\\n"
-          "   create mask = 0755\\n   directory mask = 0755\\n' >> /etc/samba/smb.conf; "
-        /*! utilisateur Samba = compte Ubuntu ; mot de passe = $PW. */
-        "printf '%s\\n%s\\n' \"$PW\" \"$PW\" | smbpasswd -s -a '%2' >/dev/null 2>&1 || true; "
+          "   browseable = yes\\n   read only = no\\n   guest ok = yes\\n   force user = %2\\n"
+          "   create mask = 0644\\n   directory mask = 0755\\n' >> /etc/samba/smb.conf; "
+        /*! Partage écrit par une version antérieure : le grep ci-dessus l'a laissé intact. Retrait
+            puis réinsertion, pour rester idempotent quand le partage vient d'être créé. */
+        "sed -i '/^\\[Rufus\\]/,/^\\[/{/^ *force user/d; s/^ *create mask = 0755/   create mask = 0644/}' "
+          "/etc/samba/smb.conf; "
+        "sed -i '/^\\[Rufus\\]/a\\   force user = %2' /etc/samba/smb.conf; "
         "systemctl restart smbd 2>/dev/null || service smbd restart 2>/dev/null || true; "
         /*! wsdd : activer le service */
         "systemctl enable --now wsdd 2>/dev/null || true"
