@@ -4500,6 +4500,31 @@ void MySQLInstaller::retirerEcriturePourTous()
 #endif
 }
 
+/*!
+ * \brief MySQLInstaller::corrigerPartageSamba
+ * Sans force user, un partage écrit par une version antérieure dépose les fichiers sous un compte qui
+ * n'est pas le propriétaire, et il fallait ouvrir le dossier à tous pour qu'il y parvienne.
+ */
+void MySQLInstaller::corrigerPartageSamba()
+{
+#if defined(Q_OS_LINUX)
+    if (DataBase::I()->ModeAccesDataBase() != Utils::Poste)
+        return;                                   /*!< smb.conf n'est à corriger que sur le poste qui héberge la base */
+    QFile smb("/etc/samba/smb.conf");
+    if (!smb.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+    const QString conf = QString::fromUtf8(smb.readAll());
+    if (!conf.contains("[Rufus]") || conf.contains("force user"))
+        return;
+    const QString user = runCmd("id -un 2>/dev/null").trimmed();
+    runCmdElevated(
+        "sed -i '/^\\[Rufus\\]/,/^\\[/{/^ *force user/d; "
+          "s/^ *create mask = 0755/   create mask = 0644/}' /etc/samba/smb.conf; "
+        "sed -i '/^\\[Rufus\\]/a\\   force user = " + user + "' /etc/samba/smb.conf; "
+        "systemctl restart smbd 2>/dev/null || service smbd restart 2>/dev/null || true");
+#endif
+}
+
 /*! ── Dossier partagé : existe et est partagé ──────────────────────────────────── */
 /*!
  * \brief MySQLInstaller::droitsDossierPartageConformes
