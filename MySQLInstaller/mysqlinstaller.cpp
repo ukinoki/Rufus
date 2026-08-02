@@ -2403,6 +2403,7 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     /*! Réparation : on REJOUE les étapes de config (PATH, dossier partagé, secure_file_priv,
      *  lecture/écriture, privilèges) SANS réinstaller ni recréer d'utilisateur (m_freshInstall=false). */
     m_dialog = new MySQLInstallerDialog();
+    m_dialog->masquerSaisieUtilisateur();          /*!< aucun compte à saisir : on corrige une config existante */
     m_dialog->passerEnConfiguration(tr("Correction de la configuration MySQL"),
                                     tr("Vérification et correction de la configuration en cours…"));
     m_dialog->show();
