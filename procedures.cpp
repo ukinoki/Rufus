@@ -3421,6 +3421,16 @@ bool Procedures::Connexion_A_La_Base()
             errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
             continue;                   /*!< connectée, on sort ; sinon la cause a changé et la suite s'en charge */
         }
+        //! Distant : ni l'adresse publique ni la box ne se corrigent depuis ce poste
+        if (db->ModeAccesDataBase() == Utils::Distant
+         && db->causeEchecConnexion() == DataBase::ServeurInjoignable)
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Le serveur du cabinet est injoignable"),
+                tr("Rufus cherche la base du cabinet à cette adresse :") + "\n\n" + server + "\n\n" +
+                tr("Vérifiez cette adresse et, sur la box du cabinet, la redirection du port vers le serveur."));
+            return false;
+        }
+
         //! Un serveur est bien là mais il éconduit ce poste : rien ne se répare depuis ici
         if (db->causeEchecConnexion() == DataBase::ServeurMuet)
         {
