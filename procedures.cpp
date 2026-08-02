@@ -3401,7 +3401,7 @@ bool Procedures::Connexion_A_La_Base()
                 server + "\n\n" +
                 tr("Il n'y a pas de poste connecté à cette adresse"));
             UpSmallButton *bAnnuler = new UpSmallButton(tr("Annuler"));
-            UpSmallButton *bCorriger= new UpSmallButton(tr("Corriger\nl'adresse"));
+            UpSmallButton *bCorriger= new UpSmallButton(tr("Corriger l'adresse"));
             msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
             msgbox.addButton(bCorriger, UpSmallButton::EDITBUTTON);
             msgbox.exec();

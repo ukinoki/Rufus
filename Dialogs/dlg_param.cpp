@@ -2579,12 +2579,14 @@ void dlg_param::ConnectSignals()
             //! est affecté au bouton le plus à gauche (Oups), [1] au suivant (OK).
             //! Seul un clic explicite sur OK conserve la modification ; tout le reste (Oups, fermeture
             //! de la fenêtre) rétablit le mot de passe de connexion — le choix sûr par défaut.
+            QString txtmsg = MySQLInstaller::motDePasseSQL() == QString(MDP_SQL) ?
+                        tr("Confirmez la modification du mot de passe") :
+                        tr("Le mot de passe actuellement utilisé pour se connecter à la base est correct.") + "\n"
+                        + tr("Le modifier risque d'empêcher ce poste de se reconnecter.");
             if (UpMessageBox::Question(this,
-                                       tr("Modifier le mot de passe de connexion ?"),
-                                       tr("C'est avec ce mot de passe que ce poste est actuellement connecté à la base : il est donc correct.") + "\n"
-                                       + tr("Le modifier risque d'empêcher ce poste de se reconnecter."),
+                                       tr("Modifier le mot de passe de connexion ?"), txtmsg,
                                        UpDialog::ButtonOK | UpDialog::ButtonOups,
-                                       QStringList() << tr("Oups") << tr("oui, je suis sûr\nde vouloir changer le mot de passe"))
+                                       QStringList() << tr("Oups") << tr("oui, changer le mot de passe"))
                 != UpSmallButton::STARTBUTTON)                //! STARTBUTTON = style du bouton OK
                 champMDPcourant->setText(mdpConnexion);     //! Oups / fermeture → on restaure le mot de passe qui fonctionne
             m_alerteMDPencours = false;
