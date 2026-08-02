@@ -1304,14 +1304,14 @@ void Utils::setPermissions(QFile &file, QFileDevice::Permissions permissions)
     file.setPermissions(permissions);
 }
 
-/*! Pose 0775 sur un dossier d'imagerie/factures : mkpath le crée sans droits explicites et il peut
+/*! Pose 0755 sur un dossier d'imagerie/factures : mkpath le crée sans droits explicites et il peut
     naître sans « x » pour others, auquel cas le compte du serveur MySQL n'y entre pas et LOAD_FILE
     échoue alors que le fichier est lisible. Le x d'un dossier est la traversée, pas l'exécution. */
 void Utils::rendDossierAccessibleAuServeurSQL(const QString &dirpath)
 {
     QFile::setPermissions(dirpath,
                           QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner
-                        | QFileDevice::ReadGroup | QFileDevice::WriteGroup | QFileDevice::ExeGroup
+                        | QFileDevice::ReadGroup | QFileDevice::ExeGroup
                         | QFileDevice::ReadOther | QFileDevice::ExeOther);
 }
 
