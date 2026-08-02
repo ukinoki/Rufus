@@ -145,8 +145,7 @@ QString DataBase::versionMySQL()
 
 /*!
  * \brief DataBase::etatAdresse
- * Frappe à l'adresse jusqu'à épuisement du délai : un refus prouve qu'un poste est là, un silence
- * qu'il n'y a personne. Un « host unreachable » immédiat ne conclut rien, l'ARP n'a pas eu le temps.
+ * Ce qu'on trouve à l'adresse : un serveur qui ouvre, un poste qui refuse, ou personne.
  * \param adresse  adresse à éprouver
  * \param port     port du serveur
  * \param delaims  temps laissé pour répondre, plus large en accès distant
@@ -165,7 +164,9 @@ DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port, in
             return PosteSansServeur;        /*!< quelqu'un a répondu non : verdict définitif */
         if (chrono.elapsed() >= delaims)
             return Deserte;
-        QThread::msleep(200);               /*!< voisin pas encore dans la table ARP : la 1re tentative la déclenche */
+        /*! On réessaie : « host unreachable » tombe en 0 ms tant que l'ARP n'a pas résolu le voisin,
+            et c'est la tentative elle-même qui la déclenche. Conclure sur la première est un faux négatif. */
+        QThread::msleep(200);
     }
 }
 
