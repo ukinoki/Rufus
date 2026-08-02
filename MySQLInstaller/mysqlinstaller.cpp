@@ -4377,7 +4377,7 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
         /*! Arborescence Rufus + chown -R sur tout /Users. */
         "mkdir -p '%1/Rufus/Imagerie'; chown -R %2 /Users; "
         /*! Le dossier partagé compris : une version antérieure a pu le laisser en 777. */
-        "find '%1' -type d -exec chmod 0755 {} +; find '%1' -type f -exec chmod 0644 {} +; "
+        "find '%1' -type d -exec chmod 0775 {} +; find '%1' -type f -exec chmod 0664 {} +; "
         /*! AppArmor : DÉSACTIVER le profil mysqld (sinon lecture des images bloquée). */
         "mkdir -p /etc/apparmor.d/disable; "
         "if [ -f /etc/apparmor.d/usr.sbin.mysqld ]; then "
@@ -4451,8 +4451,8 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         "cp '%3' /etc/paths.d/mysql && chmod 644 /etc/paths.d/mysql\n"       /*!< PATH */
         "mkdir -p '%4/Rufus/Imagerie'\n"                                     /*!< dossier */
         /*! mêmes droits que sous Linux : dossiers 0755, fichiers 0644 jamais exécutables */
-        "chmod 0755 '%4'\n"
-        "find '%4/Rufus' -type d -exec chmod 0755 {} +; find '%4/Rufus' -type f -exec chmod 0644 {} +\n"
+        "chmod 0775 '%4'\n"
+        "find '%4/Rufus' -type d -exec chmod 0775 {} +; find '%4/Rufus' -type f -exec chmod 0664 {} +\n"
         /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
@@ -4590,9 +4590,9 @@ bool MySQLInstaller::setupSharedFolder()
 #else
     /*! Le dossier partagé lui-même est repris : une version antérieure a pu le laisser en 777. */
     const QString droits = QString("mkdir -p '%1/Rufus/Imagerie'; "
-                                   "chmod 0755 '%1'; "
-                                   "find '%1/Rufus' -type d -exec chmod 0755 {} +; "
-                                   "find '%1/Rufus' -type f -exec chmod 0644 {} +").arg(path);
+                                   "chmod 0775 '%1'; "
+                                   "find '%1/Rufus' -type d -exec chmod 0775 {} +; "
+                                   "find '%1/Rufus' -type f -exec chmod 0664 {} +").arg(path);
 
     /*! Déjà partagé ? (lecture seule, aucune élévation) */
     if (runCmd("sharing -l 2>/dev/null").contains(path))
