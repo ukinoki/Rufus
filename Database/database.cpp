@@ -113,18 +113,18 @@ qint64 DataBase::countRecords(QString table, QString where)
     return count;
 }
 
-bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage)
+bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage, QString origine)
 {
     if (erreur.type() == QSqlError::NoError)
         return false;
-    /*! le détail (requête + erreur MySQL) part dans le log, qu'on consulte après coup ;
-        à l'écran, l'utilisateur final ne voit que le libellé transmis par l'appelant
-        (le nom de la fonction) - rien de cabalistique */
-    Logs::ERROR(ErrorMessage, tr("\nErreur\n") + erreur.text() +  tr("\nrequete = ") + requete);
-    if (!ErrorMessage.isEmpty())                 /*! pas de libellé → pas de boîte vide : le log suffit */
-            UpMessageBox::Watch(Q_NULLPTR, ErrorMessage);
-    else
-            UpMessageBox::Watch(Q_NULLPTR, erreur.text() + "\n" + tr("requete = ") + requete);
+    Logs::ERROR(ErrorMessage.isEmpty() ? origine : ErrorMessage,
+                tr("\nErreur\n") + erreur.text() + tr("\nrequete = ") + requete);
+    //if (!ErrorMessage.isEmpty())
+        //UpMessageBox::Watch(Q_NULLPTR, ErrorMessage);
+#ifdef QT_DEBUG
+    //else
+        UpMessageBox::Watch(Q_NULLPTR, origine + "\n" + erreur.text() + "\n" + tr("requete = ") + requete);
+#endif
     return true;
 }
 
@@ -221,8 +221,6 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         //! se fait sur le défaut. On ne le remplace PAS par MYSQL_OPT_SSL_MODE (cassait le distant).
         connectSSLoptions = "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
     }
-    /*! sans plafond, une adresse fausse laisse filer le délai TCP du système (plus d'une minute) */
-    connectSSLoptions += "MYSQL_OPT_CONNECT_TIMEOUT=5;";
     m_db.setConnectOptions(connectSSLoptions);
 
     m_db.setUserName(login);
@@ -241,6 +239,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     if( m_db.open() )
     {
+        m_codeErreurConnexion.clear();
         QSqlQuery(m_db).exec("USE " DB_RUFUS);   /*! base par défaut : les DELETE/UPDATE multi-tables l'exigent
                                                     (même tables qualifiées) ; no-op tant que rufus n'existe pas (1re install) */
         //qDebug() << connectSSLoptions << m_db.isValid() << m_db.isOpen() << m_db.isOpenError() << m_db.lastError().text();
@@ -257,6 +256,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     }
 
     QString error = m_db.lastError().text();
+    m_codeErreurConnexion = m_db.lastError().nativeErrorCode();
     Logs::LogSQL("m_db.lastError().text()               - " + m_db.lastError().text());
     Logs::LogSQL("m_db.lastError().nativeErrorCode()    - " + m_db.lastError().nativeErrorCode());  // le code MySQL (ex. "1045", "2026"…)
     Logs::LogSQL("m_db.lastError().databaseText()       - " + m_db.lastError().databaseText());      // côté serveur/driver
@@ -265,8 +265,6 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     return error;
 
 }
-<<<<<<< HEAD
-=======
 
 /*!
  * \brief DataBase::causeEchecConnexion
@@ -284,11 +282,6 @@ DataBase::CauseEchec DataBase::causeEchecConnexion() const
         case 1045:                       return Identifiants;
         default:                         return Indeterminee;
     }
-}
-
-void DataBase::setCodeErreurServeurInjoignable()
-{
-    m_codeErreurConnexion = "2003";    /*!< "2003" = Bad hostname (alias pour ServeurInjoignable) */
 }
 
 bool DataBase::verifglobalvariablesSQL()
@@ -353,6 +346,7 @@ QString DataBase::dirimagerie()
                     error();
                     return QString();
                 }
+                Utils::rendDossierAccessibleAuServeurSQL(m_dirimagerie);    /*!< sinon né sans écriture pour les autres postes ni traversée pour mysql */
             }
         }
         else
@@ -379,6 +373,7 @@ QString DataBase::dirimagerie()
                         error();
                         return QString();
                     }
+                    Utils::rendDossierAccessibleAuServeurSQL(m_dirimagerie);    /*!< sinon né sans écriture pour les autres postes ni traversée pour mysql */
                 }
             }
         }
@@ -629,15 +624,15 @@ bool DataBase::UpdateTablebyBinds(QString nomtable,
     return a;
 }
 
-bool DataBase::StandardSQL(QString req , QString errormsg)
+bool DataBase::StandardSQL(QString req , QString errormsg, std::source_location loc)
 {
     QSqlQuery query(req, m_db);
-    bool a = !erreurRequete(query.lastError(), req, errormsg);
+    bool a = !erreurRequete(query.lastError(), req, errormsg, loc.function_name());
     query.finish();
     return a;
 }
 
-QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg)
+QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg, std::source_location loc)
 {
     /*
     exemple:
@@ -648,7 +643,7 @@ QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString 
      */
     QList<QVariantList> listreponses = QList<QVariantList>();
     QSqlQuery query(req, m_db);
-    if( erreurRequete(query.lastError(), req, errormsg))
+    if( erreurRequete(query.lastError(), req, errormsg, loc.function_name()))
     {
         OK = false;
         query.finish();
@@ -673,7 +668,7 @@ QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString 
     return listreponses;
 }
 
-QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &OK, QString errormsg)
+QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &OK, QString errormsg, std::source_location loc)
 {
     /*
      exemple:
@@ -683,7 +678,7 @@ QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &O
      if (recorddata.size()==0)               // réponse vide
     */
     //qDebug() << req;
-    QList<QVariantList> listreponses = StandardSelectSQL(req , OK, errormsg);
+    QList<QVariantList> listreponses = StandardSelectSQL(req , OK, errormsg, loc);
     if (listreponses.size()>0)
         return listreponses.at(0);
     else

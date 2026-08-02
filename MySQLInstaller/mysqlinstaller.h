@@ -85,7 +85,6 @@ public:
     /*! ── Configuration selon le contexte (titre / sous-titre / bouton OK + reset des champs) ─────────── */
     void configurerCreateUserRufus(const QString& minVersion);                    /*!< contexte : saisie du futur utilisateur Rufus */
     void configurerVerifyAdminMySQL();                                            /*!< contexte : saisie d'un compte ADMIN MySQL existant */
-    void configurerNewUserRufus();                                                /*!< contexte : nouvel utilisateur Rufus (2e étape) */
     void passerEnConfiguration(const QString& titre, const QString& sousTitre);   /*!< bascule en « paramétrage en cours » (champs figés, boutons masqués) */
     void masquerSaisieUtilisateur();                                              /*!< cache la ligne login/mdp (réinstallation lors d'une migration) */
 
@@ -96,8 +95,6 @@ public:
 
     /*! ── Checklist ──────────────────────────────────────────────────────────────────────────────────── */
     void checkStep(int i);                              /*!< coche la case i + repaint */
-    void uncheckAllSteps();                             /*!< décoche tout */
-    void setStepDetail(int i, const QString& detail);   /*!< ajoute « : detail » au libellé de la case i */
     void setMinVersion(const QString& v);               /*!< re-libelle l'étape 0 */
     bool wasCancelled() const { return m_cancelled; }   /*!< l'utilisateur a-t-il annulé ? */
     void reject() override;                             /*!< marque l'annulation (slot public, comme QDialog) */
@@ -119,7 +116,6 @@ private:
     bool           m_confirmMdpRequis = false;          /*!< mode CRÉATION : validerSaisie() exige mdp == confirmation */
     UpSmallButton* m_btnSupprMySQL = nullptr;           /*!< « Supprimer MySQL » (mode Verify) */
     UpCheckBox*    m_steps[7];                          /*!< 0..5 = config ; 6 = clés SSL (accès distant) */
-    QString        m_stepDetail[7];
     QString        m_minVersion = VERSION_MYSQL_MINI;   /*!< seuil commun (8.0.14), écrasé par setMinVersion() */
     bool           m_cancelled  = false;
 };
@@ -128,10 +124,12 @@ private:
     Garantit au démarrage qu'un serveur MySQL conforme est prêt (installé, configuré, sécurisé), et fournit
     l'entretien qui suit (mot de passe, clés SSL). Tout est LOCAL : les données ne quittent jamais le cabinet.
 
-    * POINT D'ENTRÉE — run() (synchrone) :
-        * MySQL absent / trop vieux   -> faireCreate()      : installe MySQL, crée les comptes, configure.
-        * MySQL présent & compatible  -> demanderQueFaireMySQL (Effacer / Conserver / Réinstaller) puis
-          faireReutiliser() : réutilise l'existant, crée les comptes, configure.
+    * POINT D'ENTRÉE — run() (synchrone), cf. initialisation Rufus.txt § II.1 :
+        * MySQL absent                -> faireCreate() : installe MySQL, crée les comptes, configure.
+        * MySQL présent               -> avertissement d'effacement, AskMdpLoginMySQL(), et si le serveur
+          porte déjà une base Rufus (isBaseRufus) offre de la sauvegarder AVANT de rien détruire.
+            * socle conforme + compte admin -> faireReutiliser() : on garde le serveur.
+            * sinon -> reinstallerSocleMySQLpourMigration() : désinstallation puis serveur neuf.
         * renvoie true si un MySQL conforme est prêt.
     * ÉTAPES DE CONFIG — executerEtapesConfig(), affichées dans la checklist de MySQLInstallerDialog :
         * 0 connexion admin   1 PATH   2 dossier partagé   3 secure_file_priv
@@ -161,6 +159,7 @@ public:
 
     QString loginRufus() const { return m_loginRufus; }   /*!< login du futur utilisateur Rufus (vide si run() a échoué) */
     QString mdpRufus()   const { return m_mdpRufus; }     /*!< son mot de passe EN CLAIR */
+    bool    baseRufusTrouvee() const { return m_baseRufusTrouvee; }   /*!< une base Rufus était présente sur le serveur effacé */
 
     /*! ── Mot de passe aléatoire / .dbkey (helpers statiques) ─────────────────────────────────────────── */
     static QString     genererMotDePasse();                                                    /*!< mot de passe aléatoire fort (12 car., [A-Za-z0-9]) */
@@ -168,8 +167,6 @@ public:
     static void        setMotDePasseSQL(const QString& mdp);                                   /*!< met à jour le mdp du mode courant EN MÉMOIRE (cache) */
     static QStringList motsDePasseSQLCandidats();                                              /*!< mdp à essayer dans l'ordre : [aléatoire du mode, gaxt78iy] */
     static QString     connecterAvecCandidats(const QString& basename);                        /*!< connexion adminrufus en essayant tous les candidats ; retient celui qui marche */
-    static bool        estErreurAuthentification(const QString& erreur);                       /*!< refus d'auth (1045) et non serveur injoignable ? */
-    static bool        testerConnectiviteServeur();                                             /*!< test rapide (1-2 s) : le serveur configuré répond-il au TCP ? */
     static void        stockerMotDePasse(const QString& mdp);                                  /*!< écrit le mdp du mode courant dans .dbkey + cache */
     static QString     motDePasseStockePourMode(Utils::ModeAcces mode);                        /*!< mdp brut stocké pour un mode ("" si aucun) */
     static void        stockerMotDePassePourMode(Utils::ModeAcces mode, const QString& mdp);   /*!< écrit le mdp d'un mode explicite */
@@ -220,10 +217,25 @@ public:
 
     /*! ── Compte de secours (et suppression de root) ──────────────────────────────────────────────────── */
     static bool rootExiste();                                            /*!< un compte 'root' subsiste-t-il sur ce serveur ? */
-    static bool compteDeSecoursExiste();                                 /*!< secoursrufus est-il déjà en place ? */
-    static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);       /*!< demande le mdp confidentiel, crée secoursrufus (loopback, tous droits), l'ÉPROUVE puis supprime root */
-    static void controlerCompteDeSecours(int iduser);                    /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
+    static bool compteDeSecoursExiste();                                 /*!< secoursrufus est-il en place sur TOUS les hosts LAN ? */
+    static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);       /*!< demande le mdp confidentiel, crée secoursrufus sur les hosts LAN, l'éprouve puis supprime root */
+    static void controlerCompteDeSecours();                              /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
     bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = Q_NULLPTR);   /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
+
+    /*! ── Récupération du mot de passe du cabinet ─────────────────────────────────────────────────────── */
+    enum class IssueMdp {
+        Obtenu,         /*!< mot de passe récupéré et éprouvé */
+        Annule,         /*!< annuler et sortir */
+        Inconnu,        /*!< je n'ai aucun mot de passe */
+        Reinitialiser,  /*!< repartir d'une base neuve */
+        EchecSaisie     /*!< mot de passe saisi ou importé, mais il n'ouvre pas la base */
+    };
+
+    /*! Saisie ou clé USB, puis épreuve du mot de passe. titre/corps vides → message d'échec de
+     * connexion ; monoposte → 5 boutons au lieu de 3 (cf. initialisation Rufus.txt § II.2). */
+    static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(),
+                                             const QString &corps = QString(),
+                                             bool monoposte = false);
 
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };   /*!< résultat de createUserAvecAdmin() */
 
@@ -238,6 +250,8 @@ private:
     QString                       m_brewPrefix;                              /*!< préfixe Homebrew (cache) */
     MySQLInstallerDialog*         m_dialog = nullptr;                        /*!< la fiche de l'installeur */
     bool                          m_freshInstall = false;                    /*!< MySQL vient d'être installé */
+    bool                          m_baseRufusTrouvee = false;                /*!< une base Rufus était présente sur le serveur effacé */
+    bool                          m_serveurInjoignable = false;              /*!< dernier tryConnectAs : le serveur n'a pas répondu (ERROR 2002/2003/2005) */
     bool                          m_comptesDejaCrees = false;                /*!< adminrufus déjà créé (mode Verify) */
     QString                       m_initLog = "/tmp/rufus_mysql_init.log";   /*!< journal d'init du datadir (macOS) */
     MySQLRemoteConfig             m_remoteConfig;                            /*!< config distante (chargée une seule fois) */
@@ -247,10 +261,11 @@ private:
     bool faireCreate(const MySQLRemoteConfig& cfg);             /*!< chemin création : installe MySQL + crée adminrufus + config */
     bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);   /*!< section install de faireCreate, sans saisie (migration) */
 
-    enum class QueFaireMySQL { Annuler, Effacer, Conserver, Reinstaller };   /*!< choix de l'utilisateur face à un MySQL existant */
-    QueFaireMySQL demanderQueFaireMySQL(bool compatible);                                              /*!< boîte « MySQL déjà présent : que faire ? » */
     bool          isMariaDB();                                                                         /*!< le serveur local est-il MariaDB ? (incompatible) */
-    void          offrirSauvegardeAvantEffacement();                                                   /*!< prévient avant d'effacer des données non-Rufus (option : quitter pour sauvegarder) */
+    bool          offrirSauvegardeAvantEffacement();                                                   /*!< prévient que les données du serveur vont disparaître ; false = renoncer */
+    QStringList   AskMdpLoginMySQL();                                                                  /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide si l'utilisateur n'en a pas */
+    static bool   isBaseRufus(const QStringList& log);                                                 /*!< une base Rufus est-elle présente sur ce serveur ? */
+    bool          offrirSauvegardeBaseRufus(const QStringList& log);                                   /*!< base Rufus trouvée : sauvegarder / effacer / renoncer */
     bool          faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout);                     /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
     void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);   /*!< supprime toutes les bases non système */
 
@@ -298,7 +313,6 @@ private:
     bool isServerRunning();                                        /*!< le serveur répond-il ? */
     bool tryConnect();                                             /*!< connexion adminrufus (mdp courant) */
     bool tryConnectAs(const QString& login, const QString& mdp);   /*!< connexion avec login/mdp arbitraires (compte admin saisi) */
-    bool baseRufusComplete();                                      /*!< adminrufus se connecte ET le schéma Rufus (>=1 table) existe ? */
     bool checkPrivileges(QStringList& outMissing);                 /*!< adminrufus a-t-il tous les privilèges requis ? (manquants -> outMissing) */
     bool createUser();                                             /*!< crée adminrufus/SSL (mode création) */
 
@@ -310,9 +324,15 @@ private:
     bool setupSharedFolder();      /*!< dossier partagé existant + partagé (crée/partage sinon) */
     bool ensureSecureFilePriv();   /*!< secure_file_priv = dossier partagé (my.cnf) */
     bool testSharedFolderRW();     /*!< mysql lit ET écrit un fichier test dans le dossier partagé */
+    bool dossierImagerieOuvertATous();  /*!< dossier d'imagerie inscriptible par les autres comptes (postes du réseau, mysql) */
+    bool partageImageriePresent();      /*!< dossier d'imagerie visible des postes du réseau */
+#if defined(Q_OS_WIN)
+    QString windowsPartageImagerieScript(const QString& path) const;   /*!< fragment PowerShell créant le partage du dossier d'imagerie */
+#endif
 #if defined(Q_OS_LINUX)
     bool    prepareCreateModeLinux();                                                 /*!< Linux : tout le paramétrage root du mode Create en UNE élévation */
     QString linuxFolderSambaScript(const QString& path, const QString& user) const;   /*!< fragment shell dossier + Samba (réutilisé) */
+    QString linuxForceMysqlCnfScript() const;                                         /*!< fragment shell remettant l'aiguillage my.cnf sur mysql-server */
 #endif
 #if defined(Q_OS_MACOS)
     bool prepareCreateModeMacOS();   /*!< macOS : tout le paramétrage root du mode Create en UNE invite admin */
@@ -331,6 +351,7 @@ private:
     bool        askYesNo(const QString& title, const QString& text);     /*!< question Oui/Non (UpMessageBox::Question) */
     QString     runCmd(const QString& cmd, int timeoutMs = 30000);       /*!< exécute une commande, renvoie sa sortie */
     QString     runCmdFull(const QString& cmd, int timeoutMs = 30000);   /*!< comme runCmd, sortie complète (stdout + stderr) */
+    static QString argsServeurCourant();                                 /*!< arguments du client mysql vers le serveur du mode courant */
     QStringList lignesResultat(const QString& sortie);                   /*!< lignes de DONNÉES d'une sortie mysql (sans « [Warning] … password … ») */
 
     static void supprimerCompteMySQL(const QString& login);   /*!< supprime un compte MySQL sur TOUS ses hosts (erreur SQL muette : l'appelant constate) */
