@@ -3598,7 +3598,6 @@ bool Procedures::Connexion_A_La_Base()
 
     //! Un 777 laissé par une version antérieure se retire sans rien demander, quel que soit le mode.
     MySQLInstaller().retirerEcriturePourTous();
-    MySQLInstaller().corrigerPartageSamba();
 
     //! COHÉRENCE DE LA CONFIGURATION MySQL (MONOPOSTE uniquement).
     MySQLInstaller().verifierEtReparerConfigMonoposte();

@@ -4500,31 +4500,6 @@ void MySQLInstaller::retirerEcriturePourTous()
 #endif
 }
 
-/*!
- * \brief MySQLInstaller::corrigerPartageSamba
- * Sans force user, un partage écrit par une version antérieure dépose les fichiers sous un compte qui
- * n'est pas le propriétaire, et il fallait ouvrir le dossier à tous pour qu'il y parvienne.
- */
-void MySQLInstaller::corrigerPartageSamba()
-{
-#if defined(Q_OS_LINUX)
-    if (DataBase::I()->ModeAccesDataBase() != Utils::Poste)
-        return;                                   /*!< smb.conf n'est à corriger que sur le poste qui héberge la base */
-    QFile smb("/etc/samba/smb.conf");
-    if (!smb.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-    const QString conf = QString::fromUtf8(smb.readAll());
-    if (!conf.contains("[Rufus]") || conf.contains("force user"))
-        return;
-    const QString user = runCmd("id -un 2>/dev/null").trimmed();
-    runCmdElevated(
-        "sed -i '/^\\[Rufus\\]/,/^\\[/{/^ *force user/d; "
-          "s/^ *create mask = 0755/   create mask = 0644/}' /etc/samba/smb.conf; "
-        "sed -i '/^\\[Rufus\\]/a\\   force user = " + user + "' /etc/samba/smb.conf; "
-        "systemctl restart smbd 2>/dev/null || service smbd restart 2>/dev/null || true");
-#endif
-}
-
 /*! ── Dossier partagé : existe et est partagé ──────────────────────────────────── */
 /*!
  * \brief MySQLInstaller::droitsDossierPartageConformes
@@ -4537,8 +4512,7 @@ bool MySQLInstaller::droitsDossierPartageConformes()
     return true;                                  /*!< C:\Users\Public est ouvert à tous par le système */
 #else
     const QString dir = sharedFolderPath() + "/Rufus/Imagerie";
-    /*! absent : c'est l'autre anomalie, déjà signalée — inutile de la doubler */
-    return !QDir(dir).exists() || QFile::permissions(dir).testFlag(QFileDevice::ExeOther);
+    return QDir(dir).exists() && QFile::permissions(dir).testFlag(QFileDevice::ExeOther);
 #endif
 }
 
@@ -4583,7 +4557,9 @@ bool MySQLInstaller::partageImageriePresent()
     QFile smb("/etc/samba/smb.conf");
     if (!smb.open(QIODevice::ReadOnly | QIODevice::Text))
         return false;
-    return QString::fromUtf8(smb.readAll()).contains("[Rufus]");
+    const QString conf = QString::fromUtf8(smb.readAll());
+    /*! sans force user, le partage dépose les fichiers sous un autre compte que le propriétaire */
+    return conf.contains("[Rufus]") && conf.contains("force user");
 #else
     return runCmd("sharing -l 2>/dev/null").contains(sharedFolderPath());
 #endif
@@ -4617,6 +4593,8 @@ bool MySQLInstaller::setupSharedFolder()
             return false;
         const QString smbContent = QString::fromUtf8(smb.readAll());
         if (!smbContent.contains("[Rufus]"))
+            return false;
+        if (!smbContent.contains("force user"))
             return false;
         if (!smbContent.contains("NT1"))
             return false;

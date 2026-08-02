@@ -327,7 +327,6 @@ private:
     bool droitsDossierPartageConformes();  /*!< dossier partagé traversable par mysql, et jamais inscriptible par tous */
 public:
     void retirerEcriturePourTous();     /*!< retire en silence le w des « autres » sous le dossier partagé */
-    void corrigerPartageSamba();        /*!< pose force user sur la section [Rufus] d'un smb.conf antérieur */
 private:
     bool partageImageriePresent();      /*!< dossier d'imagerie visible des postes du réseau */
 #if defined(Q_OS_WIN)
