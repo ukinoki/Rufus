@@ -291,8 +291,6 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     QString error = m_db.lastError().text();
     m_codeErreurConnexion = m_db.lastError().nativeErrorCode();
-    qDebug() << "[DIAG] echec" << modetxt << m_server << m_port << "login" << login
-             << "options" << connectSSLoptions << "code" << m_codeErreurConnexion << "|" << error;
     Logs::LogSQL("m_db.lastError().text()               - " + m_db.lastError().text());
     Logs::LogSQL("m_db.lastError().nativeErrorCode()    - " + m_db.lastError().nativeErrorCode());  // le code MySQL (ex. "1045", "2026"…)
     Logs::LogSQL("m_db.lastError().databaseText()       - " + m_db.lastError().databaseText());      // côté serveur/driver
