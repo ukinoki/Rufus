@@ -3341,13 +3341,7 @@ bool Procedures::Connexion_A_La_Base()
     //! ACCÈS DISTANT : contrôle des CLÉS SSL (client-key.pem, client-cert.pem, ca-cert.pem)
     if (db->ModeAccesDataBase() == Utils::Distant)
     {
-        auto clesSSLpresentes = [this]() -> bool {
-            const QString dir = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
-            if (dir.isEmpty() || !QDir(dir).exists()) return false;
-            QDir d(dir);
-            return d.exists("client-key.pem") && d.exists("client-cert.pem");
-        };
-        if (!clesSSLpresentes())
+        if (!ClesSSLPresentes())
         {
              const QString dirActuel = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
             QString corps = tr("Les clés de cryptage SSL permettant la connexion à distance ne sont pas retrouvées.") + "\n\n";
@@ -3357,11 +3351,7 @@ bool Procedures::Connexion_A_La_Base()
             corps += tr("Indiquez, dans la boîte de dialogue suivante, le dossier contenant "
                         "client-key.pem et client-cert.pem.");
             UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"), corps);
-            const QString dir = QFileDialog::getExistingDirectory(Q_NULLPTR,
-                tr("Indiquez le dossier des clés SSL (client-key.pem et client-cert.pem)"));
-            if (!dir.isEmpty())
-                m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
-            if (!clesSSLpresentes())
+            if (!ChoisirDossierClesSSL())
             {
                 UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"),
                     tr("L'accès distant nécessite les clés SSL du cabinet (client-key.pem, "
@@ -3421,12 +3411,50 @@ bool Procedures::Connexion_A_La_Base()
             errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
             continue;                   /*!< connectée, on sort ; sinon la cause a changé et la suite s'en charge */
         }
+        //! Un serveur est bien là mais il éconduit ce poste : rien ne se répare depuis ici
+        if (db->causeEchecConnexion() == DataBase::ServeurMuet)
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Le serveur refuse la connexion"),
+                tr("Un serveur répond bien à cette adresse, mais il refuse de dialoguer avec ce poste.") + "\n\n" +
+                tr("Vérifiez, sur le poste qui héberge la base, que ce poste est autorisé à s'y connecter."));
+            return false;
+        }
+
         //! Le serveur a répondu et refusé (mdp, clés SSL) : son adresse est bonne, ne la mettons pas en doute
-        if (db->causeEchecConnexion() == DataBase::ClesSSL)
-            UpMessageBox::Watch(Q_NULLPTR, tr("Liaison chiffrée refusée"),
+        if (db->causeEchecConnexion() == DataBase::ClesSSL
+         && db->ModeAccesDataBase() == Utils::Distant)   /*!< Dossier_ClesSSL n'existe que pour le distant */
+        {
+            UpSmallButton *bAnnuler   = new UpSmallButton(tr("Annuler"));
+            UpSmallButton *bDemarche  = new UpSmallButton(tr("Comment me procurer\ndes clés valides ?"));
+            UpSmallButton *bChercher  = new UpSmallButton(tr("Rechercher\nles bonnes clés"));
+            UpMessageBox msgbox(Q_NULLPTR);
+            msgbox.setIcon(UpMessageBox::Quest);
+            msgbox.setText(tr("Liaison chiffrée refusée"));
+            msgbox.setInformativeText(
                 tr("Le serveur du cabinet répond, mais il refuse la liaison chiffrée.") + "\n\n" +
-                tr("Les clés SSL de ce poste sont invalides ou périmées : faites-vous en transmettre "
-                   "de nouvelles depuis le poste serveur."));
+                tr("Les clés SSL de ce poste sont invalides ou périmées."));
+            msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
+            msgbox.addButton(bDemarche, UpSmallButton::LOUPEBUTTON);
+            msgbox.addButton(bChercher, UpSmallButton::EDITBUTTON);
+            msgbox.exec();
+
+            if (msgbox.clickedButton() == bDemarche)
+            {
+                UpMessageBox::Watch(Q_NULLPTR, tr("Se procurer les clés SSL du cabinet"),
+                    tr("Sur le poste qui héberge la base : menu Édition / Paramètres, bouton d'export "
+                       "des clés SSL vers une clé USB.") + "\n\n" +
+                    tr("Sur ce poste : copiez les fichiers de la clé USB (ca-cert.pem, client-cert.pem, "
+                       "client-key.pem) dans un dossier, puis désignez-le à Rufus."));
+                continue;               /*!< la fiche reparaît pour choisir entre chercher et abandonner */
+            }
+            if (msgbox.clickedButton() != bChercher)
+                return false;
+            if (!ChoisirDossierClesSSL())
+                continue;               /*!< pas de clés dans ce dossier : on repropose */
+            m_settings  ->sync();
+            errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+            continue;                   /*!< connectée, on sort ; sinon la cause a changé et la suite s'en charge */
+        }
 
 
         /*! 2. Toujours pas de connexion
@@ -5347,6 +5375,24 @@ bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool propose
     }
     //! s'y connecter se joue dans la saisie des paramètres (ReparerIni), ici on la crée
     return PremierDemarrage(/*forceBaseVierge=*/true, proposerRestauration);
+}
+
+bool Procedures::ClesSSLPresentes() const
+{
+    const QString dir = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
+    if (dir.isEmpty() || !QDir(dir).exists())
+        return false;
+    QDir d(dir);
+    return d.exists("client-key.pem") && d.exists("client-cert.pem");
+}
+
+bool Procedures::ChoisirDossierClesSSL()
+{
+    const QString dir = QFileDialog::getExistingDirectory(Q_NULLPTR,
+        tr("Indiquez le dossier des clés SSL (client-key.pem et client-cert.pem)"));
+    if (!dir.isEmpty())
+        m_settings  ->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
+    return ClesSSLPresentes();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

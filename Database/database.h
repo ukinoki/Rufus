@@ -132,7 +132,7 @@ public:
     static bool             serveurRepondAuReseau(const QString &adresse, int port);   //! un poste répond-il au TCP à cette adresse (5 s) ?
 
     /*! Pourquoi la dernière connexion a échoué, d'après le numéro d'erreur MySQL. */
-    enum CauseEchec { Aucune, ServeurInjoignable, ClesSSL, Identifiants, Indeterminee };
+    enum CauseEchec { Aucune, ServeurInjoignable, ServeurMuet, ClesSSL, Identifiants, Indeterminee };
     CauseEchec              causeEchecConnexion() const;   //! qui de l'adresse, des clés ou du mot de passe est en cause
     bool                    verifglobalvariablesSQL();          /*! vérifie les variales Sql_mode et secure_file_priv */
     bool                    dirsecure_file_priv();              /*! reads dir secure-file-priv registered on server */

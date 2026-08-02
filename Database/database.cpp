@@ -298,6 +298,7 @@ DataBase::CauseEchec DataBase::causeEchecConnexion() const
     switch (m_codeErreurConnexion.toInt())
     {
         case 2002: case 2003: case 2005: return ServeurInjoignable;
+        case 2013: case 1129: case 1130: return ServeurMuet;
         case 2026:                       return ClesSSL;
         case 1045:                       return Identifiants;
         default:                         return Indeterminee;

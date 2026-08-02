@@ -122,6 +122,8 @@ private:
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
                                      bool proposerRestauration = false);
     bool                    VerifParamConnexion();            //! true =  le choix accès distant est validé ou non
+    bool                    ClesSSLPresentes() const;         //! client-key.pem et client-cert.pem sont-ils dans le dossier déclaré ?
+    bool                    ChoisirDossierClesSSL();          //! fait désigner le dossier des clés et l'enregistre ; true si les clés y sont
 public:
     static void             SauvegardeIni();                                            //! copie silencieuse de Rufus.ini vers ~/.rufus/.rufus.ini (appelée à chaque ouverture réussie) pour pouvoir le restaurer dans ReparerIni()
     void                    setDirSQLExecutable();                                      /*! fixe le chemin vers le dossier contenant les fichier mysql et mysqldump  */
