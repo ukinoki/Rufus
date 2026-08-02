@@ -4398,16 +4398,13 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
         /*! protocole NT1/SMB1 (appareils de mesure anciens) */
         "grep -q 'server min protocol' /etc/samba/smb.conf 2>/dev/null || "
           "sed -i '/^\\[global\\]/a server min protocol = NT1' /etc/samba/smb.conf; "
-        /*! partage [Rufus] -> /Users/Shared/Rufus ; force user écrit tout au nom du propriétaire. */
-        "grep -q '^\\[Rufus\\]' /etc/samba/smb.conf 2>/dev/null || "
-          "printf '\\n[Rufus]\\n   comment = Rufus\\n   path = %1/Rufus\\n"
+        /*! Section [Rufus] effacée puis réécrite : une section d'une version antérieure serait
+            incomplète, et la retoucher clé par clé demanderait autant de sed que de clés. */
+        "awk '/^\\[Rufus\\]/{s=1;next} /^\\[/{s=0} !s' /etc/samba/smb.conf > /tmp/smb.rufus "
+          "&& cat /tmp/smb.rufus > /etc/samba/smb.conf; rm -f /tmp/smb.rufus; "
+        "printf '\\n[Rufus]\\n   comment = Rufus\\n   path = %1/Rufus\\n"
           "   browseable = yes\\n   read only = no\\n   guest ok = yes\\n   force user = %2\\n"
           "   create mask = 0644\\n   directory mask = 0755\\n' >> /etc/samba/smb.conf; "
-        /*! Partage écrit par une version antérieure : le grep ci-dessus l'a laissé intact. Retrait
-            puis réinsertion, pour rester idempotent quand le partage vient d'être créé. */
-        "sed -i '/^\\[Rufus\\]/,/^\\[/{/^ *force user/d; s/^ *create mask = 0755/   create mask = 0644/}' "
-          "/etc/samba/smb.conf; "
-        "sed -i '/^\\[Rufus\\]/a\\   force user = %2' /etc/samba/smb.conf; "
         "systemctl restart smbd 2>/dev/null || service smbd restart 2>/dev/null || true; "
         /*! wsdd : activer le service */
         "systemctl enable --now wsdd 2>/dev/null || true"
@@ -4558,8 +4555,19 @@ bool MySQLInstaller::partageImageriePresent()
     if (!smb.open(QIODevice::ReadOnly | QIODevice::Text))
         return false;
     const QString conf = QString::fromUtf8(smb.readAll());
-    /*! sans force user, le partage dépose les fichiers sous un autre compte que le propriétaire */
-    return conf.contains("[Rufus]") && conf.contains("force user");
+    const int deb = conf.indexOf("[Rufus]");
+    if (deb < 0)
+        return false;
+    const int fin = conf.indexOf("\n[", deb);
+    const QString section = conf.mid(deb, fin < 0 ? -1 : fin - deb);
+    /*! une section incomplète partage mal : les clés sont contrôlées une à une */
+    const QStringList cles = { "path = " + sharedFolderPath() + "/Rufus", "read only = no",
+                               "guest ok = yes", "force user = ", "create mask = 0644",
+                               "directory mask = 0755" };
+    for (const QString &cle : cles)
+        if (!section.contains(cle))
+            return false;
+    return true;
 #else
     return runCmd("sharing -l 2>/dev/null").contains(sharedFolderPath());
 #endif
@@ -4592,9 +4600,7 @@ bool MySQLInstaller::setupSharedFolder()
         if (!smb.open(QIODevice::ReadOnly | QIODevice::Text))
             return false;
         const QString smbContent = QString::fromUtf8(smb.readAll());
-        if (!smbContent.contains("[Rufus]"))
-            return false;
-        if (!smbContent.contains("force user"))
+        if (!partageImageriePresent())
             return false;
         if (!smbContent.contains("NT1"))
             return false;
