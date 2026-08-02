@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QEventLoop>
 #include <QTcpSocket>
 #include <QElapsedTimer>
+#include <QThread>
 
 
 DataBase* DataBase::instance = Q_NULLPTR;
@@ -144,7 +145,8 @@ QString DataBase::versionMySQL()
 
 /*!
  * \brief DataBase::etatAdresse
- * Frappe une fois à l'adresse : un refus prouve qu'un poste est là, un silence qu'il n'y a personne.
+ * Frappe à l'adresse jusqu'à épuisement du délai : un refus prouve qu'un poste est là, un silence
+ * qu'il n'y a personne. Un « host unreachable » immédiat ne conclut rien, l'ARP n'a pas eu le temps.
  * \param adresse  adresse à éprouver
  * \param port     port du serveur
  * \param delaims  temps laissé pour répondre, plus large en accès distant
@@ -153,14 +155,20 @@ DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port, in
 {
     QElapsedTimer chrono;
     chrono.start();
-    QTcpSocket socket;
-    socket.connectToHost(adresse, port);
-    const bool connecte = socket.waitForConnected(delaims);
-    const EtatAdresse etat = connecte ? ServeurOuvert
-                           : (socket.error() == QAbstractSocket::ConnectionRefusedError ? PosteSansServeur : Deserte);
-    qDebug() << "[DIAG] etatAdresse" << adresse << port << "->" << etat
-             << "en" << chrono.elapsed() << "ms, erreur socket =" << socket.error() << socket.errorString();
-    return etat;
+    forever
+    {
+        QTcpSocket socket;
+        socket.connectToHost(adresse, port);
+        if (socket.waitForConnected(qMax(0, delaims - int(chrono.elapsed()))))
+            return ServeurOuvert;
+        if (socket.error() == QAbstractSocket::ConnectionRefusedError)
+            return PosteSansServeur;        /*!< quelqu'un a répondu non : verdict définitif */
+        qDebug() << "[DIAG] etatAdresse" << adresse << port << "echec en" << chrono.elapsed()
+                 << "ms," << socket.error() << socket.errorString();
+        if (chrono.elapsed() >= delaims)
+            return Deserte;
+        QThread::msleep(200);               /*!< voisin pas encore dans la table ARP : la 1re tentative la déclenche */
+    }
 }
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
