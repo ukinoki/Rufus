@@ -3353,7 +3353,7 @@ bool Procedures::Connexion_A_La_Base()
             QString corps = tr("Les clés de cryptage SSL permettant la connexion à distance ne sont pas retrouvées.") + "\n\n";
             if (!dirActuel.isEmpty())
                 corps += tr("Rufus les a cherchées dans le dossier :") + "\n\n" +
-                         "<p align=\"center\"><b><span style=\"color:#c00000; font-size:12pt;\">" + dirActuel + "</span></b></p>" + "\n\n";
+                         dirActuel + "\n\n";
             corps += tr("Indiquez, dans la boîte de dialogue suivante, le dossier contenant "
                         "client-key.pem et client-cert.pem.");
             UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"), corps);
@@ -3405,7 +3405,7 @@ bool Procedures::Connexion_A_La_Base()
             msgbox.setText(tr("Le serveur du cabinet est introuvable"));
             msgbox.setInformativeText(
                 tr("Rufus cherche la base de données du cabinet à cette adresse :") + "\n\n" +
-                "<p align=\"center\"><b><span style=\"color:#c00000; font-size:12pt;\">" + server + "</span></b></p>" + "\n\n" +
+                server + "\n\n" +
                 tr("Est-ce toujours la bonne adresse ?"));
             UpSmallButton *bAnnuler = new UpSmallButton(tr("Abandonner et\nquitter Rufus"));
             UpSmallButton *bCorriger= new UpSmallButton(tr("Non, corriger\nl'adresse"));
