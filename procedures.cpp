@@ -3383,6 +3383,16 @@ bool Procedures::Connexion_A_La_Base()
         if (db->ModeAccesDataBase() != Utils::Poste
          && db->causeEchecConnexion() == DataBase::ServeurInjoignable)
         {
+            //! 2. l'adresse est bonne, c'est le serveur qui manque : ne pas la mettre en cause
+            if (DataBase::etatAdresse(server, port) == DataBase::PosteSansServeur)
+            {
+                UpMessageBox::Watch(Q_NULLPTR, tr("Le serveur du cabinet ne fonctionne pas"),
+                    tr("Un poste répond bien à cette adresse :") + "\n\n" + server + "\n\n" +
+                    tr("mais le serveur de la base de données n'y fonctionne pas.") + "\n\n" +
+                    tr("Vérifiez, sur ce poste, que Rufus y a bien été installé et que le serveur est démarré."));
+                return false;
+            }
+
             UpMessageBox msgbox(Q_NULLPTR);
             msgbox.setIcon(UpMessageBox::Quest);
             msgbox.setText(tr("L'adresse du serveur est inexacte"));
@@ -3402,7 +3412,7 @@ bool Procedures::Connexion_A_La_Base()
             if (!Utils::SaisirAdresseIP(tr("Adresse du serveur du cabinet :"), nouvelle))
                 return false;
             server = Utils::calcIP(nouvelle, false);
-            if (!DataBase::unPosteRepondALAdresse(server, port))
+            if (DataBase::etatAdresse(server, port) == DataBase::Deserte)
                 continue;               /*!< personne non plus à celle-ci : on la redemande, Rufus.ini intact */
 
             m_settings  ->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur, server);

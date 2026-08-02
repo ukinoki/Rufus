@@ -142,19 +142,18 @@ QString DataBase::versionMySQL()
 }
 
 /*!
- * \brief DataBase::unPosteRepondALAdresse
- * Y a-t-il une machine à cette adresse ? Un refus de connexion en est la preuve : il a bien fallu
- * quelqu'un pour le prononcer. Une adresse déserte, elle, ne répond rien et expire.
+ * \brief DataBase::etatAdresse
+ * Frappe une fois à l'adresse : un refus prouve qu'un poste est là, un silence qu'il n'y a personne.
  * \param adresse  adresse à éprouver
- * \param port     port sur lequel frapper
+ * \param port     port du serveur
  */
-bool DataBase::unPosteRepondALAdresse(const QString &adresse, int port)
+DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port)
 {
     QTcpSocket socket;
     socket.connectToHost(adresse, port);
     if (socket.waitForConnected(5000))
-        return true;
-    return socket.error() == QAbstractSocket::ConnectionRefusedError;
+        return ServeurOuvert;
+    return socket.error() == QAbstractSocket::ConnectionRefusedError ? PosteSansServeur : Deserte;
 }
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
