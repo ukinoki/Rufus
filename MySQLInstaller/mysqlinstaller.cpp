@@ -2407,6 +2407,8 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     m_dialog->passerEnConfiguration(tr("Correction de la configuration MySQL"),
                                     tr("Vérification et correction de la configuration en cours…"));
     m_dialog->show();
+    if (socleMySQLConforme())
+        m_dialog->checkStep(0);                    /*!< étape cochée par faireCreate/faireVerify, que la réparation ne traverse pas */
     QApplication::processEvents();
     m_freshInstall = false;
     const bool repare = executerEtapesConfig();
