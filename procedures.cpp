@@ -3387,7 +3387,7 @@ bool Procedures::Connexion_A_La_Base()
 
     //! CONNEXION + CONTRÔLE DE VERSION + SÉCURISATION — AVANT l'identification
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
-    if (!errConnexion.isEmpty())
+    while (!errConnexion.isEmpty())
     {
         //! Réseau : vérifier l'adresse du serveur
         if (db->ModeAccesDataBase() != Utils::Poste
@@ -3400,14 +3400,26 @@ bool Procedures::Connexion_A_La_Base()
                 tr("Rufus cherche la base de données du cabinet à cette adresse :") + "\n\n" +
                 server + "\n\n" +
                 tr("Il n'y a pas de poste connecté à cette adresse"));
-            UpSmallButton *bAnnuler = new UpSmallButton(tr("Abandonner et\nquitter Rufus"));
-            UpSmallButton *bCorriger= new UpSmallButton(tr("Non, corriger\nl'adresse"));
+            UpSmallButton *bAnnuler = new UpSmallButton(tr("Annuler"));
+            UpSmallButton *bCorriger= new UpSmallButton(tr("Corriger\nl'adresse"));
             msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
             msgbox.addButton(bCorriger, UpSmallButton::EDITBUTTON);
             msgbox.exec();
-            if (msgbox.clickedButton() == bCorriger && VerifParamConnexion())
-                Utils::Redemarrage();   /*!< la nouvelle instance repartira sur le Rufus.ini corrigé */
-            return false;               /*!< personne à cette adresse : chercher un mot de passe n'y ferait rien */
+            if (msgbox.clickedButton() != bCorriger)
+                return false;
+
+            QString nouvelle = server;
+            if (!Utils::SaisirAdresseIP(tr("Adresse du serveur du cabinet :"), nouvelle))
+                return false;
+            server = Utils::calcIP(nouvelle, false);
+            if (!DataBase::serveurRepondAuReseau(server, port))
+                continue;               /*!< personne non plus à celle-ci : on la redemande */
+
+            m_settings  ->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur, server);
+            m_settings  ->sync();
+            db          ->initParametresConnexionSQL(server, port);
+            errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+            continue;                   /*!< connectée, on sort ; sinon la cause a changé et la suite s'en charge */
         }
         //! Le serveur a répondu et refusé (mdp, clés SSL) : son adresse est bonne, ne la mettons pas en doute
         if (db->causeEchecConnexion() == DataBase::ClesSSL)

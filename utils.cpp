@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "utils.h"
 #include "gbl_datas.h"
 #include <QBuffer>
+#include <QRegularExpressionValidator>
 
 Utils* Utils::instance =  Q_NULLPTR;
 Utils* Utils::I()
@@ -1034,6 +1035,41 @@ bool Utils::SaisirMDP(QString Msg, QString &mdp, QWidget *parent)
         return false;
     mdp = champ->text().trimmed();
     return !mdp.isEmpty();
+}
+
+/*!
+ * \brief Utils::SaisirAdresseIP
+ * Recueille une adresse IPv4 ; refuse une saisie incomplète, mais ne dit pas si un poste y répond.
+ * \param Msg     texte affiché au-dessus du champ
+ * \param ip      adresse saisie, préremplie à l'appel
+ * \param parent  fenêtre parente
+ */
+bool Utils::SaisirAdresseIP(QString Msg, QString &ip, QWidget *parent)
+{
+    UpDialog dlg(parent);
+    dlg.setWindowModality(Qt::WindowModal);
+
+    UpLabel *label = new UpLabel();
+    label   ->setText(Msg);
+    label   ->setAlignment(Qt::AlignCenter);
+    dlg     .dlglayout()->insertWidget(0, label);
+
+    UpLineEdit *champ = new UpLineEdit(&dlg);
+    champ   ->setValidator(new QRegularExpressionValidator(rgx_IPV4_mask, &dlg));
+    champ   ->setAlignment(Qt::AlignCenter);
+    champ   ->setText(ip);
+    dlg     .dlglayout()->insertWidget(1, champ);
+
+    dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg.OKButton, &QPushButton::clicked, &dlg, &QDialog::accept);
+    connect(champ, &UpLineEdit::returnPressed, dlg.OKButton, &QPushButton::click);
+    dlg.dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    champ->setFocus();
+
+    if (dlg.exec() != QDialog::Accepted || !champ->hasAcceptableInput())
+        return false;
+    ip = champ->text().trimmed();
+    return true;
 }
 
  bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified, QWidget *parent)

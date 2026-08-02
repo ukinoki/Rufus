@@ -273,6 +273,7 @@ public:
     static QString                  calcSHA1(QString mdp);              /*! renvoie la valeur de mdp codée en SHA */
     static bool                     VerifMDP(QString MDP, QString Msg, QString &mdp, bool mdpverified = false, QWidget *parent = Q_NULLPTR);
     static bool                     SaisirMDP(QString Msg, QString &mdp, QWidget *parent = Q_NULLPTR);   /*! saisit un mot de passe sans le vérifier, l'appelant en juge */
+    static bool                     SaisirAdresseIP(QString Msg, QString &ip, QWidget *parent = Q_NULLPTR);   /*! saisit une IPv4 complète, sans vérifier qu'un poste y répond */
     // liste des hosts connus pour user (adminrufus / adminrufusSSL)
     static QStringList              hostsDuCompteSQL(const QString& user);
 

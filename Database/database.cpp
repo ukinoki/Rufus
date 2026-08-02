@@ -141,6 +141,13 @@ QString DataBase::versionMySQL()
     return version;
 }
 
+bool DataBase::serveurRepondAuReseau(const QString &adresse, int port)
+{
+    QTcpSocket socket;
+    socket.connectToHost(adresse, port);
+    return socket.waitForConnected(2000);
+}
+
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
     m_codeErreurConnexion.clear();      /*!< sinon un retour anticipé laisserait causeEchecConnexion() sur la tentative précédente */
@@ -158,17 +165,12 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     }
 
     /*! Sans ce préalable, une adresse fausse laisse filer le délai TCP du système (plus d'une minute). */
-    if (m_modeacces != Utils::Poste)
+    if (m_modeacces != Utils::Poste && !serveurRepondAuReseau(m_server, m_port))
     {
-        QTcpSocket socket;
-        socket.connectToHost(m_server, m_port);
-        if (!socket.waitForConnected(2000))
-        {
-            m_codeErreurConnexion = "2003";     /*!< le code MySQL « serveur injoignable », pour causeEchecConnexion() */
-            QString error = "DataBase::connectToDataBase()\n" + tr("Le serveur n'est pas accessible à cette adresse");
-            Logs::ERROR(error);
-            return error;
-        }
+        m_codeErreurConnexion = "2003";     /*!< le code MySQL « serveur injoignable », pour causeEchecConnexion() */
+        QString error = "DataBase::connectToDataBase()\n" + tr("Le serveur n'est pas accessible à cette adresse");
+        Logs::ERROR(error);
+        return error;
     }
 
     // Une connexion homonyme peut déjà exister (cascade de mots de passe candidats,
