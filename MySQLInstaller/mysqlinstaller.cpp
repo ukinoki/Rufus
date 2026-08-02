@@ -2371,8 +2371,8 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     QStringList problemes;
     if (!QDir(sharedFolderPath()).exists())
         problemes << tr("le dossier partagé est introuvable");
-    if (!dossierImagerieOuvertATous())
-        problemes << tr("le dossier d'imagerie n'est pas accessible en écriture aux autres postes du réseau");
+    if (!dossierImagerieTraversableParMySQL())
+        problemes << tr("le serveur MySQL ne peut pas entrer dans le dossier d'imagerie");
     if (!partageImageriePresent())
         problemes << tr("le dossier d'imagerie n'est pas partagé sur le réseau");
     if (!DataBase::I()->dirsecure_file_priv())
@@ -4376,8 +4376,8 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
     return QString(
         /*! Arborescence Rufus + chown -R sur tout /Users. */
         "mkdir -p '%1/Rufus/Imagerie'; chown -R %2 /Users; "
-        /*! Postes du réseau et compte mysql doivent y écrire : dossiers 0777 (le x est la traversée), fichiers 0666 jamais exécutables. */
-        "find '%1' -type d -exec chmod 0777 {} +; find '%1' -type f -exec chmod 0666 {} +; "
+        /*! Le dossier partagé compris : une version antérieure a pu le laisser en 777. */
+        "find '%1' -type d -exec chmod 0755 {} +; find '%1' -type f -exec chmod 0644 {} +; "
         /*! AppArmor : DÉSACTIVER le profil mysqld (sinon lecture des images bloquée). */
         "mkdir -p /etc/apparmor.d/disable; "
         "if [ -f /etc/apparmor.d/usr.sbin.mysqld ]; then "
@@ -4450,8 +4450,9 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         "cp '%1' '%2' && chmod 644 '%2'\n"                                   /*!< my.cnf */
         "cp '%3' /etc/paths.d/mysql && chmod 644 /etc/paths.d/mysql\n"       /*!< PATH */
         "mkdir -p '%4/Rufus/Imagerie'\n"                                     /*!< dossier */
-        /*! mêmes droits que sous Linux : dossiers 0777, fichiers 0666 jamais exécutables */
-        "find '%4/Rufus' -type d -exec chmod 0777 {} +; find '%4/Rufus' -type f -exec chmod 0666 {} +\n"
+        /*! mêmes droits que sous Linux : dossiers 0755, fichiers 0644 jamais exécutables */
+        "chmod 0755 '%4'\n"
+        "find '%4/Rufus' -type d -exec chmod 0755 {} +; find '%4/Rufus' -type f -exec chmod 0644 {} +\n"
         /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
@@ -4479,18 +4480,18 @@ bool MySQLInstaller::prepareCreateModeMacOS()
 
 /*! ── Dossier partagé : existe et est partagé ──────────────────────────────────── */
 /*!
- * \brief MySQLInstaller::dossierImagerieOuvertATous
- * Le dossier d'imagerie est-il inscriptible par les autres comptes ? Les versions antérieures le posaient
- * en 755 : ni les postes du réseau ni le compte mysql ne pouvaient y écrire.
+ * \brief MySQLInstaller::dossierImagerieTraversableParMySQL
+ * Le compte du serveur MySQL peut-il entrer dans le dossier d'imagerie ? Sans le x, LOAD_FILE échoue
+ * même sur un fichier lisible.
  */
-bool MySQLInstaller::dossierImagerieOuvertATous()
+bool MySQLInstaller::dossierImagerieTraversableParMySQL()
 {
 #if defined(Q_OS_WIN)
     return true;                                  /*!< C:\Users\Public est ouvert à tous par le système */
 #else
     const QString dir = sharedFolderPath() + "/Rufus/Imagerie";
     /*! absent : c'est l'autre anomalie, déjà signalée — inutile de la doubler */
-    return !QDir(dir).exists() || QFile::permissions(dir).testFlag(QFileDevice::WriteOther);
+    return !QDir(dir).exists() || QFile::permissions(dir).testFlag(QFileDevice::ExeOther);
 #endif
 }
 
@@ -4554,8 +4555,8 @@ bool MySQLInstaller::setupSharedFolder()
     auto alreadyConfigured = [&]() -> bool {
         if (!QDir(path + "/Rufus/Imagerie").exists())
             return false;
-        if (!dossierImagerieOuvertATous())
-            return false;                         /*!< sinon un poste installé avant 2026 garderait ses droits 755 */
+        if (!dossierImagerieTraversableParMySQL())
+            return false;
         if (QFileInfo::exists("/etc/apparmor.d/usr.sbin.mysqld")
             && !QFileInfo("/etc/apparmor.d/disable/usr.sbin.mysqld").isSymLink())
             return false;
@@ -4580,15 +4581,16 @@ bool MySQLInstaller::setupSharedFolder()
                    m_password + "\n");
     return QDir(path).exists();
 #else
-    /*! Droits du dossier : dossiers 0777, fichiers 0666 — le x d'un dossier est la traversée, pas l'exécution. */
+    /*! Le dossier partagé lui-même est repris : une version antérieure a pu le laisser en 777. */
     const QString droits = QString("mkdir -p '%1/Rufus/Imagerie'; "
-                                   "find '%1/Rufus' -type d -exec chmod 0777 {} +; "
-                                   "find '%1/Rufus' -type f -exec chmod 0666 {} +").arg(path);
+                                   "chmod 0755 '%1'; "
+                                   "find '%1/Rufus' -type d -exec chmod 0755 {} +; "
+                                   "find '%1/Rufus' -type f -exec chmod 0644 {} +").arg(path);
 
     /*! Déjà partagé ? (lecture seule, aucune élévation) */
     if (runCmd("sharing -l 2>/dev/null").contains(path))
     {
-        if (dossierImagerieOuvertATous())
+        if (dossierImagerieTraversableParMySQL())
             return true;
         runCmdElevated(droits);                   /*!< poste installé avant : le partage est là, seuls les droits sont à reprendre */
         return true;
