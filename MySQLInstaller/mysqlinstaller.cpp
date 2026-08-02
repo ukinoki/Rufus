@@ -2371,6 +2371,8 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
         problemes << tr("le dossier partagé est introuvable");
     if (!dossierImagerieOuvertATous())
         problemes << tr("le dossier d'imagerie n'est pas accessible en écriture aux autres postes du réseau");
+    if (!partageImageriePresent())
+        problemes << tr("le dossier d'imagerie n'est pas partagé sur le réseau");
     if (!DataBase::I()->dirsecure_file_priv())
         problemes << tr("la variable serveur secure_file_priv n'est pas correctement positionnée");
 
@@ -4490,6 +4492,43 @@ bool MySQLInstaller::dossierImagerieOuvertATous()
 #endif
 }
 
+#if defined(Q_OS_WIN)
+static const QString NOM_PARTAGE_IMAGERIE = "RufusImagerie";
+
+/*!
+ * \brief MySQLInstaller::windowsPartageImagerieScript
+ * Partage réseau du seul dossier d'imagerie. « Tout le monde » est résolu depuis son SID : son nom
+ * change avec la langue de Windows.
+ */
+QString MySQLInstaller::windowsPartageImagerieScript() const
+{
+    return QString(
+        "powershell -NoProfile -Command \""
+        "$c='%1'; New-Item -ItemType Directory -Force -Path $c | Out-Null; "
+        "$t=(New-Object System.Security.Principal.SecurityIdentifier('S-1-1-0'))"
+        ".Translate([System.Security.Principal.NTAccount]).Value; "
+        "if (Get-SmbShare -Name '%2' -ErrorAction SilentlyContinue) { Remove-SmbShare -Name '%2' -Force }; "
+        "New-SmbShare -Name '%2' -Path $c -FullAccess $t | Out-Null\"")
+        .arg(QDir::toNativeSeparators(sharedFolderPath() + "/Rufus/Imagerie"), NOM_PARTAGE_IMAGERIE);
+}
+#endif
+
+/*!
+ * \brief MySQLInstaller::partageImageriePresent
+ * Windows : le dossier d'imagerie est-il partagé sur le réseau ? Ailleurs le partage est déjà posé —
+ * par Samba sous Linux, par le système sous macOS où /Users/Shared l'est d'origine.
+ */
+bool MySQLInstaller::partageImageriePresent()
+{
+#if defined(Q_OS_WIN)
+    return runCmd("powershell -NoProfile -Command \"if (Get-SmbShare -Name '"
+                  + NOM_PARTAGE_IMAGERIE + "' -ErrorAction SilentlyContinue) { 'present' }\"")
+           .contains("present");
+#else
+    return true;
+#endif
+}
+
 bool MySQLInstaller::setupSharedFolder()
 {
     const QString path = sharedFolderPath();
@@ -4497,8 +4536,11 @@ bool MySQLInstaller::setupSharedFolder()
         QDir().mkpath(path);
 
 #if defined(Q_OS_WIN)
-    /*! C:\Users\Public existe par défaut et est accessible en lecture/écriture à tous les comptes
-     *  Windows : aucun partage supplémentaire à configurer. */
+    /*! C:\Users\Public est déjà ouvert en lecture/écriture à tous les comptes du poste : seul le partage
+     *  réseau du dossier d'imagerie manque. */
+    QDir().mkpath(path + "/Rufus/Imagerie");
+    if (!partageImageriePresent())
+        runCmdElevated(windowsPartageImagerieScript());
     return QDir(path).exists();
 #elif defined(Q_OS_LINUX)
     /*! Déjà configuré ? Vérifications NON privilégiées (aucune invite pkexec). */
