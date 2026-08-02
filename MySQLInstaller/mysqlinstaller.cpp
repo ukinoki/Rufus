@@ -2371,8 +2371,8 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     QStringList problemes;
     if (!QDir(sharedFolderPath()).exists())
         problemes << tr("le dossier partagé est introuvable");
-    if (!dossierImagerieTraversableParMySQL())
-        problemes << tr("le serveur MySQL ne peut pas entrer dans le dossier d'imagerie");
+    if (!droitsDossierPartageConformes())
+        problemes << tr("les droits du dossier d'imagerie sont incorrects");
     if (!partageImageriePresent())
         problemes << tr("le dossier d'imagerie n'est pas partagé sur le réseau");
     if (!DataBase::I()->dirsecure_file_priv())
@@ -4480,18 +4480,25 @@ bool MySQLInstaller::prepareCreateModeMacOS()
 
 /*! ── Dossier partagé : existe et est partagé ──────────────────────────────────── */
 /*!
- * \brief MySQLInstaller::dossierImagerieTraversableParMySQL
- * Le compte du serveur MySQL peut-il entrer dans le dossier d'imagerie ? Sans le x, LOAD_FILE échoue
- * même sur un fichier lisible.
+ * \brief MySQLInstaller::droitsDossierPartageConformes
+ * Traversable par le compte du serveur MySQL, mais JAMAIS inscriptible par tous : un 777 laissé par une
+ * version antérieure ouvre les images à quiconque atteint le poste.
  */
-bool MySQLInstaller::dossierImagerieTraversableParMySQL()
+bool MySQLInstaller::droitsDossierPartageConformes()
 {
 #if defined(Q_OS_WIN)
     return true;                                  /*!< C:\Users\Public est ouvert à tous par le système */
 #else
-    const QString dir = sharedFolderPath() + "/Rufus/Imagerie";
+    const QString partage = sharedFolderPath();
+    const QString dir     = partage + "/Rufus/Imagerie";
     /*! absent : c'est l'autre anomalie, déjà signalée — inutile de la doubler */
-    return !QDir(dir).exists() || QFile::permissions(dir).testFlag(QFileDevice::ExeOther);
+    if (!QDir(dir).exists())
+        return true;
+    auto conformes = [](const QString &d) {
+        const QFileDevice::Permissions p = QFile::permissions(d);
+        return p.testFlag(QFileDevice::ExeOther) && !p.testFlag(QFileDevice::WriteOther);
+    };
+    return conformes(partage) && conformes(dir);
 #endif
 }
 
@@ -4555,7 +4562,7 @@ bool MySQLInstaller::setupSharedFolder()
     auto alreadyConfigured = [&]() -> bool {
         if (!QDir(path + "/Rufus/Imagerie").exists())
             return false;
-        if (!dossierImagerieTraversableParMySQL())
+        if (!droitsDossierPartageConformes())
             return false;
         if (QFileInfo::exists("/etc/apparmor.d/usr.sbin.mysqld")
             && !QFileInfo("/etc/apparmor.d/disable/usr.sbin.mysqld").isSymLink())
@@ -4590,7 +4597,7 @@ bool MySQLInstaller::setupSharedFolder()
     /*! Déjà partagé ? (lecture seule, aucune élévation) */
     if (runCmd("sharing -l 2>/dev/null").contains(path))
     {
-        if (dossierImagerieTraversableParMySQL())
+        if (droitsDossierPartageConformes())
             return true;
         runCmdElevated(droits);                   /*!< poste installé avant : le partage est là, seuls les droits sont à reprendre */
         return true;

@@ -324,7 +324,7 @@ private:
     bool setupSharedFolder();      /*!< dossier partagé existant + partagé (crée/partage sinon) */
     bool ensureSecureFilePriv();   /*!< secure_file_priv = dossier partagé (my.cnf) */
     bool testSharedFolderRW();     /*!< mysql lit ET écrit un fichier test dans le dossier partagé */
-    bool dossierImagerieTraversableParMySQL();  /*!< le compte du serveur MySQL peut-il entrer dans le dossier d'imagerie ? */
+    bool droitsDossierPartageConformes();  /*!< dossier partagé traversable par mysql, et jamais inscriptible par tous */
     bool partageImageriePresent();      /*!< dossier d'imagerie visible des postes du réseau */
 #if defined(Q_OS_WIN)
     QString windowsPartageImagerieScript(const QString& path) const;   /*!< fragment PowerShell créant le partage du dossier d'imagerie */
