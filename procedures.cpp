@@ -3405,15 +3405,9 @@ bool Procedures::Connexion_A_La_Base()
             msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
             msgbox.addButton(bCorriger, UpSmallButton::EDITBUTTON);
             msgbox.exec();
-            if (msgbox.clickedButton() == bAnnuler)
-                return false;
-            if (msgbox.clickedButton() == bCorriger)
-            {
-                //! On relance : la nouvelle instance repartira sur le Rufus.ini corrigé.
-                if (VerifParamConnexion())
-                    Utils::Redemarrage();
-                return false;
-            }
+            if (msgbox.clickedButton() == bCorriger && VerifParamConnexion())
+                Utils::Redemarrage();   /*!< la nouvelle instance repartira sur le Rufus.ini corrigé */
+            return false;               /*!< personne à cette adresse : chercher un mot de passe n'y ferait rien */
         }
         //! Le serveur a répondu et refusé (mdp, clés SSL) : son adresse est bonne, ne la mettons pas en doute
         if (db->causeEchecConnexion() == DataBase::ClesSSL)

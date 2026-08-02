@@ -143,6 +143,8 @@ QString DataBase::versionMySQL()
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
+    m_codeErreurConnexion.clear();      /*!< sinon un retour anticipé laisserait causeEchecConnexion() sur la tentative précédente */
+
     // Le mode d'accès (Poste / ReseauLocal / Distant) DOIT avoir été fixé par setModeacces()
     // AVANT toute connexion : il détermine le login (suffixe « SSL ») et l'usage de SSL. S'il
     // n'a pas été précisé (valeur Undefined), on REFUSE la connexion plutôt que de la tenter
@@ -193,6 +195,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         QDir dirtorestore(QDir::toNativeSeparators(dirkey));
         if (!dirtorestore.exists())
         {
+            m_codeErreurConnexion = "2026";
             QString error = "DataBase::connectToDataBase()\n" + tr("Clés SSL introuvables");
             Logs::ERROR(error);
             return error;

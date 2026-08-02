@@ -690,6 +690,8 @@ QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
             setMotDePasseSQL(mdp);                 /*!< mémorise le mdp qui fonctionne */
             break;
         }
+        if (DataBase::I()->causeEchecConnexion() != DataBase::Identifiants)
+            break;                                 /*!< serveur muet ou SSL refusé : changer de mot de passe n'y fera rien */
         /*! Un aléatoire refusé n'efface PAS le .dbkey : c'est souvent l'unique copie du mot de passe du
          *  cabinet, et un refus peut être passager. Le détruire pouvait verrouiller la base. */
     }
