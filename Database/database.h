@@ -129,6 +129,7 @@ public:
 
     QString                 versionMySQL();                     /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
     QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
+    static bool             unPosteRepondALAdresse(const QString &adresse, int port);   //! une machine vit-elle à cette adresse ?
 
     /*! Pourquoi la dernière connexion a échoué, d'après le numéro d'erreur MySQL. */
     enum CauseEchec { Aucune, ServeurInjoignable, ServeurMuet, ClesSSL, Identifiants, Indeterminee };

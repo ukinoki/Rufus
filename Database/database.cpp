@@ -26,6 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QEventLoop>
+#include <QTcpSocket>
 
 
 DataBase* DataBase::instance = Q_NULLPTR;
@@ -138,6 +139,22 @@ QString DataBase::versionMySQL()
         if (versiondata.at(0).size() > 1)
             version = versiondata.at(0).at(1).toString();
     return version;
+}
+
+/*!
+ * \brief DataBase::unPosteRepondALAdresse
+ * Y a-t-il une machine à cette adresse ? Un refus de connexion en est la preuve : il a bien fallu
+ * quelqu'un pour le prononcer. Une adresse déserte, elle, ne répond rien et expire.
+ * \param adresse  adresse à éprouver
+ * \param port     port sur lequel frapper
+ */
+bool DataBase::unPosteRepondALAdresse(const QString &adresse, int port)
+{
+    QTcpSocket socket;
+    socket.connectToHost(adresse, port);
+    if (socket.waitForConnected(5000))
+        return true;
+    return socket.error() == QAbstractSocket::ConnectionRefusedError;
 }
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)

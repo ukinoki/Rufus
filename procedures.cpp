@@ -3402,14 +3402,14 @@ bool Procedures::Connexion_A_La_Base()
             if (!Utils::SaisirAdresseIP(tr("Adresse du serveur du cabinet :"), nouvelle))
                 return false;
             server = Utils::calcIP(nouvelle, false);
-            db          ->initParametresConnexionSQL(server, port);
-            errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
-            if (db->causeEchecConnexion() == DataBase::ServeurInjoignable)
+            if (!DataBase::unPosteRepondALAdresse(server, port))
                 continue;               /*!< personne non plus à celle-ci : on la redemande, Rufus.ini intact */
 
             m_settings  ->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur, server);
             m_settings  ->sync();
-            continue;                   /*!< adresse retenue ; si la connexion échoue encore, la cause a changé */
+            db          ->initParametresConnexionSQL(server, port);
+            errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+            continue;                   /*!< connectée, on sort ; sinon la cause a changé et la suite s'en charge */
         }
         //! Un serveur est bien là mais il éconduit ce poste : rien ne se répare depuis ici
         if (db->causeEchecConnexion() == DataBase::ServeurMuet)
