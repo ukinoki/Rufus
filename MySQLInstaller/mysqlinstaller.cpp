@@ -4507,6 +4507,10 @@ QString MySQLInstaller::windowsPartageImagerieScript() const
         "$c='%1'; New-Item -ItemType Directory -Force -Path $c | Out-Null; "
         "$t=(New-Object System.Security.Principal.SecurityIdentifier('S-1-1-0'))"
         ".Translate([System.Security.Principal.NTAccount]).Value; "
+        /*! Exécution refusée sur les FICHIERS seuls : sur un dossier ce bit est la traversée, la refuser fermerait tout. */
+        "$a=Get-Acl $c; $a.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("
+        "$t,[System.Security.AccessControl.FileSystemRights]::ExecuteFile,"
+        "'ObjectInherit,ContainerInherit','InheritOnly','Deny'))); Set-Acl $c $a; "
         "if (Get-SmbShare -Name '%2' -ErrorAction SilentlyContinue) { Remove-SmbShare -Name '%2' -Force }; "
         "New-SmbShare -Name '%2' -Path $c -FullAccess $t | Out-Null\"")
         .arg(QDir::toNativeSeparators(sharedFolderPath() + "/Rufus/Imagerie"), NOM_PARTAGE_IMAGERIE);
