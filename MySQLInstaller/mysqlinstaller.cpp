@@ -2369,6 +2369,8 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     QStringList problemes;
     if (!QDir(sharedFolderPath()).exists())
         problemes << tr("le dossier partagé est introuvable");
+    if (!dossierImagerieOuvertATous())
+        problemes << tr("le dossier d'imagerie n'est pas accessible en écriture aux autres postes du réseau");
     if (!DataBase::I()->dirsecure_file_priv())
         problemes << tr("la variable serveur secure_file_priv n'est pas correctement positionnée");
 
@@ -4368,8 +4370,10 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
                                                const QString& user) const
 {
     return QString(
-        /*! Arborescence Rufus + droits : chmod -R 755, chown -R sur tout /Users. */
-        "mkdir -p '%1/Rufus/Imagerie'; chmod -R 755 '%1'; chown -R %2 /Users; "
+        /*! Arborescence Rufus + chown -R sur tout /Users. */
+        "mkdir -p '%1/Rufus/Imagerie'; chown -R %2 /Users; "
+        /*! Postes du réseau et compte mysql doivent y écrire : dossiers 0777 (le x est la traversée), fichiers 0666 jamais exécutables. */
+        "find '%1' -type d -exec chmod 0777 {} +; find '%1' -type f -exec chmod 0666 {} +; "
         /*! AppArmor : DÉSACTIVER le profil mysqld (sinon lecture des images bloquée). */
         "mkdir -p /etc/apparmor.d/disable; "
         "if [ -f /etc/apparmor.d/usr.sbin.mysqld ]; then "
@@ -4441,7 +4445,9 @@ bool MySQLInstaller::prepareCreateModeMacOS()
     const QString script = QString(
         "cp '%1' '%2' && chmod 644 '%2'\n"                                   /*!< my.cnf */
         "cp '%3' /etc/paths.d/mysql && chmod 644 /etc/paths.d/mysql\n"       /*!< PATH */
-        "mkdir -p '%4/Rufus/Imagerie'; chmod -R 755 '%4/Rufus'\n"            /*!< dossier */
+        "mkdir -p '%4/Rufus/Imagerie'\n"                                     /*!< dossier */
+        /*! mêmes droits que sous Linux : dossiers 0777, fichiers 0666 jamais exécutables */
+        "find '%4/Rufus' -type d -exec chmod 0777 {} +; find '%4/Rufus' -type f -exec chmod 0666 {} +\n"
         /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
@@ -4468,6 +4474,22 @@ bool MySQLInstaller::prepareCreateModeMacOS()
 #endif
 
 /*! ── Dossier partagé : existe et est partagé ──────────────────────────────────── */
+/*!
+ * \brief MySQLInstaller::dossierImagerieOuvertATous
+ * Le dossier d'imagerie est-il inscriptible par les autres comptes ? Les versions antérieures le posaient
+ * en 755 : ni les postes du réseau ni le compte mysql ne pouvaient y écrire.
+ */
+bool MySQLInstaller::dossierImagerieOuvertATous()
+{
+#if defined(Q_OS_LINUX)
+    const QString dir = sharedFolderPath() + "/Rufus/Imagerie";
+    /*! absent : c'est l'autre anomalie, déjà signalée — inutile de la doubler */
+    return !QDir(dir).exists() || QFile::permissions(dir).testFlag(QFileDevice::WriteOther);
+#else
+    return true;
+#endif
+}
+
 bool MySQLInstaller::setupSharedFolder()
 {
     const QString path = sharedFolderPath();
@@ -4483,6 +4505,8 @@ bool MySQLInstaller::setupSharedFolder()
     auto alreadyConfigured = [&]() -> bool {
         if (!QDir(path + "/Rufus/Imagerie").exists())
             return false;
+        if (!dossierImagerieOuvertATous())
+            return false;                         /*!< sinon un poste installé avant 2026 garderait ses droits 755 */
         if (QFileInfo::exists("/etc/apparmor.d/usr.sbin.mysqld")
             && !QFileInfo("/etc/apparmor.d/disable/usr.sbin.mysqld").isSymLink())
             return false;

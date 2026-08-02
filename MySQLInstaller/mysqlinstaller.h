@@ -324,6 +324,7 @@ private:
     bool setupSharedFolder();      /*!< dossier partagé existant + partagé (crée/partage sinon) */
     bool ensureSecureFilePriv();   /*!< secure_file_priv = dossier partagé (my.cnf) */
     bool testSharedFolderRW();     /*!< mysql lit ET écrit un fichier test dans le dossier partagé */
+    bool dossierImagerieOuvertATous();  /*!< dossier d'imagerie inscriptible par les autres comptes (postes du réseau, mysql) */
 #if defined(Q_OS_LINUX)
     bool    prepareCreateModeLinux();                                                 /*!< Linux : tout le paramétrage root du mode Create en UNE élévation */
     QString linuxFolderSambaScript(const QString& path, const QString& user) const;   /*!< fragment shell dossier + Samba (réutilisé) */

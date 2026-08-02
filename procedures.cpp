@@ -5120,15 +5120,19 @@ void Procedures::PremierParametrageMateriel()
 
     if (protoc == BaseVierge)
     {
-        QString dirimagerie = db->dirimagerie();
-        Utils::mkpath(dirimagerie + NOM_DIR_IMAGES);
-        Utils::mkpath(dirimagerie + NOM_DIR_DOSSIERECHANGEIMAGERIE);
-        Utils::mkpath(dirimagerie + NOM_DIR_ECHECSTRANSFERTS);
-        Utils::mkpath(dirimagerie + NOM_DIR_FACTURES);
-        Utils::mkpath(dirimagerie + NOM_DIR_FACTURESSANSLIEN);
-        Utils::mkpath(dirimagerie + NOM_DIR_ORIGINAUX NOM_DIR_FACTURES);
-        Utils::mkpath(dirimagerie + NOM_DIR_ORIGINAUX NOM_DIR_IMAGES);
-        Utils::mkpath(dirimagerie + NOM_DIR_VIDEOS);
+        /*! Dossiers du serveur : ouverts à tous dès la création, sinon les autres postes n'y écrivent pas
+         *  et mysql ne peut pas les traverser (cf. Utils::rendDossierAccessibleAuServeurSQL). */
+        const QString       dirimagerie = db->dirimagerie();
+        const QStringList   sousdossiers = { NOM_DIR_IMAGES,     NOM_DIR_DOSSIERECHANGEIMAGERIE,
+                                             NOM_DIR_ECHECSTRANSFERTS, NOM_DIR_FACTURES,
+                                             NOM_DIR_FACTURESSANSLIEN, NOM_DIR_ORIGINAUX,
+                                             NOM_DIR_ORIGINAUX NOM_DIR_FACTURES,
+                                             NOM_DIR_ORIGINAUX NOM_DIR_IMAGES, NOM_DIR_VIDEOS };
+        for (const QString &sousdossier : sousdossiers)
+        {
+            Utils::mkpath(dirimagerie + sousdossier);
+            Utils::rendDossierAccessibleAuServeurSQL(dirimagerie + sousdossier);
+        }
     }
 
     Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_AUTOREF);

@@ -349,6 +349,7 @@ QString DataBase::dirimagerie()
                     error();
                     return QString();
                 }
+                Utils::rendDossierAccessibleAuServeurSQL(m_dirimagerie);    /*!< sinon né sans écriture pour les autres postes ni traversée pour mysql */
             }
         }
         else
@@ -375,6 +376,7 @@ QString DataBase::dirimagerie()
                         error();
                         return QString();
                     }
+                    Utils::rendDossierAccessibleAuServeurSQL(m_dirimagerie);    /*!< sinon né sans écriture pour les autres postes ni traversée pour mysql */
                 }
             }
         }
