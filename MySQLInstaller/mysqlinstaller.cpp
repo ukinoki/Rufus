@@ -4518,7 +4518,8 @@ bool MySQLInstaller::droitsDossierPartageConformes()
     if (!QDir(dir).exists() || !QFile::permissions(dir).testFlag(QFileDevice::ExeOther))
         return false;
 #if defined(Q_OS_MACOS)
-    /*! sans l'ACL héritable, ce qu'un poste dépose naît illisible pour mysql */
+    /*! Sans l'ACL héritable, ce qu'un poste dépose naît illisible pour mysql. Sur un dossier, le
+        read,execute posé par chmod +a se relit list,search — et ls -l affiche @ plutôt que +. */
     if (!runCmd("ls -lde '" + dir + "' 2>/dev/null").contains("everyone allow list,search,file_inherit"))
         return false;
 #endif
