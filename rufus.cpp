@@ -2085,6 +2085,10 @@ void Rufus::ExporteDocs()
     };
     if (!isPosteImport())
         return;
+    /*! Un poste distant capte les images de ses appareils, mais n'atteint pas le disque du serveur :
+        c'est justement pourquoi il dépose des blobs, qu'un poste local viendra déverser. */
+    if (db->ModeAccesDataBase() == Utils::Distant)
+        return;
     QString pathDirImagerie = db->dirimagerie();
     RecalcCurrentDateTime();
     QString CheminEchecTransfrDir   = pathDirImagerie + NOM_DIR_ECHECSTRANSFERTS;
