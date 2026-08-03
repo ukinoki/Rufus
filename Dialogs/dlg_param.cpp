@@ -2183,7 +2183,10 @@ void dlg_param::ExporterClesSSLversUSB()
     const QString source = QString(PATH_DIR_CLESSSL_SERVEUR);
     const QStringList fichiers = QStringList() << "ca-cert.pem" << "client-cert.pem" << "client-key.pem";
 
-    //! Les clés sont récoltées du datadir à l'installation du serveur MySQL (recolterClesClientSSL).
+    /*! Réextraction systématique : une régénération de clés a pu échouer à rafraîchir cette copie, et on
+        distribuait alors des clés périmées, qu'aucun contrôle ne pouvait distinguer des bonnes. */
+    MySQLInstaller().extraireClesSSLDepuisDatadir();
+
     QStringList manquants;
     for (const QString &f : fichiers)
         if (!QFile::exists(source + "/" + f))

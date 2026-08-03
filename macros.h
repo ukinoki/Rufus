@@ -1303,7 +1303,10 @@ public:
 //! Dossier où le SERVEUR conserve sa copie des clés CLIENT SSL (ca-cert.pem, client-cert.pem,
 //! client-key.pem), récoltées du datadir à l'installation. Sert de source au bouton d'export
 //! vers clé USB (onglet « Ce poste »), pour déployer ces clés sur les postes en accès distant.
-#define PATH_DIR_CLESSSL_SERVEUR                        PATH_DIR_RUFUS Dossier_ClesSSL
+#define PATH_DIR_CLESSSL_SERVEUR                        PATH_DIR_RUFUSKEY "/.clientSSLKeys"
+//! Emplacement d'avant août 2026, migré vers le précédent : trop proche du dossier de clés que
+//! l'utilisateur désigne pour joindre un serveur distant, les deux se confondaient.
+#define PATH_DIR_CLESSSL_SERVEUR_ANCIEN                 PATH_DIR_RUFUS Dossier_ClesSSL
 #define Dossier_Imagerie                                "/DossierImagerie"
 #define Dossier_DocsScannes                             "/DossiersDocsScannes"
 #define Dossier_Videos                                  "/DossiersVideos"

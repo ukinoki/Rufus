@@ -1826,9 +1826,22 @@ void MySQLInstaller::restaurerClesSSLMigration()
 bool MySQLInstaller::clesSSLServeurPresentes()
 {
     const QString d = QString(PATH_DIR_CLESSSL_SERVEUR);
-    return QFile::exists(d + "/ca-cert.pem")
-        && QFile::exists(d + "/client-cert.pem")
-        && QFile::exists(d + "/client-key.pem");
+    const QStringList fichiers = { "/ca-cert.pem", "/client-cert.pem", "/client-key.pem" };
+
+    /*! Reprise de l'emplacement d'avant août 2026, une fois pour toutes. */
+    const QString ancien = QString(PATH_DIR_CLESSSL_SERVEUR_ANCIEN);
+    if (QDir(ancien).exists() && !QFile::exists(d + "/ca-cert.pem"))
+    {
+        QDir().mkpath(d);
+        for (const QString &f : fichiers)
+            QFile::copy(ancien + f, d + f);
+        QDir(ancien).removeRecursively();
+    }
+
+    for (const QString &f : fichiers)
+        if (!QFile::exists(d + f))
+            return false;
+    return true;
 }
 
 /*!
