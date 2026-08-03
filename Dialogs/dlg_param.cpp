@@ -2180,23 +2180,11 @@ void dlg_param::DossierClesSSL()
  *  L'extraction est volontairement réservée au serveur (poste maîtrisé). */
 void dlg_param::ExporterClesSSLversUSB()
 {
-    const QString source = QString(PATH_DIR_CLESSSL_SERVEUR);
-    const QStringList fichiers = QStringList() << "ca-cert.pem" << "client-cert.pem" << "client-key.pem";
-
-    /*! Réextraction systématique : une régénération de clés a pu échouer à rafraîchir cette copie, et on
-        distribuait alors des clés périmées, qu'aucun contrôle ne pouvait distinguer des bonnes. */
-    MySQLInstaller().extraireClesSSLDepuisDatadir();
-
-    QStringList manquants;
-    for (const QString &f : fichiers)
-        if (!QFile::exists(source + "/" + f))
-            manquants << f;
-    if (!manquants.isEmpty())
+    if (!MySQLInstaller::clesSSLServeurPresentes())
     {
-        UpMessageBox::Watch(this, tr("Clés client SSL indisponibles"),
-                            tr("Les clés client SSL ne sont pas disponibles sur ce serveur :") + "\n"
-                            + manquants.join(", ") + "\n\n"
-                            + tr("Elles sont créées lors de l'installation du serveur MySQL par Rufus."));
+        UpMessageBox::Watch(this, tr("Clés SSL indisponibles"),
+                            tr("Le serveur MySQL de ce poste n'a pas de clés SSL.") + "\n\n"
+                            + tr("Elles sont créées lors de son installation par Rufus."));
         return;
     }
 
@@ -2208,25 +2196,13 @@ void dlg_param::ExporterClesSSLversUSB()
     //! Sous-dossier dédié « SSLKeys » dans l'emplacement choisi : les clés ne se perdent pas au
     //! milieu d'autres fichiers, et le poste distant n'a qu'à pointer ce dossier.
     const QString dest = url.path() + "/SSLKeys";
-    if (!QDir().mkpath(dest))
-    {
-        UpMessageBox::Watch(this, tr("Dossier inaccessible"),
-                            tr("Impossible de créer le sous-dossier SSLKeys dans l'emplacement choisi."));
-        return;
-    }
 
-    QStringList echecs;
-    for (const QString &f : fichiers)
-    {
-        const QString cible = dest + "/" + f;
-        QFile::remove(cible);                       //! QFile::copy échoue si la cible existe déjà
-        if (!QFile::copy(source + "/" + f, cible))
-            echecs << f;
-    }
-    if (!echecs.isEmpty())
+    /*! Copie prise sur le datadir, la seule source qui fasse foi : demande le mot de passe administrateur,
+        mais aucune copie intermédiaire ne peut y distribuer des clés que le serveur ne reconnaît plus. */
+    if (!MySQLInstaller().exporterClesClientSSL(dest))
     {
         UpMessageBox::Watch(this, tr("Export incomplet"),
-                            tr("Certains fichiers n'ont pas pu être copiés :") + "\n" + echecs.join(", "));
+                            tr("Les clés SSL n'ont pas pu être copiées sur :") + "\n" + dest);
         return;
     }
 

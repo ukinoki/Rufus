@@ -196,9 +196,9 @@ public:
     /*! ── Clés SSL (accès distant chiffré) ────────────────────────────────────────────────────────────── */
     bool        sauvegarderClesSSLMigration();       /*!< copie les .pem du datadir vers un stash (avant désinstall) */
     void        restaurerClesSSLMigration();         /*!< réinjecte les .pem dans le nouveau datadir + redémarre */
-    static bool clesSSLServeurPresentes();           /*!< la copie CLIENT exportable des clés existe-t-elle ? */
+    static bool clesSSLServeurPresentes();           /*!< le serveur a-t-il ses certificats dans son datadir ? */
     QDateTime   dateExpirationCertSSL();             /*!< date d'expiration du certificat serveur (invalide si SSL inactif) */
-    bool        extraireClesSSLDepuisDatadir();      /*!< réextrait les clés client du datadir SANS redémarrer */
+    bool        exporterClesClientSSL(const QString& dest);   /*!< copie les clés client du datadir vers dest */
     bool        regenererClesSSL();                  /*!< DESTRUCTIF : régénère les certs serveur (invalide les clés déjà distribuées) */
     void        controlerClesSSLMonoposte();         /*!< monoposte au démarrage : réextrait ou régénère selon l'état des clés */
     void        avertirExpirationClesSSLDistant();   /*!< accès distant : prévient si les certs SSL approchent de l'expiration */

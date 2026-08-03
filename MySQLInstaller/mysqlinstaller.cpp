@@ -1332,34 +1332,6 @@ static void inviterANoterMotDePasse(const QString& mdp)
 }
 
 /*!
- * \brief recolterClesClientSSL
- * Copie les SEULES clés CLIENT auto-générées par MySQL vers PATH_DIR_CLESSSL_SERVEUR, d'où elles seront
- * exportées vers les postes distants — jamais les clés serveur ni ca-key. Best-effort.
- * \param datadir  répertoire de données MySQL où sont déposés les .pem
- */
-[[maybe_unused]] static bool recolterClesClientSSL(const QString& datadir)  /*!< appelée selon l'OS (Windows ici) */
-{
-    const QString dest = PATH_DIR_CLESSSL_SERVEUR;
-    if (!QDir().mkpath(dest))
-        return false;
-    /*! { fichier dans le datadir, nom de destination } — UNIQUEMENT les clés client. */
-    const char* paires[3][2] = {
-        { "ca.pem",          "ca-cert.pem"     },   /*!< ca.pem -> ca-cert.pem */
-        { "client-cert.pem", "client-cert.pem" },
-        { "client-key.pem",  "client-key.pem"  },
-    };
-    bool ok = true;
-    for (int i = 0; i < 3; ++i) {
-        const QString src = datadir + "/" + QString::fromLatin1(paires[i][0]);
-        const QString dst = dest    + "/" + QString::fromLatin1(paires[i][1]);
-        if (!QFile::exists(src)) { ok = false; continue; }
-        QFile::remove(dst);                          /*!< QFile::copy échoue si la cible existe déjà */
-        if (!QFile::copy(src, dst)) ok = false;
-    }
-    return ok;
-}
-
-/*!
  * \brief mysqlDataDir
  * Répertoire de données (datadir) du MySQL installé par Rufus, selon l'OS — là où sont déposés les
  * certificats SSL auto-générés. Utilisé par la conservation des clés lors d'un remplacement de socle.
@@ -1755,8 +1727,7 @@ bool MySQLInstaller::sauvegarderClesSSLMigration()
 /*!
  * \brief MySQLInstaller::restaurerClesSSLMigration
  * Réinjecte les .pem conservés dans le NOUVEAU datadir, fixe droits/propriétaire, redémarre MySQL (→ il
- * sert le MÊME CA) et réactualise la copie CLIENT rendue à l'utilisateur (PATH_DIR_CLESSSL_SERVEUR). Ne
- * fait rien si aucun stash n'existe. Nettoie le stash ensuite.
+ * sert le MÊME CA). Ne fait rien si aucun stash n'existe. Nettoie le stash ensuite.
  */
 void MySQLInstaller::restaurerClesSSLMigration()
 {
@@ -1767,7 +1738,6 @@ void MySQLInstaller::restaurerClesSSLMigration()
     const QStringList pem  = QStringList()
         << "ca.pem" << "ca-key.pem" << "server-cert.pem"
         << "server-key.pem" << "client-cert.pem" << "client-key.pem";
-    const QString sslDest = QString(PATH_DIR_CLESSSL_SERVEUR);
 #if defined(Q_OS_WIN)
     runCmdElevated("net stop MySQL");
     for (const QString& f : pem) {
@@ -1779,10 +1749,8 @@ void MySQLInstaller::restaurerClesSSLMigration()
     }
     runCmdElevated("net start MySQL");
     waitForMySQL(15);
-    recolterClesClientSSL(datadir);            /*!< la copie client reflète les ANCIENNES clés */
 #else
-    const QString user = QString::fromLocal8Bit(qgetenv("USER"));
-    QString sh = "DATA='" + datadir + "'; STASH='" + stash + "'; SSLDEST='" + sslDest + "'; USERN='" + user + "'\n";
+    QString sh = "DATA='" + datadir + "'; STASH='" + stash + "'\n";
   #if defined(Q_OS_MACOS)
     sh += "OWNER=$(id -u _mysql >/dev/null 2>&1 && echo _mysql || echo mysql)\n"
           "PLIST=/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist\n"
@@ -1796,14 +1764,7 @@ void MySQLInstaller::restaurerClesSSLMigration()
     sh += "for k in ca-key.pem server-key.pem client-key.pem; do chmod 600 \"$DATA/$k\" 2>/dev/null; done\n"
           "for c in ca.pem server-cert.pem client-cert.pem; do chmod 644 \"$DATA/$c\" 2>/dev/null; done\n"
           "chown \"$OWNER\":\"$OWNER\" \"$DATA\"/ca.pem \"$DATA\"/ca-key.pem \"$DATA\"/server-cert.pem "
-          "\"$DATA\"/server-key.pem \"$DATA\"/client-cert.pem \"$DATA\"/client-key.pem 2>/dev/null\n"
-          /*! réactualiser la copie CLIENT rendue à l'utilisateur (mêmes clés qu'avant la migration) */
-          "mkdir -p \"$SSLDEST\"\n"
-          "cp -f \"$STASH/ca.pem\"          \"$SSLDEST/ca-cert.pem\"     2>/dev/null\n"
-          "cp -f \"$STASH/client-cert.pem\" \"$SSLDEST/client-cert.pem\" 2>/dev/null\n"
-          "cp -f \"$STASH/client-key.pem\"  \"$SSLDEST/client-key.pem\"  2>/dev/null\n"
-          "[ -n \"$USERN\" ] && { chown \"$USERN\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$USERN\" \"$SSLDEST\"; }\n"
-          "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
+          "\"$DATA\"/server-key.pem \"$DATA\"/client-cert.pem \"$DATA\"/client-key.pem 2>/dev/null\n";
   #if defined(Q_OS_MACOS)
     sh += "[ -f \"$PLIST\" ] && launchctl load -w \"$PLIST\" 2>/dev/null || "
           "/usr/local/mysql/support-files/mysql.server restart 2>/dev/null\n";
@@ -1820,28 +1781,14 @@ void MySQLInstaller::restaurerClesSSLMigration()
 
 /*!
  * \brief MySQLInstaller::clesSSLServeurPresentes
- * La copie CLIENT exportable (récoltée du datadir) est-elle présente ? Ce sont les 3 fichiers qu'on
- * distribue aux postes distants.
+ * Le serveur a-t-il ses certificats ? Ce sont eux qu'on exporte vers les postes distants.
  */
 bool MySQLInstaller::clesSSLServeurPresentes()
 {
-    const QString d = QString(PATH_DIR_CLESSSL_SERVEUR);
-    const QStringList fichiers = { "/ca-cert.pem", "/client-cert.pem", "/client-key.pem" };
-
-    /*! Reprise de l'emplacement d'avant août 2026, une fois pour toutes. */
-    const QString ancien = QString(PATH_DIR_CLESSSL_SERVEUR_ANCIEN);
-    if (QDir(ancien).exists() && !QFile::exists(d + "/ca-cert.pem"))
-    {
-        QDir().mkpath(d);
-        for (const QString &f : fichiers)
-            QFile::copy(ancien + f, d + f);
-        QDir(ancien).removeRecursively();
-    }
-
-    for (const QString &f : fichiers)
-        if (!QFile::exists(d + f))
-            return false;
-    return true;
+    const QString datadir = mysqlDataDir();
+    return QFile::exists(datadir + "/ca.pem")
+        && QFile::exists(datadir + "/client-cert.pem")
+        && QFile::exists(datadir + "/client-key.pem");
 }
 
 /*!
@@ -1867,31 +1814,40 @@ QDateTime MySQLInstaller::dateExpirationCertSSL()
 }
 
 /*!
- * \brief MySQLInstaller::extraireClesSSLDepuisDatadir
- * (Ré)extrait les clés CLIENT du datadir vers PATH_DIR_CLESSSL_SERVEUR SANS arrêter le serveur (les .pem
- * restent lisibles pendant qu'il tourne → AUCUNE coupure). Cas d'usage : la copie exportable a été
- * effacée par erreur alors que le serveur a toujours ses certificats. true si la copie client est là.
+ * \brief MySQLInstaller::exporterClesClientSSL
+ * Copie les SEULES clés CLIENT du datadir vers le dossier demandé, le serveur tournant (les .pem y restent
+ * lisibles). Le datadir fait foi : aucune copie intermédiaire ne peut refléter des clés périmées.
+ * \param dest  dossier où déposer ca-cert.pem, client-cert.pem et client-key.pem
  */
-bool MySQLInstaller::extraireClesSSLDepuisDatadir()
+bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
 {
     const QString datadir = mysqlDataDir();
+    const QStringList sources = { "/ca.pem", "/client-cert.pem", "/client-key.pem" };
+    const QStringList cibles  = { "/ca-cert.pem", "/client-cert.pem", "/client-key.pem" };
+
+    QDir().mkpath(dest);
+    for (const QString &f : cibles)
+        QFile::remove(dest + f);                  /*!< QFile::copy et cp -f échouent sur une cible existante */
+
 #if defined(Q_OS_WIN)
-    recolterClesClientSSL(datadir);   /*!< datadir lisible par le process élevé → copie C++ directe */
+    /*! Datadir lisible par le processus élevé : copie directe. */
+    for (int i = 0; i < sources.size(); ++i)
+        QFile::copy(datadir + sources.at(i), dest + cibles.at(i));
 #else
-    /*! Datadir root-only (mysql/_mysql, client-key.pem en 0600) : extraction ÉLEVÉE puis restitution. */
-    const QString sslDest = QString(PATH_DIR_CLESSSL_SERVEUR);
-    const QString user    = QString::fromLocal8Bit(qgetenv("USER"));
-    QString sh =
-        "DATA='" + datadir + "'; SSLDEST='" + sslDest + "'; USERN='" + user + "'\n"
-        "mkdir -p \"$SSLDEST\"\n"
-        "cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"     2>/dev/null\n"
-        "cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\" 2>/dev/null\n"
-        "cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"  2>/dev/null\n"
-        "[ -n \"$USERN\" ] && { chown \"$USERN\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$USERN\" \"$SSLDEST\"; }\n"
-        "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
+    /*! Datadir root-only (client-key.pem en 0600) : copie ÉLEVÉE puis restitution à l'utilisateur. */
+    const QString user = QString::fromLocal8Bit(qgetenv("USER"));
+    QString sh = "DATA='" + datadir + "'; DEST='" + dest + "'; USERN='" + user + "'\n";
+    for (int i = 0; i < sources.size(); ++i)
+        sh += "cp -f \"$DATA" + sources.at(i) + "\" \"$DEST" + cibles.at(i) + "\" 2>/dev/null\n";
+    sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$DEST\"/*.pem 2>/dev/null\n"
+          "chmod 600 \"$DEST/client-key.pem\" 2>/dev/null\n";
     runCmdElevated(sh);
 #endif
-    return clesSSLServeurPresentes();
+
+    for (const QString &f : cibles)
+        if (!QFile::exists(dest + f))
+            return false;
+    return true;
 }
 
 /*!
@@ -1911,14 +1867,11 @@ bool MySQLInstaller::regenererClesSSL()
         QFile::remove(datadir + "/" + f);
     runCmdElevated("net start MySQL");
     waitForMySQL(15);
-    /*! Laisser à mysqld le temps de régénérer les certificats avant de les récolter. */
+    /*! Laisser à mysqld le temps de régénérer les certificats. */
     for (int i = 0; i < 20 && !QFile::exists(datadir + "/ca.pem"); ++i)
         Utils::Pause(1000);
-    recolterClesClientSSL(datadir);
 #else
-    const QString sslDest = QString(PATH_DIR_CLESSSL_SERVEUR);
-    const QString user    = QString::fromLocal8Bit(qgetenv("USER"));
-    QString sh = "DATA='" + datadir + "'; SSLDEST='" + sslDest + "'; USERN='" + user + "'\n";
+    QString sh = "DATA='" + datadir + "'\n";
   #if defined(Q_OS_MACOS)
     sh += "PLIST=/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist\n"
           "[ -f \"$PLIST\" ] && launchctl unload \"$PLIST\" 2>/dev/null\n";
@@ -1933,14 +1886,8 @@ bool MySQLInstaller::regenererClesSSL()
   #else
     sh += "systemctl start mysql 2>/dev/null\n";
   #endif
-    /*! Attendre la régénération automatique des certificats (auto_generate_certs) puis récolter. */
-    sh += "for i in $(seq 1 20); do [ -f \"$DATA/ca.pem\" ] && break; sleep 1; done\n"
-          "mkdir -p \"$SSLDEST\"\n"
-          "cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"     2>/dev/null\n"
-          "cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\" 2>/dev/null\n"
-          "cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"  2>/dev/null\n"
-          "[ -n \"$USERN\" ] && { chown \"$USERN\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$USERN\" \"$SSLDEST\"; }\n"
-          "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
+    /*! Attendre la régénération automatique des certificats (auto_generate_certs). */
+    sh += "for i in $(seq 1 20); do [ -f \"$DATA/ca.pem\" ] && break; sleep 1; done\n";
     runCmdElevated(sh);
     waitForMySQL(15);
 #endif
@@ -1960,20 +1907,9 @@ void MySQLInstaller::controlerClesSSLMonoposte()
 
     const QDateTime exp   = dateExpirationCertSSL();
     const bool      expire = exp.isValid() && exp <= QDateTime::currentDateTimeUtc();
-    const bool      presentes = clesSSLServeurPresentes();
 
-    if (presentes && !expire)
+    if (clesSSLServeurPresentes() && !expire)
         return;                                   /*!< tout va bien : rien */
-
-    /*! Cas BÉNIN : la copie client exportable manque, mais le serveur a des certificats VALIDES (« effacée
-     *  par erreur » / « jamais récoltée » — typiquement un ancien Rufus + MySQL 8 déjà présent). On
-     *  RÉEXTRAIT simplement, sans toucher au serveur (aucune coupure, aucune relance). */
-    if (!presentes && !expire)
-    {
-        if (extraireClesSSLDepuisDatadir())
-            return;
-        /*! Échec → le datadir n'a pas (ou plus) de certificats : on bascule sur la régénération. */
-    }
 
     /*! Cas DESTRUCTIF : certificats expirés, ou aucun certificat. La régénération crée de NOUVELLES clés →
      *  les postes distants déjà configurés devront recevoir les nouvelles. On avertit sévèrement et on
@@ -2192,11 +2128,8 @@ bool MySQLInstaller::executerEtapesConfig()
     m_dialog->checkStep(5);
 
     /*! ── Étape 7 : clés SSL pour l'accès distant ───────────────────────────
-     *  Certificats auto-générés par MySQL dans le datadir ; on récolte la copie CLIENT (exportable) si elle
-     *  n'a pas déjà été faite à l'installation. BEST-EFFORT : l'accès distant est optionnel, on ne fait pas
-     *  échouer la config s'il manque (controlerClesSSLMonoposte() rattrapera au démarrage). */
-    if (!clesSSLServeurPresentes())
-        extraireClesSSLDepuisDatadir();
+     *  MySQL les génère seul dans le datadir ; on ne fait que le constater. L'accès distant étant
+     *  optionnel, leur absence ne fait pas échouer la config (controlerClesSSLMonoposte rattrape). */
     m_dialog->checkStep(6);
 
     /*! ── Toutes les étapes de configuration sont validées ───────────────────── */
@@ -3310,16 +3243,10 @@ bool MySQLInstaller::installFromDmg(const QString& dmgPath)
 /*!
  * \brief MySQLInstaller::oracleInitStartScript
  * Fragment shell (exécuté en ROOT) qui, depuis MySQL 8.4.x, supplée le pkg Oracle macOS — lequel
- * n'initialise plus automatiquement /usr/local/mysql/data — puis démarre le serveur et récolte les clés
- * client SSL.
+ * n'initialise plus automatiquement /usr/local/mysql/data — puis démarre le serveur.
  */
 QString MySQLInstaller::oracleInitStartScript() const
 {
-    /*! SSL (étape 7, points 2 et 5) : la récolte des clés CLIENT se fait ICI, côté ROOT, car le datadir (et
-     *  client-key.pem en 0600) appartient à _mysql et n'est pas lisible par l'utilisateur. On copie les 3
-     *  clés client vers le dossier du serveur, puis on les rend à l'utilisateur (chown). */
-    const QString sslDest  = QString(PATH_DIR_CLESSSL_SERVEUR);
-    const QString sslOwner = QString::fromLocal8Bit(qgetenv("USER"));   /*!< utilisateur lançant Rufus */
     return QStringLiteral(
         "PREFIX=/usr/local/mysql; DATA=\"$PREFIX/data\"\n"
         /*! Compte exécutant mysqld : « _mysql » (créé par le pkg), repli « mysql ». */
@@ -3344,18 +3271,8 @@ QString MySQLInstaller::oracleInitStartScript() const
         "  PLIST=/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist\n"
         "  if [ -f \"$PLIST\" ]; then echo '-- launchctl load --'; launchctl load -w \"$PLIST\"; "
         "else echo '-- mysql.server start --'; TMPDIR=/tmp \"$PREFIX/support-files/mysql.server\" start; fi\n"
-        /*! Récolte des SEULES clés client (ca.pem -> ca-cert.pem, client-cert.pem, client-key.pem), puis
-         *  restitution à l'utilisateur. JAMAIS server-*.pem ni ca-key.pem. */
-        "  echo '-- recolte cles client SSL --'\n"
-        "  SSLDEST='%2'; SSLOWNER='%3'\n"
-        "  mkdir -p \"$SSLDEST\"\n"
-        "  [ -f \"$DATA/ca.pem\" ]          && cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"\n"
-        "  [ -f \"$DATA/client-cert.pem\" ] && cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\"\n"
-        "  [ -f \"$DATA/client-key.pem\" ]  && cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"\n"
-        "  [ -n \"$SSLOWNER\" ] && { chown \"$SSLOWNER\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$SSLOWNER\" \"$SSLDEST\"; }\n"
-        "  chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n"
         "} >> '%1' 2>&1\n"
-        "chmod 644 '%1' 2>/dev/null\n").arg(m_initLog).arg(sslDest).arg(sslOwner);
+        "chmod 644 '%1' 2>/dev/null\n").arg(m_initLog);
 }
 
 /*!
@@ -3555,10 +3472,6 @@ bool MySQLInstaller::installMySQL()
         return false;
     }
 
-    /*! SSL (étape 7, point 2) : récolte des clés client auto-générées dans le datadir, pour pouvoir les
-     *  exporter ensuite vers les postes distants. Best-effort. */
-    recolterClesClientSSL(dataDir);
-
     /*! Rendre MySQL désinstallable depuis « Applications et fonctionnalités ». */
     registerWindowsUninstaller(base, progData, version);
     return true;
@@ -3566,11 +3479,6 @@ bool MySQLInstaller::installMySQL()
     /*! Installation via apt-get (droits root → pkexec), avec barre de progression RÉELLE : apt écrit son
      *  avancement (0-100) sur APT::Status-Fd. */
     const QString aptScript = QDir::tempPath() + "/mysql_apt_install.sh";
-    /*! SSL (étape 7, points 2 et 5) : récolte des clés CLIENT, côté ROOT (le datadir /var/lib/mysql et
-     *  client-key.pem en 0600 appartiennent à mysql), puis restitution à l'utilisateur. UNIQUEMENT les clés
-     *  client ; jamais server-*.pem ni ca-key.pem. */
-    const QString sslDest  = QString(PATH_DIR_CLESSSL_SERVEUR);
-    const QString sslOwner = QString::fromLocal8Bit(qgetenv("USER"));
     {
         QFile f(aptScript);
         if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -3580,15 +3488,7 @@ bool MySQLInstaller::installMySQL()
                << "DEBIAN_FRONTEND=noninteractive apt-get -o APT::Status-Fd=1 "
                   "install -y mysql-server 2>/dev/null | "
                   "awk -F: '/^(pmstatus|dlstatus)/ "
-                  "{ printf \"PROGRESS %d 100\\n\", $3; fflush() }'\n"
-               << "DATA=/var/lib/mysql\n"
-               << "SSLDEST='" << sslDest << "'; SSLOWNER='" << sslOwner << "'\n"
-               << "mkdir -p \"$SSLDEST\"\n"
-               << "[ -f \"$DATA/ca.pem\" ]          && cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"\n"
-               << "[ -f \"$DATA/client-cert.pem\" ] && cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\"\n"
-               << "[ -f \"$DATA/client-key.pem\" ]  && cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"\n"
-               << "[ -n \"$SSLOWNER\" ] && { chown \"$SSLOWNER\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$SSLOWNER\" \"$SSLDEST\"; }\n"
-               << "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
+                  "{ printf \"PROGRESS %d 100\\n\", $3; fflush() }'\n";
             f.close();
         }
     }
