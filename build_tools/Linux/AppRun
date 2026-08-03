@@ -405,8 +405,6 @@ definir_textes() {
 #  Plus de marqueur « .systeme_ok » : tant que le poste n'est pas installé (pas de
 #  .desktop), on rejoue toute la séquence. Si la config ÉCHOUE vraiment, on s'arrête
 #  et on explique pourquoi ; la trace détaillée va dans ~/.rufus/install-systeme.log.
-#  NB : libfuse2 (requis pour LANCER l'AppImage) ne peut pas s'auto-installer ici
-#  (œuf/poule) → c'est un prérequis documenté sur la page de téléchargement.
 #  Retour : 0 = OK (ou non applicable : pas de GUI / distribution non-apt) ; 1 = échec → on stoppe.
 configurer_systeme() {
     [ -n "${RUFUS_NO_INSTALL}" ]          && return 0

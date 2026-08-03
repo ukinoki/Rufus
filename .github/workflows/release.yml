@@ -151,9 +151,13 @@ jobs:
 
           # Empaquetage final avec appimagetool (ARCH explicite : appimagetool ne
           # sait pas la deviner depuis l'AppDir et échoue sinon).
+          # Le runtime par défaut d'AppImageKit charge libfuse.so.2, absente d'Ubuntu 24.04
+          # (fuse3 seulement) : on impose type2-runtime, statique et compatible fuse3.
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          wget -q https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64
           chmod +x appimagetool-x86_64.AppImage
-          ARCH=x86_64 ./appimagetool-x86_64.AppImage AppDir "Rufus-${VER}-x86_64.AppImage"
+          ARCH=x86_64 ./appimagetool-x86_64.AppImage --runtime-file runtime-x86_64 \
+            AppDir "Rufus-${VER}-x86_64.AppImage"
 
           # Garde-fou : une AppImage complète (binaire + Qt) pèse des dizaines de Mo.
           # Si elle est ridiculement petite, c'est que le bundling Qt a échoué — on

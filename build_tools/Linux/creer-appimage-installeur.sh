@@ -11,7 +11,7 @@
 #     ./creer-appimage-installeur.sh                 # compile Rufus puis fabrique
 #     ./creer-appimage-installeur.sh /chemin/Rufus   # part d'un binaire déjà compilé
 #
-#  Prérequis : Qt (qmake dans le PATH) + « sudo apt install libfuse2 ».
+#  Prérequis : Qt (qmake dans le PATH).
 #  À lancer SANS sudo (sudo remet un PATH neuf et HOME=/root : Qt devient introuvable).
 #  Mémo complet : LISEZMOI-creer-appimage.md
 #
@@ -86,6 +86,8 @@ get() { [ -f "$2" ] || { echo "Téléchargement $(basename "$2")…"; wget -q "$
 get https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage                     "${TOOLS}/linuxdeploy.AppImage"
 get https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage "${TOOLS}/linuxdeploy-plugin-qt-x86_64.AppImage"
 get https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage                       "${TOOLS}/appimagetool.AppImage"
+# Runtime statique compatible fuse3 : celui d'AppImageKit charge libfuse.so.2, absente d'Ubuntu 24.04.
+get https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64                                   "${TOOLS}/runtime-x86_64"
 
 # ── 4. Embarquer Qt + le pilote MySQL (linuxdeploy) ──────────────────────────
 export APPIMAGE_EXTRACT_AND_RUN=1                 # tourne sans FUSE
@@ -110,7 +112,7 @@ cp "${SCRIPT_DIR}/rufus.png" "${APPDIR}/rufus.png"
 
 # ── 6. Empaqueter ────────────────────────────────────────────────────────────
 OUT="${REPO}/Rufus-${VER}-x86_64.AppImage"
-ARCH=x86_64 "${TOOLS}/appimagetool.AppImage" "${APPDIR}" "${OUT}"
+ARCH=x86_64 "${TOOLS}/appimagetool.AppImage" --runtime-file "${TOOLS}/runtime-x86_64" "${APPDIR}" "${OUT}"
 chmod +x "${OUT}"
 echo
 echo "======================================================================"

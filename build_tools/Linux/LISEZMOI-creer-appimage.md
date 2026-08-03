@@ -3,7 +3,7 @@
 Ce script **fabrique juste le fichier `.AppImage`**. Il n'installe rien
 
 ## Les libs nécessaires
-sudo apt-get install -y build-essential libfuse2 libmysqlclient-dev libmysqlclient21 libgl1-mesa-dev libxkbcommon-dev libpcsclite-dev libxcb-cursor0 libxcb-cursor-dev
+sudo apt-get install -y build-essential libmysqlclient-dev libmysqlclient21 libgl1-mesa-dev libxkbcommon-dev libpcsclite-dev libxcb-cursor0 libxcb-cursor-dev
 
 Pas de `libmariadb3` : il tire `mariadb-common`, qui détourne `/etc/mysql/my.cnf` vers
 `mariadb.cnf` et met hors chaîne la configuration écrite par l'installeur de Rufus.

@@ -124,8 +124,8 @@ B - TACHES SPECIFIQUES LINUX DEDIEES A L'INSTALLEUR LINUX (AppImage / AppRun) �
    absent du dépôt) est journalisé mais NON bloquant. Sont bloquants : l'échec d'authentification
    pkexec et l'absence d'accès aux dépôts.
 
-   PRÉREQUIS NON AUTO-INSTALLABLE : libfuse2 est nécessaire pour LANCER l'AppImage elle-même
-   (problème de l'œuf et la poule) → il reste documenté sur la page de téléchargement, pas posé ici.
+   PAS DE PRÉREQUIS FUSE : l'AppImage est empaquetée avec le runtime « type2-runtime » (fuse3
+   statique), donc elle démarre sans libfuse2 — nécessaire sous Ubuntu 24.04, qui ne la fournit plus.
 
    PARTAGE RÉSEAU DE L'IMAGERIE : en poste CLIENT d'un réseau local, l'accès au dossier d'imagerie
    partagé reste une manipulation MANUELLE (montage du partage) — l'installeur ne l'automatise pas.
