@@ -4383,7 +4383,7 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
         "find '%1/Rufus/Imagerie' -type d -exec chmod 0755 {} +; "
         "find '%1/Rufus/Imagerie' -type f -exec chmod 0644 {} +; "
         /*! Reprise d'un 777 posé par une version antérieure, sans toucher aux autres bits. */
-        "chmod -R o-w '%1'; "
+        "chmod -R o-w '%1/Rufus'; "
         /*! AppArmor : DÉSACTIVER le profil mysqld (sinon lecture des images bloquée). */
         "mkdir -p /etc/apparmor.d/disable; "
         "if [ -f /etc/apparmor.d/usr.sbin.mysqld ]; then "
@@ -4459,7 +4459,7 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         /*! mêmes droits que sous Linux : dossiers 0755, fichiers 0644 jamais exécutables */
         "find '%4/Rufus/Imagerie' -type d -exec chmod 0755 {} +\n"
         "find '%4/Rufus/Imagerie' -type f -exec chmod 0644 {} +\n"
-        "chmod -R o-w '%4'\n"                                                /*!< 777 d'une version antérieure */
+        "chmod -R o-w '%4/Rufus'\n"                                                /*!< 777 d'une version antérieure */
         /*! Héritée par ce qu'un poste dépose : sans elle, un fichier créé via le partage naît illisible
             pour mysql et pour les autres postes, et il fallait ouvrir les droits POSIX à tous. */
         "chmod -R +a 'everyone allow read,execute,file_inherit,directory_inherit' "
@@ -4497,9 +4497,11 @@ bool MySQLInstaller::prepareCreateModeMacOS()
 void MySQLInstaller::retirerEcriturePourTous()
 {
 #if !defined(Q_OS_WIN)
-    const QString partage = sharedFolderPath();
-    if (QDir(partage + "/Rufus/Imagerie").exists())      /*!< un poste client n'a rien en local à corriger */
-        runCmd("chmod -R o-w '" + partage + "'");
+    /*! Le dossier partagé lui-même est laissé tel quel : macOS le veut en 1777, et lui retirer le w
+        empêche l'application d'y créer quoi que ce soit — dont le fichier du test d'écriture. */
+    const QString dirRufus = sharedFolderPath() + "/Rufus";
+    if (QDir(dirRufus + "/Imagerie").exists())           /*!< un poste client n'a rien en local à corriger */
+        runCmd("chmod -R o-w '" + dirRufus + "'");
 #endif
 }
 
@@ -4636,7 +4638,7 @@ bool MySQLInstaller::setupSharedFolder()
     const QString droits = QString("mkdir -p '%1/Rufus/Imagerie'; "
                                    "find '%1/Rufus/Imagerie' -type d -exec chmod 0755 {} +; "
                                    "find '%1/Rufus/Imagerie' -type f -exec chmod 0644 {} +; "
-                                   "chmod -R o-w '%1'; "
+                                   "chmod -R o-w '%1/Rufus'; "
                                    "chmod -R +a 'everyone allow read,execute,file_inherit,"
                                    "directory_inherit' '%1/Rufus/Imagerie' 2>/dev/null").arg(path);
 
