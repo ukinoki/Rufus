@@ -2107,6 +2107,7 @@ void dlg_param::DirDistantStockage()
         return;
     ui->DistantStockageupLineEdit->setText(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie, url.path());
+    AvertirDossierReseau(url);
 }
 
 void dlg_param::PosteVideoDir()
@@ -2122,6 +2123,7 @@ void dlg_param::PosteVideoDir()
         return;
     ui->PosteVideoDirupLineEdit->setText(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Poste) + Dossier_Videos, url.path());
+    AvertirDossierReseau(url);
 }
 
 void dlg_param::LocalVideoDir()
@@ -2153,6 +2155,7 @@ void dlg_param::DistantVideoDir()
         return;
     ui->DistantVideoDirupLineEdit->setText(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Videos, url.path());
+    AvertirDossierReseau(url);
 }
 
 void dlg_param::DossierClesSSL()
