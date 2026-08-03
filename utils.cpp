@@ -49,12 +49,13 @@ QRegularExpression const Utils::rgx_AlphaNumeric_5_15   = QRegularExpression("[A
 QRegularExpression const Utils::rgx_AlphaNumeric_5_12   = QRegularExpression("[A-Za-z0-9]{5,12}$");
 QRegularExpression const Utils::rgx_MajusculeSeul       = QRegularExpression("[A-Z]*");
 QRegularExpression const Utils::rgx_Question            = QRegularExpression("[\\w'°, \\-]*[?]*", QRegularExpression::UseUnicodePropertiesOption);
-QRegularExpression const Utils::rgx_IPV4                = QRegularExpression("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
-QRegularExpression const Utils::rgx_IPlocalhost         = QRegularExpression("^127.0{1,3}.0{1,3}.0{0,2}1$");
+QRegularExpression const Utils::rgx_IPV4                = QRegularExpression("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$");
+QRegularExpression const Utils::rgx_IPlocalhost         = QRegularExpression("^127\\.0{1,3}\\.0{1,3}\\.0{0,2}1$");
 QRegularExpression const Utils::rgx_IPV4_mask           = QRegularExpression("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
                                                                             "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
                                                                             "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
                                                                             "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])");
+QRegularExpression const Utils::rgx_adresseserveur      = QRegularExpression("[A-Za-z0-9.\\-]*");
 
 QRegularExpression const Utils::rgx_mail                = QRegularExpression("^[A-Za-z0-9_-]+(.[A-Za-z0-9_-]+)+@[A-Za1-z0-9_-]+(.[A-Za1-z0-9_-]+).[A-Za-z0-9_-]{2,6}");
 QRegularExpression const Utils::rgx_NNI                 = QRegularExpression("[12][0-9]{14}");

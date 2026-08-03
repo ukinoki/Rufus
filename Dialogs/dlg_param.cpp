@@ -379,6 +379,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->MailuplineEdit              ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail,this));
     ui->PortableuplineEdit          ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
     ui->EmplacementLocaluplineEdit  ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask,this));
+    ui->EmplacementDistantuplineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_adresseserveur,this));
 
     ui->cotationsUpTableView            ->setSelectionBehavior(QAbstractItemView::SelectRows);
 

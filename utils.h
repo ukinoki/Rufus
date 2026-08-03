@@ -150,6 +150,7 @@ public:
     static QRegularExpression const rgx_IPV4;
     static QRegularExpression const rgx_IPlocalhost; //127.0.0.1
     static QRegularExpression const rgx_IPV4_mask;
+    static QRegularExpression const rgx_adresseserveur;  //!< IP ou nom DynDNS : ni virgule ni espace
 
     static QRegularExpression const rgx_mail;
     static QRegularExpression const rgx_NNI;
