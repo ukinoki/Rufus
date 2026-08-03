@@ -4460,6 +4460,10 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         "find '%4/Rufus/Imagerie' -type d -exec chmod 0755 {} +\n"
         "find '%4/Rufus/Imagerie' -type f -exec chmod 0644 {} +\n"
         "chmod -R o-w '%4'\n"                                                /*!< 777 d'une version antérieure */
+        /*! Héritée par ce qu'un poste dépose : sans elle, un fichier créé via le partage naît illisible
+            pour mysql et pour les autres postes, et il fallait ouvrir les droits POSIX à tous. */
+        "chmod -R +a 'everyone allow read,execute,file_inherit,directory_inherit' "
+          "'%4/Rufus/Imagerie' 2>/dev/null\n"
         /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
@@ -4511,7 +4515,14 @@ bool MySQLInstaller::droitsDossierPartageConformes()
     return true;                                  /*!< C:\Users\Public est ouvert à tous par le système */
 #else
     const QString dir = sharedFolderPath() + "/Rufus/Imagerie";
-    return QDir(dir).exists() && QFile::permissions(dir).testFlag(QFileDevice::ExeOther);
+    if (!QDir(dir).exists() || !QFile::permissions(dir).testFlag(QFileDevice::ExeOther))
+        return false;
+#if defined(Q_OS_MACOS)
+    /*! sans l'ACL héritable, ce qu'un poste dépose naît illisible pour mysql */
+    if (!runCmd("ls -lde '" + dir + "' 2>/dev/null").contains("everyone allow list,search,file_inherit"))
+        return false;
+#endif
+    return true;
 #endif
 }
 
@@ -4619,11 +4630,14 @@ bool MySQLInstaller::setupSharedFolder()
                    m_password + "\n");
     return QDir(path).exists();
 #else
-    /*! Reprise d'une version antérieure, qui a pu laisser l'arborescence en 777. */
+    /*! Reprise d'une version antérieure, qui a pu laisser l'arborescence en 777. L'ACL est héritée par
+        ce qu'un poste dépose : sans elle, le fichier créé via le partage naît illisible pour mysql. */
     const QString droits = QString("mkdir -p '%1/Rufus/Imagerie'; "
                                    "find '%1/Rufus/Imagerie' -type d -exec chmod 0755 {} +; "
                                    "find '%1/Rufus/Imagerie' -type f -exec chmod 0644 {} +; "
-                                   "chmod -R o-w '%1'").arg(path);
+                                   "chmod -R o-w '%1'; "
+                                   "chmod -R +a 'everyone allow read,execute,file_inherit,"
+                                   "directory_inherit' '%1/Rufus/Imagerie' 2>/dev/null").arg(path);
 
     /*! Déjà partagé ? (lecture seule, aucune élévation) */
     if (partageImageriePresent())
