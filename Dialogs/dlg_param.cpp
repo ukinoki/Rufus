@@ -2071,6 +2071,27 @@ void dlg_param::DirLocalStockage()
     QString path = (url.host()!=""? "//" + url.host() + "/" : "") + url.path();
     ui->LocalPathStockageupLineEdit->setText(path);
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie, path);
+    AvertirDossierReseau(url);
+}
+
+/*!
+ * \brief dlg_param::AvertirDossierReseau
+ * Un dossier réseau choisi ici est monté pour la session en cours seulement : sans montage au démarrage,
+ * Rufus ne le retrouvera pas au prochain lancement.
+ * \param url  dossier choisi
+ */
+void dlg_param::AvertirDossierReseau(const QUrl &url)
+{
+    if (url.host().isEmpty() && !url.path().contains("/gvfs/"))
+        return;
+    const QString lien = "https://www.rufusvision.org/installation-en-reacuteseau-local.html";
+    UpMessageBox::Watch(this, tr("Dossier réseau"),
+        tr("Ce dossier est partagé par un autre poste : il doit être monté automatiquement au démarrage "
+           "de cet ordinateur, sans quoi Rufus ne le retrouvera pas.") + "\n\n" +
+        tr("La marche à suivre est décrite au paragraphe « Sur les postes clients — Montage du dossier "
+           "d'imagerie du serveur au démarrage du poste » de la page") + "\n" +
+        "<a href=\"" + lien + "\">" + lien + "</a>",
+        UpDialog::ButtonOK, lien);
 }
 
 void dlg_param::DirDistantStockage()
@@ -2116,6 +2137,7 @@ void dlg_param::LocalVideoDir()
         return;
     ui->LocalVideoDirupLineEdit->setText(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Videos, url.path());
+    AvertirDossierReseau(url);
 }
 
 void dlg_param::DistantVideoDir()

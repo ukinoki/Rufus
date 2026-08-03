@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_PARAM_H
 
 #include <QToolTip>
+#include <QUrl>
 
 #include "dlg_gestionbanques.h"
 #include "ui_dlg_gestionbanques.h"
@@ -152,6 +153,7 @@ private:
     void                ChoixFontpushButtonClicked();
     void                ClearPortsComboBox(UpComboBox *box, int);
     void                DirLocalStockage();
+    void                AvertirDossierReseau(const QUrl &url);   //!< un dossier réseau doit être monté au démarrage du poste
     void                DirDistantStockage();
     void                PosteVideoDir();
     void                LocalVideoDir();
