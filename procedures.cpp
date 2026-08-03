@@ -5150,7 +5150,8 @@ void Procedures::PremierParametrageMateriel()
     m_settings->setValue(Param_Poste_PortRefracteur,"-");
     m_settings->setValue(Param_Poste_PortFronto,"-");
     m_settings->setValue(Param_Poste_PortTono,"-");
-    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NOimport);
+    /*! Sans participant, les blobs déposés par les postes distants ne sont jamais déversés sur le disque. */
+    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
     m_settings->setValue(Param_Poste_Version, m_version);
 
     // Création des dossiers
