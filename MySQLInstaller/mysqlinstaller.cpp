@@ -1218,25 +1218,30 @@ bool MySQLInstaller::isBaseRufus(const QStringList& log)
  */
 bool MySQLInstaller::offrirSauvegardeBaseRufus(const QStringList& log)
 {
-    UpMessageBox msgbox(nullptr);
-    msgbox.setIcon(UpMessageBox::Quest);
-    msgbox.setText(tr("Une base patients Rufus est présente sur ce serveur"));
-    msgbox.setInformativeText(
-        tr("Elle sera effacée par l'installation.") + "\n\n" +
-        tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."));
-    UpSmallButton* bAnnuler = new UpSmallButton(tr("Annuler"));
-    UpSmallButton* bEffacer = new UpSmallButton(tr("Non,\neffacer la base"));
-    UpSmallButton* bSauver  = new UpSmallButton(tr("Oui,\nsauvegarder la base"));
-    msgbox.addButton(bAnnuler, UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(bEffacer, UpSmallButton::OUPSBUTTON);
-    msgbox.addButton(bSauver,  UpSmallButton::STARTBUTTON);
-    msgbox.exec();
+    /*! Une sauvegarde qui échoue ramène ICI, pas à l'écran d'accueil : seul « Annuler » renonce. */
+    forever
+    {
+        UpMessageBox msgbox(nullptr);
+        msgbox.setIcon(UpMessageBox::Quest);
+        msgbox.setText(tr("Une base patients Rufus est présente sur ce serveur"));
+        msgbox.setInformativeText(
+            tr("Elle sera effacée par l'installation.") + "\n\n" +
+            tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."));
+        UpSmallButton* bAnnuler = new UpSmallButton(tr("Annuler"));
+        UpSmallButton* bEffacer = new UpSmallButton(tr("Non,\neffacer la base"));
+        UpSmallButton* bSauver  = new UpSmallButton(tr("Oui,\nsauvegarder la base"));
+        msgbox.addButton(bAnnuler, UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(bEffacer, UpSmallButton::OUPSBUTTON);
+        msgbox.addButton(bSauver,  UpSmallButton::STARTBUTTON);
+        msgbox.exec();
 
-    if (msgbox.clickedButton() == bEffacer)
-        return true;
-    if (msgbox.clickedButton() != bSauver)
-        return false;
-    return Procedures::I()->SauvegarderBaseAvantInstallation(log.at(1), log.at(0));
+        if (msgbox.clickedButton() == bEffacer)
+            return true;
+        if (msgbox.clickedButton() != bSauver)
+            return false;
+        if (Procedures::I()->SauvegarderBaseAvantInstallation(log.at(1), log.at(0)))
+            return true;
+    }
 }
 
 /*!
