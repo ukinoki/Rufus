@@ -4966,25 +4966,19 @@ bool Procedures::PremierDemarrage(bool BaseVierge, bool Restauration, QWidget *p
         bBaseVierge   ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
         bBaseExistante->setUpButtonStyle(UpSmallButton::RECEPTIONBUTTON);
 
-        UpLabel *titre = new UpLabel();
-        titre->setText(tr("Premier démarrage de Rufus!"));
-        UpLabel *corps = new UpLabel();
-        corps->setText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" +
+        UpMessageBox dlg(parent);
+        dlg.setWindowModality(Qt::ApplicationModal);
+        dlg.setIcon(UpMessageBox::Info);
+        dlg.setText(tr("Premier démarrage de Rufus!"));
+        dlg.setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" +
                        tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
                        tr("1. J'installe Rufus sur ce poste en créant une nouvelle base patients") + "\n" +
                        tr("2. J'installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà"));
-        corps->setWordWrap(true);
-
-        UpDialog dlg(parent);
-        dlg.setWindowModality(Qt::ApplicationModal);
-        dlg.dlglayout()->insertWidget(0, titre);
-        dlg.dlglayout()->insertWidget(1, corps);
         if (BaseVierge)
             dlg.AjouteWidgetLayButtons(bBaseVierge);
         if (Restauration)
             dlg.AjouteWidgetLayButtons(bBaseExistante);
         dlg.AjouteWidgetLayButtons(bAnnuler);
-        dlg.TuneSize();
 
         UpSmallButton *clique = nullptr;
         for (UpSmallButton *b : {bAnnuler, bBaseVierge, bBaseExistante})
@@ -5324,22 +5318,15 @@ void Procedures::ReparerIni()
     if (bRestaurer)
         bRestaurer->setUpButtonStyle(UpSmallButton::STARTBUTTON);
 
-    UpDialog dlg;
+    //! addButton refermerait la fiche : on pose les boutons soi-même pour garder la main.
+    UpMessageBox dlg(Q_NULLPTR);
     dlg.setWindowModality(Qt::ApplicationModal);
-    UpLabel *titre = new UpLabel();
-    titre->setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
-    UpLabel *corps = new UpLabel();
-    corps->setText(msgInfo);
-    corps->setWordWrap(true);
-    dlg.dlglayout()->insertWidget(0, titre);
-    dlg.dlglayout()->insertWidget(1, corps);
-    dlg.AjouteWidgetLayButtons(bAnnuler);
-    dlg.AjouteWidgetLayButtons(bSaisir);
-    dlg.AjouteWidgetLayButtons(bReseau);
-    dlg.AjouteWidgetLayButtons(bPremiere);
-    if (bRestaurer)
-        dlg.AjouteWidgetLayButtons(bRestaurer);
-    dlg.TuneSize();
+    dlg.setIcon(UpMessageBox::Warning);
+    dlg.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
+    dlg.setInformativeText(msgInfo);
+    for (UpSmallButton *b : {bAnnuler, bSaisir, bReseau, bPremiere, bRestaurer})
+        if (b)
+            dlg.AjouteWidgetLayButtons(b);
 
     //! La fiche ne se referme que sur un Rufus.ini exploitable : chaque bouton agit, elle reste le point de retour.
     auto termineSiValide = [&]() { if (iniValide()) dlg.accept(); };
