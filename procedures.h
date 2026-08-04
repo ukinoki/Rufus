@@ -172,8 +172,8 @@ private:
 public:
     bool                    SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL, QWidget* parent = Q_NULLPTR);   //! dump de la base Rufus du serveur qui va être effacé, avec un compte admin MySQL
 private:
-    int         protoc = BaseExistante;
-    enum protoc {BaseExistante, BaseVierge};
+    int         protoc = NoBase;
+    enum protoc {BaseExistante, BaseVierge, NoBase};
 
 /*! fin première connection -------------------------------------------------------------------------------------------------------- */
 

@@ -4966,6 +4966,7 @@ int Procedures::idCentre()
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
 {
+    QString login = "", mdp = "";
     UpSmallButton *bAnnuler       = new UpSmallButton(tr("Abandonner"));
     UpSmallButton *bBaseVierge    = new UpSmallButton(tr("Nouvelle base\npatients"));
     UpSmallButton *bBaseExistante = new UpSmallButton(tr("Base patients restaurée\nà partir d'une sauvegarde"));
@@ -4987,31 +4988,27 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         dlg.AjouteWidgetLayButtons(bBaseExistante);
     dlg.AjouteWidgetLayButtons(bAnnuler);
 
-    UpSmallButton *clique = nullptr;
+    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase; });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge; });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { protoc = BaseExistante; });
     dlg.exec();
 
-    protoc = BaseExistante;
-    if (clique == bAnnuler || clique == nullptr)
+    if (protoc != NoBase)
     {
+        if (m_settings != Q_NULLPTR)
+            delete m_settings;
+        m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
+    }
+
+    switch (protoc) {
+    case NoBase:
         dlg.reject();
         return false;
-    }
-    else if (clique == bBaseExistante)
-        protoc = BaseExistante;
-    else if (clique == bBaseVierge)
-        protoc = BaseVierge;
-
-
-    if (m_settings != Q_NULLPTR)
-        delete m_settings;
-    m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-    QString login (""), MDP("");
-    if (protoc == BaseExistante)
-    {
+        break;
+    case BaseExistante:
         // A réécrireif (VerifParamConnexion())
-            Utils::Redemarrage();
-    }
-    else if (protoc == NouvelleBaseVierge)
+        Utils::Redemarrage();
+    case BaseVierge:
     {
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         if (!installeurMySQL->run())
@@ -5042,7 +5039,7 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         m_connexionbaseOK = true;
 
         login = installeurMySQL->loginRufus();
-        MDP   = installeurMySQL->mdpRufus();
+        mdp   = installeurMySQL->mdpRufus();
 
         if (!InstallationRufus(Restauration || installeurMySQL->baseRufusTrouvee()))
         {
@@ -5051,7 +5048,7 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         }
         m_parametres = db->parametres();
 
-        m_connexionbaseOK = CreerPremierUser(login, MDP);
+        m_connexionbaseOK = CreerPremierUser(login, mdp);
 
         MySQLInstaller::creerCompteDeSecours();
         PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
@@ -5071,7 +5068,7 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
                               tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
         Utils::Redemarrage();
     }
-    dlg.reject();
+    }
     return false;
 }
 
