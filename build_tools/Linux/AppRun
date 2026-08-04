@@ -542,11 +542,6 @@ EOF
         update-desktop-database "${APPS_DIR}" >/dev/null 2>&1
     command -v gtk-update-icon-cache >/dev/null 2>&1 && \
         gtk-update-icon-cache -f -t "${HOME}/.local/share/icons/hicolor" >/dev/null 2>&1
-
-    # Grille des applications : une disposition figée par une ancienne session n'accueille
-    # aucune entrée nouvelle ; vidée, GNOME la reconstruit à la reconnexion.
-    command -v gsettings >/dev/null 2>&1 && \
-        gsettings set org.gnome.shell app-picker-layout "[]" 2>/dev/null
 }
 
 # Raccourci sur le BUREAU (copie du .desktop, marqué « de confiance » pour GNOME).
