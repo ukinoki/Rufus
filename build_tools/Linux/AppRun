@@ -11,10 +11,14 @@
 # ─────────────────────────────────────────────────────────────────────────────
 HERE="$(dirname "$(readlink -f "${0}")")"
 
-# Bibliothèques + plugins Qt embarqués par linuxdeploy (usr/lib, usr/plugins).
-export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
-export QT_PLUGIN_PATH="${HERE}/usr/plugins:${QT_PLUGIN_PATH}"
-export QT_QPA_PLATFORM_PLUGIN_PATH="${HERE}/usr/plugins/platforms"
+# Libs et plugins Qt embarqués : posés sur le seul Rufus, car exportés ils tueraient les
+# programmes système lancés ici (zenity, gsettings) en leur imposant les libs de l'AppImage.
+lancer_rufus() {
+    exec env LD_LIBRARY_PATH="${HERE}/usr/lib" \
+             QT_PLUGIN_PATH="${HERE}/usr/plugins" \
+             QT_QPA_PLATFORM_PLUGIN_PATH="${HERE}/usr/plugins/platforms" \
+             "${BIN}" "$@"
+}
 
 # ── Verrou anti-double-lancement ──────────────────────────────────────────────
 # Pendant la phase d'install (apt via pkexec, parfois >30 s), faute de retour
@@ -634,7 +638,7 @@ proposer_raccourcis_et_lancement() {
     case "${sel}" in *bureau*)  creer_raccourci_bureau ;; esac
     case "${sel}" in *favoris*) ajouter_aux_favoris    ;; esac
     restaurer_centrage_fenetres   #! rendre son réglage à l'utilisateur AVANT le exec (qui ne reviendrait jamais)
-    case "${sel}" in *lancer*)  exec "${BIN}" "$@"     ;; esac   # remplace le process : Rufus démarre
+    case "${sel}" in *lancer*)  lancer_rufus "$@"      ;; esac   # remplace le process : Rufus démarre
 }
 
 # Faut-il (re)jouer la séquence d'installation ? Oui tant que le poste n'est pas
@@ -678,4 +682,4 @@ if ! composants_systeme_presents; then
     definir_textes                 # textes FR par défaut (aucune fenêtre de choix de langue ici)
     configurer_systeme || true     # best-effort : on lance Rufus même si l'install échoue/est refusée
 fi
-exec "${BIN}" "$@"
+lancer_rufus "$@"
