@@ -521,13 +521,12 @@ inscrire_dans_menus() {
     [ -f "${ICON_SRC}" ] && cp -f "${ICON_SRC}" "${ICONS_DIR}/rufus.png"
 
     # 3. Raccourci menu (.desktop) pointant sur l'AppImage installée
-    # Icône en chemin absolu : un nom court obligerait GNOME à la retrouver dans le thème.
     cat > "${DESKTOP}" <<EOF
 [Desktop Entry]
 Type=Application
 Name=${APPNAME}
 Exec=${cible}
-Icon=${ICONS_DIR}/rufus.png
+Icon=rufus
 Comment=Logiciel de gestion de cabinet d'Ophtalmologie
 Categories=Office;MedicalSoftware;
 Terminal=false
