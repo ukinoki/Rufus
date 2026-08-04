@@ -138,6 +138,8 @@ class Rufus : public QMainWindow
 {
     Q_OBJECT
 
+protected:
+    void showEvent(QShowEvent* e) override;   //! [DIAG] à retirer
 public:
     explicit Rufus(QWidget *parent = nullptr);
     ~Rufus();

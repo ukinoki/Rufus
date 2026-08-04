@@ -3336,7 +3336,7 @@ bool Procedures::Connexion_A_La_Base()
         UpMessageBox::Watch(Q_NULLPTR, tr("Installation de MySQL"),
             tr("Rufus va maintenant installer un serveur MySQL neuf sur ce poste, "
                "puis créer une nouvelle base patients."));
-        PremierDemarrage(/*forceBaseVierge=*/true);
+        PremierDemarrage(true);
     }
 
     QString server = "localhost";
@@ -3563,7 +3563,7 @@ bool Procedures::Connexion_A_La_Base()
                             QStringList() << tr("Annuler") << tr("Créer une nouvelle\nbase patients"))
                         != UpSmallButton::STARTBUTTON)
                         continue;
-                    PremierDemarrage(/*forceBaseVierge=*/true);
+                    PremierDemarrage(true);
                     return false;
                 }
             }
@@ -3581,7 +3581,7 @@ bool Procedures::Connexion_A_La_Base()
                     QStringList() << tr("Annuler, je vais\nsauvegarder les données")
                                   << tr("Installer un\nserveur neuf"))
                 == UpSmallButton::STARTBUTTON)
-                PremierDemarrage(/*forceBaseVierge=*/true, /*demanderRestauration=*/true);
+                PremierDemarrage(true, true);
             return false;
         }
 
@@ -4957,16 +4957,8 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::PremierDemarrage(bool forceBaseVierge, bool demanderRestauration)
+bool Procedures::PremierDemarrage(bool BaseVierge, bool Restauration)
 {
-    if (forceBaseVierge)
-    {
-        //! Raccourci « -installMySQL » : on saute le choix vierge/existante et on impose la base
-        //! vierge. Le serveur vient d'être (ré)installé neuf → il n'existe aucune base à proposer.
-        protoc = BaseVierge;
-    }
-    else
-    {
         UpMessageBox *msgbox = new UpMessageBox;
 
         UpSmallButton    AnnulBouton        (tr("Abandonner"));
@@ -4982,8 +4974,10 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge, bool demanderRestauratio
         msgbox->setIcon(UpMessageBox::Info);
 
 
-        msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
-        msgbox->addButton(&BaseExistanteBouton, UpSmallButton::NOBUTTON);
+        if (BaseVierge)
+            msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
+        if (Restauration)
+            msgbox->addButton(&BaseExistanteBouton, UpSmallButton::NOBUTTON);
         msgbox->addButton(&AnnulBouton,         UpSmallButton::CANCELBUTTON);
         msgbox->exec();
 
@@ -4994,7 +4988,6 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge, bool demanderRestauratio
             protoc = BaseExistante;
         else if (msgbox->clickedButton() == &BaseViergeBouton)
             protoc = BaseVierge;
-    }
 
 
 
@@ -5007,34 +5000,18 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge, bool demanderRestauratio
         if (VerifParamConnexion())
         {
             PremierParametrageMateriel();
-            //! Pas de « connexion réussie » : rien n'a été testé, c'est la relance qui éprouvera ces paramètres.
             UpMessageBox::Watch(Q_NULLPTR, tr("Paramètres de connexion enregistrés"),
                                    tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n" +
                                    tr("Le programme va redémarrer pour se connecter à la base patients") + ".\n");
-            //! Redémarrage automatique : on relance Rufus avant de quitter, pour que
-            //! l'utilisateur n'ait rien à faire (la nouvelle instance repart sur la
-            //! configuration fraîchement écrite). argsRelance() : sans -installMySQL (anti-boucle).
             Utils::Redemarrage();
         }
     }
     else if (protoc == BaseVierge)
     {
-        //! Avant tout : garantir un serveur MySQL conforme aux exigences de Rufus sur
-        //! ce poste (détection ; installation + paramétrage au besoin) et création des
-        //! comptes adminrufus/adminrufusSSL avec un mot de passe aléatoire propre au
-        //! cabinet, stocké dans rufus.ini (clé Param_MDPSQL). Annulation utilisateur ou
-        //! échec → retour à l'écran de premier démarrage (Rufus ne continue pas).
-        //! cf MySQLInstaller, docs/NOTES_INTEGRATION_MYSQLINSTALLER.md
         MySQLInstaller installeurMySQL;
         if (!installeurMySQL.run())
-            //! En mode FORCÉ (raccourci -installMySQL), on NE recurse PAS : la msgbox étant sautée,
-            //! une récursion sur échec n'offrirait aucune sortie. On rend la main (return false) → le
-            //! flux normal de Connexion_A_La_Base présente le carrefour « Aucun serveur » (avec Quitter).
-            return forceBaseVierge ? false : PremierDemarrage(false, demanderRestauration);
+            return BaseVierge ? false : PremierDemarrage(false, Restauration);
 
-        //! nbp = TOUJOURS monoposte / serveur local. On reloge ici les effets de bord
-        //! « Poste » qu'assurait dlg_paramconnexion (qu'on n'appelle plus pour nbp :
-        //! l'installeur a déjà tout — login/mdp applicatifs + serveur local).
         QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
         db->setModeacces(Utils::Poste);
         m_settings->setValue(BasePoste + Param_Active, "YES");
@@ -5047,40 +5024,25 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge, bool demanderRestauratio
             exit(0);
         }
 
-        //! Ouverture de la connexion Qt à MySQL (compte adminrufus + mot de passe
-        //! aléatoire du cabinet, via motDePasseSQL()). INDISPENSABLE : RestaureBase et
-        //! CreerPremierUser passent par db->StandardSQL() ; sans cette connexion, ils
-        //! échouent silencieusement (la base est créée par le binaire mysql, mais
-        //! l'utilisateur applicatif n'est jamais inséré dans rufus.utilisateurs).
         db->initParametresConnexionSQL("localhost", 3306);
-        //! Connexion en CASCADE (aléatoire .dbkey PUIS gaxt78iy) : l'aléatoire vient d'être
-        //! posé par l'installeur ; s'il était refusé à la toute première connexion (cache
-        //! d'auth caching_sha2 « froid »), gaxt78iy (2e mot de passe conservé) prend le relais.
         QString erreurConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
         if (!erreurConnexion.isEmpty())
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion au serveur MySQL"),
                                 tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreurConnexion);
-            return forceBaseVierge ? false : PremierDemarrage(false, demanderRestauration);   //! cf. note ci-dessus (pas de récursion en mode forcé)
+            return BaseVierge ? false : PremierDemarrage(false, Restauration);   //! cf. note ci-dessus (pas de récursion en mode forcé)
         }
         m_connexionbaseOK = true;
 
-        //! login/mdp de l'utilisateur APPLICATIF Rufus, saisis dans l'installeur
-        //! (les comptes MySQL adminrufus/adminrufusSSL, eux, ont été créés en tâche
-        //! de fond avec un mot de passe aléatoire stocké dans ~/.rufus/.dbkey).
         login = installeurMySQL.loginRufus();
         MDP   = installeurMySQL.mdpRufus();
 
-        //! Création de la base : sauvegarde retrouvée -> restauration, sinon toute la structure vierge.
-        if (!InstallationRufus(demanderRestauration || installeurMySQL.baseRufusTrouvee()))
+        if (!InstallationRufus(Restauration || installeurMySQL.baseRufusTrouvee()))
             return false;
         m_parametres = db->parametres();
 
-        //! Inscription de l'utilisateur applicatif dans rufus.utilisateurs (mdp SHA1).
         m_connexionbaseOK = CreerPremierUser(login, MDP);
 
-        //! Mot de passe de secours connu du seul praticien, puis suppression du root sans mot de passe
-        //! hérité de l'initialisation de MySQL.
         MySQLInstaller::creerCompteDeSecours();
         PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
         Datas::I()->sites->initListe();
@@ -5097,10 +5059,6 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge, bool demanderRestauratio
                               tr("Mot de passe :") + "\n\n" +
                               "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">" + MySQLInstaller::motDePasseSQL() + "</span></b></p>" + "\n\n" +
                               tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
-        //! Redémarrage automatique APRÈS la dernière boîte (celle qui affiche le mot de
-        //! passe) : on relance Rufus puis on quitte, l'utilisateur n'a rien à relancer
-        //! lui-même. La nouvelle instance repart sur la base tout juste créée.
-        //! argsRelance() : sans -installMySQL, sinon la nouvelle instance réinstallerait en boucle.
         Utils::Redemarrage();
     }
     return false;
@@ -5335,12 +5293,12 @@ void Procedures::ReparerIni()
         UpSmallButton *bAnnuler   = new UpSmallButton(QObject::tr("Abandonner et\nquitter Rufus"));
         UpSmallButton *bSaisir    = new UpSmallButton(QObject::tr("Restaurer le fichier Rufus.ini en saisissant\nde nouveau les paramètres de connexion"));
         UpSmallButton *bReseau    = new UpSmallButton(QObject::tr("Installation d'un poste Rufus\nsur un réseau"));
-        UpSmallButton *bPremiere  = new UpSmallButton(QObject::tr("Première installation\nde Rufus"));
+        UpSmallButton *bPremiere  = new UpSmallButton(QObject::tr("Installation d'une base\npatients Rufus"));
         UpSmallButton *bRestaurer = sauvegardeOK
                                   ? new UpSmallButton(QObject::tr("Restaurer la copie\nde sauvegarde"))
                                   : nullptr;
         bReseau  ->setImmediateToolTip(QObject::tr("Se connecter à une base patients Rufus existante sur ce réseau"));
-        bPremiere->setImmediateToolTip(QObject::tr("Créer une base patients"));
+        bPremiere->setImmediateToolTip(QObject::tr("Installer une base patients vierge ou à partir d'une restauration"));
 
         QString msgInfo = QObject::tr("Le fichier d'initialisation") + "\n" + PATH_FILE_INI "\n"
                         + QObject::tr("est absent, ou ne contient pas de renseignement valide "
@@ -5376,16 +5334,14 @@ void Procedures::ReparerIni()
         }
         if (msgbox.clickedButton() == bPremiere)
         {
-            PremierDemarrage(/*forceBaseVierge=*/true);
+            PremierDemarrage(true,true);
             continue;
         }
-        //! Mêmes gestes pour les deux : resaisir ses paramètres, ou brancher ce poste sur un réseau
+
         if (msgbox.clickedButton() == bSaisir || msgbox.clickedButton() == bReseau)
         {
-            //! La fiche ne teste rien : elle recueille la saisie, VerifParamConnexion écrit Rufus.ini.
             if (VerifParamConnexion())
             {
-                //! Sans la langue, le sélecteur reviendrait au prochain lancement.
                 m_settings->setValue(Param_Poste_Version, m_version);
                 m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
                 UpMessageBox::Watch(Q_NULLPTR, tr("Rufus.ini reconstruit"),
@@ -5393,7 +5349,6 @@ void Procedures::ReparerIni()
                                   + tr("Le lancement de Rufus se poursuit."));
                 if (!EprouverConnexionApresSaisie())
                 {
-                    //! le delete écrirait les valeurs en attente et recréerait le fichier qu'on efface
                     delete m_settings;
                     m_settings = Q_NULLPTR;
                     QFile::remove(PATH_FILE_INI);
@@ -5434,7 +5389,7 @@ bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool propose
         return false;
     }
     //! s'y connecter se joue dans la saisie des paramètres (ReparerIni), ici on la crée
-    return PremierDemarrage(/*forceBaseVierge=*/true, proposerRestauration);
+    return PremierDemarrage(true, proposerRestauration);
 }
 
 bool Procedures::ClesSSLPresentes() const

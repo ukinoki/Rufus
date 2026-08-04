@@ -1082,11 +1082,6 @@ bool MySQLInstaller::assurerDroitsAdmin()
  */
 bool MySQLInstaller::run()
 {
-    /*! On ne vérifie PAS les droits administrateur ici : ils ne sont requis que pour (DÉS)INSTALLER
-     *  MySQL. La vérification (+ offre d'élévation UAC) se fait juste avant ces opérations, via
-     *  assurerDroitsAdmin() — sinon le mode Verify (simple connexion à un MySQL présent) serait bloqué
-     *  pour rien sur un compte non-administrateur. */
-
 #if defined(Q_OS_WIN)
     /*! Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et l'installe AVANT toute
      *  opération MySQL. */
@@ -1109,12 +1104,6 @@ bool MySQLInstaller::run()
     }
 #endif
 
-    /*! On ne vérifie PAS l'accès réseau ici : il n'est nécessaire que pour TÉLÉCHARGER MySQL (mode
-     *  Create), cas déjà couvert par checkDownloadConnectivity() dans faireCreate(). Le vérifier dès
-     *  run() bloquerait pour rien un poste hors-ligne qui a DÉJÀ MySQL (Verify) ou une base complète. */
-
-    /*! Config distante (version cible + seuil minimal). La checklist affiche le seuil dans la case « MySQL
-     *  ≥ <min> installé ». fetchRemoteConfig() se replie sur les valeurs par défaut si le réseau manque. */
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
 
     if (!isMySQLInstalled())
