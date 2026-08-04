@@ -4964,42 +4964,42 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::PremierDemarrage(bool BaseVierge, bool Restauration, QWidget *parent)
+bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
 {
-        UpSmallButton *bAnnuler       = new UpSmallButton(tr("Abandonner"));
-        UpSmallButton *bBaseVierge    = new UpSmallButton(tr("Nouvelle base\npatients"));
-        UpSmallButton *bBaseExistante = new UpSmallButton(tr("Base patients existante\nsur le serveur"));
-        bAnnuler      ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
-        bBaseVierge   ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
-        bBaseExistante->setUpButtonStyle(UpSmallButton::RECEPTIONBUTTON);
+    UpSmallButton *bAnnuler       = new UpSmallButton(tr("Abandonner"));
+    UpSmallButton *bBaseVierge    = new UpSmallButton(tr("Nouvelle base\npatients"));
+    UpSmallButton *bBaseExistante = new UpSmallButton(tr("Base patients restaurée\nà partir d'une sauvegarde"));
+    bAnnuler      ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
+    bBaseVierge   ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
+    bBaseExistante->setUpButtonStyle(UpSmallButton::RECEPTIONBUTTON);
 
-        UpMessageBox dlg(parent);
-        dlg.setWindowModality(Qt::ApplicationModal);
-        dlg.setIcon(UpMessageBox::Info);
-        dlg.setText(tr("Premier démarrage de Rufus!"));
-        dlg.setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" +
-                       tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
-                       tr("1. J'installe Rufus sur ce poste en créant une nouvelle base patients") + "\n" +
-                       tr("2. J'installe Rufus sur ce poste et et je vais créer une base patients à partir d'une sauvehgarde"));
-        if (BaseVierge)
-            dlg.AjouteWidgetLayButtons(bBaseVierge);
-        if (Restauration)
-            dlg.AjouteWidgetLayButtons(bBaseExistante);
-        dlg.AjouteWidgetLayButtons(bAnnuler);
+    UpMessageBox dlg(parent);
+    dlg.setWindowModality(Qt::ApplicationModal);
+    dlg.setIcon(UpMessageBox::Info);
+    dlg.setText(tr("Premier démarrage de Rufus!"));
+    dlg.setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" +
+                           tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
+                           tr("1. J'installe Rufus sur ce poste en créant une nouvelle base patients") + "\n" +
+                           tr("2. J'installe Rufus sur ce poste et et je vais créer une base patients à partir d'une sauvehgarde"));
+    if (NouvelleBaseVierge)
+        dlg.AjouteWidgetLayButtons(bBaseVierge);
+    if (Restauration)
+        dlg.AjouteWidgetLayButtons(bBaseExistante);
+    dlg.AjouteWidgetLayButtons(bAnnuler);
 
-        UpSmallButton *clique = nullptr;
-        for (UpSmallButton *b : {bAnnuler, bBaseVierge, bBaseExistante})
-            connect(b, &QPushButton::clicked, &dlg, [&, b] { clique = b; dlg.accept(); });
-        dlg.exec();
+    UpSmallButton *clique = nullptr;
+    dlg.exec();
 
+    protoc = BaseExistante;
+    if (clique == bAnnuler || clique == nullptr)
+    {
+        dlg.reject();
+        return false;
+    }
+    else if (clique == bBaseExistante)
         protoc = BaseExistante;
-        if (clique == bAnnuler || clique == nullptr)
-            return false;
-        else if (clique == bBaseExistante)
-            protoc = BaseExistante;
-        else if (clique == bBaseVierge)
-            protoc = BaseVierge;
-
+    else if (clique == bBaseVierge)
+        protoc = BaseVierge;
 
 
     if (m_settings != Q_NULLPTR)
@@ -5008,20 +5008,14 @@ bool Procedures::PremierDemarrage(bool BaseVierge, bool Restauration, QWidget *p
     QString login (""), MDP("");
     if (protoc == BaseExistante)
     {
-        if (VerifParamConnexion())
-        {
-            PremierParametrageMateriel();
-            UpMessageBox::Watch(Q_NULLPTR, tr("Paramètres de connexion enregistrés"),
-                                   tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n" +
-                                   tr("Le programme va redémarrer pour se connecter à la base patients") + ".\n");
+        // A réécrireif (VerifParamConnexion())
             Utils::Redemarrage();
-        }
     }
-    else if (protoc == BaseVierge)
+    else if (protoc == NouvelleBaseVierge)
     {
-        MySQLInstaller installeurMySQL;
-        if (!installeurMySQL.run())
-            return BaseVierge ? false : PremierDemarrage(false, Restauration, parent);
+        MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
+        if (!installeurMySQL->run())
+            return NouvelleBaseVierge ? false : PremierDemarrage(false, Restauration, parent);
 
         QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
         db->setModeacces(Utils::Poste);
@@ -5032,6 +5026,7 @@ bool Procedures::PremierDemarrage(bool BaseVierge, bool Restauration, QWidget *p
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion"),
                                 tr("Impossible de trouver l'exécutable MySQL") + "\n" +
                                 tr("Le programme ne pourra pas s'intialiser"));
+            delete installeurMySQL;
             exit(0);
         }
 
@@ -5041,15 +5036,19 @@ bool Procedures::PremierDemarrage(bool BaseVierge, bool Restauration, QWidget *p
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion au serveur MySQL"),
                                 tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreurConnexion);
-            return BaseVierge ? false : PremierDemarrage(false, Restauration, parent);   //! cf. note ci-dessus (pas de récursion en mode forcé)
+            delete installeurMySQL;
+            return NouvelleBaseVierge ? false : PremierDemarrage(false, Restauration, parent);   //! cf. note ci-dessus (pas de récursion en mode forcé)
         }
         m_connexionbaseOK = true;
 
-        login = installeurMySQL.loginRufus();
-        MDP   = installeurMySQL.mdpRufus();
+        login = installeurMySQL->loginRufus();
+        MDP   = installeurMySQL->mdpRufus();
 
-        if (!InstallationRufus(Restauration || installeurMySQL.baseRufusTrouvee()))
+        if (!InstallationRufus(Restauration || installeurMySQL->baseRufusTrouvee()))
+        {
+            delete installeurMySQL;
             return false;
+        }
         m_parametres = db->parametres();
 
         m_connexionbaseOK = CreerPremierUser(login, MDP);
@@ -5072,6 +5071,7 @@ bool Procedures::PremierDemarrage(bool BaseVierge, bool Restauration, QWidget *p
                               tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
         Utils::Redemarrage();
     }
+    dlg.reject();
     return false;
 }
 
