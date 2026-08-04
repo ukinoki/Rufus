@@ -13,10 +13,12 @@ HERE="$(dirname "$(readlink -f "${0}")")"
 
 # Libs et plugins Qt embarqués : posés sur le seul Rufus, car exportés ils tueraient les
 # programmes système lancés ici (zenity, gsettings) en leur imposant les libs de l'AppImage.
+# xcb par défaut : le plugin wayland n'est pas embarqué, et XWayland le prend en charge.
 lancer_rufus() {
     exec env LD_LIBRARY_PATH="${HERE}/usr/lib" \
              QT_PLUGIN_PATH="${HERE}/usr/plugins" \
              QT_QPA_PLATFORM_PLUGIN_PATH="${HERE}/usr/plugins/platforms" \
+             QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}" \
              "${BIN}" "$@"
 }
 
