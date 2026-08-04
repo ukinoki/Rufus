@@ -5030,7 +5030,7 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         Utils::Redemarrage();
     case BaseVierge:
     {
-        if (!offrirSauvegardeAvantEffacement(&dlg))
+        if (MySQLInstaller::serveurLocalPresent() && !offrirSauvegardeAvantEffacement(&dlg))
             return false;
 
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
