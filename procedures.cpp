@@ -5011,31 +5011,20 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
     dlg.AjouteWidgetLayButtons(bAnnuler);
 
     connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase;        dlg.accept(); });
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge;    dlg.accept(); });
     connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { protoc = BaseExistante; dlg.accept(); });
-    dlg.exec();
 
-    if (protoc != NoBase)
-    {
+    //! Un échec sort de la lambda sans accept() : la fiche reste affichée, on peut réessayer ou renoncer.
+    connect(bBaseVierge, &QPushButton::clicked, &dlg, [&] {
+        protoc = BaseVierge;
+        if (MySQLInstaller::serveurLocalPresent() && !offrirSauvegardeAvantEffacement(&dlg))
+            return;
         if (m_settings != Q_NULLPTR)
             delete m_settings;
-        m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-    }
-
-    switch (protoc) {
-    case NoBase:
-        return false;
-    case BaseExistante:
-        // A réécrireif (VerifParamConnexion())
-        Utils::Redemarrage();
-    case BaseVierge:
-    {
-        if (MySQLInstaller::serveurLocalPresent() && !offrirSauvegardeAvantEffacement(&dlg))
-            return false;
+        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
 
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         if (!installeurMySQL->run())
-            return NouvelleBaseVierge ? false : PremierDemarrage(false, Restauration, parent);
+            return;
 
         QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
         db->setModeacces(Utils::Poste);
@@ -5057,7 +5046,7 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion au serveur MySQL"),
                                 tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreurConnexion);
             delete installeurMySQL;
-            return NouvelleBaseVierge ? false : PremierDemarrage(false, Restauration, parent);   //! cf. note ci-dessus (pas de récursion en mode forcé)
+            return;
         }
         m_connexionbaseOK = true;
 
@@ -5067,7 +5056,7 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         if (!InstallationRufus(Restauration || installeurMySQL->baseRufusTrouvee()))
         {
             delete installeurMySQL;
-            return false;
+            return;
         }
         m_parametres = db->parametres();
 
@@ -5090,7 +5079,16 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
                               "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">" + MySQLInstaller::motDePasseSQL() + "</span></b></p>" + "\n\n" +
                               tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
         Utils::Redemarrage();
-    }
+    });
+    dlg.exec();
+
+    if (protoc == BaseExistante)
+    {
+        if (m_settings != Q_NULLPTR)
+            delete m_settings;
+        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
+        // A réécrireif (VerifParamConnexion())
+        Utils::Redemarrage();
     }
     return false;
 }
