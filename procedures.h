@@ -166,7 +166,7 @@ public:
 private:
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
-    bool                    PremierDemarrage(bool BaseVierge = false, bool Restauration = false);   //! une base Rufus existait sur ce poste : proposer d'en restaurer une sauvegarde extérieure
+    bool                    PremierDemarrage(bool BaseVierge = false, bool Restauration = false, QWidget *parent = Q_NULLPTR);   //! une base Rufus existait sur ce poste : proposer d'en restaurer une sauvegarde extérieure
     void                    PremierParametrageMateriel();
     bool                    InstallationRufus(bool demanderRestauration);   //! crée la base du poste : sauvegarde retrouvée -> restauration, sinon base vierge
 public:
