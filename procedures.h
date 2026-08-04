@@ -119,6 +119,7 @@ private:
     QString                 m_sauvegardeInstallation = "";                              //! dossier de la sauvegarde faite avant d'effacer le serveur (hors dossier figé si le disque manquait de place)
     bool                    EprouverConnexionApresSaisie();                             //! après reconstruction de Rufus.ini : mot de passe du cabinet, à défaut le générique
     void                    VerifierIni();                                              //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable
+    bool                    offrirSauvegardeAvantEffacement(QWidget *parent = Q_NULLPTR);   //! prévient que les données du serveur vont disparaître ; false = renoncer
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
                                      bool proposerRestauration = false);
     bool                    VerifParamConnexion(QWidget *parent = nullptr);             //! true =  le choix accès distant est validé ou non

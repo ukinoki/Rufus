@@ -1119,10 +1119,6 @@ bool MySQLInstaller::run()
 
     if (!isServerRunning()) startMySQL();
 
-    //! Tout ce que contient ce serveur va disparaître : on laisse renoncer pour sauvegarder d'abord
-    if (!offrirSauvegardeAvantEffacement())
-        return false;
-
     const QStringList log = AskMdpLoginMySQL();
 
     m_baseRufusTrouvee = !log.isEmpty() && isBaseRufus(log);
@@ -1250,30 +1246,6 @@ bool MySQLInstaller::isMariaDB()
     if (out.contains("mariadb", Qt::CaseInsensitive)) return true;
     out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL(), 5000);
     return out.contains("mariadb", Qt::CaseInsensitive);
-}
-
-/*!
- * \brief MySQLInstaller::offrirSauvegardeAvantEffacement
- * Avertit que les données du serveur vont être effacées. false = l'utilisateur renonce pour les
- * sauvegarder lui-même.
- */
-bool MySQLInstaller::offrirSauvegardeAvantEffacement()
-{
-    UpMessageBox msgbox(m_dialog);
-    msgbox.setIcon(UpMessageBox::Warning);
-    msgbox.setText(tr("L'installation d'une base Rufus va effacer les données"));
-    msgbox.setInformativeText(tr(
-        "Les données déjà présentes sur le serveur MySQL de cet ordinateur seront perdues.\n\n"
-        "Rufus sauvegardera une base patients qu'il y trouverait, mais pas d'autres données : "
-        "si elles vous importent, renoncez et sauvegardez-les vous-même."));
-    UpSmallButton* bArreter   = new UpSmallButton(
-        tr("Annuler, je vais\nsauvegarder les données"));
-    UpSmallButton* bContinuer = new UpSmallButton(
-        tr("Continuer"));
-    msgbox.addButton(bArreter,   UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(bContinuer, UpSmallButton::STARTBUTTON);
-    msgbox.exec();
-    return msgbox.clickedButton() == bContinuer;
 }
 
 /*!

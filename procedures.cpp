@@ -4964,6 +4964,28 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
+/*!
+ * \brief Procedures::offrirSauvegardeAvantEffacement
+ * Avertit que les données du serveur vont être effacées ; false = l'utilisateur renonce.
+ * \param parent  fiche appelante
+ */
+bool Procedures::offrirSauvegardeAvantEffacement(QWidget *parent)
+{
+    UpMessageBox msgbox(parent);
+    msgbox.setIcon(UpMessageBox::Warning);
+    msgbox.setText(tr("L'installation d'une base Rufus va effacer les données"));
+    msgbox.setInformativeText(tr(
+        "Les données déjà présentes sur le serveur MySQL de cet ordinateur seront perdues.\n\n"
+        "Rufus sauvegardera une base patients qu'il y trouverait, mais pas d'autres données : "
+        "si elles vous importent, renoncez et sauvegardez-les vous-même."));
+    UpSmallButton* bArreter   = new UpSmallButton(tr("Annuler, je vais\nsauvegarder les données"));
+    UpSmallButton* bContinuer = new UpSmallButton(tr("Continuer"));
+    msgbox.addButton(bArreter,   UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(bContinuer, UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    return msgbox.clickedButton() == bContinuer;
+}
+
 bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
 {
     QString login = "", mdp = "";
@@ -5008,6 +5030,9 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         Utils::Redemarrage();
     case BaseVierge:
     {
+        if (!offrirSauvegardeAvantEffacement(&dlg))
+            return false;
+
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         if (!installeurMySQL->run())
             return NouvelleBaseVierge ? false : PremierDemarrage(false, Restauration, parent);

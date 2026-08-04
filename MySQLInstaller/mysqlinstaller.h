@@ -127,7 +127,7 @@ private:
 
     * POINT D'ENTRÉE — run() (synchrone), cf. initialisation Rufus.txt § II.1 :
         * MySQL absent                -> faireCreate() : installe MySQL, crée les comptes, configure.
-        * MySQL présent               -> avertissement d'effacement, AskMdpLoginMySQL(), et si le serveur
+        * MySQL présent               -> AskMdpLoginMySQL(), et si le serveur
           porte déjà une base Rufus (isBaseRufus) offre de la sauvegarder AVANT de rien détruire.
             * socle conforme + compte admin -> faireReutiliser() : on garde le serveur.
             * sinon -> reinstallerSocleMySQLpourMigration() : désinstallation puis serveur neuf.
@@ -263,7 +263,6 @@ private:
     bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);   /*!< section install de faireCreate, sans saisie (migration) */
 
     bool          isMariaDB();                                                                         /*!< le serveur local est-il MariaDB ? (incompatible) */
-    bool          offrirSauvegardeAvantEffacement();                                                   /*!< prévient que les données du serveur vont disparaître ; false = renoncer */
     QStringList   AskMdpLoginMySQL();                                                                  /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide si l'utilisateur n'en a pas */
     static bool   isBaseRufus(const QStringList& log);                                                 /*!< une base Rufus est-elle présente sur ce serveur ? */
     bool          offrirSauvegardeBaseRufus(const QStringList& log);                                   /*!< base Rufus trouvée : sauvegarder / effacer / renoncer */
