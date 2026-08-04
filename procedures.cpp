@@ -4988,9 +4988,9 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         dlg.AjouteWidgetLayButtons(bBaseExistante);
     dlg.AjouteWidgetLayButtons(bAnnuler);
 
-    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase; });
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge; });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { protoc = BaseExistante; });
+    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase;        dlg.accept(); });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge;    dlg.accept(); });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { protoc = BaseExistante; dlg.accept(); });
     dlg.exec();
 
     if (protoc != NoBase)
@@ -5002,9 +5002,7 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
 
     switch (protoc) {
     case NoBase:
-        dlg.reject();
         return false;
-        break;
     case BaseExistante:
         // A réécrireif (VerifParamConnexion())
         Utils::Redemarrage();
