@@ -1218,30 +1218,31 @@ bool MySQLInstaller::isBaseRufus(const QStringList& log)
  */
 bool MySQLInstaller::offrirSauvegardeBaseRufus(const QStringList& log)
 {
-    /*! Une sauvegarde qui échoue ramène ICI, pas à l'écran d'accueil : seul « Annuler » renonce. */
-    forever
-    {
-        UpMessageBox msgbox(nullptr);
-        msgbox.setIcon(UpMessageBox::Quest);
-        msgbox.setText(tr("Une base patients Rufus est présente sur ce serveur"));
-        msgbox.setInformativeText(
-            tr("Elle sera effacée par l'installation.") + "\n\n" +
-            tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."));
-        UpSmallButton* bAnnuler = new UpSmallButton(tr("Annuler"));
-        UpSmallButton* bEffacer = new UpSmallButton(tr("Non,\neffacer la base"));
-        UpSmallButton* bSauver  = new UpSmallButton(tr("Oui,\nsauvegarder la base"));
-        msgbox.addButton(bAnnuler, UpSmallButton::CANCELBUTTON);
-        msgbox.addButton(bEffacer, UpSmallButton::OUPSBUTTON);
-        msgbox.addButton(bSauver,  UpSmallButton::STARTBUTTON);
-        msgbox.exec();
+    /*! Fiche maintenue ouverte : sa boucle exec() peint la fiche de progression du dump (fille), que
+     *  la boucle principale, pas encore démarrée à ce stade, ne peut pas animer. */
+    UpDialog dlg;
+    UpLabel* lbl = new UpLabel();
+    lbl ->setText(tr("Une base patients Rufus est présente sur ce serveur.") + "\n\n"
+                + tr("Elle sera effacée par l'installation.") + "\n\n"
+                + tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."));
+    lbl ->setWordWrap(true);
+    dlg .dlglayout()   ->addWidget(lbl);
+    dlg .AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOups | UpDialog::ButtonOK);
+    dlg .CancelButton  ->setText(tr("Annuler"));
+    dlg .OupsButton    ->setText(tr("Non,\neffacer la base"));
+    dlg .OKButton      ->setText(tr("Oui,\nsauvegarder la base"));
+    dlg .TuneSize();
 
-        if (msgbox.clickedButton() == bEffacer)
-            return true;
-        if (msgbox.clickedButton() != bSauver)
-            return false;
-        if (Procedures::I()->SauvegarderBaseAvantInstallation(log.at(1), log.at(0)))
-            return true;
-    }
+    QObject::disconnect(dlg.OKButton,   &QPushButton::clicked, nullptr, nullptr);
+    QObject::disconnect(dlg.OupsButton, &QPushButton::clicked, nullptr, nullptr);
+    connect(dlg.OKButton,   &QPushButton::clicked, &dlg, [&] {
+        /*! Échec : la fiche reste ouverte pour réessayer ou renoncer, au lieu de rendre la main. */
+        if (Procedures::I()->SauvegarderBaseAvantInstallation(log.at(1), log.at(0), &dlg))
+            dlg.accept();
+    });
+    connect(dlg.OupsButton, &QPushButton::clicked, &dlg, [&] { dlg.accept(); });
+
+    return dlg.exec() == QDialog::Accepted;
 }
 
 /*!

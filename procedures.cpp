@@ -498,7 +498,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
 namespace { struct EtatBkp { QMap<QString, qint64> offsets; int done = 0; QString table; }; }
 
 bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool verifmdp, QWidget *parent,
-                        QString loginSQL, QString mdpSQL, bool ficheModale)
+                        QString loginSQL, QString mdpSQL)
 {
     auto result = [] (qintptr handle, Procedures *proc)
     {
@@ -620,21 +620,13 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             pollbkp->deleteLater();
             bkpdial->setValue(totalTables);
             bkpdial->close();
-            /*! En modal, close() rend la main à exec() : détruire tout de suite tuerait la fiche
-             *  encore dans sa boucle. */
-            if (ficheModale) bkpdial->deleteLater();
-            else             delete bkpdial;
+            bkpdial->deleteLater();   /*!< la fiche peut être dans la boucle exec() d'une fiche parente */
             delete etat;
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0 ? msg : msgEchec), Icons::icSunglasses(), 3000);
             result(handledlg, this);
             QFile::remove(PATH_FILE_SCRIPTBACKUP);
         });
         m_ostask.execute(task);
-
-        /*! Avant le démarrage de la boucle principale (sauvegarde d'avant installation), seule une
-         *  boucle locale peint et anime la fiche ; le slot de fin la ferme et rend la main. */
-        if (ficheModale)
-            bkpdial->exec();
 
         /*! élimination des anciennes sauvegardes */
         QDir dir(pathdirdestination);
@@ -3004,7 +2996,7 @@ QString Procedures::DerniereSauvegardeInstallation()
  * \param loginSQL  compte administrateur MySQL du serveur à sauvegarder
  * \param mdpSQL    son mot de passe
  */
-bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL)
+bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL, QWidget* parent)
 {
     setDirSQLExecutable();
     db->initParametresConnexionSQL("localhost", 3306);
@@ -3039,7 +3031,7 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
     }
 
     //! adminrufus peut ne pas exister (ou son mdp être perdu) : le dump passe par le compte admin saisi
-    if (!Backup(dossier, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL, /*ficheModale=*/true))
+    if (!Backup(dossier, true, false, false, false, false, parent, loginSQL, mdpSQL))
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
             tr("La sauvegarde de votre base n'a pas pu être lancée ; rien n'a été effacé.") + "\n\n" +
