@@ -1226,15 +1226,13 @@ bool MySQLInstaller::offrirSauvegardeBaseRufus(const QStringList& log)
                 + tr("Elle sera effacée par l'installation.") + "\n\n"
                 + tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."));
     lbl ->setWordWrap(true);
-    dlg .dlglayout()   ->addWidget(lbl);
+    dlg .dlglayout()   ->insertWidget(0, lbl);   /*!< le constructeur a déjà posé la rangée de boutons */
     dlg .AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOups | UpDialog::ButtonOK);
     dlg .CancelButton  ->setText(tr("Annuler"));
     dlg .OupsButton    ->setText(tr("Non,\neffacer la base"));
     dlg .OKButton      ->setText(tr("Oui,\nsauvegarder la base"));
     dlg .TuneSize();
 
-    QObject::disconnect(dlg.OKButton,   &QPushButton::clicked, nullptr, nullptr);
-    QObject::disconnect(dlg.OupsButton, &QPushButton::clicked, nullptr, nullptr);
     connect(dlg.OKButton,   &QPushButton::clicked, &dlg, [&] {
         /*! Échec : la fiche reste ouverte pour réessayer ou renoncer, au lieu de rendre la main. */
         if (Procedures::I()->SauvegarderBaseAvantInstallation(log.at(1), log.at(0), &dlg))
