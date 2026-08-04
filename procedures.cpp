@@ -4986,6 +4986,34 @@ bool Procedures::offrirSauvegardeAvantEffacement(QWidget *parent)
     return msgbox.clickedButton() == bContinuer;
 }
 
+/*!
+ * \brief Procedures::offrirSauvegardeBaseRufus
+ * Le serveur porte une base Rufus qui va être effacée : proposer de la sauvegarder d'abord.
+ * \param log     { mdp, login } d'un compte administrateur MySQL
+ * \param parent  fiche appelante
+ */
+bool Procedures::offrirSauvegardeBaseRufus(const QStringList& log, QWidget *parent)
+{
+    UpMessageBox msgbox(parent);
+    msgbox.setIcon(UpMessageBox::Quest);
+    msgbox.setText(tr("Une base patients Rufus est présente sur ce serveur"));
+    msgbox.setInformativeText(tr("Elle sera effacée par l'installation.") + "\n\n" +
+                              tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."));
+    UpSmallButton* bAnnuler = new UpSmallButton(tr("Annuler"));
+    UpSmallButton* bEffacer = new UpSmallButton(tr("Non,\neffacer la base"));
+    UpSmallButton* bSauver  = new UpSmallButton(tr("Oui,\nsauvegarder la base"));
+    msgbox.addButton(bAnnuler, UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(bEffacer, UpSmallButton::OUPSBUTTON);
+    msgbox.addButton(bSauver,  UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+
+    if (msgbox.clickedButton() == bEffacer)
+        return true;
+    if (msgbox.clickedButton() != bSauver)
+        return false;
+    return SauvegarderBaseAvantInstallation(log.at(1), log.at(0), parent);
+}
+
 bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
 {
     QString login = "", mdp = "";
@@ -5012,14 +5040,23 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
 
     //! Un échec sort sans accept() : la fiche reste affichée, on peut réessayer ou renoncer.
     auto installer = [&](bool restaurer) {
-        if (MySQLInstaller::serveurLocalPresent() && !offrirSauvegardeAvantEffacement(&dlg))
-            return;
+        MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
+        QStringList logAdmin;
+        bool baseRufusPresente = false;
+        if (MySQLInstaller::serveurLocalPresent())
+        {
+            if (!offrirSauvegardeAvantEffacement(&dlg))
+                return;
+            logAdmin          = installeurMySQL->AskMdpLoginMySQL();
+            baseRufusPresente = MySQLInstaller::isBaseRufus(logAdmin);
+            if (baseRufusPresente && !offrirSauvegardeBaseRufus(logAdmin, &dlg))
+                return;
+        }
         if (m_settings != Q_NULLPTR)
             delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
 
-        MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
-        if (!installeurMySQL->run())
+        if (!installeurMySQL->run(logAdmin))
             return;
 
         QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
@@ -5049,7 +5086,7 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         login = installeurMySQL->loginRufus();
         mdp   = installeurMySQL->mdpRufus();
 
-        if (!InstallationRufus(restaurer || installeurMySQL->baseRufusTrouvee()))
+        if (!InstallationRufus(restaurer || baseRufusPresente))
         {
             delete installeurMySQL;
             return;

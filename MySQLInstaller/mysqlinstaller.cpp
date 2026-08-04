@@ -1080,7 +1080,7 @@ bool MySQLInstaller::assurerDroitsAdmin()
  * MySQL, sauvegarde de la base Rufus qui s'y trouve, puis réutilisation ou remplacement du serveur.
  * Renvoie true si un MySQL conforme à Rufus est prêt.
  */
-bool MySQLInstaller::run()
+bool MySQLInstaller::run(const QStringList& logAdmin)
 {
 #if defined(Q_OS_WIN)
     /*! Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et l'installe AVANT toute
@@ -1117,14 +1117,7 @@ bool MySQLInstaller::run()
         return faireCreate(cfg);
     }
 
-    if (!isServerRunning()) startMySQL();
-
-    const QStringList log = AskMdpLoginMySQL();
-
-    m_baseRufusTrouvee = !log.isEmpty() && isBaseRufus(log);
-    if (m_baseRufusTrouvee)
-        if (!offrirSauvegardeBaseRufus(log))
-            return false;
+    const QStringList log = logAdmin.isEmpty() ? AskMdpLoginMySQL() : logAdmin;
 
     //! Serveur récent ET ouvrable : on le garde. Sinon rien n'est réutilisable, on le remplace.
     if (!log.isEmpty() && socleLocalConforme())
@@ -1146,6 +1139,7 @@ bool MySQLInstaller::run()
  */
 QStringList MySQLInstaller::AskMdpLoginMySQL()
 {
+    if (!isServerRunning()) startMySQL();
     //! adminrufus ouvre déjà ce serveur (base endommagée, réinitialisation) : inutile de demander
     if (tryConnectAs(LOGIN_SQL, motDePasseSQL()))
         return QStringList() << motDePasseSQL() << QString(LOGIN_SQL);
@@ -1194,38 +1188,6 @@ bool MySQLInstaller::isBaseRufus(const QStringList& log)
         QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e \"SHOW DATABASES;\" 2>&1")
             .arg(m.mysqlBin("mysql"), argsServeurCourant(), log.at(1), log.at(0)));
     return m.lignesResultat(out).contains(DB_RUFUS);
-}
-
-/*!
- * \brief MySQLInstaller::offrirSauvegardeBaseRufus
- * Le serveur porte une base Rufus qui va être effacée : proposer de la sauvegarder d'abord.
- * \param log  { mdp, login } d'un compte administrateur MySQL
- */
-bool MySQLInstaller::offrirSauvegardeBaseRufus(const QStringList& log)
-{
-    /*! Fiche maintenue ouverte : sa boucle exec() peint la fiche de progression du dump (fille), que
-     *  la boucle principale, pas encore démarrée à ce stade, ne peut pas animer. */
-    UpDialog dlg;
-    UpLabel* lbl = new UpLabel();
-    lbl ->setText(tr("Une base patients Rufus est présente sur ce serveur.") + "\n\n"
-                + tr("Elle sera effacée par l'installation.") + "\n\n"
-                + tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."));
-    lbl ->setWordWrap(true);
-    dlg .dlglayout()   ->insertWidget(0, lbl);   /*!< le constructeur a déjà posé la rangée de boutons */
-    dlg .AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOups | UpDialog::ButtonOK);
-    dlg .CancelButton  ->setText(tr("Annuler"));
-    dlg .OupsButton    ->setText(tr("Non,\neffacer la base"));
-    dlg .OKButton      ->setText(tr("Oui,\nsauvegarder la base"));
-    dlg .TuneSize();
-
-    connect(dlg.OKButton,   &QPushButton::clicked, &dlg, [&] {
-        /*! Échec : la fiche reste ouverte pour réessayer ou renoncer, au lieu de rendre la main. */
-        if (Procedures::I()->SauvegarderBaseAvantInstallation(log.at(1), log.at(0), &dlg))
-            dlg.accept();
-    });
-    connect(dlg.OupsButton, &QPushButton::clicked, &dlg, [&] { dlg.accept(); });
-
-    return dlg.exec() == QDialog::Accepted;
 }
 
 /*!
