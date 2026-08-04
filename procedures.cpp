@@ -5202,13 +5202,8 @@ void Procedures::PremierParametrageMateriel()
 -- Vérifie la présence et la cohérence du fchier d'initialisation et le reconstruit au besoin ----------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
 //! Sauvegarde silencieuse de Rufus.ini dans le dossier caché ~/.rufus (PATH_FILE_INI_BACKUP),
-//! appelée à chaque OUVERTURE RÉUSSIE de Rufus (après Connexion_A_La_Base) — et NON à la
-//! fermeture : la fermeture ne vérifie pas la cohérence du fichier, alors qu'une ouverture
-//! réussie la garantit (la connexion à la base vient d'aboutir). On ne risque donc jamais
-//! d'écraser une sauvegarde saine par un Rufus.ini corrompu. Chaque poste sauvegarde le SIEN,
-//! ce qui permet à un poste client de restaurer son propre Rufus.ini (pas celui du serveur).
-//! Comme personne ne pense à sauvegarder ce fichier, Rufus s'en charge : ReparerIni() pourra le
-//! restaurer si l'original est perdu. No-op si Rufus.ini n'existe pas (rien à sauvegarder).
+//! appelée à chaque OUVERTURE RÉUSSIE de Rufus (après Connexion_A_La_Base) si  ouverture
+//! réussie
 void Procedures::SauvegardeIni()
 {
     if (!QFile::exists(PATH_FILE_INI))
