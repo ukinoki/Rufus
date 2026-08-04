@@ -91,6 +91,7 @@ public:
     /*! ── Saisie ─────────────────────────────────────────────────────────────────────────────────────── */
     QString login() const;      /*!< texte courant du champ login */
     QString password() const;   /*!< texte courant du champ mot de passe */
+    void    prefill(const QString& log, const QString& mdp);   /*!< pose un couple déjà éprouvé dans les champs */
     bool    validerSaisie();    /*!< login ET mdp renseignés ? (message + false sinon) */
 
     /*! ── Checklist ──────────────────────────────────────────────────────────────────────────────────── */
@@ -266,7 +267,8 @@ private:
     QStringList   AskMdpLoginMySQL();                                                                  /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide si l'utilisateur n'en a pas */
     static bool   isBaseRufus(const QStringList& log);                                                 /*!< une base Rufus est-elle présente sur ce serveur ? */
     bool          offrirSauvegardeBaseRufus(const QStringList& log);                                   /*!< base Rufus trouvée : sauvegarder / effacer / renoncer */
-    bool          faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout);                     /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
+    bool          faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout,
+                                  const QStringList& log = {});                                       /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
     void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);   /*!< supprime toutes les bases non système */
 
     bool executerEtapesConfig();   /*!< déroule les étapes de config + coche la checklist ; true si tout OK */

@@ -342,6 +342,12 @@ QString MySQLInstallerDialog::password() const
     return m_mdp ? m_mdp ->text() : QString();
 }
 
+void MySQLInstallerDialog::prefill(const QString& log, const QString& mdp)
+{
+    if (m_login) m_login   ->setText(log);
+    if (m_mdp)   m_mdp     ->setText(mdp);
+}
+
 /*!
  * \brief MySQLInstallerDialog::validerSaisie
  * Vérifie que login et mot de passe sont renseignés, et — en mode création — que le mot de passe et sa
@@ -1137,7 +1143,7 @@ bool MySQLInstaller::run()
 
     //! Serveur récent ET ouvrable : on le garde. Sinon rien n'est réutilisable, on le remplace.
     if (!log.isEmpty() && socleLocalConforme())
-        return faireReutiliser(cfg, /*effacerTout=*/true);
+        return faireReutiliser(cfg, /*effacerTout=*/true, log);
 
     if (!askYesNo(tr("Installation d'un serveur MySQL neuf"),
             tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
@@ -1499,10 +1505,14 @@ static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, Q
  * utilisateur Rufus.
  * \param effacerTout  true = supprime aussi les bases non-Rufus (choix « Effacer »)
  */
-bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effacerTout)
+bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effacerTout,
+                                     const QStringList& log)
 {
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerVerifyAdminMySQL();
+    /*! Compte déjà éprouvé par AskMdpLoginMySQL : on le pose et on enchaîne, sans redemander. */
+    if (log.size() >= 2)
+        m_dialog->prefill(log.at(1), log.at(0));
 
     /*! Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : vérifie la connexion
      *  admin (coche la case 0) puis enchaîne la config (cases 1 à 6). accept() seulement à la toute fin,
@@ -1561,6 +1571,8 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
         m_dialog->accept();                         /*!< tout est coché : on ferme enfin */
     });
 
+    if (log.size() >= 2)
+        QMetaObject::invokeMethod(m_dialog->OKButton, "click", Qt::QueuedConnection);
     m_dialog->exec();
     if (!configReussie) { cleanupDialog(); return false; }
 

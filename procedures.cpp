@@ -3000,8 +3000,14 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
 {
     setDirSQLExecutable();
     db->initParametresConnexionSQL("localhost", 3306);
-    if (!db->connectToDataBase(DB_RUFUS, loginSQL, mdpSQL).isEmpty())
+    const QString err = db->connectToDataBase(DB_RUFUS, loginSQL, mdpSQL);
+    if (!err.isEmpty())
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
+            tr("Rufus n'a pas pu se connecter à la base pour la sauvegarder ; rien n'a été effacé.")
+            + "\n\n" + err);
         return false;
+    }
 
     //! Marge ×2, plancher 50 Mo pour le SQL et ses entêtes
     const qint64 requis = qMax<qint64>(db->DatabaseSize() * 2, 50LL * 1024 * 1024);
