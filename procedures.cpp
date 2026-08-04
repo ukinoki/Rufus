@@ -3343,7 +3343,7 @@ bool Procedures::Connexion_A_La_Base()
         UpMessageBox::Watch(Q_NULLPTR, tr("Installation de MySQL"),
             tr("Rufus va maintenant installer un serveur MySQL neuf sur ce poste, "
                "puis créer une nouvelle base patients."));
-        PremierDemarrage(true);
+        CreationBase(true);
     }
 
     QString server = "localhost";
@@ -3570,7 +3570,7 @@ bool Procedures::Connexion_A_La_Base()
                             QStringList() << tr("Annuler") << tr("Créer une nouvelle\nbase patients"))
                         != UpSmallButton::STARTBUTTON)
                         continue;
-                    PremierDemarrage(true);
+                    CreationBase(true);
                     return false;
                 }
             }
@@ -3588,7 +3588,7 @@ bool Procedures::Connexion_A_La_Base()
                     QStringList() << tr("Annuler, je vais\nsauvegarder les données")
                                   << tr("Installer un\nserveur neuf"))
                 == UpSmallButton::STARTBUTTON)
-                PremierDemarrage(true, true);
+                CreationBase(true, true);
             return false;
         }
 
@@ -4962,7 +4962,7 @@ int Procedures::idCentre()
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
--- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
+-- Création de la base du poste : serveur MySQL, puis base vierge ou restaurée -------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
 /*!
  * \brief Procedures::offrirSauvegardeAvantEffacement
@@ -5014,7 +5014,7 @@ bool Procedures::offrirSauvegardeBaseRufus(const QStringList& log, QWidget *pare
     return SauvegarderBaseAvantInstallation(log.at(1), log.at(0), parent);
 }
 
-bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
+bool Procedures::CreationBase(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
 {
     QString login = "", mdp = "";
     UpSmallButton *bAnnuler       = new UpSmallButton(tr("Abandonner"));
@@ -5394,7 +5394,7 @@ void Procedures::VerifierIni()
         });
 
     connect(bPremiere, &QPushButton::clicked, &dlg, [&] {
-        PremierDemarrage(true, true, &dlg);
+        CreationBase(true, true, &dlg);
         if (Relectureini()) dlg.accept();
     });
 
@@ -5442,7 +5442,7 @@ bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool propose
         return false;
     }
     //! s'y connecter se joue dans la saisie des paramètres (ReparerIni), ici on la crée
-    return PremierDemarrage(true, proposerRestauration);
+    return CreationBase(true, proposerRestauration);
 }
 
 bool Procedures::ClesSSLPresentes() const
