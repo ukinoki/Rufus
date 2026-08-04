@@ -161,7 +161,7 @@ Procedures::Procedures(QObject *parent) :
         QCoreApplication::installTranslator(&startupTranslator);
 
     //! Ne rend la main qu'avec un Rufus.ini exploitable et m_settings prêt à l'emploi (§ II.1).
-    ReparerIni();
+    VerifierIni();
 
     m_nomImprimante  = "";
 
@@ -4973,7 +4973,7 @@ bool Procedures::PremierDemarrage(bool BaseVierge, bool Restauration, QWidget *p
         dlg.setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" +
                        tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
                        tr("1. J'installe Rufus sur ce poste en créant une nouvelle base patients") + "\n" +
-                       tr("2. J'installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà"));
+                       tr("2. J'installe Rufus sur ce poste et et je vais créer une base patients à partir d'une sauvehgarde"));
         if (BaseVierge)
             dlg.AjouteWidgetLayButtons(bBaseVierge);
         if (Restauration)
@@ -5276,28 +5276,27 @@ bool Procedures::EprouverConnexionApresSaisie()
     return false;
 }
 
-void Procedures::ReparerIni()
+void Procedures::VerifierIni()
 {
-    //! Relu à chaque tour ; le delete du QSettings précédent écrit ses valeurs en attente.
-    auto iniValide = [this]() -> bool {
+    auto Relectureini = [this]() -> bool {
         if (m_settings != Q_NULLPTR)
             delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
         return QFile::exists(PATH_FILE_INI) && iniContientModeValide(*m_settings);
     };
-    if (iniValide())
+    if (Relectureini())
         return;
 
     //! Libellés créés avant le message : celui du bouton y est injecté à la place de « %1 ».
     const bool sauvegardeOK   = sauvegardeIniValide();
     UpSmallButton *bAnnuler   = new UpSmallButton(QObject::tr("Abandonner et\nquitter Rufus"));
     UpSmallButton *bSaisir    = new UpSmallButton(QObject::tr("Restaurer le fichier Rufus.ini en saisissant\nde nouveau les paramètres de connexion"));
-    UpSmallButton *bReseau    = new UpSmallButton(QObject::tr("Installation d'un poste Rufus\nsur un réseau"));
+    UpSmallButton *bReseau    = new UpSmallButton(QObject::tr("Installation et connexion d'un poste Rufus\nà une base patients fonctionnelle"));
     UpSmallButton *bPremiere  = new UpSmallButton(QObject::tr("Installation d'une base\npatients Rufus"));
     UpSmallButton *bRestaurer = sauvegardeOK
                               ? new UpSmallButton(QObject::tr("Restaurer la copie\nde sauvegarde"))
                               : nullptr;
-    bReseau  ->setImmediateToolTip(QObject::tr("Se connecter à une base patients Rufus existante sur ce réseau"));
+    bReseau  ->setImmediateToolTip(QObject::tr("Se connecter à une base patients Rufus existante sur ce poste ou sur le réseau"));
     bPremiere->setImmediateToolTip(QObject::tr("Installer une base patients vierge ou à partir d'une restauration"));
 
     QString msgInfo = QObject::tr("Le fichier d'initialisation") + "\n" + PATH_FILE_INI "\n"
@@ -5328,10 +5327,7 @@ void Procedures::ReparerIni()
         if (b)
             dlg.AjouteWidgetLayButtons(b);
 
-    //! La fiche ne se referme que sur un Rufus.ini exploitable : chaque bouton agit, elle reste le point de retour.
-    auto termineSiValide = [&]() { if (iniValide()) dlg.accept(); };
-
-    connect(bAnnuler, &QPushButton::clicked, &dlg, [] { exit(0); });
+    connect(bAnnuler,   &QPushButton::clicked, &dlg, [] { exit(0); });
 
     if (bRestaurer)
         connect(bRestaurer, &QPushButton::clicked, &dlg, [&] {
@@ -5340,33 +5336,26 @@ void Procedures::ReparerIni()
             UpMessageBox::Watch(&dlg, tr("Rufus.ini restauré"),
                                 tr("La configuration de ce poste a été restaurée à partir de la sauvegarde.") + "\n"
                               + tr("Le lancement de Rufus se poursuit."));
-            termineSiValide();
+            if (Relectureini()) dlg.accept();
         });
 
     connect(bPremiere, &QPushButton::clicked, &dlg, [&] {
         PremierDemarrage(true, true, &dlg);
-        termineSiValide();
+        if (Relectureini()) dlg.accept();
     });
 
     for (UpSmallButton *b : {bSaisir, bReseau})
         connect(b, &QPushButton::clicked, &dlg, [&] {
-            if (VerifParamConnexion())
+            if (VerifParamConnexion(&dlg))
             {
                 m_settings->setValue(Param_Poste_Version, m_version);
                 m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
                 UpMessageBox::Watch(&dlg, tr("Rufus.ini reconstruit"),
                                     tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n"
                                   + tr("Le lancement de Rufus se poursuit."));
-                if (!EprouverConnexionApresSaisie())
-                {
-                    delete m_settings;
-                    m_settings = Q_NULLPTR;
-                    QFile::remove(PATH_FILE_INI);
-                }
+                if (Relectureini()) dlg.accept();
             }
-            termineSiValide();
         });
-
     dlg.exec();
 }
 
@@ -5423,9 +5412,9 @@ bool Procedures::ChoisirDossierClesSSL()
 /*-----------------------------------------------------------------------------------------------------------------
     -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifParamConnexion()
+bool Procedures::VerifParamConnexion(QWidget *parent)
 {
-    dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion();
+    dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(parent);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez votre identifiant et votre mot de passe d'utilisateur Rufus"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
     if (Dlg_ParamConnex->exec() == QDialog::Accepted)
@@ -5446,23 +5435,16 @@ bool Procedures::VerifParamConnexion()
         {
             Base = Utils::getBaseFromMode(Utils::Distant);
             m_settings->setValue(Base + Param_Serveur,    Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
-            //! Le dossier des clés s'enregistre ici, avec le reste : la fiche n'écrit rien dans Rufus.ini.
             m_settings->setValue(Base + Dossier_ClesSSL,  Dlg_ParamConnex->ui->ClesSSLLineEdit->text());
             db->setModeacces(Utils::Distant);
         }
         m_settings->setValue(Base + Param_Active,    "YES");
         m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
-        //! Pas de m_connexionbaseOK ici : aucune connexion tentée. SortieAppli fermerait une session inexistante.
-        if (dirSQLExecutable() == "")
-        {
-            UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra pas s'intialiser"));
-                exit(0);
-        }
         delete Dlg_ParamConnex;
         return true;
     }
-    delete Dlg_ParamConnex;   // delete déconnecte déjà tout : pas de disconnect() global (joker)
+    delete Dlg_ParamConnex;
     return false;
 }
 

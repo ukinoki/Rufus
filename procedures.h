@@ -118,10 +118,10 @@ private:
     QString                 DerniereSauvegardeInstallation();                           //! dossier de la sauvegarde valide la plus récente dans PATH_DIR_MIGRATIONMYSQL, vide s'il n'y en a pas
     QString                 m_sauvegardeInstallation = "";                              //! dossier de la sauvegarde faite avant d'effacer le serveur (hors dossier figé si le disque manquait de place)
     bool                    EprouverConnexionApresSaisie();                             //! après reconstruction de Rufus.ini : mot de passe du cabinet, à défaut le générique
-    void                    ReparerIni();                                              //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable
+    void                    VerifierIni();                                              //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
                                      bool proposerRestauration = false);
-    bool                    VerifParamConnexion();            //! true =  le choix accès distant est validé ou non
+    bool                    VerifParamConnexion(QWidget *parent = nullptr);             //! true =  le choix accès distant est validé ou non
     bool                    ClesSSLPresentes() const;         //! client-key.pem et client-cert.pem sont-ils dans le dossier déclaré ?
     bool                    ChoisirDossierClesSSL();          //! fait désigner le dossier des clés et l'enregistre ; true si les clés y sont
 public:
