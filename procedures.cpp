@@ -30,19 +30,24 @@ Procedures* Procedures::I()
     return instance;
 }
 
-//! Un rufus.ini est-il VALIDE = contient-il au moins un mode de connexion paramétré (Poste,
-//! Réseau local ou Distant) avec un port 3306/3307 (et un serveur renseigné pour les modes réseau) ?
+//! Un mode actif, et les paramètres que ce mode exige : monoposte rien, local le serveur, distant
+//! le serveur et le dossier des clés (leur contenu ne regarde pas le fichier).
 static bool iniContientModeValide(QSettings& s)
 {
-    static const QSet<int> ports = { 3306, 3307 };
-    return (s.value(Utils::getBaseFromMode(Utils::Poste) + Param_Active).toString() == "YES"
-            && ports.contains(s.value(Utils::getBaseFromMode(Utils::Poste) + Param_Port).toInt()))
-        || (s.value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Active).toString() == "YES"
-            && s.value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Serveur).toString() != ""
-            && ports.contains(s.value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Port).toInt()))
-        || (s.value(Utils::getBaseFromMode(Utils::Distant) + Param_Active).toString() == "YES"
-            && s.value(Utils::getBaseFromMode(Utils::Distant) + Param_Serveur).toString() != ""
-            && ports.contains(s.value(Utils::getBaseFromMode(Utils::Distant) + Param_Port).toInt()));
+    auto renseigne = [&s](Utils::ModeAcces m, const QString& cle) {
+        return !s.value(Utils::getBaseFromMode(m) + cle).toString().isEmpty();
+    };
+    auto actif = [&s](Utils::ModeAcces m) {
+        return s.value(Utils::getBaseFromMode(m) + Param_Active).toString() == "YES";
+    };
+    if (actif(Utils::Poste))
+        return true;
+    if (actif(Utils::ReseauLocal))
+        return renseigne(Utils::ReseauLocal, Param_Serveur);
+    if (actif(Utils::Distant))
+        return renseigne(Utils::Distant, Param_Serveur)
+            && renseigne(Utils::Distant, Dossier_ClesSSL);
+    return false;
 }
 
 //! Une sauvegarde de Rufus.ini (~/.rufus/.rufus.ini) existe-t-elle ET est-elle elle-même exploitable ?
