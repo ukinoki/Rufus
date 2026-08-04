@@ -498,7 +498,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
 namespace { struct EtatBkp { QMap<QString, qint64> offsets; int done = 0; QString table; }; }
 
 bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool verifmdp, QWidget *parent,
-                        QString loginSQL, QString mdpSQL)
+                        QString loginSQL, QString mdpSQL, bool ficheModale)
 {
     auto result = [] (qintptr handle, Procedures *proc)
     {
@@ -574,10 +574,6 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…"));
         bkpdial->setValue(0);
         bkpdial->show();
-        bkpdial->raise();
-        /*! Premier rendu forcé : au démarrage (sauvegarde avant installation) la boucle principale ne
-         *  tourne pas encore et la fiche resterait invisible pendant tout le dump. */
-        qApp->processEvents(QEventLoop::ExcludeUserInputEvents, 50);
 
         //! Rafraîchissement PAR TABLE : un timer relit les NOUVEAUX octets de chaque .sql (léger même
         //! sur gros dump), compte les marqueurs mysqldump « Table structure for table `X` » et affiche
@@ -624,13 +620,21 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             pollbkp->deleteLater();
             bkpdial->setValue(totalTables);
             bkpdial->close();
-            delete bkpdial;
+            /*! En modal, close() rend la main à exec() : détruire tout de suite tuerait la fiche
+             *  encore dans sa boucle. */
+            if (ficheModale) bkpdial->deleteLater();
+            else             delete bkpdial;
             delete etat;
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0 ? msg : msgEchec), Icons::icSunglasses(), 3000);
             result(handledlg, this);
             QFile::remove(PATH_FILE_SCRIPTBACKUP);
         });
         m_ostask.execute(task);
+
+        /*! Avant le démarrage de la boucle principale (sauvegarde d'avant installation), seule une
+         *  boucle locale peint et anime la fiche ; le slot de fin la ferme et rend la main. */
+        if (ficheModale)
+            bkpdial->exec();
 
         /*! élimination des anciennes sauvegardes */
         QDir dir(pathdirdestination);
@@ -3035,7 +3039,7 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
     }
 
     //! adminrufus peut ne pas exister (ou son mdp être perdu) : le dump passe par le compte admin saisi
-    if (!Backup(dossier, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL))
+    if (!Backup(dossier, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL, /*ficheModale=*/true))
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
             tr("La sauvegarde de votre base n'a pas pu être lancée ; rien n'a été effacé.") + "\n\n" +
