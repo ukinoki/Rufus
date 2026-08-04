@@ -5306,19 +5306,37 @@ void Procedures::ReparerIni()
             msgInfo += "\n" + QObject::tr("Une copie de sauvegarde valide de ce fichier existe sur ce "
                                           "poste : voulez-vous la restaurer ?") + "\n";
 
-        UpMessageBox msgbox(Q_NULLPTR);
-        msgbox.setIcon(UpMessageBox::Warning);
-        msgbox.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
-        msgbox.setInformativeText(msgInfo);
-        msgbox.addButton(bAnnuler,  UpSmallButton::CANCELBUTTON);
-        msgbox.addButton(bSaisir,   UpSmallButton::EDITBUTTON);
-        msgbox.addButton(bReseau,   UpSmallButton::NOBUTTON);
-        msgbox.addButton(bPremiere, UpSmallButton::NOBUTTON);
+        bAnnuler ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
+        bSaisir  ->setUpButtonStyle(UpSmallButton::EDITBUTTON);
+        bReseau  ->setUpButtonStyle(UpSmallButton::RECEPTIONBUTTON);
+        bPremiere->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
         if (bRestaurer)
-            msgbox.addButton(bRestaurer, UpSmallButton::STARTBUTTON);
-        msgbox.exec();
+            bRestaurer->setUpButtonStyle(UpSmallButton::STARTBUTTON);
 
-        if (bRestaurer && msgbox.clickedButton() == bRestaurer)
+        UpDialog dlg;
+        dlg.setWindowModality(Qt::ApplicationModal);
+        UpLabel *titre = new UpLabel();
+        titre->setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
+        UpLabel *corps = new UpLabel();
+        corps->setText(msgInfo);
+        corps->setWordWrap(true);
+        dlg.dlglayout()->insertWidget(0, titre);
+        dlg.dlglayout()->insertWidget(1, corps);
+        dlg.AjouteWidgetLayButtons(bAnnuler);
+        dlg.AjouteWidgetLayButtons(bSaisir);
+        dlg.AjouteWidgetLayButtons(bReseau);
+        dlg.AjouteWidgetLayButtons(bPremiere);
+        if (bRestaurer)
+            dlg.AjouteWidgetLayButtons(bRestaurer);
+        dlg.TuneSize();
+
+        UpSmallButton *clique = nullptr;
+        for (UpSmallButton *b : {bAnnuler, bSaisir, bReseau, bPremiere, bRestaurer})
+            if (b)
+                connect(b, &QPushButton::clicked, &dlg, [&, b] { clique = b; dlg.accept(); });
+        dlg.exec();
+
+        if (bRestaurer && clique == bRestaurer)
         {
             QFile::remove(PATH_FILE_INI);               //! QFile::copy n'écrase pas une cible existante
             QFile::copy(PATH_FILE_INI_BACKUP, PATH_FILE_INI);
@@ -5327,13 +5345,13 @@ void Procedures::ReparerIni()
                               + tr("Le lancement de Rufus se poursuit."));
             continue;
         }
-        if (msgbox.clickedButton() == bPremiere)
+        if (clique == bPremiere)
         {
             PremierDemarrage(true,true);
             continue;
         }
 
-        if (msgbox.clickedButton() == bSaisir || msgbox.clickedButton() == bReseau)
+        if (clique == bSaisir || clique == bReseau)
         {
             if (VerifParamConnexion())
             {
