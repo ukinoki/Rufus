@@ -4276,7 +4276,11 @@ bool MySQLInstaller::prepareCreateModeLinux()
 QString MySQLInstaller::linuxForceMysqlCnfScript() const
 {
     return "[ -f /etc/mysql/mysql.cnf ] && "
-           "update-alternatives --set my.cnf /etc/mysql/mysql.cnf >/dev/null 2>&1; ";
+           "update-alternatives --set my.cnf /etc/mysql/mysql.cnf >/dev/null 2>&1; "
+           /*! Nos clés commentées ailleurs : posées après un !includedir elles sont lues en dernier. */
+           "find /etc/mysql -type f -name '*.cnf' ! -path '*/mysql.conf.d/mysqld.cnf' -exec "
+           "sed -i -E 's/^[[:space:]]*(secure[-_]file[-_]priv|sql_mode|bind-address)[[:space:]]*=/#&/' "
+           "{} + >/dev/null 2>&1; ";
 }
 
 /*!
