@@ -463,7 +463,8 @@ configurer_systeme() {
     # par ttf-mscorefonts-installer — donnant un « écran vide » de plusieurs dizaines de secondes.
     # La barre affiche donc un message STABLE (MSG_PROG_TEXT) et pulse du début à la fin ; le détail
     # reste dans le LOG. (NB : aucun commentaire à apostrophe DANS le bloc bash -c '...'.)
-    pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" RUFUS_PAQUETS="${PAQUETS_REQUIS}" RUFUS_LOG="${LOG}" bash -c '
+    cp -f "${ICON_SRC}" "${RUFUS_DIR}/rufus.png" 2>/dev/null   #! root ne peut pas lire le montage FUSE
+    pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" RUFUS_PAQUETS="${PAQUETS_REQUIS}" RUFUS_LOG="${LOG}" RUFUS_ICONE="${RUFUS_DIR}/rufus.png" bash -c '
         trap "" PIPE
         : > "$RUFUS_LOG"
         echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections >>"$RUFUS_LOG" 2>&1
@@ -476,6 +477,8 @@ configurer_systeme() {
             apt-get -o DPkg::Lock::Timeout=300 install -y "$p" >>"$RUFUS_LOG" 2>&1 || echo "RUFUS_ERR: paquet non installe: $p" >>"$RUFUS_LOG"
         done
         usermod -aG dialout "$RUFUS_USER" >>"$RUFUS_LOG" 2>&1 || echo "RUFUS_ERR: ajout au groupe dialout impossible" >>"$RUFUS_LOG"
+        install -Dm644 "$RUFUS_ICONE" /usr/share/icons/hicolor/256x256/apps/rufus.png >>"$RUFUS_LOG" 2>&1 || echo "RUFUS_ERR: icone non posee" >>"$RUFUS_LOG"
+        gtk-update-icon-cache -f -t /usr/share/icons/hicolor >>"$RUFUS_LOG" 2>&1 || true
         exit $rc
     ' | zenity --progress --pulsate --no-cancel --auto-close \
         --title="${MSG_PROG_TITLE}" \
@@ -521,13 +524,12 @@ inscrire_dans_menus() {
     [ -f "${ICON_SRC}" ] && cp -f "${ICON_SRC}" "${ICONS_DIR}/rufus.png"
 
     # 3. Raccourci menu (.desktop) pointant sur l'AppImage installée
-    # Icône en chemin absolu : un nom court obligerait GNOME à la retrouver dans le thème.
     cat > "${DESKTOP}" <<EOF
 [Desktop Entry]
 Type=Application
 Name=${APPNAME}
 Exec=${cible}
-Icon=${ICONS_DIR}/rufus.png
+Icon=rufus
 Comment=Logiciel de gestion de cabinet d'Ophtalmologie
 Categories=Office;MedicalSoftware;
 Terminal=false
