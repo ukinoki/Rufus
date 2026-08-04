@@ -168,7 +168,7 @@ public:
 private:
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
-    bool                    CreationBase(bool NouvelleBaseVierge = false, bool Restauration = false, QWidget *parent = Q_NULLPTR);   //! crée la base du poste : serveur MySQL, puis base vierge ou restaurée
+    bool                    InitialisationBaseEtDossiers(bool NouvelleBaseVierge = false, bool Restauration = false, QWidget *parent = Q_NULLPTR);   //! installe le socle du poste : serveur MySQL, base vierge ou restaurée, dossiers et paramètres
     void                    PremierParametrageMateriel();
     bool                    InstallationRufus(bool demanderRestauration);   //! crée la base du poste : sauvegarde retrouvée -> restauration, sinon base vierge
 public:
