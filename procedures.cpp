@@ -5010,12 +5010,8 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         dlg.AjouteWidgetLayButtons(bBaseExistante);
     dlg.AjouteWidgetLayButtons(bAnnuler);
 
-    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase;        dlg.accept(); });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { protoc = BaseExistante; dlg.accept(); });
-
-    //! Un échec sort de la lambda sans accept() : la fiche reste affichée, on peut réessayer ou renoncer.
-    connect(bBaseVierge, &QPushButton::clicked, &dlg, [&] {
-        protoc = BaseVierge;
+    //! Un échec sort sans accept() : la fiche reste affichée, on peut réessayer ou renoncer.
+    auto installer = [&](bool restaurer) {
         if (MySQLInstaller::serveurLocalPresent() && !offrirSauvegardeAvantEffacement(&dlg))
             return;
         if (m_settings != Q_NULLPTR)
@@ -5053,7 +5049,7 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
         login = installeurMySQL->loginRufus();
         mdp   = installeurMySQL->mdpRufus();
 
-        if (!InstallationRufus(Restauration || installeurMySQL->baseRufusTrouvee()))
+        if (!InstallationRufus(restaurer || installeurMySQL->baseRufusTrouvee()))
         {
             delete installeurMySQL;
             return;
@@ -5079,17 +5075,13 @@ bool Procedures::PremierDemarrage(bool NouvelleBaseVierge, bool Restauration, QW
                               "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">" + MySQLInstaller::motDePasseSQL() + "</span></b></p>" + "\n\n" +
                               tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
         Utils::Redemarrage();
-    });
+    };
+
+    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase; dlg.accept(); });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge;    installer(false); });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { protoc = BaseExistante; installer(true);  });
     dlg.exec();
 
-    if (protoc == BaseExistante)
-    {
-        if (m_settings != Q_NULLPTR)
-            delete m_settings;
-        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-        // A réécrireif (VerifParamConnexion())
-        Utils::Redemarrage();
-    }
     return false;
 }
 
