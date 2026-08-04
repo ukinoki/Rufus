@@ -3032,7 +3032,12 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
 
     //! adminrufus peut ne pas exister (ou son mdp être perdu) : le dump passe par le compte admin saisi
     if (!Backup(dossier, true, false, false, false, false, Q_NULLPTR, loginSQL, mdpSQL))
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
+            tr("La sauvegarde de votre base n'a pas pu être lancée ; rien n'a été effacé.") + "\n\n" +
+            tr("Dossier visé : ") + dossier);
         return false;
+    }
     m_ostask.waitForFinished(-1);
 
     //! sous-dossier horodaté que Backup vient de créer
@@ -5115,12 +5120,16 @@ bool Procedures::InstallationRufus(bool demanderRestauration)
     if (!trouvee.isEmpty())
         restaurer = (UpMessageBox::Question(Q_NULLPTR, tr("Sauvegarde de votre base retrouvée"),
                         tr("Rufus a retrouvé la sauvegarde faite avant l'installation :") + "\n" + trouvee + "\n\n" +
-                        tr("Voulez-vous restaurer cette base plutôt que d'en créer une vierge ?"))
+                        tr("Voulez-vous restaurer cette base plutôt que d'en créer une vierge ?"),
+                        UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                        QStringList() << tr("Créer une base\nneuve") << tr("Restaurer\ncette base"))
                      == UpSmallButton::STARTBUTTON);
     else if (demanderRestauration)
         restaurer = (UpMessageBox::Question(Q_NULLPTR, tr("Restaurer une base existante ?"),
                         tr("Disposez-vous d'une sauvegarde de votre base patients, sur une clé USB "
-                           "ou un disque externe, à restaurer sur ce poste ?"))
+                           "ou un disque externe, à restaurer sur ce poste ?"),
+                        UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                        QStringList() << tr("Créer une base\nneuve") << tr("Restaurer\nune base"))
                      == UpSmallButton::STARTBUTTON);
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
