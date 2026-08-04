@@ -574,6 +574,10 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…"));
         bkpdial->setValue(0);
         bkpdial->show();
+        bkpdial->raise();
+        /*! Premier rendu forcé : au démarrage (sauvegarde avant installation) la boucle principale ne
+         *  tourne pas encore et la fiche resterait invisible pendant tout le dump. */
+        qApp->processEvents(QEventLoop::ExcludeUserInputEvents, 50);
 
         //! Rafraîchissement PAR TABLE : un timer relit les NOUVEAUX octets de chaque .sql (léger même
         //! sur gros dump), compte les marqueurs mysqldump « Table structure for table `X` » et affiche
