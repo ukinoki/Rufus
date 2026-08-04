@@ -30,15 +30,17 @@ Procedures* Procedures::I()
     return instance;
 }
 
-//! Un mode actif, et les paramètres que ce mode exige : monoposte rien, local le serveur, distant
-//! le serveur et le dossier des clés (leur contenu ne regarde pas le fichier).
+//! Un mode actif, son port, et ce que ce mode exige de plus : rien en monoposte, le serveur en
+//! local, le serveur et le dossier des clés en distant (leur contenu ne regarde pas le fichier).
 static bool iniContientModeValide(QSettings& s)
 {
+    static const QSet<int> ports = { 3306, 3307 };
     auto renseigne = [&s](Utils::ModeAcces m, const QString& cle) {
         return !s.value(Utils::getBaseFromMode(m) + cle).toString().isEmpty();
     };
     auto actif = [&s](Utils::ModeAcces m) {
-        return s.value(Utils::getBaseFromMode(m) + Param_Active).toString() == "YES";
+        return s.value(Utils::getBaseFromMode(m) + Param_Active).toString() == "YES"
+            && ports.contains(s.value(Utils::getBaseFromMode(m) + Param_Port).toInt());
     };
     if (actif(Utils::Poste))
         return true;
