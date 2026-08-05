@@ -5086,7 +5086,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         login = installeurMySQL->loginRufus();
         mdp   = installeurMySQL->mdpRufus();
 
-        if (!InstallationRufus(restaurer || baseRufusPresente, &dlg))
+        if (!InstallationRufus(restaurer, &dlg))
         {
             delete installeurMySQL;
             return;
