@@ -1437,9 +1437,14 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
 {
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerVerifyAdminMySQL();
-    /*! Compte déjà éprouvé par AskMdpLoginMySQL : on le pose et on enchaîne, sans redemander. */
+    /*! Compte déjà éprouvé par AskMdpLoginMySQL : rien à saisir, la fiche n'affiche que la checklist. */
     if (log.size() >= 2)
+    {
         m_dialog->prefill(log.at(1), log.at(0));
+        m_dialog->masquerSaisieUtilisateur();
+        m_dialog->passerEnConfiguration(tr("Configuration de MySQL"),
+                                        tr("Paramétrage du serveur en cours…"));
+    }
 
     /*! Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : vérifie la connexion
      *  admin (coche la case 0) puis enchaîne la config (cases 1 à 6). accept() seulement à la toute fin,
