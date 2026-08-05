@@ -2519,7 +2519,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             return false;
 
         QString mdp("");
-        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp))
+        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
             return false;
 
         QDir dir(PATH_DIR_RESSOURCES);
@@ -3956,7 +3956,7 @@ void Procedures::VerifnumAM()
 /*-----------------------------------------------------------------------------------------------------------------
     -- Création d'un utilisateur -------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::CreerPremierUser(QString Login, QString MDP)
+bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
 {
     // Bon, on dispose du nouveau login et du nouveau MDP
     if (Login.isEmpty())
@@ -4020,7 +4020,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         == UpSmallButton::EDITBUTTON)
     {
         int gidLieuExercice = -1;
-        dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(gidLieuExercice, dlg_gestionusers::PREMIERUSER , true);
+        dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(gidLieuExercice, dlg_gestionusers::PREMIERUSER , true, parent);
         Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + Login);
         if (Dlg_GestUsr->exec() == QDialog::Accepted)
         {
@@ -5086,14 +5086,14 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         login = installeurMySQL->loginRufus();
         mdp   = installeurMySQL->mdpRufus();
 
-        if (!InstallationRufus(restaurer || baseRufusPresente))
+        if (!InstallationRufus(restaurer || baseRufusPresente, &dlg))
         {
             delete installeurMySQL;
             return;
         }
         m_parametres = db->parametres();
 
-        m_connexionbaseOK = CreerPremierUser(login, mdp);
+        m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
 
         MySQLInstaller::creerCompteDeSecours();
         PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
@@ -5128,20 +5128,20 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
  * restaurée étant déjà complète, ce cas relance Rufus au lieu de rendre la main.
  * \param demanderRestauration  à défaut, proposer d'en désigner une sur clé USB ou disque externe
  */
-bool Procedures::InstallationRufus(bool demanderRestauration)
+bool Procedures::InstallationRufus(bool demanderRestauration, QWidget *parent)
 {
     const QString trouvee = DerniereSauvegardeInstallation();
     bool restaurer = false;
 
     if (!trouvee.isEmpty())
-        restaurer = (UpMessageBox::Question(Q_NULLPTR, tr("Sauvegarde de votre base retrouvée"),
+        restaurer = (UpMessageBox::Question(parent, tr("Sauvegarde de votre base retrouvée"),
                         tr("Rufus a retrouvé la sauvegarde faite avant l'installation :") + "\n" + trouvee + "\n\n" +
                         tr("Voulez-vous restaurer cette base plutôt que d'en créer une vierge ?"),
                         UpDialog::ButtonCancel | UpDialog::ButtonOK,
                         QStringList() << tr("Créer une base\nneuve") << tr("Restaurer\ncette base"))
                      == UpSmallButton::STARTBUTTON);
     else if (demanderRestauration)
-        restaurer = (UpMessageBox::Question(Q_NULLPTR, tr("Restaurer une base existante ?"),
+        restaurer = (UpMessageBox::Question(parent, tr("Restaurer une base existante ?"),
                         tr("Disposez-vous d'une sauvegarde de votre base patients, sur une clé USB "
                            "ou un disque externe, à restaurer sur ce poste ?"),
                         UpDialog::ButtonCancel | UpDialog::ButtonOK,
@@ -5149,18 +5149,18 @@ bool Procedures::InstallationRufus(bool demanderRestauration)
                      == UpSmallButton::STARTBUTTON);
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
-    if (restaurer && RestaureBase(false, true, false, Q_NULLPTR, trouvee))
+    if (restaurer && RestaureBase(false, true, false, parent, trouvee))
     {
         if (!trouvee.isEmpty())
             QDir(trouvee).removeRecursively();
         if (!QFile::exists(PATH_FILE_INI))
             PremierParametrageMateriel();
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-        UpMessageBox::Watch(Q_NULLPTR, tr("Base restaurée"),
+        UpMessageBox::Watch(parent, tr("Base restaurée"),
             tr("Votre base patients a été restaurée. Rufus va redémarrer."));
         Utils::Redemarrage();
     }
-    return RestaureBase(true, true);
+    return RestaureBase(true, true, true, parent);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

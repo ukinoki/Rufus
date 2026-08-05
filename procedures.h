@@ -166,11 +166,11 @@ public:
 * première connexion
 * -------------------------------------------------------------------------------------------------------- */
 private:
-    bool                    CreerPremierUser(QString Login, QString MDP);
+    bool                    CreerPremierUser(QString Login, QString MDP, QWidget *parent = Q_NULLPTR);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     bool                    InitialisationBaseEtDossiers(bool NouvelleBaseVierge = false, bool Restauration = false, QWidget *parent = Q_NULLPTR);   //! installe le socle du poste : serveur MySQL, base vierge ou restaurée, dossiers et paramètres
     void                    PremierParametrageMateriel();
-    bool                    InstallationRufus(bool demanderRestauration);   //! crée la base du poste : sauvegarde retrouvée -> restauration, sinon base vierge
+    bool                    InstallationRufus(bool demanderRestauration, QWidget *parent = Q_NULLPTR);   //! crée la base du poste : sauvegarde retrouvée -> restauration, sinon base vierge
 public:
     bool                    SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL, QWidget* parent = Q_NULLPTR);   //! dump de la base Rufus du serveur qui va être effacé, avec un compte admin MySQL
 private:
