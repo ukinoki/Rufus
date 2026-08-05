@@ -1129,7 +1129,7 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
         return false;
     if (!reinstallerSocleMySQLpourMigration())
         return false;
-    return demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, nullptr);
+    return demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, m_parent);
 }
 
 /*!
@@ -1511,7 +1511,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     /*! Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche d'installation
      *  (avec sa checklist) puis on ouvre une petite fiche dédiée — plus de cases sans rapport. */
     cleanupDialog();
-    if (!demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, nullptr))
+    if (!demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, m_parent))
         return false;
 
     return true;
