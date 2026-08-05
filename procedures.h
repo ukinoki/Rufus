@@ -420,7 +420,7 @@ signals:
         TimerController         t_timerbackup;
         QString                 m_executable;
         QString                 m_dumpexecutable;
-        void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
+        void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true, QWidget *parent = Q_NULLPTR);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
         bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false, QWidget *parent = Q_NULLPTR,
                                        QString loginSQL = "", QString mdpSQL = "");   //! login/mdp du dump : vides = adminrufus, renseignés pour un serveur où adminrufus n'existe pas encore

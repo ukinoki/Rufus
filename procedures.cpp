@@ -332,7 +332,7 @@ bool Procedures::AutresPostesConnectes(bool msg)
  *  \param OKfactures :         les factures sont sauvegardées
  *
  */
-void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini, bool OKimages, bool OKvideos, bool OKfactures)
+void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini, bool OKimages, bool OKvideos, bool OKfactures, QWidget *parent)
 {
     if (!QDir(pathdestination).exists())
         Utils::mkpath(pathdestination);
@@ -356,7 +356,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
 
     m_freespace = QStorageInfo(pathdestination).bytesAvailable();
 
-    dlg_buprestore = new UpDialog();
+    dlg_buprestore = new UpDialog(parent);
     dlg_buprestore->setModal(true);
     dlg_buprestore->setWindowTitle(op == RestoreOp? tr("Dossiers à restaurer") : tr("Dossiers à sauvegarder"));
     int labelsize = 15;
@@ -2721,7 +2721,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
 
         /*! 4 - choix des éléments à restaurer */
-        AskBupRestore(RestoreOp, dirtorestore.absolutePath(), dirimagerie, OKini, OKImages, OKVideos, OKFactures);
+        AskBupRestore(RestoreOp, dirtorestore.absolutePath(), dirimagerie, OKini, OKImages, OKVideos, OKFactures, parent);
         int result;
         bool erreurRestauration = false;   //! passe à true si la restauration de la BASE échoue (→ pas de redémarrage auto)
         if (!cheminRestauration.isEmpty())
