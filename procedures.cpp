@@ -5124,29 +5124,13 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
 
 /*!
  * \brief Procedures::InstallationRufus
- * Crée la base du poste : restauration d'une sauvegarde si on en retrouve une, sinon base vierge. Une base
- * restaurée étant déjà complète, ce cas relance Rufus au lieu de rendre la main.
- * \param demanderRestauration  à défaut, proposer d'en désigner une sur clé USB ou disque externe
+ * Crée la base du poste ; une base restaurée étant déjà complète, ce cas relance Rufus.
+ * \param restaurer  restaurer une sauvegarde plutôt que de créer une base vierge
+ * \param parent     fiche appelante
  */
-bool Procedures::InstallationRufus(bool demanderRestauration, QWidget *parent)
+bool Procedures::InstallationRufus(bool restaurer, QWidget *parent)
 {
     const QString trouvee = DerniereSauvegardeInstallation();
-    bool restaurer = false;
-
-    if (!trouvee.isEmpty())
-        restaurer = (UpMessageBox::Question(parent, tr("Sauvegarde de votre base retrouvée"),
-                        tr("Rufus a retrouvé la sauvegarde faite avant l'installation :") + "\n" + trouvee + "\n\n" +
-                        tr("Voulez-vous restaurer cette base plutôt que d'en créer une vierge ?"),
-                        UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                        QStringList() << tr("Créer une base\nneuve") << tr("Restaurer\ncette base"))
-                     == UpSmallButton::STARTBUTTON);
-    else if (demanderRestauration)
-        restaurer = (UpMessageBox::Question(parent, tr("Restaurer une base existante ?"),
-                        tr("Disposez-vous d'une sauvegarde de votre base patients, sur une clé USB "
-                           "ou un disque externe, à restaurer sur ce poste ?"),
-                        UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                        QStringList() << tr("Créer une base\nneuve") << tr("Restaurer\nune base"))
-                     == UpSmallButton::STARTBUTTON);
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
     if (restaurer && RestaureBase(false, true, false, parent, trouvee))
