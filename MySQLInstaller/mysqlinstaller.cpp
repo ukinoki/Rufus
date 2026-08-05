@@ -1252,7 +1252,7 @@ static void inviterANoterMotDePasse(const QString& mdp)
      *  faciliter sa transcription. InfoText est interprété en HTML par UpMessageBox (UpTextEdit::setHtml) ;
      *  le mot de passe est purement alphanumérique (cf. genererMotDePasse), donc sans risque d'injection.
      *  Le <b> sert aussi à CalcSize (correction de hauteur 1.2), réservant la place de la police agrandie. */
-    UpMessageBox::Watch(m_parent,
+    UpMessageBox::Watch(nullptr,
         QObject::tr("Notez le mot de passe de la base de données"),
         QObject::tr("Rufus a créé un mot de passe de connexion à votre base de données patients.\n"
                     "Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire "
@@ -1288,7 +1288,7 @@ static void inviterANoterMotDePasse(const QString& mdp)
  */
 static void avertirSecurisationMiseEnPlace()
 {
-    UpMessageBox::Watch(m_parent,
+    UpMessageBox::Watch(nullptr,
         QObject::tr("Sécurisation de la base de données"),
         QObject::tr("IMPORTANT : un mot de passe sécurisé vient d'être mis en place.") + "\n\n"
         + QObject::tr("S'il existe d'autres postes sur le réseau local qui utilisent Rufus, "
@@ -1326,7 +1326,7 @@ static bool confirmerSuppressionGaxt78iy()
 /*! Message affiché juste APRÈS la suppression effective du mot de passe générique. */
 static void avertirSuppressionGaxt78iyEffectuee()
 {
-    UpMessageBox::Watch(m_parent,
+    UpMessageBox::Watch(nullptr,
         QObject::tr("Mot de passe générique supprimé"),
         QObject::tr("IMPORTANT : le mot de passe générique d'accès à la base de données vient "
                     "d'être supprimé.") + "\n\n"
