@@ -5090,12 +5090,15 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
 
         if (!InstallationRufus(restaurer, &dlg))
         {
+            qDebug() << "[DIAG] InstallationRufus a echoue -> sortie de installer()";
             delete installeurMySQL;
             return;
         }
+        qDebug() << "[DIAG] InstallationRufus OK, on poursuit";
         m_parametres = db->parametres();
 
         m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
+        qDebug() << "[DIAG] CreerPremierUser ->" << m_connexionbaseOK;
 
         MySQLInstaller::creerCompteDeSecours();
         PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
@@ -5117,8 +5120,8 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
     };
 
     connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase; dlg.accept(); });
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge;    installer(false); });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { protoc = BaseExistante; installer(true);  });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { qDebug() << "[DIAG] clic bBaseVierge";    protoc = BaseVierge;    installer(false); });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { qDebug() << "[DIAG] clic bBaseExistante"; protoc = BaseExistante; installer(true);  });
     dlg.exec();
 
     return false;
