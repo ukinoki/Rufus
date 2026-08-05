@@ -2493,6 +2493,7 @@ static int compterTablesFichierSQL(const QString& chemin)
 
 bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration)
 {
+    qDebug() << "[DIAG] RestaureBase() BaseVierge =" << BaseVierge << "chemin =" << cheminRestauration;
     UpMessageBox    msgbox(parent);
     UpSmallButton   AnnulBouton;
     UpSmallButton   OKBouton;
@@ -5040,6 +5041,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
 
     //! Un échec sort sans accept() : la fiche reste affichée, on peut réessayer ou renoncer.
     auto installer = [&](bool restaurer) {
+        qDebug() << "[DIAG] installer() restaurer =" << restaurer;
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         QStringList logAdmin;
         bool baseRufusPresente = false;
@@ -5130,6 +5132,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
  */
 bool Procedures::InstallationRufus(bool restaurer, QWidget *parent)
 {
+    qDebug() << "[DIAG] InstallationRufus() restaurer =" << restaurer;
     const QString trouvee = DerniereSauvegardeInstallation();
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
