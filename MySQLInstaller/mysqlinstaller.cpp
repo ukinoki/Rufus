@@ -3032,7 +3032,7 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
     {
         const int joursDepasse = d.addDays(30).daysTo(QDateTime::currentDateTime());
-        UpMessageBox::Watch(m_parent,
+        UpMessageBox::Watch(nullptr,
             tr("Mot de passe générique à désactiver"),
             tr("Ce poste utilise un mot de passe sécurisé pour accéder à la base de données.") + "\n\n" +
             tr("Un mot de passe générique de compatibilité est cependant toujours actif, alors que sa "
