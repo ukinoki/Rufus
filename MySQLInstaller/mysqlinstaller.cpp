@@ -826,8 +826,8 @@ MySQLRemoteConfig MySQLInstaller::fetchRemoteConfig()
 }
 
 /*! ═════════════════════════════════════════════════════════════════════════════════════════════════ */
-MySQLInstaller::MySQLInstaller(QObject* parent)
-    : QObject(parent)
+MySQLInstaller::MySQLInstaller(QWidget* parent)
+    : QObject(parent), m_parent(parent)
 {}
 
 /*! ── Multi-plateforme : dossier partagé ───────────────────────────────────────── */
@@ -1058,14 +1058,14 @@ bool MySQLInstaller::assurerDroitsAdmin()
         if (relancerEnAdministrateur())
             exit(0);                    /*!< l'instance élevée prend le relais */
         /*! UAC refusée / échec : on bascule sur la consigne manuelle. */
-        UpMessageBox::Watch(nullptr, tr("Élévation refusée"),
+        UpMessageBox::Watch(m_parent, tr("Élévation refusée"),
             tr("Rufus n'a pas pu obtenir les droits administrateur.\n\n"
                "Faites un clic droit sur l'application puis « Exécuter en tant "
                "qu'administrateur », et relancez."));
     }
     return false;
 #else
-    UpMessageBox::Watch(nullptr, tr("Droits administrateur requis"),
+    UpMessageBox::Watch(m_parent, tr("Droits administrateur requis"),
         tr("Pour installer ou désinstaller MySQL (le moteur de base de données de "
            "Rufus), macOS demande un compte administrateur.\n\nConnectez-vous avec "
            "un compte administrateur (ou demandez à un administrateur de l'exécuter), "
@@ -1087,7 +1087,7 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
      *  opération MySQL. */
     if (!isVCRedist2022Installed()) {
         if (!installVCRedist2022()) {
-            UpMessageBox::Watch(nullptr,
+            UpMessageBox::Watch(m_parent,
                 tr("Visual C++ Redistributable requis"),
                 tr("L'installation de Microsoft Visual C++ Redistributable 2022 a "
                    "échoué.\nVérifiez votre connexion Internet et relancez."));
@@ -1097,7 +1097,7 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
 #elif defined(Q_OS_LINUX)
     /*! Linux : ce programme cible Ubuntu (≥ 22.04 LTS). */
     if (!isUbuntuVersionSupported()) {
-        UpMessageBox::Watch(nullptr,
+        UpMessageBox::Watch(m_parent,
             tr("Version d'Ubuntu non compatible"),
             tr("Ce programme nécessite Ubuntu 22.04 ou une version ultérieure."));
         return false;
@@ -1151,7 +1151,7 @@ QStringList MySQLInstaller::AskMdpLoginMySQL()
                "MySQL (par exemple root) ?")))
         return QStringList();
 
-    m_dialog = new MySQLInstallerDialog();
+    m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerVerifyAdminMySQL();
     QStringList log;
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
@@ -1252,7 +1252,7 @@ static void inviterANoterMotDePasse(const QString& mdp)
      *  faciliter sa transcription. InfoText est interprété en HTML par UpMessageBox (UpTextEdit::setHtml) ;
      *  le mot de passe est purement alphanumérique (cf. genererMotDePasse), donc sans risque d'injection.
      *  Le <b> sert aussi à CalcSize (correction de hauteur 1.2), réservant la place de la police agrandie. */
-    UpMessageBox::Watch(nullptr,
+    UpMessageBox::Watch(m_parent,
         QObject::tr("Notez le mot de passe de la base de données"),
         QObject::tr("Rufus a créé un mot de passe de connexion à votre base de données patients.\n"
                     "Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire "
@@ -1288,7 +1288,7 @@ static void inviterANoterMotDePasse(const QString& mdp)
  */
 static void avertirSecurisationMiseEnPlace()
 {
-    UpMessageBox::Watch(nullptr,
+    UpMessageBox::Watch(m_parent,
         QObject::tr("Sécurisation de la base de données"),
         QObject::tr("IMPORTANT : un mot de passe sécurisé vient d'être mis en place.") + "\n\n"
         + QObject::tr("S'il existe d'autres postes sur le réseau local qui utilisent Rufus, "
@@ -1326,7 +1326,7 @@ static bool confirmerSuppressionGaxt78iy()
 /*! Message affiché juste APRÈS la suppression effective du mot de passe générique. */
 static void avertirSuppressionGaxt78iyEffectuee()
 {
-    UpMessageBox::Watch(nullptr,
+    UpMessageBox::Watch(m_parent,
         QObject::tr("Mot de passe générique supprimé"),
         QObject::tr("IMPORTANT : le mot de passe générique d'accès à la base de données vient "
                     "d'être supprimé.") + "\n\n"
@@ -1435,7 +1435,7 @@ static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, Q
 bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effacerTout,
                                      const QStringList& log)
 {
-    m_dialog = new MySQLInstallerDialog();
+    m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerVerifyAdminMySQL();
     /*! Compte déjà éprouvé par AskMdpLoginMySQL : rien à saisir, la fiche n'affiche que la checklist. */
     if (log.size() >= 2)
@@ -1526,7 +1526,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
  */
 bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
 {
-    m_dialog = new MySQLInstallerDialog();
+    m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerCreateUserRufus(cfg.minVersion);
     m_dialog->show();
     QApplication::processEvents();
@@ -1600,7 +1600,7 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
  */
 bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
 {
-    m_dialog = new MySQLInstallerDialog();
+    m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerCreateUserRufus(cfg.minVersion);
     m_dialog->masquerSaisieUtilisateur();   /*!< migration : pas de saisie d'un nouvel utilisateur */
     m_dialog->passerEnConfiguration(
@@ -1878,14 +1878,14 @@ void MySQLInstaller::controlerClesSSLMonoposte()
 
     if (regenererClesSSL())
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Nouvelles clés SSL générées"),
+        UpMessageBox::Watch(m_parent, tr("Nouvelles clés SSL générées"),
             tr("De nouvelles clés SSL ont été générées.") + "\n"
             + tr("Transmettez-les aux postes en accès distant : menu Édition / Paramètres / Ce poste "
                  "→ « Exporter les clés client SSL ».") + "\n\n"
             + tr("Rufus va redémarrer."));
         Utils::Redemarrage();
     }
-    UpMessageBox::Watch(Q_NULLPTR, tr("Génération impossible"),
+    UpMessageBox::Watch(m_parent, tr("Génération impossible"),
         tr("Les clés SSL n'ont pas pu être générées."));
 }
 
@@ -1910,7 +1910,7 @@ void MySQLInstaller::avertirExpirationClesSSLDistant()
         ? tr("ont expiré")
         : tr("expireront le %1 (dans %2 jours)")
               .arg(QLocale().toString(exp.date(), "dd MMMM yyyy")).arg(jours);
-    UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL d'accès distant"),
+    UpMessageBox::Watch(m_parent, tr("Clés SSL d'accès distant"),
         tr("Les clés SSL qui sécurisent cet accès distant %1.").arg(quand) + "\n\n"
         + tr("Sans renouvellement, la connexion à distance cessera de fonctionner.") + "\n"
         + tr("Faites générer de nouvelles clés SUR LE POSTE SERVEUR (menu Édition / Paramètres / "
@@ -2292,7 +2292,7 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
 
     /*! Réparation : on REJOUE les étapes de config (PATH, dossier partagé, secure_file_priv,
      *  lecture/écriture, privilèges) SANS réinstaller ni recréer d'utilisateur (m_freshInstall=false). */
-    m_dialog = new MySQLInstallerDialog();
+    m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->masquerSaisieUtilisateur();          /*!< aucun compte à saisir : on corrige une config existante */
     m_dialog->passerEnConfiguration(tr("Correction de la configuration MySQL"),
                                     tr("Vérification et correction de la configuration en cours…"));
@@ -2305,10 +2305,10 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     cleanupDialog();
 
     if (repare)
-        UpMessageBox::Watch(Q_NULLPTR, tr("Configuration corrigée"),
+        UpMessageBox::Watch(m_parent, tr("Configuration corrigée"),
             tr("La configuration du serveur MySQL a été corrigée."));
     else
-        UpMessageBox::Watch(Q_NULLPTR, tr("Correction incomplète"),
+        UpMessageBox::Watch(m_parent, tr("Correction incomplète"),
             tr("Certaines anomalies de configuration n'ont pas pu être corrigées.") + "\n"
             + tr("Rufus continue ; certaines fonctions (imagerie, sauvegarde) peuvent être affectées."));
 }
@@ -2693,7 +2693,7 @@ void MySQLInstaller::avertirEffacementImminent()
     if (ini.value(cleMasque).toString() == signature) return;   /*!< déjà masqué pour cette sécurisation */
 
     const int jours = QDateTime::currentDateTime().daysTo(echeance);
-    const UpSmallButton::StyleBouton rep = UpMessageBox::Question(nullptr,
+    const UpSmallButton::StyleBouton rep = UpMessageBox::Question(m_parent,
         tr("Mot de passe générique bientôt désactivé"),
         tr("Ce poste utilise un mot de passe sécurisé pour accèder au servur de base de données.") + "\n\n" +
         tr("Un mot de passe générique est par ailleurs maintenu") + "\n" +
@@ -3032,7 +3032,7 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
     {
         const int joursDepasse = d.addDays(30).daysTo(QDateTime::currentDateTime());
-        UpMessageBox::Watch(nullptr,
+        UpMessageBox::Watch(m_parent,
             tr("Mot de passe générique à désactiver"),
             tr("Ce poste utilise un mot de passe sécurisé pour accéder à la base de données.") + "\n\n" +
             tr("Un mot de passe générique de compatibilité est cependant toujours actif, alors que sa "
@@ -3359,7 +3359,7 @@ bool MySQLInstaller::installMySQL()
         if (lf.open(QIODevice::ReadOnly | QIODevice::Text))
             detail = QString::fromUtf8(lf.readAll()).trimmed().left(1500);
         QFile::remove(extractLog);
-        UpMessageBox::Watch(nullptr, tr("Extraction échouée"),
+        UpMessageBox::Watch(m_parent, tr("Extraction échouée"),
             tr("L'archive MySQL n'a pas pu être extraite (mysqld.exe introuvable).\n\n"
                "Détail : %1").arg(detail.isEmpty() ? tr("(aucun détail)") : detail));
         return false;
@@ -3371,7 +3371,7 @@ bool MySQLInstaller::installMySQL()
     {
         QFile f(cnfPath);
         if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            UpMessageBox::Watch(nullptr, tr("Configuration échouée"),
+            UpMessageBox::Watch(m_parent, tr("Configuration échouée"),
                 tr("Impossible d'écrire %1.").arg(QDir::toNativeSeparators(cnfPath)));
             return false;
         }
@@ -3392,7 +3392,7 @@ bool MySQLInstaller::installMySQL()
               tr("Initialisation de la base de données,\n"
                  "cela peut prendre quelques instants…"), 300000);
     if (!QFile::exists(dataDir + "/mysql")) {     /*!< schéma système créé ? */
-        UpMessageBox::Watch(nullptr, tr("Initialisation échouée"),
+        UpMessageBox::Watch(m_parent, tr("Initialisation échouée"),
             tr("L'initialisation du datadir MySQL a échoué.\n\n%1").arg(lastErrLog()));
         return false;
     }
@@ -3404,13 +3404,13 @@ bool MySQLInstaller::installMySQL()
     runCmdElevated("net start MySQL");
 
     if (!isMySQLInstalled()) {
-        UpMessageBox::Watch(nullptr, tr("Installation incomplète"),
+        UpMessageBox::Watch(m_parent, tr("Installation incomplète"),
             tr("Les fichiers MySQL sont en place mais l'installation n'est pas "
                "détectée correctement."));
         return false;
     }
     if (!waitForMySQL(30)) {
-        UpMessageBox::Watch(nullptr, tr("Démarrage du service échoué"),
+        UpMessageBox::Watch(m_parent, tr("Démarrage du service échoué"),
             tr("MySQL est installé mais le service n'a pas démarré.\n\n%1")
             .arg(lastErrLog()));
         return false;
@@ -3453,7 +3453,7 @@ bool MySQLInstaller::installMySQL()
         QFile lf(m_initLog);
         if (lf.open(QIODevice::ReadOnly | QIODevice::Text))
             detail = QString::fromLocal8Bit(lf.readAll()).trimmed();
-        UpMessageBox::Watch(nullptr, tr("Initialisation impossible"),
+        UpMessageBox::Watch(m_parent, tr("Initialisation impossible"),
             tr("MySQL est installé mais la base de données n'a pas pu être "
                "initialisée (%1/data).\n\nLe serveur ne peut pas démarrer.\n\n"
                "Détail (%2) :\n%3")
@@ -4637,7 +4637,7 @@ QString MySQLInstaller::getCnfPath()
 bool MySQLInstaller::askYesNo(const QString& title, const QString& text)
 {
     const UpSmallButton::StyleBouton rep = UpMessageBox::Question(
-        m_dialog, title, text,
+        m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent, title, text,
         UpDialog::ButtonCancel | UpDialog::ButtonOK,
         QStringList() << tr("Non") << tr("Oui"));
     return rep == UpSmallButton::STARTBUTTON;
@@ -4959,7 +4959,7 @@ bool MySQLInstaller::checkDownloadConnectivity(const QString& downloadUrl)
 {
     /*! 1. Accès WAN. */
     if (!hasNetworkAccess()) {
-        UpMessageBox::Watch(nullptr, tr("Pas d'accès réseau"),
+        UpMessageBox::Watch(m_parent, tr("Pas d'accès réseau"),
             tr("Absence d'accès réseau. Le programme ne peut pas télécharger "
                "le fichier d'installation de MySQL.\n\nFermeture du programme."));
         return false;
@@ -4969,7 +4969,7 @@ bool MySQLInstaller::checkDownloadConnectivity(const QString& downloadUrl)
     const QString host = QUrl(downloadUrl).host();
     const QHostInfo info = QHostInfo::fromName(host);
     if (info.error() != QHostInfo::NoError || info.addresses().isEmpty()) {
-        UpMessageBox::Watch(nullptr, tr("Lien de téléchargement introuvable"),
+        UpMessageBox::Watch(m_parent, tr("Lien de téléchargement introuvable"),
             tr("Impossible de résoudre le lien de téléchargement. Le programme "
                "ne peut pas télécharger le fichier d'installation de MySQL.\n\n"
                "Fermeture du programme."));
@@ -4986,7 +4986,7 @@ bool MySQLInstaller::checkDownloadConnectivity(const QString& downloadUrl)
  */
 void MySQLInstaller::avertirTelechargementImpossible()
 {
-    UpMessageBox::Watch(nullptr, tr("Téléchargement de MySQL impossible"),
+    UpMessageBox::Watch(m_parent, tr("Téléchargement de MySQL impossible"),
         tr("Rufus n'a pas réussi à télécharger MySQL : le site n'est pas accessible.") + "\n\n" +
         tr("Vous pouvez installer MySQL vous-même : téléchargez-le et installez-le sans rien configurer.") + "\n" +
         tr("Notez simplement le login et le mot de passe de l'utilisateur que vous avez créé.") + "\n" +

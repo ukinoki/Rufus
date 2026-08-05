@@ -153,7 +153,7 @@ private:
 class MySQLInstaller : public QObject {
     Q_OBJECT
 public:
-    explicit MySQLInstaller(QObject* parent = nullptr);
+    explicit MySQLInstaller(QWidget* parent = nullptr);   /*!< parent des fiches et messages de l'installeur */
 
     bool run(const QStringList& log = {});   /*!< point d'entrée synchrone ; log = compte admin déjà éprouvé */
     QStringList AskMdpLoginMySQL();                     /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide s'il n'y en a pas */
@@ -249,6 +249,7 @@ private:
     QString                       m_loginRufus;                              /*!< login du futur utilisateur Rufus (saisi) */
     QString                       m_mdpRufus;                                /*!< son mot de passe EN CLAIR (saisi) */
     QString                       m_brewPrefix;                              /*!< préfixe Homebrew (cache) */
+    QWidget*                      m_parent = nullptr;        /*!< fiche appelante : parent de toutes les fenêtres de l'installeur */
     MySQLInstallerDialog*         m_dialog = nullptr;                        /*!< la fiche de l'installeur */
     bool                          m_freshInstall = false;                    /*!< MySQL vient d'être installé */
     bool                          m_serveurInjoignable = false;              /*!< dernier tryConnectAs : le serveur n'a pas répondu (ERROR 2002/2003/2005) */
