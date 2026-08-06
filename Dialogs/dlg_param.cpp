@@ -2660,7 +2660,7 @@ void dlg_param::ConnectSignals()
     connect(ui->DirBackuppushButton,                &QPushButton::clicked,                  this,   &dlg_param::ModifDirBackup);
     connect(ui->ImmediatBackupupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::startImmediateBackup);
     connect(ui->RestaurBaseupPushButton,            &QPushButton::clicked,                  this,   &dlg_param::RestaureBase);
-    connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,                  proc,   &Procedures::ReinitBase);
+    connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,                  proc,   [=, this] {proc->ReinitBase(this);});
     connect(ui->EffacePrgSauvupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::EffaceProgrammationDataBackup);
 
     connect(ui->NetworkPathFrontoupPushButton,      &QPushButton::clicked,                  this,   [=, this] {ModifPathDirEchangeMesure(Procedures::Fronto);});

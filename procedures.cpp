@@ -2351,7 +2351,7 @@ QString Procedures::PosteImportDocs()
     return rep;
 }
 
-bool Procedures::ReinitBase()
+bool Procedures::ReinitBase(QWidget *parent)
 {
     if (AutresPostesConnectes())
         return false;
@@ -2385,7 +2385,7 @@ bool Procedures::ReinitBase()
             Utils::copyWithPermissions(FichierIni,PATH_DIR_RUFUS + "/RufusBackup.ini");
             Utils::removeWithoutPermissions(FichierIni);
         }
-        UpMessageBox::Information(Q_NULLPTR, tr("Arrêt du programme!"));
+        UpMessageBox::Information(parent, tr("Arrêt du programme!"));
         exit(0);
     }
     return false;

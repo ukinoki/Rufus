@@ -409,7 +409,7 @@ signals:
                                 */
         bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true, QWidget *parent = Q_NULLPTR,
                                              QString cheminRestauration = "");      //! si non vide : restauration AUTOMATIQUE depuis ce dossier (pas de choix ni de mdp à saisir) — pour la migration de base
-        bool                    ReinitBase();
+        bool                    ReinitBase(QWidget *parent = Q_NULLPTR);
         enum                    BkupRestore { BackupOp, RestoreOp}; Q_ENUM(BkupRestore)
 
     private:
