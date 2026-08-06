@@ -3006,7 +3006,8 @@ QString Procedures::DerniereSauvegardeInstallation()
 bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL, QWidget* parent)
 {
     setDirSQLExecutable();
-    db->initParametresConnexionSQL("localhost", 3306);
+    db      ->setModeacces(Utils::Poste);   /*!< au premier démarrage le mode n'est pas encore posé, et sans lui connectToDataBase refuse */
+    db      ->initParametresConnexionSQL("localhost", 3306);
     const QString err = db->connectToDataBase(DB_RUFUS, loginSQL, mdpSQL);
     if (!err.isEmpty())
     {
