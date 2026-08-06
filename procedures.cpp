@@ -5094,7 +5094,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
 
         m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
 
-        MySQLInstaller::creerCompteDeSecours();
+        MySQLInstaller::creerCompteDeSecours(&dlg);
         PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
         Datas::I()->sites->initListe();
         CalcLieuExercice();

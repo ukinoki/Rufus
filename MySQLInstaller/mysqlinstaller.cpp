@@ -1246,13 +1246,13 @@ void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
  * passe (install neuve, réutilisation, migration, sécurisation).
  * \param mdp  mot de passe à afficher / faire noter
  */
-static void inviterANoterMotDePasse(const QString& mdp)
+static void inviterANoterMotDePasse(const QString& mdp, QWidget *parent = nullptr)
 {
     /*! Le mot de passe est mis en évidence (propre ligne, centré, gras, rouge, police agrandie) pour
      *  faciliter sa transcription. InfoText est interprété en HTML par UpMessageBox (UpTextEdit::setHtml) ;
      *  le mot de passe est purement alphanumérique (cf. genererMotDePasse), donc sans risque d'injection.
      *  Le <b> sert aussi à CalcSize (correction de hauteur 1.2), réservant la place de la police agrandie. */
-    UpMessageBox::Watch(nullptr,
+    UpMessageBox::Watch(parent,
         QObject::tr("Notez le mot de passe de la base de données"),
         QObject::tr("Rufus a créé un mot de passe de connexion à votre base de données patients.\n"
                     "Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire "
@@ -4081,7 +4081,7 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
  * Met en place le compte de secours puis supprime root, à chaque démarrage du poste hôte. Sur une base
  * ancienne, attend l'utilisateur n°1 : lui seul choisit ce mot de passe.
  */
-void MySQLInstaller::controlerCompteDeSecours()
+void MySQLInstaller::controlerCompteDeSecours(QWidget *parent)
 {
     if (compteDeSecoursExiste())
     {
@@ -4089,7 +4089,7 @@ void MySQLInstaller::controlerCompteDeSecours()
             supprimerCompteMySQL("root");    /*!< root réapparu, typiquement après une mise à jour du serveur */
         return;
     }
-    creerCompteDeSecours();
+    creerCompteDeSecours(parent);
 }
 
 /*!

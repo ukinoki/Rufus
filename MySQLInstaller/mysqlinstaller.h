@@ -217,11 +217,11 @@ public:
     bool             recreerMotDePasseApresVerifAdmin(QWidget *parent = Q_NULLPTR);   /*!< recrée l'aléatoire quand plus aucun poste ne l'a (protégé par mdp Admin) */
 
     /*! ── Compte de secours (et suppression de root) ──────────────────────────────────────────────────── */
-    static bool rootExiste();                                            /*!< un compte 'root' subsiste-t-il sur ce serveur ? */
-    static bool compteDeSecoursExiste();                                 /*!< secoursrufus est-il en place sur TOUS les hosts LAN ? */
-    static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);       /*!< demande le mdp confidentiel, crée secoursrufus sur les hosts LAN, l'éprouve puis supprime root */
-    static void controlerCompteDeSecours();                              /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
-    bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = Q_NULLPTR);   /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
+    static bool rootExiste();                                                   /*!< un compte 'root' subsiste-t-il sur ce serveur ? */
+    static bool compteDeSecoursExiste();                                        /*!< secoursrufus est-il en place sur TOUS les hosts LAN ? */
+    static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);              /*!< demande le mdp confidentiel, crée secoursrufus sur les hosts LAN, l'éprouve puis supprime root */
+    static void controlerCompteDeSecours(QWidget *parent = nullptr);            /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
+    bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = Q_NULLPTR);  /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
 
     /*! ── Récupération du mot de passe du cabinet ─────────────────────────────────────────────────────── */
     enum class IssueMdp {
