@@ -2695,7 +2695,7 @@ void MySQLInstaller::avertirEffacementImminent()
     const int jours = QDateTime::currentDateTime().daysTo(echeance);
     const UpSmallButton::StyleBouton rep = UpMessageBox::Question(m_parent,
         tr("Mot de passe générique bientôt désactivé"),
-        tr("Ce poste utilise un mot de passe sécurisé pour accèder au servur de base de données.") + "\n\n" +
+        tr("Ce poste utilise un mot de passe sécurisé pour accèder au serveur de base de données.") + "\n\n" +
         tr("Un mot de passe générique est par ailleurs maintenu") + "\n" +
         tr("pour des raisons de compatibilité avec les versions antérieures de Rufus") + "\n\n" +
         tr("Ce mot de passe générique sera automatiquement désactivé") + "\n" +

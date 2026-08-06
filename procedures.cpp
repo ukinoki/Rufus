@@ -1145,7 +1145,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     }
     else
     {
-        AskBupRestore(BackupOp, DirImagery, dirdestination );
+        AskBupRestore(BackupOp, DirImagery, dirdestination, true, true, true, true, parent);
         if (dlg_buprestore->exec() != QDialog::Accepted)
             return false;
         QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
@@ -2355,7 +2355,7 @@ bool Procedures::ReinitBase(QWidget *parent)
 {
     if (AutresPostesConnectes())
         return false;
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(parent);
     UpSmallButton OKBouton(tr("Réinitialiser"));
     UpSmallButton AnnulBouton(tr("Annuler"));
     msgbox      .setText(tr("Réinitialisation du programme!"));
@@ -2374,7 +2374,7 @@ bool Procedures::ReinitBase(QWidget *parent)
     msgbox      .exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        if (!ImmediateBackup("", true, true))
+        if (!ImmediateBackup("", true, true, parent))
             return false;
         QFile FichierIni(PATH_FILE_INI);
         if (FichierIni.exists())
@@ -3165,7 +3165,7 @@ bool Procedures::VerifVersionBase(QWidget* parent)
                 msgbox.exec();
                 if (msgbox.clickedButton() == BackupBouton)
                 {
-                    if (!ImmediateBackup())
+                    if (!ImmediateBackup("", true, false, parent))
                         erreur(parent);
                 }
                 else if (msgbox.clickedButton() == ExitBouton)
@@ -5102,8 +5102,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
             UpMessageBox::Watch(&dlg,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
         db->setVersion(m_version);
-                     << "active" << w->isActiveWindow() << "modalite" << w->windowModality()
-                     << "parent" << (w->parentWidget() ? w->parentWidget()->metaObject()->className() : "aucun");
         UpMessageBox::Watch(&dlg, tr("Redémarrage nécessaire"),
                               tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
                               tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé") + ".\n" +
