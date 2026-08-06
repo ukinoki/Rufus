@@ -5129,7 +5129,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
  */
 bool Procedures::InstallationRufus(bool restaurer, QWidget *parent)
 {
-    qDebug() << "[DIAG] InstallationRufus() restaurer =" << restaurer;
     const QString trouvee = DerniereSauvegardeInstallation();
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
