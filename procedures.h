@@ -117,7 +117,7 @@ private:
     bool                    SauvegardeBaseValide(QString dossier);                      //! true si le dump (rufus.sql) du dossier est complet (« Dump completed »)
     QString                 DerniereSauvegardeInstallation();                           //! dossier de la sauvegarde valide la plus récente dans PATH_DIR_MIGRATIONMYSQL, vide s'il n'y en a pas
     QString                 m_sauvegardeInstallation = "";                              //! dossier de la sauvegarde faite avant d'effacer le serveur (hors dossier figé si le disque manquait de place)
-    bool                    EprouverConnexionApresSaisie();                             //! après reconstruction de Rufus.ini : mot de passe du cabinet, à défaut le générique
+    bool                    EprouverConnexionApresSaisie(QWidget *parent = Q_NULLPTR);   //! après reconstruction de Rufus.ini : mot de passe du cabinet, à défaut le générique
     void                    VerifierIni();                                              //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable
     bool                    offrirSauvegardeAvantEffacement(QWidget *parent = Q_NULLPTR);   //! prévient que les données du serveur vont disparaître ; false = renoncer
     bool                    offrirSauvegardeBaseRufus(const QStringList& log, QWidget *parent = Q_NULLPTR);   //! base Rufus trouvée : sauvegarder / effacer / renoncer

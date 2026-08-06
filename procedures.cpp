@@ -3010,7 +3010,7 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
     const QString err = db->connectToDataBase(DB_RUFUS, loginSQL, mdpSQL);
     if (!err.isEmpty())
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
+        UpMessageBox::Watch(parent, tr("Sauvegarde impossible"),
             tr("Rufus n'a pas pu se connecter à la base pour la sauvegarder ; rien n'a été effacé.")
             + "\n\n" + err);
         return false;
@@ -3025,12 +3025,12 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
         const qint64 dispo = QStorageInfo(dossier).bytesAvailable();
         if (dispo >= requis)
             break;
-        UpMessageBox::Watch(Q_NULLPTR, tr("Espace disque insuffisant"),
+        UpMessageBox::Watch(parent, tr("Espace disque insuffisant"),
             tr("Le support de sauvegarde ne dispose pas d'assez d'espace libre.") + "\n\n" +
             tr("Espace nécessaire (estimé) : ") + Utils::getExpressionSize(requis) + "\n" +
             tr("Espace disponible : ") + Utils::getExpressionSize(dispo) + "\n\n" +
             tr("Choisissez un autre support de sauvegarde (clé USB, disque externe…)."));
-        QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Choisissez un dossier de sauvegarde"),
+        QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Choisissez un dossier de sauvegarde"),
                                                   QUrl::fromLocalFile(QDir::homePath()));
         if (url == QUrl())
             return false;   //! sans sauvegarde, on n'efface rien
@@ -3040,7 +3040,7 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
     //! adminrufus peut ne pas exister (ou son mdp être perdu) : le dump passe par le compte admin saisi
     if (!Backup(dossier, true, false, false, false, false, parent, loginSQL, mdpSQL))
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
+        UpMessageBox::Watch(parent, tr("Sauvegarde impossible"),
             tr("La sauvegarde de votre base n'a pas pu être lancée ; rien n'a été effacé.") + "\n\n" +
             tr("Dossier visé : ") + dossier);
         return false;
@@ -3052,12 +3052,12 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
     m_sauvegardeInstallation = sub.isEmpty() ? "" : dossier + "/" + sub.first();
     if (m_sauvegardeInstallation.isEmpty() || !SauvegardeBaseValide(m_sauvegardeInstallation))
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde incomplète"),
+        UpMessageBox::Watch(parent, tr("Sauvegarde incomplète"),
             tr("La sauvegarde de votre base a échoué. Rien n'a été effacé."));
         m_sauvegardeInstallation = "";
         return false;
     }
-    UpMessageBox::Watch(Q_NULLPTR, tr("Base sauvegardée"),
+    UpMessageBox::Watch(parent, tr("Base sauvegardée"),
         tr("Votre base a été sauvegardée dans :") + "\n" + m_sauvegardeInstallation + "\n\n" +
         tr("Notez cet emplacement : Rufus vous proposera de restaurer cette sauvegarde après "
            "l'installation, et vous demandera où elle se trouve si ce n'est pas sur ce disque."));
@@ -3988,7 +3988,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     User *user = currentuser();
     if (user == Q_NULLPTR)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de créer l'utilisateur"),tr("Erreur de création de l'utilisateur"));
+        UpMessageBox::Watch(parent,tr("Impossible de créer l'utilisateur"),tr("Erreur de création de l'utilisateur"));
         return false;
     }
     user->setidsuperviseur(idusr);
@@ -5265,7 +5265,7 @@ void Procedures::SauvegardeIni()
  * \brief Procedures::EprouverConnexionApresSaisie
  * Éprouve les paramètres tout juste saisis : mot de passe du cabinet, à défaut le générique.
  */
-bool Procedures::EprouverConnexionApresSaisie()
+bool Procedures::EprouverConnexionApresSaisie(QWidget *parent)
 {
     const QString base = Utils::getBaseFromMode(db->ModeAccesDataBase());
     db->initParametresConnexionSQL(m_settings->value(base + Param_Serveur).toString(),
@@ -5281,7 +5281,7 @@ bool Procedures::EprouverConnexionApresSaisie()
 
     if (db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MDP_SQL).isEmpty())
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Connexion établie sans mot de passe personnel"),
+        UpMessageBox::Watch(parent, tr("Connexion établie sans mot de passe personnel"),
             tr("La base du cabinet ne s'ouvre qu'avec le mot de passe générique de Rufus.") + "\n" +
             tr("Faites-la sécuriser depuis le poste qui l'héberge."));
         return true;
@@ -5310,7 +5310,7 @@ bool Procedures::EprouverConnexionApresSaisie()
                 tr("Vérifiez le mot de passe de connexion, l'adresse du serveur et, en accès distant, "
                    "le dossier des clés SSL.");
     }
-    UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"), corps);
+    UpMessageBox::Watch(parent, tr("Connexion à la base impossible"), corps);
     return false;
 }
 
