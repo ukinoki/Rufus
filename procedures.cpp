@@ -233,7 +233,7 @@ void Procedures::CleanIniFile()
     }
 }
 
-void Procedures::ab(int i)
+void Procedures::ab(int i, QWidget *parent)
 {
     QString mess;
     if (i == 1) mess = "jusque là, ça va";
@@ -845,7 +845,7 @@ QString Procedures::dirSQLExecutable()
  * et si l'utilisateur l'informe qu'il ne peut pas trouver les executables
  * le programme est quand même lancé en informant l'utilisateur qu'il ne pourra faire aucune opération de restauration, sauvegarde ou mise à jour de la base
 */
-void Procedures::setDirSQLExecutable()
+void Procedures::setDirSQLExecutable(QWidget *parent)
 {
     QString dirdefaultsqlexecutable ("");
     QString dirsqlexecutable ("");
@@ -981,7 +981,7 @@ QString Procedures::dirSSLKeys()
     return m_dirSSLkeys;
 }
 
-void Procedures::setDirSSLKeys()
+void Procedures::setDirSSLKeys(QWidget *parent)
 {
     QUrl urlkeys = QUrl();
     QString dirkeys = settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
@@ -1345,7 +1345,7 @@ int Procedures::ResolutionRendu()
 /*---------------------------------------------------------------------------------
     Retourne l'entête du document à imprimer
 -----------------------------------------------------------------------------------*/
-QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, bool withBarCodes)
+QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, bool withBarCodes, QWidget *parent)
 {
     QMap<QString, QString> EnteteMap = QMap<QString, QString>();
     if (!user)
@@ -1549,7 +1549,7 @@ QString Procedures::CalcPiedImpression(User *user)
  * \param QString nomdossier = dossier où est enregistré le fichier
  * \return
  */
-bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString textpied, QString nomfichier, User *usr, bool ALD, QString nomdossier, QImage signature)
+bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString textpied, QString nomfichier, User *usr, bool ALD, QString nomdossier, QImage signature, QWidget *parent)
 {
     bool a = false;
     QTextEdit *Etat = new QTextEdit;
@@ -1822,7 +1822,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     return rep;
 }
 
-void Procedures::EditHtml(QString txt)
+void Procedures::EditHtml(QString txt, QWidget *parent)
 {
     UpDialog        *gAsk           = new UpDialog();
     QLabel *lbl                     = new QLabel(gAsk);
@@ -1993,7 +1993,7 @@ void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QStri
     }
 }
 
-bool Procedures::Print(QList<QImage> listimage)
+bool Procedures::Print(QList<QImage> listimage, QWidget *parent)
 {
     if (m_printer == Q_NULLPTR)                      /*! création différée (voir constructeur) */
     {
@@ -3088,7 +3088,7 @@ bool Procedures::SauvegardeBaseValide(QString dossier)
  * Migration du socle MySQL du poste hôte : sauvegarde validée, puis désinstallation/réinstallation et
  * restauration. Ne désinstalle jamais sans sauvegarde valide.
  */
-bool Procedures::MettreAJourSocleMySQL()
+bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
 {
     UpMessageBox msgbox(Q_NULLPTR);
     msgbox.setText(tr("Mise à jour du serveur MySQL nécessaire"));
@@ -3289,7 +3289,7 @@ void Procedures::ReconstruitListeModesAcces()
 /*--------------------------------------------------------------------------------------------------------------
     -- Choix du mode de connexion ----------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------------------------*/
-bool Procedures::FicheChoixConnexion()
+bool Procedures::FicheChoixConnexion(QWidget *parent)
 {
     bool initok;
     UpMessageBox msgbox;
@@ -3335,7 +3335,7 @@ bool Procedures::FicheChoixConnexion()
 /*--------------------------------------------------------------------------------------------------------------
 -- Connexion à Consults -------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------*/
-bool Procedures::Connexion_A_La_Base()
+bool Procedures::Connexion_A_La_Base(QWidget *parent)
 {
     //! Raccourci de lancement « -installMySQL » : va droit à l'installation d'un serveur neuf
     if (QApplication::arguments().contains(QStringLiteral("-installMySQL")))
@@ -3728,7 +3728,7 @@ bool Procedures::Connexion_A_La_Base()
     principale — montrée par w.show() à l'instant — n'aurait pas encore été PEINTE et le dialogue
     surgirait sur un fond vide. On vide donc la file de peinture en attente (même mécanisme que
     ShowMessage) pour que Rufus soit dessiné DERRIÈRE le dialogue modal. */
-void Procedures::ControleSocleMySQLApresAffichage()
+void Procedures::ControleSocleMySQLApresAffichage(QWidget *parent)
 {
     if (!m_socleMySQLAMettreAJour)
         return;
@@ -3758,7 +3758,7 @@ void Procedures::ControleSocleMySQLApresAffichage()
 /*-----------------------------------------------------------------------------------------------------------------
     -- Détermination du lieu exercice pour la session en cours -------------------------------------------------------------
     ----------------------------------------------------------------------------------------------------------------- */
-void Procedures::CalcLieuExercice()
+void Procedures::CalcLieuExercice(QWidget *parent)
 {
     /*! Si le user est remplaçant, la liste des sites utilisés est celle du user remplacé */
     QMap<Site*,qlonglong> mapEtab = Datas::I()->sites->initListeByUser(currentuser()->id());
@@ -3837,7 +3837,7 @@ void Procedures::CalcLieuExercice()
     }
 }
 
-void Procedures::VerifnumAM()
+void Procedures::VerifnumAM(QWidget *parent)
 {
     /*! On a déterminé le site de travail, on cherche le n° AM du user pour ce site de travail"
         Si le user est remplaçant, le n° AM sera celui du user remplacé */
@@ -4168,7 +4168,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
 /*-----------------------------------------------------------------------------------------------------------------
     -- Identification de l'utilisateur -------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::IdentificationUser()
+bool Procedures::IdentificationUser(QWidget *parent)
 {
     //! Identification du PRATICIEN, UNIQUEMENT. À ce stade, la connexion au serveur et la
     //! sécurisation ont DÉJÀ été faites par l'appelant Connexion_A_La_Base() (le contrôle de version
@@ -4451,7 +4451,7 @@ QString Procedures::AbsolutePathDirImagerie()
     return dirimagerie;
 }
 
-bool Procedures::DefinitRoleUser() //NOTE : User Role Function
+bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
 {
     if (currentuser()->isSoignant() )
     {
@@ -5313,7 +5313,7 @@ bool Procedures::EprouverConnexionApresSaisie(QWidget *parent)
     return false;
 }
 
-void Procedures::VerifierIni()
+void Procedures::VerifierIni(QWidget *parent)
 {
     auto Relectureini = [this]() -> bool {
         if (m_settings != Q_NULLPTR)
@@ -5396,7 +5396,7 @@ void Procedures::VerifierIni()
     dlg.exec();
 }
 
-bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool proposerRestauration)
+bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool proposerRestauration, QWidget *parent)
 {
     UpSmallButton AnnulBouton           (tr("Abandonner et\nquitter Rufus"));
     UpSmallButton RestaureBaseBouton    (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
@@ -5437,7 +5437,7 @@ bool Procedures::ClesSSLPresentes() const
     return d.exists("client-key.pem") && d.exists("client-cert.pem");
 }
 
-bool Procedures::ChoisirDossierClesSSL()
+bool Procedures::ChoisirDossierClesSSL(QWidget *parent)
 {
     const QString dir = QFileDialog::getExistingDirectory(Q_NULLPTR,
         tr("Indiquez le dossier des clés SSL (client-key.pem et client-cert.pem)"));
@@ -5485,7 +5485,7 @@ bool Procedures::VerifParamConnexion(QWidget *parent)
     return false;
 }
 
-void Procedures::Ouverture_Appareils_Refraction()
+void Procedures::Ouverture_Appareils_Refraction(QWidget *parent)
 {
 
     QString nameARK   = m_settings->value(Param_Poste_Autoref).toString();
