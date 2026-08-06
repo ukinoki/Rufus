@@ -330,10 +330,6 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
 UpSmallButton::StyleBouton UpMessageBox::ExecMsgBox(UpMessageBox*msgbox)
 {
     UpSmallButton::StyleBouton repons = UpSmallButton::CANCELBUTTON;
-    //! Sans cela, une boîte ouverte depuis une fiche déjà modale reste derrière elle.
-    msgbox  ->show();
-    msgbox  ->raise();
-    msgbox  ->activateWindow();
     if (msgbox  ->exec() == QDialog::Accepted)
         repons = msgbox->clickedButton()->ButtonStyle();
     //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<UpSmallButton::StyleBouton>(), repons);

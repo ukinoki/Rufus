@@ -83,7 +83,7 @@ void ShowMessage::SplashMessage(QString msg, int duree, bool centre)
     lay                 ->addSpacerItem(new QSpacerItem(marge,0,QSizePolicy::Fixed, QSizePolicy::Fixed));
     dlg                 ->setFixedHeight((hauteurligne)*nlignes + marge*4);
     dlg                 ->setFixedWidth(w + imglbl->width() + marge*4);
-    dlg                 ->setWindowFlags(Qt::SplashScreen);
+    dlg                 ->setWindowFlags(Qt::SplashScreen | Qt::WindowStaysOnTopHint);
 
     int yy              = QGuiApplication::primaryScreen()->availableGeometry().height();
     int xx              = QGuiApplication::primaryScreen()->availableGeometry().width();
