@@ -238,7 +238,7 @@ void Procedures::ab(int i, QWidget *parent)
     QString mess;
     if (i == 1) mess = "jusque là, ça va";
     else mess = "là, ça ne va pas";
-    UpMessageBox::Watch(Q_NULLPTR, mess);
+    UpMessageBox::Watch(parent, mess);
 }
 
 /*--------------------------------------------------------------------------------------------------------------
@@ -936,19 +936,19 @@ void Procedures::setDirSQLExecutable(QWidget *parent)
 
 /*! 4. On n'a rien trouvé - on interroge l'utilisateur */
 
-    UpMessageBox::Information(Q_NULLPTR,
+    UpMessageBox::Information(parent,
                               tr("le chemin des programmes mysql et mysqldump (") + dirsqlexecutable + ") n'est pas valide"),
                               tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
         while (!a)
     {
 
-        QString urlexecutabledir = QFileDialog::getExistingDirectory(Q_NULLPTR,
+        QString urlexecutabledir = QFileDialog::getExistingDirectory(parent,
                                                           tr("Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump"),
                                                           (QDir::rootPath()));
         QString path = urlexecutabledir + m_executable;
         if (!QFile(path).exists())
         {
-            if (UpMessageBox::Question(Q_NULLPTR,
+            if (UpMessageBox::Question(parent,
                                        tr("le chemin choisi (") + urlexecutabledir + tr(") n'est pas valide"),
                                        tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
                                        UpDialog::ButtonCancel | UpDialog::ButtonOK,
@@ -991,18 +991,18 @@ void Procedures::setDirSSLKeys(QWidget *parent)
         urlkeys.setPath(QDir::toNativeSeparators(dirkeys));
         bool a = urlkeys.isValid();
         if (!a)
-            UpMessageBox::Information(Q_NULLPTR,
+            UpMessageBox::Information(parent,
                                       tr("le chemin par défaut")
                                       + " \"" + dirkeys + "\" " + tr("n'est pas valide"),
                                       tr("Choisissez un dossier valide dans la boîte de dialogue suivante"));
         while (!a)
         {
-            urlkeys = QFileDialog::getExistingDirectory(Q_NULLPTR,
+            urlkeys = QFileDialog::getExistingDirectory(parent,
                                                        tr("Choisissez le dossier dans lequel se trouvent les clés SSL"),
                                                        (QDir::rootPath()));
             if (urlkeys == QUrl())
             {
-                if (UpMessageBox::Question(Q_NULLPTR,
+                if (UpMessageBox::Question(parent,
                                            tr("le chemin choisi") + " \"" + urlkeys.path() + "\" " + tr("n'est pas valide"),
                                            tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
                                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
@@ -1399,7 +1399,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, 
                     idparent   = soignlist.at(0).at(0).toInt();
                 else                                // plusieurs réponses possibles, on va demander qui est le parent de ce remplaçant....
                 {
-                    dlg_askUser             = new UpDialog();
+                    dlg_askUser             = new UpDialog(parent);
                     dlg_askUser             ->AjouteLayButtons();
                     QGroupBox*boxparent     = new QGroupBox();
                     dlg_askUser->dlglayout()->insertWidget(0,boxparent);
@@ -1486,7 +1486,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, 
             if (mapsites.size()>0)
                 sit = mapsites.firstKey(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adresse
             else {
-                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'imprimer"), tr("Pas de site de travail référencé pour l'utilisateur ") + user->nom());
+                UpMessageBox::Watch(parent, tr("Impossible d'imprimer"), tr("Pas de site de travail référencé pour l'utilisateur ") + user->nom());
                 return EnteteMap;
             }
         }
@@ -1577,7 +1577,7 @@ bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString tex
     // le paramètre true de la fonction print() génère la création du fichier pdf nomficpdf et pas son impression
     QFile filepdf(nomficpdf);
     if (!filepdf.open( QIODevice::ReadOnly ))
-        UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + nomficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
+        UpMessageBox::Watch(parent,  tr("Erreur d'accès au fichier:\n") + nomficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
     else
         a = true;
     filepdf.close ();
@@ -1824,7 +1824,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
 
 void Procedures::EditHtml(QString txt, QWidget *parent)
 {
-    UpDialog        *gAsk           = new UpDialog();
+    UpDialog        *gAsk           = new UpDialog(parent);
     QLabel *lbl                     = new QLabel(gAsk);
 
     gAsk->setModal(true);
@@ -2030,7 +2030,7 @@ bool Procedures::Print(QList<QImage> listimage, QWidget *parent)
     }
     else
     {
-        QPrintDialog *dialog = new QPrintDialog(m_printer);
+        QPrintDialog *dialog = new QPrintDialog(m_printer, parent);
         if (dialog->exec() == QDialog::Accepted)
         {
             m_printer = dialog->printer();
@@ -3090,7 +3090,7 @@ bool Procedures::SauvegardeBaseValide(QString dossier)
  */
 bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
 {
-    UpMessageBox msgbox(Q_NULLPTR);
+    UpMessageBox msgbox(parent);
     msgbox.setText(tr("Mise à jour du serveur MySQL nécessaire"));
     msgbox.setInformativeText(
         tr("Cette version de Rufus nécessite une version plus récente du serveur MySQL.") + "\n\n" +
@@ -3111,7 +3111,7 @@ bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
 
     if (!MySQLInstaller().reinstallerSocleMySQLpourMigration())
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Réinstallation impossible"),
+        UpMessageBox::Watch(parent, tr("Réinstallation impossible"),
             tr("La réinstallation de MySQL a échoué.") + "\n" +
             tr("Votre sauvegarde est conservée dans :") + "\n" + m_sauvegardeInstallation);
         return false;
@@ -3120,7 +3120,7 @@ bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
         return true;
 
     //! serveur neuf mais base vide : sans ce rappel, on ne sait plus où est la sauvegarde
-    UpMessageBox::Watch(Q_NULLPTR, tr("Base non restaurée"),
+    UpMessageBox::Watch(parent, tr("Base non restaurée"),
         tr("Le serveur MySQL a été mis à jour, mais votre base n'a pas été restaurée.") + "\n" +
         tr("Votre sauvegarde est conservée dans :") + "\n" + m_sauvegardeInstallation);
     return false;
@@ -3292,7 +3292,7 @@ void Procedures::ReconstruitListeModesAcces()
 bool Procedures::FicheChoixConnexion(QWidget *parent)
 {
     bool initok;
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(parent);
     msgbox.setText(tr("Quelle base de données souhaitez-vous utiliser?"));
     msgbox.setIcon(UpMessageBox::Quest);
     UpPushButton wdg_annulbouton(tr("Annuler"));
@@ -3340,7 +3340,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     //! Raccourci de lancement « -installMySQL » : va droit à l'installation d'un serveur neuf
     if (QApplication::arguments().contains(QStringLiteral("-installMySQL")))
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Installation de MySQL"),
+        UpMessageBox::Watch(parent, tr("Installation de MySQL"),
             tr("Rufus va maintenant installer un serveur MySQL neuf sur ce poste, "
                "puis créer une nouvelle base patients."));
         InitialisationBaseEtDossiers(true);
@@ -3368,10 +3368,10 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                          dirActuel + "\n\n";
             corps += tr("Indiquez, dans la boîte de dialogue suivante, le dossier contenant "
                         "client-key.pem et client-cert.pem.");
-            UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"), corps);
+            UpMessageBox::Watch(parent, tr("Clés SSL introuvables"), corps);
             if (!ChoisirDossierClesSSL())
             {
-                UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"),
+                UpMessageBox::Watch(parent, tr("Clés SSL introuvables"),
                     tr("L'accès distant nécessite les clés SSL du cabinet (client-key.pem, "
                        "client-cert.pem), à copier depuis le poste serveur sur une clé USB."));
                 if (ListeModesAcces().size() > 1)
@@ -3407,7 +3407,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
             //! 2. l'adresse est bonne, c'est le serveur qui manque : ne pas la mettre en cause
             if (etat == DataBase::PosteSansServeur)
             {
-                UpMessageBox::Watch(Q_NULLPTR, tr("Le serveur du cabinet ne fonctionne pas"),
+                UpMessageBox::Watch(parent, tr("Le serveur du cabinet ne fonctionne pas"),
                     tr("Un poste répond bien à cette adresse :") + "\n\n" + server + "\n\n" +
                     tr("mais le serveur de la base de données n'y fonctionne pas.") + "\n\n" +
                     tr("Vérifiez, sur ce poste, que Rufus y a bien été installé et que le serveur est démarré."));
@@ -3425,7 +3425,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
             //! 1. plus personne à cette adresse : la faire corriger
             if (etat == DataBase::Deserte)
             {
-                UpMessageBox msgbox(Q_NULLPTR);
+                UpMessageBox msgbox(parent);
                 msgbox.setIcon(UpMessageBox::Quest);
                 msgbox.setText(tr("L'adresse du serveur est inexacte"));
                 msgbox.setInformativeText(
@@ -3459,12 +3459,12 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
          && db->causeEchecConnexion() == DataBase::ServeurInjoignable)
         {
             if (DataBase::etatAdresse(server, port, 15000) == DataBase::PosteSansServeur)
-                UpMessageBox::Watch(Q_NULLPTR, tr("Le port du serveur n'est pas ouvert"),
+                UpMessageBox::Watch(parent, tr("Le port du serveur n'est pas ouvert"),
                     tr("La box du cabinet répond bien à cette adresse :") + "\n\n" + server + "\n\n" +
                     tr("mais elle ne dirige pas la connexion vers le serveur.") + "\n\n" +
                     tr("Faites vérifier, sur la box du cabinet, la redirection du port %1 vers le poste serveur.").arg(port));
             else
-                UpMessageBox::Watch(Q_NULLPTR, tr("Le serveur du cabinet est injoignable"),
+                UpMessageBox::Watch(parent, tr("Le serveur du cabinet est injoignable"),
                     tr("Rufus cherche la base du cabinet à cette adresse :") + "\n\n" + server + "\n\n" +
                     tr("Vérifiez cette adresse et, sur la box du cabinet, la redirection du port vers le serveur."));
             return false;
@@ -3473,7 +3473,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
         //! Un serveur est bien là mais il éconduit ce poste : rien ne se répare depuis ici
         if (db->causeEchecConnexion() == DataBase::ServeurMuet)
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Le serveur refuse la connexion"),
+            UpMessageBox::Watch(parent, tr("Le serveur refuse la connexion"),
                 tr("Un serveur répond bien à cette adresse, mais il refuse de dialoguer avec ce poste.") + "\n\n" +
                 tr("Vérifiez, sur le poste qui héberge la base, que ce poste est autorisé à s'y connecter."));
             return false;
@@ -3486,7 +3486,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
             UpSmallButton *bAnnuler   = new UpSmallButton(tr("Annuler"));
             UpSmallButton *bDemarche  = new UpSmallButton(tr("Comment me procurer\ndes clés valides ?"));
             UpSmallButton *bChercher  = new UpSmallButton(tr("Rechercher\nles bonnes clés"));
-            UpMessageBox msgbox(Q_NULLPTR);
+            UpMessageBox msgbox(parent);
             msgbox.setIcon(UpMessageBox::Quest);
             msgbox.setText(tr("Liaison chiffrée refusée"));
             msgbox.setInformativeText(
@@ -3499,7 +3499,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
 
             if (msgbox.clickedButton() == bDemarche)
             {
-                UpMessageBox::Watch(Q_NULLPTR, tr("Se procurer les clés SSL du cabinet"),
+                UpMessageBox::Watch(parent, tr("Se procurer les clés SSL du cabinet"),
                     tr("Sur le poste qui héberge la base : menu Édition / Paramètres, bouton d'export "
                        "des clés SSL vers une clé USB.") + "\n\n" +
                     tr("Sur ce poste : copiez les fichiers de la clé USB (ca-cert.pem, client-cert.pem, "
@@ -3527,7 +3527,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
             forever
             {
                 const MySQLInstaller::IssueMdp issue =
-                    MySQLInstaller::RecupererMotDePasseMySQL(Q_NULLPTR, QString(), QString(), db->ModeAccesDataBase() == Utils::Poste);
+                    MySQLInstaller::RecupererMotDePasseMySQL(parent, QString(), QString(), db->ModeAccesDataBase() == Utils::Poste);
 
                 if (issue == MySQLInstaller::IssueMdp::Obtenu)
                 {
@@ -3542,7 +3542,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                 if (issue == MySQLInstaller::IssueMdp::Inconnu
                  || issue == MySQLInstaller::IssueMdp::EchecSaisie)
                 {
-                    if (UpMessageBox::Question(Q_NULLPTR, tr("Aucun mot de passe ne fonctionne"),
+                    if (UpMessageBox::Question(parent, tr("Aucun mot de passe ne fonctionne"),
                             tr("Rufus peut rétablir l'accès à la base avec le mot de passe de "
                                "SECOURS choisi à l'installation de la base.") + "\n" +
                             tr("Vos données ne seront pas touchées.") + "\n\n" +
@@ -3562,7 +3562,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                 //! « Réinitialiser le programme
                 if (issue == MySQLInstaller::IssueMdp::Reinitialiser)
                 {
-                    if (UpMessageBox::Question(Q_NULLPTR, tr("Réinitialiser le programme"),
+                    if (UpMessageBox::Question(parent, tr("Réinitialiser le programme"),
                             tr("Rufus va installer une base patients neuve sur cet ordinateur.") + "\n" +
                             tr("Les données de la base actuelle ne seront plus accessibles.") + "\n\n" +
                             tr("Voulez-vous continuer ?"),
@@ -3578,7 +3578,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
         else
         {
             //! monoposte, socle < 8.0.14 : aucun aléatoire n'a pu être posé, réclamer un mdp n'a pas de sens
-            if (UpMessageBox::Question(Q_NULLPTR, tr("Version de MySQL trop ancienne"),
+            if (UpMessageBox::Question(parent, tr("Version de MySQL trop ancienne"),
                     tr("Impossible de se connecter à votre serveur MySQL, et sa version est trop "
                        "ancienne pour cette version de Rufus.") + "\n\n" +
                     tr("Rufus doit installer un serveur neuf : tout ce que contient l'actuel sera "
@@ -3604,10 +3604,10 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                 if (db->ModeAccesDataBase() == Utils::Distant)
                     corps += "\n\n" + tr("À défaut, le mot de passe peut être rétabli par la procédure de "
                                           "secours, mais seulement depuis un poste du réseau local du cabinet.");
-                UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"), corps);
+                UpMessageBox::Watch(parent, tr("Connexion à la base impossible"), corps);
                 return false;
             }
-            UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
+            UpMessageBox::Watch(parent, tr("Connexion à la base impossible"),
                 tr("Le mot de passe vient pourtant d'ouvrir la base.") + "\n" +
                 tr("Vérifiez que le serveur MySQL de ce poste fonctionne, puis relancez Rufus."));
             return false;
@@ -3632,7 +3632,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     {
         const QString dirimg = m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
         if (dirimg.isEmpty() || !QDir(dirimg).exists())
-            UpMessageBox::Watch(Q_NULLPTR, tr("Dossier d'imagerie du cabinet inaccessible"),
+            UpMessageBox::Watch(parent, tr("Dossier d'imagerie du cabinet inaccessible"),
                 (dirimg.isEmpty()
                     ? tr("Aucun dossier d'imagerie n'est indiqué pour ce poste.")
                     : tr("Rufus ne trouve pas le dossier d'imagerie du cabinet :") + "\n\n"
@@ -3660,7 +3660,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
             }
             //! Poste CLIENT (réseau local / distant) : il ne répare JAMAIS la base partagée des
             //! autres. On l'informe ; la réparation se fait depuis le poste serveur.
-            UpMessageBox::Watch(Q_NULLPTR, tr("Base de données endommagée"),
+            UpMessageBox::Watch(parent, tr("Base de données endommagée"),
                 tr("La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.") + "\n" +
                 tr("Vous devez restaurer une base patients ; cette restauration ne peut se faire "
                    "qu'à partir du poste serveur."));
@@ -3687,7 +3687,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     if (dirSQLExecutable() == "")
     {
         Logs::ERROR(tr("Impossible de trouver l'exécutable MySQL"));
-        UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base"));
+        UpMessageBox::Watch(parent, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base"));
     }
 
     //initListeUsers();
@@ -3705,7 +3705,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     Datas::I()->sessions->CreationSession(m_listbinds);
 
     if (Datas::I()->sites->currentsite() == Q_NULLPTR && currentuser()->isSoignant())
-        UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
+        UpMessageBox::Watch(parent,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     m_connexionbaseOK = true;
 
     db->StandardSQL("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;");
@@ -3746,7 +3746,7 @@ void Procedures::ControleSocleMySQLApresAffichage(QWidget *parent)
     }
 
     //! Poste CLIENT (LAN / distant) : il ne peut PAS migrer (ce n'est pas lui qui héberge la base).
-    UpMessageBox::Watch(Q_NULLPTR, tr("Serveur MySQL à mettre à jour"),
+    UpMessageBox::Watch(parent, tr("Serveur MySQL à mettre à jour"),
         tr("Le serveur MySQL nécessite d'être mis à jour pour pouvoir utiliser") + "\n" +
         tr("les nouvelles fonctions de sécurité incluses dans cette version de Rufus.") + "\n" +
         tr("La mise à jour doit être effectuée depuis le poste serveur "
@@ -3781,7 +3781,7 @@ void Procedures::CalcLieuExercice(QWidget *parent)
         /*! Cas ou le praticien travaille dans plusieur centres
         * on lui demande de sélectionner le centre où il se trouve au moment de la connexion
         */
-        UpDialog *gAskLieux     = new UpDialog();
+        UpDialog *gAskLieux     = new UpDialog(parent);
         gAskLieux               ->AjouteLayButtons();
         QGroupBox*boxlieux      = new QGroupBox();
         gAskLieux->dlglayout()  ->insertWidget(0,boxlieux);
@@ -3892,11 +3892,11 @@ void Procedures::VerifnumAM(QWidget *parent)
         else
         {
             qlonglong AMnumber = 0;
-            UpMessageBox::Watch(Q_NULLPTR, tr("Vous n'avez pas de  numéro AM enregistré pour ce site"),
+            UpMessageBox::Watch(parent, tr("Vous n'avez pas de  numéro AM enregistré pour ce site"),
                                 tr("Enregistrez le numéro AM correspondant à") +
                                 "<br/><font color=\"blue\"><b>" + Datas::I()->sites->currentsite()->nom() + "</b></font><br/>" +
                                 tr("dans la boîte de dialogue suivante"));
-            UpDialog* dlg_ask               = new UpDialog();
+            UpDialog* dlg_ask               = new UpDialog(parent);
             int w = 240;
             UpLabel         *lbldebut       = new UpLabel;
             lbldebut        ->setText(tr("Enregistrez le numéro AM (9 chiffres) correspondant à") +
@@ -4176,7 +4176,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
     //! ControleSocleMySQLApresAffichage()). Ici, on vérifie seulement que cet utilisateur existe
     //! dans la table des utilisateurs de la base.
     bool ok = false;
-    dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
+    dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser(parent);
     dlg_IdentUser   ->setFont(m_applicationfont);
     QFile sha = QFile(PATH_DIR_RUFUS + "/sha1.txt");
     if (sha.open(QIODevice::ReadOnly))
@@ -4262,7 +4262,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
                 }
                 if (!texte.isEmpty())
                 {
-                    UpMessageBox::Watch(Q_NULLPTR, titre, texte, UpDialog::ButtonOK,
+                    UpMessageBox::Watch(parent, titre, texte, UpDialog::ButtonOK,
                                         "https://www.rufusvision.org/contact.html");
                     m_settings->setValue(cleAvis, true);
                     m_settings->sync();
@@ -4345,7 +4345,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
         dlg_identificationuser::LoginResult loginresult = dlg_IdentUser->loginresult();
         QString m_loginSQL      = dlg_IdentUser->ui->LoginlineEdit->text();
         QString m_passwordSQL   = dlg_IdentUser->ui->MDPlineEdit->text();
-        UpMessageBox    msgbox;
+        UpMessageBox    msgbox(parent);
         UpSmallButton   AnnulBouton(tr("Annuler"));
         UpSmallButton   RestaureBaseBouton(tr("Restaurer la base depuis une sauvegarde"));
         UpSmallButton   BaseViergeBouton(tr("Nouvelle base patients"));
@@ -4365,7 +4365,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
                 if (RestaureBase(false,true,false))
                 {
                     Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-                    UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
+                    UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
                     Utils::Redemarrage();
                 }
             }
@@ -4375,7 +4375,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-                UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
+                UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
                 Utils::Redemarrage();
             }
             break;
@@ -4455,7 +4455,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
 {
     if (currentuser()->isSoignant() )
     {
-        dlg_askUser                 = new UpDialog();
+        dlg_askUser                 = new UpDialog(parent);
         dlg_askUser                 ->AjouteLayButtons();
         dlg_askUser                 ->setdata(currentuser());
         QVBoxLayout *boxlay         = new QVBoxLayout;
@@ -4542,7 +4542,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
             {
                 // s'il ny a pas de responsable autre que lui dans la bbd,
                 // il ne peut se connecter que comme responsable
-                UpMessageBox::Watch(Q_NULLPTR,
+                UpMessageBox::Watch(parent,
                                     tr("Vous ne pourrez pas vous connecter en tant qu'assistant"),
                                     tr("Vous étes enregistré comme pouvant être assistant\n"
                                        "mais il n'y a aucun utilisateur susceptible de superviser\n"
@@ -4604,7 +4604,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
         }
         if( currentuser()->idsuperviseur() == User::ROLE_INDETERMINE )
         {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Aucun superviseur valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
+            UpMessageBox::Watch(parent,tr("Aucun superviseur valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
             return false;
         }
 
@@ -4645,7 +4645,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
                             else if( !listUserFound.isEmpty() )
                             {
                                 // on va demander qui est le soignant parent de ce remplaçant....
-                                dlg_askUser             = new UpDialog();
+                                dlg_askUser             = new UpDialog(parent);
                                 dlg_askUser             ->AjouteLayButtons();
                                 dlg_askUser             ->setdata(superviseurusr);
                                 QVBoxLayout *boxlay     = new QVBoxLayout;
@@ -4689,7 +4689,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
                     }
                     else
                     {
-                        UpMessageBox::Watch(Q_NULLPTR,tr("Aucun superviseur valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
+                        UpMessageBox::Watch(parent,tr("Aucun superviseur valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
                         return false;
                     }
                 }
@@ -4717,7 +4717,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
                 }
                 else
                 {
-                    UpMessageBox::Watch(Q_NULLPTR,tr("Aucun parent valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
+                    UpMessageBox::Watch(parent,tr("Aucun parent valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
                     return false;
                 }
             }
@@ -5355,7 +5355,7 @@ void Procedures::VerifierIni(QWidget *parent)
         bRestaurer->setUpButtonStyle(UpSmallButton::STARTBUTTON);
 
     //! addButton refermerait la fiche : on pose les boutons soi-même pour garder la main.
-    UpMessageBox dlg(Q_NULLPTR);
+    UpMessageBox dlg(parent);
     dlg.setWindowModality(Qt::ApplicationModal);
     dlg.setIcon(UpMessageBox::Warning);
     dlg.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
@@ -5402,7 +5402,7 @@ bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool propose
     UpSmallButton RestaureBaseBouton    (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
     UpSmallButton CreerBaseBouton       (tr("Créer une base patients"));
 
-    UpMessageBox *msgbox = new UpMessageBox;
+    UpMessageBox *msgbox = new UpMessageBox(parent);
     msgbox->setText(msg);
     msgbox->setInformativeText(msgInfo);
     msgbox->setIcon(UpMessageBox::Warning);
@@ -5418,7 +5418,7 @@ bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool propose
     {
         if (RestaureBase(false, false, true, Q_NULLPTR))
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Base restaurée"),
+            UpMessageBox::Watch(parent, tr("Base restaurée"),
                                 tr("La base de données a été restaurée. Rufus va redémarrer."));
             Utils::Redemarrage();
         }
@@ -5439,7 +5439,7 @@ bool Procedures::ClesSSLPresentes() const
 
 bool Procedures::ChoisirDossierClesSSL(QWidget *parent)
 {
-    const QString dir = QFileDialog::getExistingDirectory(Q_NULLPTR,
+    const QString dir = QFileDialog::getExistingDirectory(parent,
         tr("Indiquez le dossier des clés SSL (client-key.pem et client-cert.pem)"));
     if (!dir.isEmpty())
         m_settings  ->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
@@ -5536,7 +5536,7 @@ void Procedures::Ouverture_Appareils_Refraction(QWidget *parent)
                   : m_devicesCOM.setFlag(Tonometre);
     }
     if (mapPortsCOM() == QMap<QString,QString>() && m_devicesCOM > 0)
-        UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion série"),
+        UpMessageBox::Watch(parent, tr("Erreur connexion série"),
                             tr("Des connexions série sont paramétrées pour certains appareils du poste de réfraction.\n"
                                "Malheureusement, aucune de ces connexions ne semble fonctionner."));
     Ouverture_Ports_Series();
