@@ -37,12 +37,6 @@ static QString cheminQmLangue(const QString &lang)
     parent.cdUp();
     return parent.absolutePath() + suffixe;
 }
-void Rufus::showEvent(QShowEvent* e)
-{
-    qDebug() << "[DIAG] Rufus::showEvent";
-    QMainWindow::showEvent(e);
-}   //! [DIAG] à retirer
-
 
 Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
