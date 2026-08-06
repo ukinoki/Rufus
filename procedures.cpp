@@ -2493,7 +2493,6 @@ static int compterTablesFichierSQL(const QString& chemin)
 
 bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration)
 {
-    qDebug() << "[DIAG] RestaureBase() BaseVierge =" << BaseVierge << "chemin =" << cheminRestauration;
     UpMessageBox    msgbox(parent);
     UpSmallButton   AnnulBouton;
     UpSmallButton   OKBouton;
@@ -2612,7 +2611,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             }
             else
             {
-                UpMessageBox::Information(Q_NULLPTR, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
+                UpMessageBox::Information(parent, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
                 dir.removeRecursively();
                 emit ConnectTimers(true);
                 return true;
@@ -3962,12 +3961,12 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     // Bon, on dispose du nouveau login et du nouveau MDP
     if (Login.isEmpty())
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de créer l'utilisateur"),tr("Login manquant"));
+        UpMessageBox::Watch(parent,tr("Impossible de créer l'utilisateur"),tr("Login manquant"));
         return false;
     }
     if (MDP.isEmpty())
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de créer l'utilisateur"),tr("Mot de passe manquant"));
+        UpMessageBox::Watch(parent,tr("Impossible de créer l'utilisateur"),tr("Mot de passe manquant"));
         return false;
     }
 
@@ -4007,7 +4006,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     db->StandardSQL (req);
     req = "update " TBL_COTATIONS " set " CP_IDUSER_COTATIONS " = " + QString::number(idusr);
     db->StandardSQL (req);
-    if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été créé"),
+    if (UpMessageBox::Question(parent, tr("Un compte utilisateur a été créé"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
                                currentuser()->titre() + " "  + currentuser()->prenom() + " " + currentuser()->nom() + ", " + currentuser()->fonction()
                                + "\n\n" +
@@ -4037,7 +4036,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     }
     QString CP(""),ville("");
     enum Villes::TownsFrom from;
-    if (UpMessageBox::Question(Q_NULLPTR,
+    if (UpMessageBox::Question(parent,
                                tr("Base de données des villes et codes postaux"),
                                tr("Voulez-vous utiliser la base de données des villes françaises?"),
                                UpDialog::ButtonCancel | UpDialog::ButtonOK,
@@ -4056,7 +4055,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     }
     db->setvillesfrance(from == Villes::DATABASE);
 
-    bool a = (UpMessageBox::Question(Q_NULLPTR,
+    bool a = (UpMessageBox::Question(parent,
                             tr("Cotations françaises"),
                             tr("Voulez-vous utiliser le système français de cotation des actes médicaux?"),
                             UpDialog::ButtonCancel | UpDialog::ButtonOK,
@@ -5039,9 +5038,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         dlg.AjouteWidgetLayButtons(bBaseExistante);
     dlg.AjouteWidgetLayButtons(bAnnuler);
 
-    //! Un échec sort sans accept() : la fiche reste affichée, on peut réessayer ou renoncer.
     auto installer = [&](bool restaurer) {
-        qDebug() << "[DIAG] installer() restaurer =" << restaurer;
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         QStringList logAdmin;
         bool baseRufusPresente = false;
@@ -5067,7 +5064,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         m_settings->setValue(BasePoste + Param_Port, "3306");
         if (dirSQLExecutable() == "")
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion"),
+            UpMessageBox::Watch(&dlg, tr("Erreur de connexion"),
                                 tr("Impossible de trouver l'exécutable MySQL") + "\n" +
                                 tr("Le programme ne pourra pas s'intialiser"));
             delete installeurMySQL;
@@ -5078,7 +5075,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         QString erreurConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
         if (!erreurConnexion.isEmpty())
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion au serveur MySQL"),
+            UpMessageBox::Watch(&dlg, tr("Erreur de connexion au serveur MySQL"),
                                 tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreurConnexion);
             delete installeurMySQL;
             return;
@@ -5090,15 +5087,12 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
 
         if (!InstallationRufus(restaurer, &dlg))
         {
-            qDebug() << "[DIAG] InstallationRufus a echoue -> sortie de installer()";
             delete installeurMySQL;
             return;
         }
-        qDebug() << "[DIAG] InstallationRufus OK, on poursuit";
         m_parametres = db->parametres();
 
         m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
-        qDebug() << "[DIAG] CreerPremierUser ->" << m_connexionbaseOK;
 
         MySQLInstaller::creerCompteDeSecours();
         PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
@@ -5108,7 +5102,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
             UpMessageBox::Watch(nullptr,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
         db->setVersion(m_version);
-        UpMessageBox::Watch(nullptr, tr("Redémarrage nécessaire"),
+        UpMessageBox::Watch(&dlg, tr("Redémarrage nécessaire"),
                               tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
                               tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé") + ".\n" +
                               tr("Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)") + "\n" +
@@ -5120,8 +5114,8 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
     };
 
     connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase; dlg.accept(); });
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { qDebug() << "[DIAG] clic bBaseVierge";    protoc = BaseVierge;    installer(false); });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { qDebug() << "[DIAG] clic bBaseExistante"; protoc = BaseExistante; installer(true);  });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge;    installer(false); });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] {  protoc = BaseExistante; installer(true);  });
     dlg.exec();
 
     return false;

@@ -286,7 +286,7 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
 //    devient cliquable et ouvre l'URL dans le navigateur (cf. plus bas).
 UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QString link)
 {
-    UpMessageBox*msgbox     = new UpMessageBox(parent);
+    UpMessageBox* msgbox    = new UpMessageBox(parent);
 
     msgbox->setIcon(Warning);
 
