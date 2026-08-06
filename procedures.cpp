@@ -5099,7 +5099,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         Datas::I()->sites->initListe();
         CalcLieuExercice();
         if (Datas::I()->sites->currentsite() == Q_NULLPTR)
-            UpMessageBox::Watch(nullptr,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
+            UpMessageBox::Watch(&dlg,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
         db->setVersion(m_version);
         UpMessageBox::Watch(&dlg, tr("Redémarrage nécessaire"),
