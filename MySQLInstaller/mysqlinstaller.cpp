@@ -1286,9 +1286,9 @@ static void inviterANoterMotDePasse(const QString& mdp, QWidget *parent = nullpt
  * que les AUTRES postes du réseau devront être mis à jour dans le délai avant la purge de gaxt78iy.
  * Rédigé au conditionnel (« s'il existe d'autres postes… ») : inoffensif en monoposte pur.
  */
-static void avertirSecurisationMiseEnPlace()
+static void avertirSecurisationMiseEnPlace(QWidget *parent = nullptr)
 {
-    UpMessageBox::Watch(nullptr,
+    UpMessageBox::Watch(parent,
         QObject::tr("Sécurisation de la base de données"),
         QObject::tr("IMPORTANT : un mot de passe sécurisé vient d'être mis en place.") + "\n\n"
         + QObject::tr("S'il existe d'autres postes sur le réseau local qui utilisent Rufus, "
@@ -1303,9 +1303,9 @@ static void avertirSecurisationMiseEnPlace()
  * Demande l'AUTORISATION de supprimer le mot de passe générique (gaxt78iy) une fois la deadline atteinte.
  * true si l'utilisateur confirme, false s'il préfère reporter (reproposé à chaque connexion).
  */
-static bool confirmerSuppressionGaxt78iy()
+static bool confirmerSuppressionGaxt78iy(QWidget *parent = nullptr)
 {
-    UpMessageBox msgbox(nullptr);
+    UpMessageBox msgbox(parent);
     msgbox.setIcon(UpMessageBox::Warning);
     msgbox.setText(QObject::tr("Suppression du mot de passe générique"));
     msgbox.setInformativeText(
@@ -1324,9 +1324,9 @@ static bool confirmerSuppressionGaxt78iy()
 }
 
 /*! Message affiché juste APRÈS la suppression effective du mot de passe générique. */
-static void avertirSuppressionGaxt78iyEffectuee()
+static void avertirSuppressionGaxt78iyEffectuee(QWidget *parent = nullptr)
 {
-    UpMessageBox::Watch(nullptr,
+    UpMessageBox::Watch(parent,
         QObject::tr("Mot de passe générique supprimé"),
         QObject::tr("IMPORTANT : le mot de passe générique d'accès à la base de données vient "
                     "d'être supprimé.") + "\n\n"
@@ -1629,7 +1629,7 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
     if (!executerEtapesConfig())  { cleanupDialog(); return false; }
     stockerMotDePasse(m_password);
     cleanupDialog();
-    inviterANoterMotDePasse(m_password);
+    inviterANoterMotDePasse(m_password, m_parent);
     return true;
 }
 
@@ -1858,7 +1858,7 @@ void MySQLInstaller::controlerClesSSLMonoposte()
     /*! Cas DESTRUCTIF : certificats expirés, ou aucun certificat. La régénération crée de NOUVELLES clés →
      *  les postes distants déjà configurés devront recevoir les nouvelles. On avertit sévèrement et on
      *  n'agit que sur consentement. */
-    UpMessageBox msgbox(Q_NULLPTR);
+    UpMessageBox msgbox(m_parent);
     msgbox.setText(expire ? tr("Certificats SSL expirés") : tr("Clés SSL absentes"));
     msgbox.setInformativeText(
         (expire ? tr("Les certificats SSL du serveur ont expiré : l'accès distant ne fonctionne plus.")
@@ -2272,7 +2272,7 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
         return;                                   /*!< cas courant : tout est conforme, RIEN (silencieux) */
 
     /*! Anomalie détectée : on PROPOSE de corriger (peut demander le mdp administrateur du poste). */
-    UpMessageBox msgbox(Q_NULLPTR);
+    UpMessageBox msgbox(m_parent);
     msgbox.setText(tr("Configuration du serveur MySQL à corriger"));
     msgbox.setInformativeText(
         tr("La configuration du serveur MySQL présente une ou plusieurs anomalies :") + "\n• "
@@ -2548,8 +2548,8 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
         return false;
     }
 
-    inviterANoterMotDePasse(np);
-    avertirSecurisationMiseEnPlace();
+    inviterANoterMotDePasse(np, m_parent);
+    avertirSecurisationMiseEnPlace(m_parent);
     return true;
 }
 
@@ -2653,20 +2653,20 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire,
  * Entretien du mot de passe après toute connexion réussie, selon celui avec lequel ce poste s'est
  * connecté. Chaque étape appelée ici est auto-gardée et ne fait rien hors de son cas.
  */
-void MySQLInstaller::entretienApresConnexion()
+void MySQLInstaller::entretienApresConnexion(QWidget *parent)
 {
     /*! Si la sécurisation vient d'être posée DANS cet appel, securiser a déjà affiché ses messages (mot de
      *  passe à noter + sécurisation en place) : inutile d'y ajouter aussitôt l'avertissement « générique
      *  bientôt désactivé » (deadline tout juste créée). On le réserve aux démarrages SUIVANTS. */
-    bool vientDeSecuriser = MySQLInstaller().securiserBaseSiNecessaire();
+    bool vientDeSecuriser = MySQLInstaller(parent).securiserBaseSiNecessaire();
     /*! La régularisation des comptes adminrufus (cohérence + Option B) n'est PLUS ici : elle est déclenchée
      *  par la connexion elle-même (DataBase::connectToDataBase → verifierComptesAdminrufus), uniquement
      *  quand on s'est connecté AVEC un aléatoire, en local. */
-    supprimerGaxt78iySiEchue();
+    supprimerGaxt78iySiEchue(parent);
     if (!vientDeSecuriser)
-        MySQLInstaller().avertirEffacementImminent();
-    MySQLInstaller().proposerRecuperationAleatoire();
-    MySQLInstaller().suggererSecurisationDepuisLocal();
+        MySQLInstaller(parent).avertirEffacementImminent();
+    MySQLInstaller(parent).proposerRecuperationAleatoire();
+    MySQLInstaller(parent).suggererSecurisationDepuisLocal();
 }
 
 /*!
@@ -2750,7 +2750,7 @@ void MySQLInstaller::proposerRecuperationAleatoire()
 
     forever
     {
-        UpMessageBox msgbox(nullptr);
+        UpMessageBox msgbox(m_parent);
         msgbox.setText(tr("Mot de passe du cabinet à récupérer"));
         msgbox.setInformativeText(corps);
         msgbox.setIcon(UpMessageBox::Warning);
@@ -2783,7 +2783,7 @@ void MySQLInstaller::proposerRecuperationAleatoire()
 
         if (distant)   //! il ne peut ni réessayer utilement ni en créer un : on l'oriente et on sort
         {
-            UpMessageBox::Information(nullptr,
+            UpMessageBox::Information(m_parent,
                 tr("Mot de passe non récupéré"),
                 tr("Ce poste continue avec le mot de passe générique, qui sera désactivé.") + "\n\n" +
                 tr("Connectez-vous depuis un poste du réseau local ou depuis le serveur pour "
@@ -2937,7 +2937,7 @@ void MySQLInstaller::suggererSecurisationDepuisLocal()
     /*! Simple INFORMATION, un seul bouton OK : à ce stade AUCUN mot de passe aléatoire n'existe encore
      *  (contrairement à proposerRecuperationAleatoire, où la base EST sécurisée). Rien à récupérer ici — on
      *  invite juste à faire la sécurisation depuis un poste local ou le serveur. */
-    UpMessageBox::Information(nullptr,
+    UpMessageBox::Information(m_parent,
         tr("Base de données non sécurisée"),
         tr("Ce poste se connecte au serveur avec le mot de passe générique de mise en route.") + "\n\n" +
         tr("Pour sécuriser cet accès, connectez-vous depuis un poste du réseau local ou depuis le serveur :") + "\n" +
@@ -3016,7 +3016,7 @@ QString MySQLInstaller::posteSecurisation()
  * ne le fait QUE si ce poste détient le vrai aléatoire (sinon il se couperait l'accès). En accès DISTANT
  * on ne supprime jamais : on avertit seulement que l'échéance est dépassée.
  */
-void MySQLInstaller::supprimerGaxt78iySiEchue()
+void MySQLInstaller::supprimerGaxt78iySiEchue(QWidget *parent)
 {
     if (motDePasseSQL() == QString(MDP_SQL))   /*!< on n'a que gaxt78iy → ne pas droper */
         return;
@@ -3032,7 +3032,7 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
     {
         const int joursDepasse = d.addDays(30).daysTo(QDateTime::currentDateTime());
-        UpMessageBox::Watch(nullptr,
+        UpMessageBox::Watch(parent,
             tr("Mot de passe générique à désactiver"),
             tr("Ce poste utilise un mot de passe sécurisé pour accéder à la base de données.") + "\n\n" +
             tr("Un mot de passe générique de compatibilité est cependant toujours actif, alors que sa "
@@ -3045,7 +3045,7 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
     /*! Deadline atteinte : on DEMANDE l'autorisation avant de supprimer gaxt78iy (un poste resté sur une
      *  ancienne version perdrait l'accès). Si l'utilisateur reporte, on ne supprime rien : la demande se
      *  représentera à la prochaine connexion. */
-    if (!confirmerSuppressionGaxt78iy())
+    if (!confirmerSuppressionGaxt78iy(parent))
         return;
 
     /*! Purge de gaxt78iy sur TOUS les hosts (comme la pose de l'aléatoire) : sinon le générique subsisterait
@@ -3055,7 +3055,7 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
     for (const QString& h : Utils::hostsDuCompteSQL(QString(LOGIN_SQL) + "SSL"))
         DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%1' DISCARD OLD PASSWORD").arg(h));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
-    avertirSuppressionGaxt78iyEffectuee();
+    avertirSuppressionGaxt78iyEffectuee(parent);
 }
 
 QString MySQLInstaller::downloadOracleDmg()
@@ -3159,7 +3159,7 @@ bool MySQLInstaller::installFromDmg(const QString& dmgPath)
     /*! Installation avec élévation */
     MySQLProgressDialog* dlg = new MySQLProgressDialog(
         tr("Installation et configuration de MySQL…\n"
-           "(Autorisez l'opération dans la fenêtre qui s'affiche)"));
+           "(Autorisez l'opération dans la fenêtre qui s'affiche)"), m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent);
     dlg->show();
     QApplication::processEvents();
 
@@ -4122,7 +4122,7 @@ bool MySQLInstaller::restaurerAvecMotDePasseDeSecours(QWidget* parent)
         return false;
     }
     stockerMotDePasse(m_password);
-    inviterANoterMotDePasse(m_password);
+    inviterANoterMotDePasse(m_password, parent);
     return true;
 }
 
@@ -4194,7 +4194,7 @@ bool MySQLInstaller::prepareCreateModeLinux()
     /*! Indicateur d'activité pendant l'opération. */
     MySQLProgressDialog* dlg = new MySQLProgressDialog(
         tr("Préparation du serveur…\n"
-           "Cela peut durer plusieurs minutes."));
+           "Cela peut durer plusieurs minutes."), m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent);
     dlg->show();
     QApplication::processEvents();
 
@@ -4335,7 +4335,7 @@ bool MySQLInstaller::prepareCreateModeMacOS()
 
     MySQLProgressDialog* dlg = new MySQLProgressDialog(
         tr("Préparation du serveur…\n"
-           "Cela peut durer plusieurs minutes."));
+           "Cela peut durer plusieurs minutes."), m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent);
     dlg->show();
     QApplication::processEvents();
 
@@ -4766,7 +4766,7 @@ bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData
 
 void MySQLInstaller::runLongOp(const QString& cmd, const QString& label, int timeoutMs)
 {
-    MySQLProgressDialog* dlg = new MySQLProgressDialog(label);
+    MySQLProgressDialog* dlg = new MySQLProgressDialog(label, m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent);
     dlg->show();
     QApplication::processEvents();
 
@@ -4795,7 +4795,7 @@ void MySQLInstaller::runLongOp(const QString& cmd, const QString& label, int tim
 void MySQLInstaller::runLongOpProgress(const QString& cmd, const QString& label,
                                        int timeoutMs)
 {
-    MySQLProgressDialog dlg(label);
+    MySQLProgressDialog dlg(label, m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent);
     dlg.show();
     QApplication::processEvents();
 
@@ -4839,7 +4839,7 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
      *  de parser la barre texte de curl (sur stderr). Taille totale via un HEAD préalable (best effort ;
      *  sinon barre animée). Repli QNAM ci-dessous si curl est absent ou échoue. */
     {
-        MySQLProgressDialog dlg(label);
+        MySQLProgressDialog dlg(label, m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent);
         dlg.show();
         QApplication::processEvents();
 
@@ -4879,7 +4879,7 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
     {
         QFile file(dest);
         if (file.open(QIODevice::WriteOnly)) {
-            MySQLProgressDialog dlg(label);
+            MySQLProgressDialog dlg(label, m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent);
             dlg.show();
             QApplication::processEvents();
 

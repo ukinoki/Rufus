@@ -205,12 +205,12 @@ public:
     void        avertirExpirationClesSSLDistant();   /*!< accès distant : prévient si les certs SSL approchent de l'expiration */
 
     /*! ── Entretien au démarrage (après connexion) ────────────────────────────────────────────────────── */
-    static void      entretienApresConnexion();                                       /*!< sécurise au besoin puis efface gaxt78iy à échéance */
+    static void      entretienApresConnexion(QWidget *parent = nullptr);                                       /*!< sécurise au besoin puis efface gaxt78iy à échéance */
     static bool      adminrufusEstSecurise();                                         /*!< adminrufus a-t-il un 2e mot de passe (base déjà sécurisée) ? */
     static bool      unCompteLANaPerduSystemUser();                                   /*!< un compte adminrufus local a-t-il perdu SYSTEM_USER (à régulariser) ? */
     static QDateTime dateSecurisation();                                              /*!< date de sécurisation (password_last_changed d'adminrufus) */
     static QString   posteSecurisation();                                             /*!< nom du poste ayant posé l'aléatoire (vide si version antérieure) */
-    static void      supprimerGaxt78iySiEchue();                                      /*!< efface gaxt78iy si la deadline est passée (et si ce poste a l'aléatoire) */
+    static void      supprimerGaxt78iySiEchue(QWidget *parent = nullptr);                                      /*!< efface gaxt78iy si la deadline est passée (et si ce poste a l'aléatoire) */
     void             avertirEffacementImminent();                                     /*!< informe que l'effacement de gaxt78iy approche (informatif) */
     void             proposerRecuperationAleatoire();                                 /*!< base sécurisée mais poste sur gaxt78iy : propose de saisir l'aléatoire */
     void             suggererSecurisationDepuisLocal();                               /*!< poste distant sur base non sécurisée : invite à sécuriser depuis le LAN */

@@ -3675,7 +3675,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     //! Sécurisation : si la base est encore sur gaxt78iy, pose un aléatoire (en CONSERVANT gaxt78iy
     //! en 2e mot de passe) et écrit le .dbkey ; supprime gaxt78iy si la deadline (sécurisation +
     //! 30 j) est passée. No-op si déjà fait.
-    MySQLInstaller::entretienApresConnexion();
+    MySQLInstaller::entretienApresConnexion(parent);
 
     if (!IdentificationUser())
         return false;
