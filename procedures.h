@@ -113,7 +113,7 @@ private:
     QString                 m_dirSSLkeys = "";                                          //! le chemin vers le dossier des clés SSL
     void                    ReconstruitListeModesAcces();
     bool                    VerifVersionBase(QWidget *widg = Q_NULLPTR);
-    bool                    MettreAJourSocleMySQL();                                    //! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL : sauvegarde validée -> désinstall/réinstall MySQL -> restauration -> relance
+    bool                    MettreAJourSocleMySQL(QWidget *parent = Q_NULLPTR);                                    //! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL : sauvegarde validée -> désinstall/réinstall MySQL -> restauration -> relance
     bool                    SauvegardeBaseValide(QString dossier);                      //! true si le dump (rufus.sql) du dossier est complet (« Dump completed »)
     QString                 DerniereSauvegardeInstallation();                           //! dossier de la sauvegarde valide la plus récente dans PATH_DIR_MIGRATIONMYSQL, vide s'il n'y en a pas
     QString                 m_sauvegardeInstallation = "";                              //! dossier de la sauvegarde faite avant d'effacer le serveur (hors dossier figé si le disque manquait de place)
@@ -122,22 +122,22 @@ private:
     bool                    offrirSauvegardeAvantEffacement(QWidget *parent = Q_NULLPTR);   //! prévient que les données du serveur vont disparaître ; false = renoncer
     bool                    offrirSauvegardeBaseRufus(const QStringList& log, QWidget *parent = Q_NULLPTR);   //! base Rufus trouvée : sauvegarder / effacer / renoncer
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
-                                     bool proposerRestauration = false);
+                                     bool proposerRestauration = false, QWidget *parent = Q_NULLPTR);
     bool                    VerifParamConnexion(QWidget *parent = nullptr);             //! true =  le choix accès distant est validé ou non
     bool                    ClesSSLPresentes() const;         //! client-key.pem et client-cert.pem sont-ils dans le dossier déclaré ?
     bool                    ChoisirDossierClesSSL();          //! fait désigner le dossier des clés et l'enregistre ; true si les clés y sont
 public:
     static void             SauvegardeIni();                                            //! copie silencieuse de Rufus.ini vers ~/.rufus/.rufus.ini (appelée à chaque ouverture réussie) pour pouvoir le restaurer dans ReparerIni()
-    void                    setDirSQLExecutable();                                      /*! fixe le chemin vers le dossier contenant les fichier mysql et mysqldump  */
+    void                    setDirSQLExecutable(QWidget *parent = Q_NULLPTR);                                      /*! fixe le chemin vers le dossier contenant les fichier mysql et mysqldump  */
     QString                 dirSQLExecutable();                                         /*! le chemin vers le dossier contenant les fichier mysql et mysqldump  */
-    void                    setDirSSLKeys();                                            /*! fixe le chemin vers le dossier des clés SSL */
+    void                    setDirSSLKeys(QWidget *parent = Q_NULLPTR);                                            /*! fixe le chemin vers le dossier des clés SSL */
     QString                 dirSSLKeys();                                               /*! le chemin vers le dossier des clés SSL */
     bool                    AutresPostesConnectes(bool msg = true);
     void                    CleanIniFile();
     bool                    FicheChoixConnexion();
-    bool                    Connexion_A_La_Base();
+    bool                    Connexion_A_La_Base(QWidget *parent = Q_NULLPTR);
     bool                    ConnexionBaseOK() const     { return m_connexionbaseOK; }
-    void                    ControleSocleMySQLApresAffichage();                         //! À appeler APRÈS w.show() (main.cpp) : si le socle MySQL est trop ancien, affiche le message/la mise à jour APRÈS que Rufus soit visible (mode dégradé en attendant)
+    void                    ControleSocleMySQLApresAffichage(QWidget *parent = Q_NULLPTR);                         //! À appeler APRÈS w.show() (main.cpp) : si le socle MySQL est trop ancien, affiche le message/la mise à jour APRÈS que Rufus soit visible (mode dégradé en attendant)
     void                    SuspendreTimersFond() { emit ConnectTimers(false); }        //! arrête les timers de fond (écritures SQL périodiques) avant une opération qui coupe la connexion (redémarrage serveur) suivie d'une relance de Rufus
     QList<Utils::ModeAcces> ListeModesAcces() const     { return m_listemodesacces; }
     void                    ProgrammeSQLVideImagesTemp(QTime timebackup);   /*! programme l'effacement des données temporaires d'imagerie
@@ -189,14 +189,14 @@ private:
 private:
     bool                    m_usecotation;
     int                     m_idcentre;
-    bool                    IdentificationUser();                       /*! la fiche d'identification de l'utilisateur au lancement du programme
+    bool                    IdentificationUser(QWidget *parent = Q_NULLPTR);                       /*! la fiche d'identification de l'utilisateur au lancement du programme
                                                                          * suivie de l'initialisation de tout
                                                                          * et de la définition du rôle de l'utilisateur */
-    void                    CalcLieuExercice();
-    void                    VerifnumAM();                               /*! Vérifie et enregistre le numéro AM correspondant au lieu d'exercice */
+    void                    CalcLieuExercice(QWidget *parent = Q_NULLPTR);
+    void                    VerifnumAM(QWidget *parent = Q_NULLPTR);                               /*! Vérifie et enregistre le numéro AM correspondant au lieu d'exercice */
     void                    CalcUserParent();
     void                    CalcUserSuperviseur();
-    bool                    DefinitRoleUser();                          /*! definit les iduser pour lequel le user travaille
+    bool                    DefinitRoleUser(QWidget *parent = Q_NULLPTR);                          /*! definit les iduser pour lequel le user travaille
                                                                         . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                             . lui-même s'il est responsable de ses actes
                                                                             . un autre user s'il est assistant
@@ -253,7 +253,7 @@ public:
     int                     TailleEnTeteALD();
     int                     TaillePieddePage();
     int                     TailleTopMarge();
-    int                     ResolutionRendu();                                                                      /*!< dpi du QPdfWriter : seul périphérique de rendu (print/preview/exportPdf y passent tous), donc c'est lui qui fixe la taille physique des images */
+    int                     ResolutionRendu(QWidget *parent = Q_NULLPTR);                                                                      /*!< dpi du QPdfWriter : seul périphérique de rendu (print/preview/exportPdf y passent tous), donc c'est lui qui fixe la taille physique des images */
             /*! a - Impression d'un texte */
     QString                 CalcCorpsImpression(QString text, bool ALD = false);
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes);
@@ -263,7 +263,7 @@ public:
                       bool AvecDupli = false, bool AvecNumPage = false,
                       bool AvecChoixImprimante = true, QImage signature = QImage());   /*!< signature dessinée sous le texte (vide = aucune) */
             /*! b - Création d'un pdf */
-    bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, User *usr = Q_NULLPTR, bool ALD = false, QString nomdossier = "", QImage signature = QImage());
+    bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, User *usr = Q_NULLPTR, bool ALD = false, QString nomdossier = "", QImage signature = QImage(), QWidget *parent = Q_NULLPTR);
             /*! c - Création d'un pdf QByteArray à stocker dans la base */
     QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = Q_NULLPTR, bool ALD = false, QImage signature = QImage());
             /*! d - Choice: print or pdf */
@@ -301,13 +301,13 @@ private:
     UpDialog                *dlg_askLogin, *dlg_askUser;
 
 public:
-    void                    ab(int i = 1);
+    void                    ab(int i = 1, QWidget *parent = Q_NULLPTR);
 
     QByteArray              getFileFromSQL(Item *item);
     QByteArray              getFileFromServer(QString filename);
     QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);
-    void                    EditHtml(QString txt);
+    void                    EditHtml(QString txt, QWidget *parent = Q_NULLPTR);
     void                    ModifTailleFont(QWidget *widg, int siz, QFont font=qApp->font());
     static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
 
@@ -610,7 +610,7 @@ private:
     GenericProtocol::TypesMesures            m_flagreglagerefracteurNidek = GenericProtocol::MesureNone;
     TypesAppareils                           m_devicesCOM, m_devicesLAN;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
-    void                    Ouverture_Appareils_Refraction();
+    void                    Ouverture_Appareils_Refraction(QWidget *parent = Q_NULLPTR);
     void                    logmesure(QString mesure)  { Logs::LogToFile("refraction.txt", mesure); }
 
     //LE FRONTO ----------------------------------------------------
