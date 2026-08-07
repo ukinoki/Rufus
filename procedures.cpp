@@ -2493,7 +2493,6 @@ static int compterTablesFichierSQL(const QString& chemin)
 
 QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration)
 {
-    qDebug() << "TRACE >>> RestaureBase" << protocole << PremierDemarrage;
     UpMessageBox    msgbox(parent);
     UpSmallButton   AnnulBouton;
     UpSmallButton   OKBouton;
@@ -3354,7 +3353,6 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
         UpMessageBox::Watch(parent, tr("Installation de MySQL"),
             tr("Rufus va maintenant installer un serveur MySQL neuf sur ce poste, "
                "puis créer une nouvelle base patients."));
-        qDebug() << "TRACE appel init depuis 3356 (-installMySQL)";
         InitialisationBaseEtDossiers(true);
     }
 
@@ -3582,7 +3580,6 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                             QStringList() << tr("Annuler") << tr("Créer une nouvelle\nbase patients"))
                         != UpSmallButton::STARTBUTTON)
                         continue;
-                    qDebug() << "TRACE appel init depuis 3583 (Reinitialiser)";
                     InitialisationBaseEtDossiers(true);
                     return false;
                 }
@@ -3601,10 +3598,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                     QStringList() << tr("Annuler, je vais\nsauvegarder les données")
                                   << tr("Installer un\nserveur neuf"))
                 == UpSmallButton::STARTBUTTON)
-            {
-                qDebug() << "TRACE appel init depuis 3601 (MySQL trop ancien)";
                 InitialisationBaseEtDossiers(true, true);
-            }
             return false;
         }
 
@@ -4989,7 +4983,6 @@ int Procedures::idCentre()
  */
 bool Procedures::offrirSauvegardeAvantEffacement(QWidget *parent)
 {
-    qDebug() << "TRACE >>> offrirSauvegardeAvantEffacement";
     UpMessageBox msgbox(parent);
     msgbox.setIcon(UpMessageBox::Warning);
     msgbox.setText(tr("L'installation d'une base Rufus va effacer les données"));
@@ -5008,7 +5001,6 @@ bool Procedures::offrirSauvegardeAvantEffacement(QWidget *parent)
 
 bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
 {
-    qDebug() << "TRACE >>> InitialisationBaseEtDossiers" << NouvelleBaseVierge << Restauration << parent;
     QString login = "", mdp = "";
     UpSmallButton *bAnnuler       = new UpSmallButton(tr("Abandonner"));
     UpSmallButton *bBaseVierge    = new UpSmallButton(tr("Nouvelle base\npatients"));
@@ -5037,7 +5029,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
 
     auto installer = [&]()
     {
-        qDebug() << "TRACE >>> installer, m_protoc =" << m_protoc;
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         QStringList logAdmin;
         bool isserverMySQL = MySQLInstaller::serveurLocalPresent();
@@ -5118,7 +5109,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
             delete installeurMySQL;
             return;
         }
-        qDebug() << "TRACE installer : InstallationRufus faite";
 
         if (m_settings != Q_NULLPTR)
             delete m_settings;
@@ -5127,7 +5117,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         m_settings->setValue(BasePoste + Param_Active, "YES");
         m_settings->setValue(BasePoste + Param_Port, "3306");
 
-        qDebug() << "TRACE installer : avant creerCompteDeSecours";
         MySQLInstaller::creerCompteDeSecours(&dlg);
         if (m_protoc == BaseVierge)
         {
@@ -5149,9 +5138,9 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         Utils::Redemarrage();
     };
 
-    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { qDebug() << "TRACE clicked bAnnuler";       m_protoc = NoBase;         dlg.accept(); });
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { qDebug() << "TRACE clicked bBaseVierge";    m_protoc = BaseVierge;     installer(); });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { qDebug() << "TRACE clicked bBaseExistante"; m_protoc = BaseExistante;  installer();  });
+    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { m_protoc = NoBase;         dlg.accept(); });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { m_protoc = BaseVierge;     installer(); });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { m_protoc = BaseExistante;  installer();  });
     dlg.exec();
 
     return false;
@@ -5165,7 +5154,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
  */
 bool Procedures::InstallationRufus(QWidget *parent)
 {
-    qDebug() << "TRACE >>> InstallationRufus, m_protoc =" << m_protoc;
     const QString dirtorestore = DerniereSauvegardeInstallation();
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
@@ -5416,7 +5404,6 @@ void Procedures::VerifierIni(QWidget *parent)
         });
 
     connect(bPremiere, &QPushButton::clicked, &dlg, [&] {
-        qDebug() << "TRACE appel init depuis 5406 (ReparerIni)";
         InitialisationBaseEtDossiers(true, true, &dlg);
         if (Relectureini()) dlg.accept();
     });
@@ -5465,7 +5452,6 @@ bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool propose
         return false;
     }
     //! s'y connecter se joue dans la saisie des paramètres (ReparerIni), ici on la crée
-    qDebug() << "TRACE appel init depuis 5454 (CreerOuRestaurerBase)";
     return InitialisationBaseEtDossiers(true, proposerRestauration);
 }
 

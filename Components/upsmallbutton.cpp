@@ -132,16 +132,6 @@ UpSmallButton::StyleBouton UpSmallButton::ButtonStyle() const
 
 bool UpSmallButton::eventFilter(QObject *obj, QEvent *event)
 {
-    switch (event->type()) {
-    case QEvent::MouseButtonPress:  case QEvent::MouseButtonRelease:
-    case QEvent::MouseButtonDblClick:
-    case QEvent::KeyPress:          case QEvent::KeyRelease:
-    case QEvent::Shortcut:          case QEvent::ShortcutOverride:
-        qDebug() << "TRACE evt" << event->type() << "sur" << text().replace("\n"," ") << this;
-        break;
-    default: break;
-    }
-
     if (event->type() == QEvent::Enter)
     {
         AfficheToolTip();
@@ -225,12 +215,14 @@ bool UpSmallButton::eventFilter(QObject *obj, QEvent *event)
                 emit clickedint(iD());
         }
     }
-    if (event->type() == QEvent::KeyRelease)
+    //! sur l'appui, jamais le relâchement : entre les deux la fiche s'est fermée et le relâchement
+    //! tombe sur le bouton de la fiche du dessous, qui se déclenche tout seul
+    if (event->type() == QEvent::KeyPress)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if ((keyEvent->key()==Qt::Key_Return  && keyEvent->modifiers() == Qt::NoModifier) || keyEvent->key() == Qt::Key_Enter)
+        if (!keyEvent->isAutoRepeat()
+         && ((keyEvent->key()==Qt::Key_Return  && keyEvent->modifiers() == Qt::NoModifier) || keyEvent->key() == Qt::Key_Enter))
         {
-            qDebug() << "TRACE clicked émis par KeyRelease sur" << text() << this;
             emit clicked(true);
             return true;
         }
