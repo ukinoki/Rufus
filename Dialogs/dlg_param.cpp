@@ -2419,10 +2419,7 @@ void dlg_param::RestaureBase()
     {
         UpMessageBox::Watch(this,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-        ShowMessage::I()->SplashMessage(tr("Redémarrage du programme en cours…"), 3000, true);
-        Utils::Pause(2500);
-        QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-        exit(0);
+        Utils::Redemarrage();
     }
 }
 

@@ -2688,13 +2688,11 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         QString msg;
 
         /*! 2 - détermination des éléments pouvant être restaurés */
-        //qDebug() << dirtorestore.absolutePath() + NOM_FILE_INI;
         if (QFile(dirtorestore.absolutePath() + NOM_FILE_INI).exists())
             OKini = true;
         QDir rootimg = dirtorestore;
         if (rootimg.cdUp())
         {
-            //qDebug() << rootimg.absolutePath() + NOM_DIR_IMAGES;
             if (QDir(rootimg.absolutePath() + NOM_DIR_IMAGES).exists())
                 if (QDir(rootimg.absolutePath() + NOM_DIR_IMAGES).entryList(QDir::Dirs).size()>0)
                     OKImages = true;
@@ -2727,7 +2725,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
             //! Migration AUTOMATIQUE : on restaure UNIQUEMENT la base, sans afficher la boîte
             //! de choix (dont le bouton OK ne s'active qu'au clic d'une case).
             foreach (UpCheckBox *chk, dlg_buprestore->findChildren<UpCheckBox*>())
-                chk->setChecked(chk->objectName() == "base");
+                chk->setChecked(true);
             result = 1;
         }
         else
@@ -2973,15 +2971,12 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         //! AUTOMATIQUE (cheminRestauration fourni), on laisse l'appelant gérer sa propre relance.
         //! Message d'attente NON bloquant (splash 3 s, pas de clic) puis relance automatique : on laisse
         //! le splash s'afficher ~2,5 s (Utils::Pause fait vivre l'UI) avant de quitter.
-        if (result > 0 && cheminRestauration.isEmpty() && !erreurRestauration)
-        {
+        if (result > 0 && !erreurRestauration)
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-            Utils::Redemarrage();
-        }
         if (result > 0)
-            return "";
-        else
             return dirtorestore.absolutePath();
+        else
+            return "";
     }
 }
 
@@ -5159,10 +5154,11 @@ bool Procedures::InstallationRufus(QWidget *parent)
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
     if (m_protoc == BaseExistante)
     {
-        if (RestaureBase(BaseExistante, true, false, parent, dirtorestore) == "")
+        QString pathdirtorestore = RestaureBase(BaseExistante, true, false, parent, dirtorestore);
+        if (pathdirtorestore == "")
             return false;
-        if (!dirtorestore.isEmpty())
-            QDir(dirtorestore).removeRecursively();
+        if (!QDir(pathdirtorestore).isEmpty())
+            QDir(pathdirtorestore).removeRecursively();
         if (!QFile::exists(PATH_FILE_INI))
             PremierParametrageMateriel();
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
@@ -5354,7 +5350,6 @@ void Procedures::VerifierIni(QWidget *parent)
     //! Libellés créés avant le message : celui du bouton y est injecté à la place de « %1 ».
     const bool sauvegardeOK   = sauvegardeIniValide();
     UpSmallButton *bAnnuler   = new UpSmallButton(QObject::tr("Abandonner et\nquitter Rufus"));
-    UpSmallButton *bSaisir    = new UpSmallButton(QObject::tr("Restaurer le fichier Rufus.ini en saisissant\nde nouveau les paramètres de connexion"));
     UpSmallButton *bReseau    = new UpSmallButton(QObject::tr("Installation et connexion d'un poste Rufus\nà une base patients fonctionnelle"));
     UpSmallButton *bPremiere  = new UpSmallButton(QObject::tr("Installation d'une base\npatients Rufus"));
     UpSmallButton *bRestaurer = sauvegardeOK
@@ -5375,7 +5370,6 @@ void Procedures::VerifierIni(QWidget *parent)
                                       "poste : voulez-vous la restaurer ?") + "\n";
 
     bAnnuler ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
-    bSaisir  ->setUpButtonStyle(UpSmallButton::EDITBUTTON);
     bReseau  ->setUpButtonStyle(UpSmallButton::RECEPTIONBUTTON);
     bPremiere->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
     if (bRestaurer)
@@ -5387,7 +5381,7 @@ void Procedures::VerifierIni(QWidget *parent)
     dlg.setIcon(UpMessageBox::Warning);
     dlg.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
     dlg.setInformativeText(msgInfo);
-    for (UpSmallButton *b : {bAnnuler, bSaisir, bReseau, bPremiere, bRestaurer})
+    for (UpSmallButton *b : {bAnnuler, bReseau, bPremiere, bRestaurer})
         if (b)
             dlg.AjouteWidgetLayButtons(b);
 
@@ -5408,18 +5402,17 @@ void Procedures::VerifierIni(QWidget *parent)
         if (Relectureini()) dlg.accept();
     });
 
-    for (UpSmallButton *b : {bSaisir, bReseau})
-        connect(b, &QPushButton::clicked, &dlg, [&] {
-            if (VerifParamConnexion(&dlg))
-            {
-                m_settings->setValue(Param_Poste_Version, m_version);
-                m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
-                UpMessageBox::Watch(&dlg, tr("Rufus.ini reconstruit"),
-                                    tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n"
-                                  + tr("Le lancement de Rufus se poursuit."));
-                if (Relectureini()) dlg.accept();
-            }
-        });
+    connect(bReseau, &QPushButton::clicked, &dlg, [&] {
+        if (VerifParamConnexion(&dlg))
+        {
+            m_settings->setValue(Param_Poste_Version, m_version);
+            m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
+            UpMessageBox::Watch(&dlg, tr("Rufus.ini reconstruit"),
+                                tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n"
+                                + tr("Le lancement de Rufus se poursuit."));
+            if (Relectureini()) dlg.accept();
+        }
+    });
     dlg.exec();
 }
 
