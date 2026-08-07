@@ -143,7 +143,7 @@ void UpDialog::AjouteLayButtons(Buttons Button)
     {
         OupsButton         = new UpSmallButton();
         OupsButton         ->setUpButtonStyle(UpSmallButton::OUPSBUTTON);
-        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - m_nbbuttons, OupsButton);
+        wdg_buttonslayout  ->insertWidget(wdg_buttonslayout->count() - m_nbbuttons, OupsButton);
         m_nbbuttons ++;
     }
     if (Button.testFlag(ButtonClose))
@@ -164,7 +164,7 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         CancelButton        = new UpSmallButton();
         CancelButton        ->setShortcut(QKeySequence(Qt::Key_F12));
         CancelButton        ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
-        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - 1, CancelButton);
+        wdg_buttonslayout   ->insertWidget(1, CancelButton);
         m_nbbuttons ++;
         connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
     }

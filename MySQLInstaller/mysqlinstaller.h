@@ -155,8 +155,8 @@ class MySQLInstaller : public QObject {
 public:
     explicit MySQLInstaller(QWidget* parent = nullptr);   /*!< parent des fiches et messages de l'installeur */
 
-    bool run(const QStringList& log = {});   /*!< point d'entrée synchrone ; log = compte admin déjà éprouvé */
-    QStringList AskMdpLoginMySQL();                     /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide s'il n'y en a pas */
+    bool run(const QStringList& log = {}, bool demandernouvuser = true);   /*!< point d'entrée synchrone ; log = compte admin déjà éprouvé */
+    QStringList FindMdpLoginMySQL();                     /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide s'il n'y en a pas */
     static bool isBaseRufus(const QStringList& log);    /*!< une base Rufus est-elle présente sur ce serveur ? */
 
     QString loginRufus() const { return m_loginRufus; }   /*!< login du futur utilisateur Rufus (vide si run() a échoué) */

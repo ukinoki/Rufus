@@ -1080,7 +1080,7 @@ bool MySQLInstaller::assurerDroitsAdmin()
  * MySQL, sauvegarde de la base Rufus qui s'y trouve, puis réutilisation ou remplacement du serveur.
  * Renvoie true si un MySQL conforme à Rufus est prêt.
  */
-bool MySQLInstaller::run(const QStringList& logAdmin)
+bool MySQLInstaller::run(const QStringList& logAdmin, bool demandernouvuser)
 {
 #if defined(Q_OS_WIN)
     /*! Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et l'installe AVANT toute
@@ -1117,7 +1117,7 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
         return faireCreate(cfg);
     }
 
-    const QStringList log = logAdmin.isEmpty() ? AskMdpLoginMySQL() : logAdmin;
+    const QStringList log = logAdmin.isEmpty() ? FindMdpLoginMySQL() : logAdmin;
 
     //! Serveur récent ET ouvrable : on le garde. Sinon rien n'est réutilisable, on le remplace.
     if (!log.isEmpty() && socleLocalConforme())
@@ -1129,18 +1129,20 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
         return false;
     if (!reinstallerSocleMySQLpourMigration())
         return false;
-    return demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, m_parent);
+    if (demandernouvuser)
+        return demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, m_parent);
+    else return true;
 }
 
 /*!
- * \brief MySQLInstaller::AskMdpLoginMySQL
+ * \brief MySQLInstaller::FindMdpLoginMySQL
  * Compte administrateur du serveur MySQL en place, éprouvé : celui de Rufus s'il ouvre encore le serveur,
  * sinon demandé à l'utilisateur. Liste vide s'il n'en a pas ou renonce.
  */
-QStringList MySQLInstaller::AskMdpLoginMySQL()
+QStringList MySQLInstaller::FindMdpLoginMySQL()
 {
     if (!isServerRunning()) startMySQL();
-    //! adminrufus ouvre déjà ce serveur (base endommagée, réinitialisation) : inutile de demander
+
     if (tryConnectAs(LOGIN_SQL, motDePasseSQL()))
         return QStringList() << motDePasseSQL() << QString(LOGIN_SQL);
 

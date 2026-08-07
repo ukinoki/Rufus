@@ -2626,52 +2626,50 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             if (AutresPostesConnectes())
                  return false;
 
-        QDir dirtorestore;
+        QDir dirtorestore = QDir();
         if (!cheminRestauration.isEmpty())
         {
             //! Mode AUTOMATIQUE (migration de base) : dossier imposé par l'appelant, aucune
             //! interaction (ni choix de dossier ni saisie de mot de passe).
-            dirtorestore = QDir(cheminRestauration);
-            if (!dirtorestore.exists())
-                return false;
+            QDate date = QDate::fromString(QDir(cheminRestauration).dirName().left(8), "yyyyMMdd");
+            QString msgdate = "";
+            if (date.isValid())
+                msgdate = QLocale::system().toString(date, (tr ("d MMM yyyy")));
+            const UpSmallButton::StyleBouton rep = UpMessageBox::Question(parent,
+                                    tr("Choix du dossier de sauvegarde"),
+                                    tr("une sauvegarde automatique") + (msgdate == ""? "": " " + tr("datée du") + " " + msgdate) + "<br/><br/>" +
+                                    tr("Voulez-vous l'utiliser ou choirsir un autre dossier de sauvegarde?"),
+                                    UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                    QStringList() << tr("Choisir une autre sauvegarde") << tr("Utiliser la sauvegarde automatique"));
+            if (rep == UpSmallButton::STARTBUTTON)
+                dirtorestore = QDir(cheminRestauration);
         }
-        else
+        if (dirtorestore == QDir())
         {
             /*! 1 - choix du dossier où se situe la sauvegarde */
             UpMessageBox::Information(parent, tr("Choix du dossier de sauvegarde"),
                                       tr("Dans la fiche suivante, choisissez le dossier "
-                                      "contenant la sauvegarde de la base.") + "<br/><br/>" +
+                                         "contenant la sauvegarde de la base.") + "<br/><br/>" +
                                       tr("Une fois le dossier sélectionné, "
-                                      "la sauvegarde commencera automatiquement.") + "<br/>" +
+                                         "la sauvegarde commencera automatiquement.") + "<br/>" +
                                       tr("Ce processus est long et peut durer plusieurs minutes (environ 1' pour 2 Go)"));
             QString dir = PATH_DIR_RUFUS;
             QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Restaurer à partir du dossier"), QUrl::fromLocalFile(dir));
             if (url == QUrl())
                 return false;
             dirtorestore = QDir(url.path());
-            //! GARDE-FOU : on vérifie que le dossier choisi contient bien TOUS les fichiers d'une
-            //! sauvegarde Rufus complète AVANT d'aller plus loin. Sans ce contrôle, choisir un dossier
-            //! quelconque (sans les .sql) faisait planter la restauration.
-            {
-                const QStringList requis = QStringList()
-                    << "rufus.sql" << "Ophtalmologie.sql" << "Images.sql"
-                    << "ComptaMedicale.sql" << "user.sql" << "Rufus.ini";
-                QStringList manquants;
-                for (const QString &f : requis)
-                    if (!dirtorestore.exists(f))
-                        manquants << f;
-                if (!manquants.isEmpty())
-                {
-                    UpMessageBox::Watch(parent, tr("Dossier de sauvegarde invalide"),
-                        tr("Le dossier choisi ne contient pas une sauvegarde Rufus complète.") + "\n" +
-                        tr("Fichier(s) manquant(s) :") + "\n" + manquants.join(", "));
-                    return false;
-                }
-            }
-            QString mdp("");
-            if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
-                return false;
         }
+        QStringList manquants = QStringList();
+        if (!SauvegardeBaseValide(dirtorestore.absolutePath(), manquants))
+        {
+            QString msg = manquants.size() == 0 ? "" :  "\n" +  tr("Fichier(s) manquant(s) :") + "\n" + manquants.join(", ");
+            UpMessageBox::Watch(parent, tr("Dossier de sauvegarde invalide"),
+                                tr("Le dossier choisi ne contient pas une sauvegarde Rufus complète.") + msg);
+            return false;
+        }
+        QString mdp("");
+        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
+            return false;
 
 
         /*! ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2992,7 +2990,7 @@ QString Procedures::DerniereSauvegardeInstallation()
 {
     QDir dir(PATH_DIR_MIGRATIONMYSQL);
     for (const QString& sub : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time))
-        if (SauvegardeBaseValide(dir.absolutePath() + "/" + sub))
+        if (SauvegardeBaseValide(dir.absolutePath() + "/" + sub, QStringList()))
             return dir.absolutePath() + "/" + sub;
     return "";
 }
@@ -3051,7 +3049,7 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
     //! sous-dossier horodaté que Backup vient de créer
     const QStringList sub = QDir(dossier).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time);
     m_sauvegardeInstallation = sub.isEmpty() ? "" : dossier + "/" + sub.first();
-    if (m_sauvegardeInstallation.isEmpty() || !SauvegardeBaseValide(m_sauvegardeInstallation))
+    if (m_sauvegardeInstallation.isEmpty() || !SauvegardeBaseValide(m_sauvegardeInstallation, QStringList()))
     {
         UpMessageBox::Watch(parent, tr("Sauvegarde incomplète"),
             tr("La sauvegarde de votre base a échoué. Rien n'a été effacé."));
@@ -3068,7 +3066,7 @@ bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpS
 //! Vérifie qu'une sauvegarde de base (mysqldump) dans 'dossier' est complète AVANT toute
 //! destruction : le fichier rufus.sql existe, n'est pas vide, et se termine par la marque
 //! « Dump completed » que mysqldump écrit en fin de fichier réussi.
-bool Procedures::SauvegardeBaseValide(QString dossier)
+bool Procedures::SauvegardeBaseValide(QString dossier, QStringList manquants)
 {
     const QString chemin = dossier + "/" DB_RUFUS ".sql";
     QFileInfo fi(chemin);
@@ -3081,7 +3079,15 @@ bool Procedures::SauvegardeBaseValide(QString dossier)
     f.seek(fi.size() - tailLen);
     const QString fin = QString::fromUtf8(f.read(tailLen));
     f.close();
-    return fin.contains("Dump completed", Qt::CaseInsensitive);
+    if (!fin.contains("Dump completed", Qt::CaseInsensitive))
+        return false;
+    const QStringList requis = QStringList()
+            << "rufus.sql" << "Ophtalmologie.sql" << "Images.sql"
+            << "ComptaMedicale.sql" << "user.sql";
+    for (const QString &f : requis)
+        if (!QDir(dossier).exists(f))
+            manquants << f;
+    return manquants.isEmpty();
 }
 
 /*!
@@ -4976,7 +4982,8 @@ bool Procedures::offrirSauvegardeAvantEffacement(QWidget *parent)
     msgbox.setIcon(UpMessageBox::Warning);
     msgbox.setText(tr("L'installation d'une base Rufus va effacer les données"));
     msgbox.setInformativeText(tr(
-        "Les données déjà présentes sur le serveur MySQL de cet ordinateur seront perdues.\n\n"
+        "Cet ordinateur héberge un serveur MySQL\n\n"
+        "Les données déjà présentes sur ce serveur MySQL seront perdues.\n\n"
         "Rufus sauvegardera une base patients qu'il y trouverait, mais pas d'autres données : "
         "si elles vous importent, renoncez et sauvegardez-les vous-même."));
     UpSmallButton* bArreter   = new UpSmallButton(tr("Annuler, je vais\nsauvegarder les données"));
@@ -4985,34 +4992,6 @@ bool Procedures::offrirSauvegardeAvantEffacement(QWidget *parent)
     msgbox.addButton(bContinuer, UpSmallButton::STARTBUTTON);
     msgbox.exec();
     return msgbox.clickedButton() == bContinuer;
-}
-
-/*!
- * \brief Procedures::offrirSauvegardeBaseRufus
- * Le serveur porte une base Rufus qui va être effacée : proposer de la sauvegarder d'abord.
- * \param log     { mdp, login } d'un compte administrateur MySQL
- * \param parent  fiche appelante
- */
-bool Procedures::offrirSauvegardeBaseRufus(const QStringList& log, QWidget *parent)
-{
-    UpMessageBox msgbox(parent);
-    msgbox.setIcon(UpMessageBox::Quest);
-    msgbox.setText(tr("Une base patients Rufus est présente sur ce serveur"));
-    msgbox.setInformativeText(tr("Elle sera effacée par l'installation.") + "\n\n" +
-                              tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."));
-    UpSmallButton* bAnnuler = new UpSmallButton(tr("Annuler"));
-    UpSmallButton* bEffacer = new UpSmallButton(tr("Non,\neffacer la base"));
-    UpSmallButton* bSauver  = new UpSmallButton(tr("Oui,\nsauvegarder la base"));
-    msgbox.addButton(bAnnuler, UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(bEffacer, UpSmallButton::OUPSBUTTON);
-    msgbox.addButton(bSauver,  UpSmallButton::STARTBUTTON);
-    msgbox.exec();
-
-    if (msgbox.clickedButton() == bEffacer)
-        return true;
-    if (msgbox.clickedButton() != bSauver)
-        return false;
-    return SauvegarderBaseAvantInstallation(log.at(1), log.at(0), parent);
 }
 
 bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
@@ -5039,30 +5018,32 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         dlg.AjouteWidgetLayButtons(bBaseExistante);
     dlg.AjouteWidgetLayButtons(bAnnuler);
 
-    auto installer = [&](bool restaurer) {
+    auto installer = [&](bool restaurer)
+    {
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         QStringList logAdmin;
-        bool baseRufusPresente = false;
         if (MySQLInstaller::serveurLocalPresent())
         {
             if (!offrirSauvegardeAvantEffacement(&dlg))
                 return;
-            logAdmin          = installeurMySQL->AskMdpLoginMySQL();
-            baseRufusPresente = MySQLInstaller::isBaseRufus(logAdmin);
-            if (baseRufusPresente && !offrirSauvegardeBaseRufus(logAdmin, &dlg))
-                return;
+            logAdmin          = installeurMySQL->FindMdpLoginMySQL();
+            if (MySQLInstaller::isBaseRufus(logAdmin))
+            {
+                const UpSmallButton::StyleBouton rep =
+                                        UpMessageBox::Question(&dlg,
+                                            tr("Une base patients Rufus est présente sur ce serveur"),
+                                            tr("Elle sera effacée par l'installation.") + "\n\n" +
+                                            tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."),
+                                            UpDialog::ButtonSuppr | UpDialog::ButtonRecord | UpDialog::ButtonCancel,
+                                            QStringList() << tr("Annuler") << tr("Non,\neffacer la base") << tr("Oui,\nsauvegarder la base"));
+                if (rep == UpSmallButton::CANCELBUTTON)
+                    return;
+                else if (rep == UpSmallButton::RECORDBUTTON)
+                    if (!SauvegarderBaseAvantInstallation(logAdmin.at(1), logAdmin.at(0), &dlg))
+                        return;
+            }
         }
-        if (m_settings != Q_NULLPTR)
-            delete m_settings;
-        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
 
-        if (!installeurMySQL->run(logAdmin))
-            return;
-
-        QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
-        db->setModeacces(Utils::Poste);
-        m_settings->setValue(BasePoste + Param_Active, "YES");
-        m_settings->setValue(BasePoste + Param_Port, "3306");
         if (dirSQLExecutable() == "")
         {
             UpMessageBox::Watch(&dlg, tr("Erreur de connexion"),
@@ -5072,6 +5053,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
             exit(0);
         }
 
+        db->setModeacces(Utils::Poste);
         db->initParametresConnexionSQL("localhost", 3306);
         QString erreurConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
         if (!erreurConnexion.isEmpty())
@@ -5083,26 +5065,34 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         }
         m_connexionbaseOK = true;
 
-        login = installeurMySQL->loginRufus();
-        mdp   = installeurMySQL->mdpRufus();
 
         if (!InstallationRufus(restaurer, &dlg))
         {
             delete installeurMySQL;
             return;
         }
-        m_parametres = db->parametres();
+        if (!installeurMySQL->run(logAdmin, !restaurer))
+            return;
 
-        m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
+        if (m_settings != Q_NULLPTR)
+            delete m_settings;
+        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
+        QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
+        m_settings->setValue(BasePoste + Param_Active, "YES");
+        m_settings->setValue(BasePoste + Param_Port, "3306");
 
         MySQLInstaller::creerCompteDeSecours(&dlg);
-        PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
-        Datas::I()->sites->initListe();
-        CalcLieuExercice();
-        if (Datas::I()->sites->currentsite() == Q_NULLPTR)
-            UpMessageBox::Watch(&dlg,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-        db->setVersion(m_version);
+        if (!restaurer)
+        {
+            m_parametres = db->parametres();
+            login = installeurMySQL->loginRufus();
+            mdp   = installeurMySQL->mdpRufus();
+            m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
+            Datas::I()->sites->initListe();
+            CalcLieuExercice();
+            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+            db->setVersion(m_version);
+        }
         UpMessageBox::Watch(&dlg, tr("Redémarrage nécessaire"),
                               tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
                               tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé") + ".\n" +
@@ -5114,9 +5104,9 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         Utils::Redemarrage();
     };
 
-    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase; dlg.accept(); });
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge;    installer(false); });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] {  protoc = BaseExistante; installer(true);  });
+    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase;         dlg.accept(); });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge;     installer(false); });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { protoc = BaseExistante;  installer(true);  });
     dlg.exec();
 
     return false;
@@ -5130,13 +5120,13 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
  */
 bool Procedures::InstallationRufus(bool restaurer, QWidget *parent)
 {
-    const QString trouvee = DerniereSauvegardeInstallation();
+    const QString dirtorestore = DerniereSauvegardeInstallation();
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
-    if (restaurer && RestaureBase(false, true, false, parent, trouvee))
+    if (restaurer && RestaureBase(false, true, false, parent, dirtorestore))
     {
-        if (!trouvee.isEmpty())
-            QDir(trouvee).removeRecursively();
+        if (!dirtorestore.isEmpty())
+            QDir(dirtorestore).removeRecursively();
         if (!QFile::exists(PATH_FILE_INI))
             PremierParametrageMateriel();
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
