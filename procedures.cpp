@@ -5159,20 +5159,21 @@ bool Procedures::InstallationRufus(QWidget *parent)
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
     if (m_protoc == BaseExistante)
     {
-        if (RestaureBase(BaseExistante, true, false, parent, dirtorestore) != "")
-        {
-            if (!dirtorestore.isEmpty())
-                QDir(dirtorestore).removeRecursively();
-            if (!QFile::exists(PATH_FILE_INI))
-                PremierParametrageMateriel();
-            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-            UpMessageBox::Watch(parent, tr("Base restaurée"),
-                                tr("Votre base patients a été restaurée. Rufus va redémarrer."));
-            Utils::Redemarrage();
-        }
+        if (RestaureBase(BaseExistante, true, false, parent, dirtorestore) == "")
+            return false;
+        if (!dirtorestore.isEmpty())
+            QDir(dirtorestore).removeRecursively();
+        if (!QFile::exists(PATH_FILE_INI))
+            PremierParametrageMateriel();
+        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+        UpMessageBox::Watch(parent, tr("Base restaurée"),
+                            tr("Votre base patients a été restaurée. Rufus va redémarrer."));
+        Utils::Redemarrage();
+        return true;
     }
     else if (m_protoc == BaseVierge)
         return RestaureBase(BaseVierge, true, true, parent) != "";
+    return false;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
