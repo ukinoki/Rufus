@@ -2994,12 +2994,12 @@ QString Procedures::DerniereSauvegardeInstallation()
 }
 
 /*!
- * \brief Procedures::SauvegarderBaseAvantInstallation
+ * \brief Procedures::BackupRufusBaseBeforeInstall
  * Sauvegarde la base Rufus d'un serveur qui va être effacé, dans le dossier figé.
  * \param loginSQL  compte administrateur MySQL du serveur à sauvegarder
  * \param mdpSQL    son mot de passe
  */
-bool Procedures::SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL, QWidget* parent)
+bool Procedures::BackupRufusBaseBeforeInstall(QString loginSQL, QString mdpSQL, QWidget* parent)
 {
     setDirSQLExecutable();
     db      ->setModeacces(Utils::Poste);   /*!< au premier démarrage le mode n'est pas encore posé, et sans lui connectToDataBase refuse */
@@ -3111,7 +3111,7 @@ bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
     if (msgbox.clickedButton() != Maj)
         return false;
 
-    if (!SauvegarderBaseAvantInstallation(LOGIN_SQL, MySQLInstaller::motDePasseSQL()))
+    if (!BackupRufusBaseBeforeInstall(LOGIN_SQL, MySQLInstaller::motDePasseSQL()))
         return false;   //! rien n'a été désinstallé
 
     if (!MySQLInstaller().reinstallerSocleMySQLpourMigration())
@@ -4972,11 +4972,11 @@ int Procedures::idCentre()
 -- Initialisation du poste : serveur MySQL, base vierge ou restaurée, dossiers et paramètres -----------------------
 -----------------------------------------------------------------------------------------------------------------*/
 /*!
- * \brief Procedures::offrirSauvegardeAvantEffacement
+ * \brief Procedures::propBackupMySQLBeforeErase
  * Avertit que les données du serveur vont être effacées ; false = l'utilisateur renonce.
  * \param parent  fiche appelante
  */
-bool Procedures::offrirSauvegardeAvantEffacement(QWidget *parent)
+bool Procedures::propBackupMySQLBeforeErase(QWidget *parent)
 {
     UpMessageBox msgbox(parent);
     msgbox.setIcon(UpMessageBox::Warning);
@@ -4996,7 +4996,6 @@ bool Procedures::offrirSauvegardeAvantEffacement(QWidget *parent)
 
 bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
 {
-    QString login = "", mdp = "";
     UpSmallButton *bAnnuler       = new UpSmallButton(tr("Abandonner"));
     UpSmallButton *bBaseVierge    = new UpSmallButton(tr("Nouvelle base\npatients"));
     UpSmallButton *bBaseExistante = new UpSmallButton(tr("Base patients restaurée\nà partir d'une sauvegarde"));
@@ -5022,14 +5021,14 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         dlg.AjouteWidgetLayButtons(bBaseExistante);
     dlg.AjouteWidgetLayButtons(bAnnuler);
 
-    auto installer = [&]()
+    auto installer = [&](protoc protocole)
     {
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         QStringList logAdmin;
         bool isserverMySQL = MySQLInstaller::serveurLocalPresent();
         if (isserverMySQL)
         {
-            if (!offrirSauvegardeAvantEffacement(&dlg))
+            if (!propBackupMySQLBeforeErase(&dlg))
                 return;
             logAdmin          = installeurMySQL->FindMdpLoginMySQL();
             isserverMySQL     = !logAdmin.isEmpty();
@@ -5045,12 +5044,12 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 if (rep == UpSmallButton::CANCELBUTTON)
                     return;
                 else if (rep == UpSmallButton::RECORDBUTTON)
-                    if (!SauvegarderBaseAvantInstallation(logAdmin.at(1), logAdmin.at(0), &dlg))
+                    if (!BackupRufusBaseBeforeInstall(logAdmin.at(1), logAdmin.at(0), &dlg))
                         return;
             }
         }
         QString login(""), mdp("");
-        bool serverconfigured = false;
+        bool serverconfigured = false;          //! serveurconfigured = un serveur est installé et il est paramétré
         if (!isserverMySQL)
         {
             if (!installeurMySQL->run())        //! il n'y a pas de serveur ou on a perdu les identifiants -> installation et paramétrage d'un serveur neuf
@@ -5083,7 +5082,28 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         }
         m_connexionbaseOK = true;
 
-        if (m_protoc == BaseVierge)
+        if (!serverconfigured && !installeurMySQL->run(logAdmin))        //! paramétrage du serveur
+        {
+            delete installeurMySQL;
+            return;
+        }
+
+        //! Tout est OK concernant le serveur -> on passe à la création/restauration de la table
+
+
+        if (m_settings != Q_NULLPTR)
+            delete m_settings;
+        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
+
+        if (!InstallationRufus(&dlg))                                   //!< Restauration de la base (vierge ou existante suivant la valeur de m_protoc)
+        {
+            delete installeurMySQL;
+            return;
+        }
+
+        //! on crée un rufus.ini minimal pour que la restauration puisse se lancer au cas où elle n'en incoroporerait pas un valide
+
+        if (protocole == BaseVierge)                                     //! si on crée une base vierge, on demande les identifiants du premier utilisateur et on paramètre le premier utilisateur et le reste
         {
             if (!Utils::SaisirNouvelUtilisateur(login, mdp, &dlg))
             {
@@ -5093,28 +5113,9 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 delete installeurMySQL;
                 return;
             }
-        }
-        if (!serverconfigured && !installeurMySQL->run(logAdmin))        //! paramétrage du serveur
-        {
-            delete installeurMySQL;
-            return;
-        }
-        if (!InstallationRufus(&dlg))               //!< Restauration de la base
-        {
-            delete installeurMySQL;
-            return;
-        }
-
-        if (m_settings != Q_NULLPTR)
-            delete m_settings;
-        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-        QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
-        m_settings->setValue(BasePoste + Param_Active, "YES");
-        m_settings->setValue(BasePoste + Param_Port, "3306");
-
-        MySQLInstaller::creerCompteDeSecours(&dlg);
-        if (m_protoc == BaseVierge)
-        {
+            QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
+            m_settings->setValue(BasePoste + Param_Active, "YES");
+            m_settings->setValue(BasePoste + Param_Port, "3306");
             m_parametres = db->parametres();
             m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
             Datas::I()->sites->initListe();
@@ -5122,6 +5123,9 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
             db->setVersion(m_version);
         }
+        //! le serveur et la base rufus et , le fichier rufus.ini et les dossiers sont en place, on crée le comte de secours et on redémarre
+
+        MySQLInstaller::creerCompteDeSecours(&dlg);
         UpMessageBox::Watch(&dlg, tr("Redémarrage nécessaire"),
                               tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
                               tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé") + ".\n" +
@@ -5133,9 +5137,9 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         Utils::Redemarrage();
     };
 
-    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { m_protoc = NoBase;         dlg.accept(); });
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { m_protoc = BaseVierge;     installer(); });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { m_protoc = BaseExistante;  installer();  });
+    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { m_protoc = NoBase;         dlg.accept();});
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { m_protoc = BaseVierge;     installer(BaseVierge);    });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { m_protoc = BaseExistante;  installer(BaseExistante); });
     dlg.exec();
 
     return false;
@@ -5162,6 +5166,18 @@ bool Procedures::InstallationRufus(QWidget *parent)
         if (!QFile::exists(PATH_FILE_INI))
             PremierParametrageMateriel();
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+
+        //! on vérifie que le Rufus.ini récupéré est exploitable et sion, on en crée un minimal
+        QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
+        m_settings->setValue(BasePoste + Param_Active, "YES");
+        m_settings->setValue(BasePoste + Param_Port, "3306");
+        if (!QFile::exists(PATH_FILE_INI) && !iniContientModeValide(*m_settings))
+        {
+            QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
+            m_settings->setValue(BasePoste + Param_Active, "YES");
+            m_settings->setValue(BasePoste + Param_Port, "3306");
+        }
+
         UpMessageBox::Watch(parent, tr("Base restaurée"),
                             tr("Votre base patients a été restaurée. Rufus va redémarrer."));
         Utils::Redemarrage();

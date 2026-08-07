@@ -120,7 +120,7 @@ private:
     QString                 m_sauvegardeInstallation = "";                              //! dossier de la sauvegarde faite avant d'effacer le serveur (hors dossier figé si le disque manquait de place)
     bool                    EprouverConnexionApresSaisie(QWidget *parent = Q_NULLPTR);  //! après reconstruction de Rufus.ini : mot de passe du cabinet, à défaut le générique
     void                    VerifierIni(QWidget *parent = nullptr);                                              //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable
-    bool                    offrirSauvegardeAvantEffacement(QWidget *parent = Q_NULLPTR);   //! prévient que les données du serveur vont disparaître ; false = renoncer
+    bool                    propBackupMySQLBeforeErase(QWidget *parent = Q_NULLPTR);   //! prévient que les données du serveur vont disparaître ; false = renoncer
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
                                     bool proposerRestauration = false,
                                     QWidget *parent = nullptr);
@@ -175,7 +175,7 @@ private:
     bool                    InstallationRufus(QWidget *parent = Q_NULLPTR);   //! crée la base du poste : restauration d'une sauvegarde, sinon base vierge
 public:
     enum protoc {BaseExistante, BaseVierge, NoBase};
-    bool                    SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL, QWidget* parent = Q_NULLPTR);   //! dump de la base Rufus du serveur qui va être effacé, avec un compte admin MySQL
+    bool                    BackupRufusBaseBeforeInstall(QString loginSQL, QString mdpSQL, QWidget* parent = Q_NULLPTR);   //! dump de la base Rufus du serveur qui va être effacé, avec un compte admin MySQL
     void                    setProtocoleRestauration(protoc protocole = BaseVierge) {m_protoc = protocole;};
 /*! fin première connection -------------------------------------------------------------------------------------------------------- */
 
