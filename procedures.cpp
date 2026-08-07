@@ -5021,7 +5021,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         dlg.AjouteWidgetLayButtons(bBaseExistante);
     dlg.AjouteWidgetLayButtons(bAnnuler);
 
-    auto installer = [&](protoc protocole)
+    auto installer = [&]()
     {
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         QStringList logAdmin;
@@ -5103,7 +5103,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
 
         //! on crée un rufus.ini minimal pour que la restauration puisse se lancer au cas où elle n'en incoroporerait pas un valide
 
-        if (protocole == BaseVierge)                                     //! si on crée une base vierge, on demande les identifiants du premier utilisateur et on paramètre le premier utilisateur et le reste
+        if (m_protoc == BaseVierge)                                     //! si on crée une base vierge, on demande les identifiants du premier utilisateur et on paramètre le premier utilisateur et le reste
         {
             if (!Utils::SaisirNouvelUtilisateur(login, mdp, &dlg))
             {
@@ -5138,8 +5138,8 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
     };
 
     connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { m_protoc = NoBase;         dlg.accept();});
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { m_protoc = BaseVierge;     installer(BaseVierge);    });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { m_protoc = BaseExistante;  installer(BaseExistante); });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { m_protoc = BaseVierge;     installer();    });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { m_protoc = BaseExistante;  installer(); });
     dlg.exec();
 
     return false;
