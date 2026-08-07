@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "upmessagebox.h"
+#include <QPainter>
 #include <QScreen>
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -93,6 +94,15 @@ UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
 
 UpMessageBox::~UpMessageBox()
 {
+}
+
+//! Sans cadre natif, la boîte ne se détache pas de la fiche du dessous.
+void UpMessageBox::paintEvent(QPaintEvent *event)
+{
+    UpDialog::paintEvent(event);
+    QPainter peintre(this);
+    peintre .setPen(QPen(QColor(120,120,120), 2));
+    peintre .drawRect(rect().adjusted(1, 1, -1, -1));
 }
 
 void UpMessageBox::addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton Style)

@@ -35,8 +35,6 @@ public:
         QString border = "border-image: url(://wallpaper.jpg)";
         QString style =
                 "QDialog{" + border + "}"
-                //! sans cadre natif, une boîte de message ne se détache pas de la fiche du dessous
-                "UpMessageBox{border: 2px solid rgb(120,120,120); border-radius: 6px;}"
                 "QGroupBox{font:bold;}"
                 "QLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 5px;}"
                 "QLineEdit:focus {border: 1px solid rgb(164, 205, 255);border-radius: 5px;}"

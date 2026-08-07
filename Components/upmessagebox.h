@@ -50,6 +50,10 @@ public:
     void                                setInformativeText(QString);
     void                                setDefaultButton(QPushButton*);
 
+protected:
+    //! le border-image du fond occupe la boîte de bordure : le cadre se peint à la main.
+    void            paintEvent(QPaintEvent *event) override;
+
 private:
     static UpSmallButton::StyleBouton   ExecMsgBox(UpMessageBox*msgbox);
     UpLabel         *wdg_iconlbl, *wdg_texteditlbl, *wdg_infolbl;
