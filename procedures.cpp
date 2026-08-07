@@ -5060,11 +5060,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 return;
             }
             else
-            {
-                login = installeurMySQL->loginRufus();
-                mdp = installeurMySQL->mdpRufus();
                 serverconfigured = true;
-            }
         }
 
         if (dirSQLExecutable() == "")
@@ -5088,7 +5084,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         }
         m_connexionbaseOK = true;
 
-        if (m_protoc == BaseVierge && !serverconfigured)
+        if (m_protoc == BaseVierge)
         {
             if (!Utils::SaisirNouvelUtilisateur(login, mdp, &dlg))
             {

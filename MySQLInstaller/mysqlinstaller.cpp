@@ -1418,40 +1418,24 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     m_dialog->exec();
     if (!configReussie) { cleanupDialog(); return false; }
 
-    /*! Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche d'installation
-     *  (avec sa checklist) puis on ouvre une petite fiche dédiée — plus de cases sans rapport. */
     cleanupDialog();
-    //if (!Utils::SaisirNouvelUtilisateur(m_loginRufus, m_mdpRufus, m_parent))
-    //    return false;
-
     return true;
 }
 
 /*!
  * \brief MySQLInstaller::faireCreate
- * Chemin « création » : MySQL absent (ou trop vieux après nettoyage). Saisie du futur utilisateur Rufus,
- * installation de MySQL, création d'adminrufus (root/pkexec) puis configuration. true si la base Rufus
- * est prête.
+ * Chemin « création » : MySQL absent (ou trop vieux après nettoyage). Installation de MySQL, création
+ * d'adminrufus (root/pkexec) puis configuration. true si la base Rufus est prête.
  * \param cfg  config distante (version cible, seuil, URLs de téléchargement)
  */
 bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerCreateUserRufus(cfg.minVersion);
-    m_dialog->show();
-    QApplication::processEvents();
+    m_dialog->masquerSaisieUtilisateur();   /*!< l'utilisateur Rufus est saisi par l'appelant */
 
-    /*! Saisie du futur utilisateur applicatif Rufus. */
-    forever {
-        if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
-        if (m_dialog->validerSaisie()) break;
-    }
-    m_loginRufus = m_dialog->login();
-    m_mdpRufus   = m_dialog->password();
-
-    /*! Le login/mdp Rufus est choisi : la fiche passe en « paramétrage en cours » (champs grisés, plus de
-     *  bouton OK). Installation puis config SANS clic — seule une éventuelle saisie du code administrateur
-     *  (élévation système) peut être demandée. On la ré-affiche pour que la checklist se coche visiblement. */
+    /*! Fiche en « paramétrage en cours » : installation puis config SANS clic — seule une éventuelle saisie
+     *  du code administrateur (élévation système) peut être demandée. */
     m_dialog->passerEnConfiguration(
         tr("Installation de MySQL"),
         tr("Téléchargement et installation du serveur MySQL en cours…"));

@@ -159,9 +159,6 @@ public:
     QStringList FindMdpLoginMySQL();                     /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide s'il n'y en a pas */
     static bool isBaseRufus(const QStringList& log);    /*!< une base Rufus est-elle présente sur ce serveur ? */
 
-    QString loginRufus() const { return m_loginRufus; }   /*!< login du futur utilisateur Rufus (vide si run() a échoué) */
-    QString mdpRufus()   const { return m_mdpRufus; }     /*!< son mot de passe EN CLAIR */
-
     /*! ── Mot de passe aléatoire / .dbkey (helpers statiques) ─────────────────────────────────────────── */
     static QString     genererMotDePasse();                                                    /*!< mot de passe aléatoire fort (12 car., [A-Za-z0-9]) */
     static QString     motDePasseSQL();                                                        /*!< mdp du mode courant (.dbkey), repli gaxt78iy ; caché, sans UI */
@@ -246,8 +243,6 @@ private:
     QString                       m_password;                                /*!< mot de passe aléatoire d'adminrufus */
     QString                       m_createUserErr;                           /*!< sortie SQL du dernier createUser() échoué (diag) */
     QString                       m_secureFilePrivErr;                       /*!< diagnostic du dernier ensureSecureFilePriv() échoué */
-    QString                       m_loginRufus;                              /*!< login du futur utilisateur Rufus (saisi) */
-    QString                       m_mdpRufus;                                /*!< son mot de passe EN CLAIR (saisi) */
     QString                       m_brewPrefix;                              /*!< préfixe Homebrew (cache) */
     QWidget*                      m_parent = nullptr;        /*!< fiche appelante : parent de toutes les fenêtres de l'installeur */
     MySQLInstallerDialog*         m_dialog = nullptr;                        /*!< la fiche de l'installeur */
