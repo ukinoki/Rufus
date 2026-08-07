@@ -5095,12 +5095,12 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 return;
             }
         }
-        if (!InstallationRufus(&dlg))               //!< Restauration de la base
+        if (!serverconfigured && !installeurMySQL->run(logAdmin))        //! paramétrage du serveur
         {
             delete installeurMySQL;
             return;
         }
-        if (!serverconfigured && !installeurMySQL->run(logAdmin))        //!
+        if (!InstallationRufus(&dlg))               //!< Restauration de la base
         {
             delete installeurMySQL;
             return;
