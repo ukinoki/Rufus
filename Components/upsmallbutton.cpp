@@ -132,6 +132,16 @@ UpSmallButton::StyleBouton UpSmallButton::ButtonStyle() const
 
 bool UpSmallButton::eventFilter(QObject *obj, QEvent *event)
 {
+    switch (event->type()) {
+    case QEvent::MouseButtonPress:  case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::KeyPress:          case QEvent::KeyRelease:
+    case QEvent::Shortcut:          case QEvent::ShortcutOverride:
+        qDebug() << "TRACE evt" << event->type() << "sur" << text().replace("\n"," ") << this;
+        break;
+    default: break;
+    }
+
     if (event->type() == QEvent::Enter)
     {
         AfficheToolTip();

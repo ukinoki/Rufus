@@ -5149,9 +5149,9 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         Utils::Redemarrage();
     };
 
-    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { m_protoc = NoBase;         dlg.accept(); });
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { m_protoc = BaseVierge;     installer(); });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { m_protoc = BaseExistante;  installer();  });
+    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { qDebug() << "TRACE clicked bAnnuler";       m_protoc = NoBase;         dlg.accept(); });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { qDebug() << "TRACE clicked bBaseVierge";    m_protoc = BaseVierge;     installer(); });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { qDebug() << "TRACE clicked bBaseExistante"; m_protoc = BaseExistante;  installer();  });
     dlg.exec();
 
     return false;
