@@ -51,6 +51,15 @@ Un principe ne se déclenche pas au bon moment ; un compteur, si. Donc, concret 
    une intuition. Cas d'école : la taille de la signature à l'impression — cinq
    suppositions successives sur le DPI/`QTextDocument` ratées, réglées d'un coup
    en lisant les matrices du PDF et un `qDebug` du rendu.
+5. **UNE hypothèse, puis on trace.** Corollaire comptable du point 4, parce que
+   « mesurer plutôt que conjecturer » ne se déclenche jamais tout seul : on a
+   droit à **une** hypothèse. Si elle ne tombe pas juste, on n'en propose pas une
+   deuxième — on **pose les `qDebug`**. Lire le code plus longtemps ne remplace
+   pas une trace : le code dit ce qu'il fait, pas ce qui s'est passé.
+   Cas d'école : le bouton qui relançait l'installation en boucle — quatre
+   hypothèses (bouton par défaut, clic égaré, fonction ré-entrée, lambda
+   pendante) toutes fausses, et douze `qDebug` ont nommé la cause en deux essais
+   (Entrée déclenchait sur le relâchement, qui retombait sur la fiche du dessous).
 
 > Cette règle est si souvent enfreinte qu'un *hook* (`.claude/settings.json`) la
 > réinjecte à chaque tour : le document seul ne suffisait pas.
