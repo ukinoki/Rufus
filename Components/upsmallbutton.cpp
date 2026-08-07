@@ -220,6 +220,7 @@ bool UpSmallButton::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if ((keyEvent->key()==Qt::Key_Return  && keyEvent->modifiers() == Qt::NoModifier) || keyEvent->key() == Qt::Key_Enter)
         {
+            qDebug() << "TRACE clicked émis par KeyRelease sur" << text() << this;
             emit clicked(true);
             return true;
         }
