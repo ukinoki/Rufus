@@ -171,6 +171,43 @@ void UpDialog::AjouteLayButtons(Buttons Button)
     UpdateTabOrder();
 }
 
+bool UpDialog::event(QEvent *event)
+{
+    if (event->type() == QEvent::WindowBlocked)
+        montreVoile(true);
+    else if (event->type() == QEvent::WindowUnblocked)
+        montreVoile(false);
+    else if (event->type() == QEvent::Resize && m_voile && m_voile->isVisible())
+        m_voile->setGeometry(rect());
+    return QDialog::event(event);
+}
+
+/*!
+ * \brief UpDialog::montreVoile
+ * Assombrit la fiche tant qu'une fille modale la bloque ; sans lui, une fiche sans bordure ne se
+ * distingue pas de celle qui la recouvre.
+ * \param actif  voile affiché ou masqué
+ */
+void UpDialog::montreVoile(bool actif)
+{
+    if (!actif)
+    {
+        if (m_voile)
+            m_voile->hide();
+        return;
+    }
+    if (!m_voile)
+    {
+        m_voile = new QWidget(this);
+        m_voile ->setAttribute(Qt::WA_StyledBackground, true);          //! sinon la feuille de style ne peint rien
+        m_voile ->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+        m_voile ->setStyleSheet("background-color: rgba(0, 0, 0, 38);");
+    }
+    m_voile     ->setGeometry(rect());
+    m_voile     ->show();
+    m_voile     ->raise();
+}
+
 void UpDialog::showEvent(QShowEvent *event)
 {
     QDialog::showEvent(event);

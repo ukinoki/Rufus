@@ -78,6 +78,7 @@ private:
     UpLineEdit      *wdg_chercheuplineedit;
     QRect           m_originalgeometry      = QRect();
     Buttons         m_Buttons               = NoButton;
+    QWidget         *m_voile                = Q_NULLPTR;    /*!< voile sombre, créé au premier blocage */
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton, *PdfButton, *OupsButton;
@@ -129,8 +130,12 @@ protected:
     //! À l'affichage, on aligne la hauteur des boutons de la rangée (cf. uniformiserHauteurBoutons).
     void            showEvent(QShowEvent *event) override;
 
+    //! WindowBlocked/WindowUnblocked pilotent le voile (cf. montreVoile).
+    bool            event(QEvent *event) override;
+
 private:
     int             stageheight() const;
+    void            montreVoile(bool actif);                            //! assombrit la fiche tant qu'une fille modale la bloque
     void            addnbbuttons(int add = 1) { m_nbbuttons += add;}
     //! Aligne tous les UpSmallButton de la rangée sur le PLUS HAUT. Corrige le défaut historique où un
     //! bouton avec texte (hauteur 45) et un bouton à icône seule (hauteur 35) n'étaient pas à la même
