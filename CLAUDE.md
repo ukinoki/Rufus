@@ -56,6 +56,10 @@ Un principe ne se déclenche pas au bon moment ; un compteur, si. Donc, concret 
    droit à **une** hypothèse. Si elle ne tombe pas juste, on n'en propose pas une
    deuxième — on **pose les `qDebug`**. Lire le code plus longtemps ne remplace
    pas une trace : le code dit ce qu'il fait, pas ce qui s'est passé.
+   Corollaire : **une absence n'est une preuve que si l'instrument était en
+   place**. Avant de conclure « ce n'est pas ça » parce qu'une trace n'apparaît
+   pas, vérifier qu'elle était bien dans le binaire exécuté et qu'elle aurait
+   parlé.
    Cas d'école : le bouton qui relançait l'installation en boucle — quatre
    hypothèses (bouton par défaut, clic égaré, fonction ré-entrée, lambda
    pendante) toutes fausses, et douze `qDebug` ont nommé la cause en deux essais
