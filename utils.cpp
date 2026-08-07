@@ -1073,6 +1073,92 @@ bool Utils::SaisirAdresseIP(QString Msg, QString &ip, QWidget *parent)
     return true;
 }
 
+/*!
+ * \brief Utils::SaisirNouvelUtilisateur
+ * Recueille l'identifiant du futur utilisateur Rufus et son mot de passe, saisi deux fois.
+ * \param login   identifiant saisi
+ * \param mdp     mot de passe saisi
+ * \param parent  fenêtre parente
+ */
+bool Utils::SaisirNouvelUtilisateur(QString &login, QString &mdp, QWidget *parent)
+{
+    /*! Design repris de dlg_gestionusers::CreerUser() */
+    UpDialog dlg(parent);
+    dlg.setWindowModality(Qt::WindowModal);
+    dlg.setFixedSize(300, 300);
+    dlg.setWindowTitle("");
+
+    UpLabel*    label  = new UpLabel();
+    UpLabel*    label2 = new UpLabel();
+    UpLabel*    label3 = new UpLabel();
+    UpLineEdit* Line   = new UpLineEdit();
+    UpLineEdit* Line2  = new UpLineEdit();
+    UpLineEdit* Line3  = new UpLineEdit();
+
+    Line  ->setValidator(new QRegularExpressionValidator(rgx_AlphaNumeric_5_15, &dlg));
+    Line2 ->setValidator(new QRegularExpressionValidator(rgx_AlphaNumeric_5_12, &dlg));
+    Line3 ->setValidator(new QRegularExpressionValidator(rgx_AlphaNumeric_5_12, &dlg));
+    Line  ->setAlignment(Qt::AlignCenter);
+    Line2 ->setAlignment(Qt::AlignCenter);
+    Line3 ->setAlignment(Qt::AlignCenter);
+    Line  ->setMaxLength(15);
+    Line2 ->setMaxLength(12);
+    Line3 ->setMaxLength(12);
+    Line  ->setFixedHeight(20);
+    Line2 ->setFixedHeight(20);
+    Line3 ->setFixedHeight(20);
+    Line2 ->setEchoMode(QLineEdit::Password);
+    Line3 ->setEchoMode(QLineEdit::Password);
+    label  ->setMinimumHeight(46);
+    label2 ->setMinimumHeight(46);
+    label3 ->setFixedHeight(16);
+    label  ->setAlignment(Qt::AlignCenter);
+    label2 ->setAlignment(Qt::AlignCenter);
+    label3 ->setAlignment(Qt::AlignCenter);
+
+    label  ->setText(QObject::tr("Choisissez un login pour le nouvel utilisateur\n- mini 5 maxi 15 caractères -\n- pas de caractères spéciaux ou accentués -"));
+    label2 ->setText(QObject::tr("Choisissez un mot de passe\n- mini 5 maxi 12 caractères -\n- pas de caractères spéciaux ou accentués -"));
+    label3 ->setText(QObject::tr("Confirmez le mot de passe"));
+
+    QVBoxLayout* lay = new QVBoxLayout();
+    lay ->setContentsMargins(5, 5, 5, 5);
+    lay ->setSpacing(5);
+    lay ->addWidget(label);
+    lay ->addWidget(Line);
+    lay ->addWidget(label2);
+    lay ->addWidget(Line2);
+    lay ->addWidget(label3);
+    lay ->addWidget(Line3);
+    lay ->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
+
+    dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    QObject::connect(dlg.OKButton,     &UpSmallButton::clicked, &dlg, &UpDialog::accept);
+    QObject::connect(dlg.CancelButton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
+
+    dlg.dlglayout()->insertLayout(0, lay);   /*!< contenu AU-DESSUS de la barre de boutons */
+    Line->setFocus();
+
+    forever {
+        if (dlg.exec() != QDialog::Accepted)
+            return false;
+        const QString identifiant = Line->text().trimmed();
+        const QString motdepasse  = Line2->text();
+        if (identifiant.isEmpty() || motdepasse.isEmpty()) {
+            UpMessageBox::Watch(&dlg, QObject::tr("Saisie incomplète"),
+                QObject::tr("Veuillez renseigner un identifiant et un mot de passe."));
+            continue;
+        }
+        if (motdepasse != Line3->text()) {
+            UpMessageBox::Watch(&dlg, QObject::tr("Mots de passe différents"),
+                QObject::tr("Le mot de passe et sa confirmation ne correspondent pas."));
+            continue;
+        }
+        login = identifiant;
+        mdp   = motdepasse;
+        return true;
+    }
+}
+
  bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified, QWidget *parent)
 {
     if (mdpverified)

@@ -46,7 +46,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "database.h"           /*!< DataBase::I()->ModeAccesDataBase() : mode de connexion courant */
 #include "procedures.h"         /*!< SauvegarderBaseAvantInstallation() : le dump vit du côté de Procedures */
 
-static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, QWidget* parent);
 
 #if defined(Q_OS_WIN)
 #  define WIN32_LEAN_AND_MEAN
@@ -1130,7 +1129,7 @@ bool MySQLInstaller::run(const QStringList& logAdmin, bool demandernouvuser)
     if (!reinstallerSocleMySQLpourMigration())
         return false;
     if (demandernouvuser)
-        return demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, m_parent);
+        return Utils::SaisirNouvelUtilisateur(m_loginRufus, m_mdpRufus, m_parent);
     else return true;
 }
 
@@ -1339,95 +1338,6 @@ static void avertirSuppressionGaxt78iyEffectuee(QWidget *parent = nullptr)
 }
 
 /*!
- * \brief demanderNouvelUtilisateurRufus
- * Petite fiche DÉDIÉE à la saisie du futur utilisateur Rufus (identifiant / mot de passe / confirmation),
- * après la (ré)installation. On n'utilise PAS MySQLInstallerDialog (sa checklist n'a plus de sens ici).
- * true si validé.
- * \param outLogin  reçoit l'identifiant saisi
- * \param outMdp    reçoit le mot de passe saisi
- * \param parent    fenêtre parente
- */
-static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, QWidget* parent)
-{
-    /*! Design repris de dlg_gestionusers::CreerUser() : libellés explicatifs centrés au-dessus de chaque
-     *  champ (login / mot de passe / confirmation), champs centrés, mots de passe masqués. */
-    UpDialog dlg(parent);
-    dlg.setWindowModality(Qt::WindowModal);
-    dlg.setFixedSize(300, 300);
-    dlg.setWindowTitle("");
-
-    UpLabel*    label  = new UpLabel();
-    UpLabel*    label2 = new UpLabel();
-    UpLabel*    label3 = new UpLabel();
-    UpLineEdit* Line   = new UpLineEdit();
-    UpLineEdit* Line2  = new UpLineEdit();
-    UpLineEdit* Line3  = new UpLineEdit();
-
-    Line  ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, &dlg));
-    Line2 ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
-    Line3 ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
-    Line  ->setAlignment(Qt::AlignCenter);
-    Line2 ->setAlignment(Qt::AlignCenter);
-    Line3 ->setAlignment(Qt::AlignCenter);
-    Line  ->setMaxLength(15);
-    Line2 ->setMaxLength(12);
-    Line3 ->setMaxLength(12);
-    Line  ->setFixedHeight(20);
-    Line2 ->setFixedHeight(20);
-    Line3 ->setFixedHeight(20);
-    Line2 ->setEchoMode(QLineEdit::Password);
-    Line3 ->setEchoMode(QLineEdit::Password);
-    label  ->setMinimumHeight(46);
-    label2 ->setMinimumHeight(46);
-    label3 ->setFixedHeight(16);
-    label  ->setAlignment(Qt::AlignCenter);
-    label2 ->setAlignment(Qt::AlignCenter);
-    label3 ->setAlignment(Qt::AlignCenter);
-
-    label  ->setText(QObject::tr("Choisissez un login pour le nouvel utilisateur\n- mini 5 maxi 15 caractères -\n- pas de caractères spéciaux ou accentués -"));
-    label2 ->setText(QObject::tr("Choisissez un mot de passe\n- mini 5 maxi 12 caractères -\n- pas de caractères spéciaux ou accentués -"));
-    label3 ->setText(QObject::tr("Confirmez le mot de passe"));
-
-    QVBoxLayout* lay = new QVBoxLayout();
-    lay ->setContentsMargins(5, 5, 5, 5);
-    lay ->setSpacing(5);
-    lay ->addWidget(label);
-    lay ->addWidget(Line);
-    lay ->addWidget(label2);
-    lay ->addWidget(Line2);
-    lay ->addWidget(label3);
-    lay ->addWidget(Line3);
-    lay ->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
-
-    dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    QObject::connect(dlg.OKButton,     &UpSmallButton::clicked, &dlg, &UpDialog::accept);
-    QObject::connect(dlg.CancelButton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
-
-    dlg.dlglayout()->insertLayout(0, lay);   /*!< contenu AU-DESSUS de la barre de boutons */
-    Line->setFocus();
-
-    forever {
-        if (dlg.exec() != QDialog::Accepted)
-            return false;
-        const QString login = Line->text().trimmed();
-        const QString mdp   = Line2->text();
-        if (login.isEmpty() || mdp.isEmpty()) {
-            UpMessageBox::Watch(&dlg, QObject::tr("Saisie incomplète"),
-                QObject::tr("Veuillez renseigner un identifiant et un mot de passe."));
-            continue;
-        }
-        if (mdp != Line3->text()) {
-            UpMessageBox::Watch(&dlg, QObject::tr("Mots de passe différents"),
-                QObject::tr("Le mot de passe et sa confirmation ne correspondent pas."));
-            continue;
-        }
-        outLogin = login;
-        outMdp   = mdp;
-        return true;
-    }
-}
-
-/*!
  * \brief MySQLInstaller::faireReutiliser
  * RÉUTILISE un MySQL existant compatible (choix Effacer/Conserver) : demande un compte admin MySQL, crée
  * adminrufus/SSL, (option : efface les bases non-Rufus), déroule la config, puis la saisie du futur
@@ -1513,7 +1423,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     /*! Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche d'installation
      *  (avec sa checklist) puis on ouvre une petite fiche dédiée — plus de cases sans rapport. */
     cleanupDialog();
-    if (!demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, m_parent))
+    if (!Utils::SaisirNouvelUtilisateur(m_loginRufus, m_mdpRufus, m_parent))
         return false;
 
     return true;
