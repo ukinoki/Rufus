@@ -2491,7 +2491,7 @@ static int compterTablesFichierSQL(const QString& chemin)
     return n;
 }
 
-bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration)
+QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration)
 {
     UpMessageBox    msgbox(parent);
     UpSmallButton   AnnulBouton;
@@ -2499,7 +2499,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     msgbox.setIcon(UpMessageBox::Warning);
     bool echecfile = true;
 
-    if (BaseVierge)
+    if (protocole == BaseVierge)
     {
         QString Hote;
         if (db->ModeAccesDataBase() == Utils::Poste)
@@ -2516,11 +2516,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
         msgbox.exec();
         if (msgbox.clickedButton() != &OKBouton)
-            return false;
+            return "";
 
         QString mdp("");
         if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
-            return false;
+            return "";
 
         QDir dir(PATH_DIR_RESSOURCES);
         if (!dir.exists())
@@ -2565,7 +2565,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         {
             UpMessageBox::Watch(parent, tr("Impossible d'éxécuter la restauration!"), msg);
             dir.removeRecursively();
-            return false;
+            return "";
         }
         if (!echecfile)
         {
@@ -2607,24 +2607,24 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             {
                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
                 dir.removeRecursively();
-                return false;
+                return "";
             }
             else
             {
                 UpMessageBox::Information(parent, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
                 dir.removeRecursively();
                 emit ConnectTimers(true);
-                return true;
+                return "basevierge";
             }
         }
         dir.removeRecursively();
-        return false;
+        return "";
     }
-    else
+    else if (protocole == BaseExistante)
     {
         if (VerifPostesConnectes)
             if (AutresPostesConnectes())
-                 return false;
+                 return "";
 
         QDir dirtorestore = QDir();
         if (!cheminRestauration.isEmpty())
@@ -2656,7 +2656,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             QString dir = PATH_DIR_RUFUS;
             QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Restaurer à partir du dossier"), QUrl::fromLocalFile(dir));
             if (url == QUrl())
-                return false;
+                return "";
             dirtorestore = QDir(url.path());
         }
         QStringList manquants = QStringList();
@@ -2665,11 +2665,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             QString msg = manquants.size() == 0 ? "" :  "\n" +  tr("Fichier(s) manquant(s) :") + "\n" + manquants.join(", ");
             UpMessageBox::Watch(parent, tr("Dossier de sauvegarde invalide"),
                                 tr("Le dossier choisi ne contient pas une sauvegarde Rufus complète.") + msg);
-            return false;
+            return "";
         }
         QString mdp("");
         if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
-            return false;
+            return "";
 
 
         /*! ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2978,7 +2978,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
             Utils::Redemarrage();
         }
-        return (result > 0);
+        if (result > 0)
+            return "";
+        else
+            return dirtorestore.absolutePath();
     }
 }
 
@@ -3123,7 +3126,7 @@ bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
             tr("Votre sauvegarde est conservée dans :") + "\n" + m_sauvegardeInstallation);
         return false;
     }
-    if (InstallationRufus(true))
+    if (InstallationRufus(parent))
         return true;
 
     //! serveur neuf mais base vide : sans ce rappel, on ne sait plus où est la sauvegarde
@@ -4369,7 +4372,8 @@ bool Procedures::IdentificationUser(QWidget *parent)
             msgbox.exec();
             if( (msgbox.clickedButton() == &RestaureBaseBouton))
             {
-                if (RestaureBase(false,true,false))
+                m_protoc = BaseExistante;
+                if (RestaureBase(BaseExistante, true,false, parent) != "")
                 {
                     Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
                     UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
@@ -4378,7 +4382,8 @@ bool Procedures::IdentificationUser(QWidget *parent)
             }
             else if (msgbox.clickedButton() == &BaseViergeBouton)
             {
-                if (!RestaureBase(true, true))
+                m_protoc = BaseVierge;
+                if (RestaureBase(BaseVierge, true, parent) != "")
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
@@ -5018,16 +5023,18 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         dlg.AjouteWidgetLayButtons(bBaseExistante);
     dlg.AjouteWidgetLayButtons(bAnnuler);
 
-    auto installer = [&](bool restaurer)
+    auto installer = [&]()
     {
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
         QStringList logAdmin;
-        if (MySQLInstaller::serveurLocalPresent())
+        bool isserverMySQL = MySQLInstaller::serveurLocalPresent();
+        if (isserverMySQL)
         {
             if (!offrirSauvegardeAvantEffacement(&dlg))
                 return;
             logAdmin          = installeurMySQL->FindMdpLoginMySQL();
-            if (MySQLInstaller::isBaseRufus(logAdmin))
+            isserverMySQL     = !logAdmin.isEmpty();
+            if (isserverMySQL && MySQLInstaller::isBaseRufus(logAdmin))
             {
                 const UpSmallButton::StyleBouton rep =
                                         UpMessageBox::Question(&dlg,
@@ -5041,6 +5048,22 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 else if (rep == UpSmallButton::RECORDBUTTON)
                     if (!SauvegarderBaseAvantInstallation(logAdmin.at(1), logAdmin.at(0), &dlg))
                         return;
+            }
+        }
+        QString login(""), mdp("");
+        bool serverconfigured = false;
+        if (!isserverMySQL)
+        {
+            if (!installeurMySQL->run())        //! il n'y a pas de serveur ou on a perdu les identifiants -> installation et paramétrage d'un serveur neuf
+            {
+                delete installeurMySQL;
+                return;
+            }
+            else
+            {
+                login = installeurMySQL->loginRufus();
+                mdp = installeurMySQL->mdpRufus();
+                serverconfigured = true;
             }
         }
 
@@ -5065,14 +5088,27 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         }
         m_connexionbaseOK = true;
 
-
-        if (!InstallationRufus(restaurer, &dlg))
+        if (m_protoc == BaseVierge && !serverconfigured)
+        {
+            if (!Utils::SaisirNouvelUtilisateur(login, mdp, &dlg))
+            {
+                UpMessageBox::Watch(&dlg, tr("Erreur de création du compte utilisateur"),
+                                    tr("Impossible de créer un compte utilisateur pour la base patients") + "\n" +
+                                    tr("Le programme ne pourra pas s'intialiser"));
+                delete installeurMySQL;
+                return;
+            }
+        }
+        if (!InstallationRufus(&dlg))               //!< Restauration de la base
         {
             delete installeurMySQL;
             return;
         }
-        if (!installeurMySQL->run(logAdmin, !restaurer))
+        if (!serverconfigured && !installeurMySQL->run(logAdmin))        //!
+        {
+            delete installeurMySQL;
             return;
+        }
 
         if (m_settings != Q_NULLPTR)
             delete m_settings;
@@ -5082,11 +5118,9 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         m_settings->setValue(BasePoste + Param_Port, "3306");
 
         MySQLInstaller::creerCompteDeSecours(&dlg);
-        if (!restaurer)
+        if (m_protoc == BaseVierge)
         {
             m_parametres = db->parametres();
-            login = installeurMySQL->loginRufus();
-            mdp   = installeurMySQL->mdpRufus();
             m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
             Datas::I()->sites->initListe();
             CalcLieuExercice();
@@ -5104,9 +5138,9 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         Utils::Redemarrage();
     };
 
-    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { protoc = NoBase;         dlg.accept(); });
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { protoc = BaseVierge;     installer(false); });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { protoc = BaseExistante;  installer(true);  });
+    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { m_protoc = NoBase;         dlg.accept(); });
+    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { m_protoc = BaseVierge;     installer(); });
+    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { m_protoc = BaseExistante;  installer();  });
     dlg.exec();
 
     return false;
@@ -5118,23 +5152,27 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
  * \param restaurer  restaurer une sauvegarde plutôt que de créer une base vierge
  * \param parent     fiche appelante
  */
-bool Procedures::InstallationRufus(bool restaurer, QWidget *parent)
+bool Procedures::InstallationRufus(QWidget *parent)
 {
     const QString dirtorestore = DerniereSauvegardeInstallation();
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
-    if (restaurer && RestaureBase(false, true, false, parent, dirtorestore))
+    if (m_protoc == BaseExistante)
     {
-        if (!dirtorestore.isEmpty())
-            QDir(dirtorestore).removeRecursively();
-        if (!QFile::exists(PATH_FILE_INI))
-            PremierParametrageMateriel();
-        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-        UpMessageBox::Watch(parent, tr("Base restaurée"),
-            tr("Votre base patients a été restaurée. Rufus va redémarrer."));
-        Utils::Redemarrage();
+        if (RestaureBase(BaseExistante, true, false, parent, dirtorestore) != "")
+        {
+            if (!dirtorestore.isEmpty())
+                QDir(dirtorestore).removeRecursively();
+            if (!QFile::exists(PATH_FILE_INI))
+                PremierParametrageMateriel();
+            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+            UpMessageBox::Watch(parent, tr("Base restaurée"),
+                                tr("Votre base patients a été restaurée. Rufus va redémarrer."));
+            Utils::Redemarrage();
+        }
     }
-    return RestaureBase(true, true, true, parent);
+    else if (m_protoc == BaseVierge)
+        return RestaureBase(BaseVierge, true, true, parent) != "";
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -5200,21 +5238,18 @@ void Procedures::PremierParametrageMateriel()
     //!                                         Rufus.ini                   <- param file of Rufus on this post
 
 
-    if (protoc == BaseVierge)
-    {
-        /*! Dossiers du serveur : ouverts à tous dès la création, sinon les autres postes n'y écrivent pas
+    /*! Dossiers du serveur : ouverts à tous dès la création, sinon les autres postes n'y écrivent pas
          *  et mysql ne peut pas les traverser (cf. Utils::rendDossierAccessibleAuServeurSQL). */
-        const QString       dirimagerie = db->dirimagerie();
-        const QStringList   sousdossiers = { NOM_DIR_IMAGES,     NOM_DIR_DOSSIERECHANGEIMAGERIE,
-                                             NOM_DIR_ECHECSTRANSFERTS, NOM_DIR_FACTURES,
-                                             NOM_DIR_FACTURESSANSLIEN, NOM_DIR_ORIGINAUX,
-                                             NOM_DIR_ORIGINAUX NOM_DIR_FACTURES,
-                                             NOM_DIR_ORIGINAUX NOM_DIR_IMAGES, NOM_DIR_VIDEOS };
-        for (const QString &sousdossier : sousdossiers)
-        {
-            Utils::mkpath(dirimagerie + sousdossier);
-            Utils::rendDossierAccessibleAuServeurSQL(dirimagerie + sousdossier);
-        }
+    const QString       dirimagerie = db->dirimagerie();
+    const QStringList   sousdossiers = { NOM_DIR_IMAGES,     NOM_DIR_DOSSIERECHANGEIMAGERIE,
+                                         NOM_DIR_ECHECSTRANSFERTS, NOM_DIR_FACTURES,
+                                         NOM_DIR_FACTURESSANSLIEN, NOM_DIR_ORIGINAUX,
+                                         NOM_DIR_ORIGINAUX NOM_DIR_FACTURES,
+                                         NOM_DIR_ORIGINAUX NOM_DIR_IMAGES, NOM_DIR_VIDEOS };
+    for (const QString &sousdossier : sousdossiers)
+    {
+        Utils::mkpath(dirimagerie + sousdossier);
+        Utils::rendDossierAccessibleAuServeurSQL(dirimagerie + sousdossier);
     }
 
     Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_AUTOREF);
@@ -5407,7 +5442,7 @@ bool Procedures::CreerOuRestaurerBase(QString msg, QString msgInfo, bool propose
         exit(0);
     if (msgbox->clickedButton() == &RestaureBaseBouton)
     {
-        if (RestaureBase(false, false, true, Q_NULLPTR))
+        if (RestaureBase(BaseExistante, false, true, parent) != "")
         {
             UpMessageBox::Watch(parent, tr("Base restaurée"),
                                 tr("La base de données a été restaurée. Rufus va redémarrer."));

@@ -809,14 +809,14 @@ MySQLRemoteConfig MySQLInstaller::fetchRemoteConfig()
         const QJsonObject obj = QJsonDocument::fromJson(data).object();
         if (!obj.isEmpty()) {
             if (obj.contains("mysql_version"))  m_remoteConfig.version     = obj["mysql_version"].toString();
-            if (obj.contains("min_version"))     m_remoteConfig.minVersion  = obj["min_version"].toString();
+            if (obj.contains("min_version"))    m_remoteConfig.minVersion  = obj["min_version"].toString();
 #if defined(Q_OS_LINUX)
             /*! Sous Linux, un seuil dédié (plus tolérant) prime s'il est défini. */
             if (obj.contains("min_version_linux")) m_remoteConfig.minVersion = obj["min_version_linux"].toString();
 #endif
-            if (obj.contains("win_url"))         m_remoteConfig.winUrl      = obj["win_url"].toString();
-            if (obj.contains("mac_arm64_url"))   m_remoteConfig.macArm64Url = obj["mac_arm64_url"].toString();
-            if (obj.contains("mac_x86_url"))     m_remoteConfig.macX86Url   = obj["mac_x86_url"].toString();
+            if (obj.contains("win_url"))        m_remoteConfig.winUrl      = obj["win_url"].toString();
+            if (obj.contains("mac_arm64_url"))  m_remoteConfig.macArm64Url = obj["mac_arm64_url"].toString();
+            if (obj.contains("mac_x86_url"))    m_remoteConfig.macX86Url   = obj["mac_x86_url"].toString();
         }
     }
     reply->deleteLater();
@@ -1079,7 +1079,7 @@ bool MySQLInstaller::assurerDroitsAdmin()
  * MySQL, sauvegarde de la base Rufus qui s'y trouve, puis réutilisation ou remplacement du serveur.
  * Renvoie true si un MySQL conforme à Rufus est prêt.
  */
-bool MySQLInstaller::run(const QStringList& logAdmin, bool demandernouvuser)
+bool MySQLInstaller::run(const QStringList& logAdmin)
 {
 #if defined(Q_OS_WIN)
     /*! Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et l'installe AVANT toute
@@ -1128,9 +1128,7 @@ bool MySQLInstaller::run(const QStringList& logAdmin, bool demandernouvuser)
         return false;
     if (!reinstallerSocleMySQLpourMigration())
         return false;
-    if (demandernouvuser)
-        return Utils::SaisirNouvelUtilisateur(m_loginRufus, m_mdpRufus, m_parent);
-    else return true;
+    return true;
 }
 
 /*!
@@ -1149,12 +1147,12 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
             tr("Rufus peut sauvegarder ce qu'il contient et y créer votre base patients, à condition "
                "de s'y connecter.\n\n"
                "Disposez-vous d'un identifiant et d'un mot de passe administrateur de ce serveur "
-               "MySQL (par exemple root) ?")))
+               "MySQL ?")))
         return QStringList();
 
     m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerVerifyAdminMySQL();
-    QStringList log;
+    QStringList log = QStringList();
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
         if (!m_dialog->validerSaisie()) return;
@@ -1423,8 +1421,8 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     /*! Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche d'installation
      *  (avec sa checklist) puis on ouvre une petite fiche dédiée — plus de cases sans rapport. */
     cleanupDialog();
-    if (!Utils::SaisirNouvelUtilisateur(m_loginRufus, m_mdpRufus, m_parent))
-        return false;
+    //if (!Utils::SaisirNouvelUtilisateur(m_loginRufus, m_mdpRufus, m_parent))
+    //    return false;
 
     return true;
 }

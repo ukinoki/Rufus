@@ -2414,7 +2414,8 @@ bool dlg_param::VerifDirStockageImagerie()
 
 void dlg_param::RestaureBase()
 {
-    if (proc->RestaureBase(false, false, true, this))
+    proc->setProtocoleRestauration(Procedures::BaseExistante);
+    if (proc->RestaureBase(Procedures::BaseExistante, false, true, this) != "")
     {
         UpMessageBox::Watch(this,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();

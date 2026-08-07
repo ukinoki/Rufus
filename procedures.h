@@ -167,17 +167,16 @@ public:
 * première connexion
 * -------------------------------------------------------------------------------------------------------- */
 private:
+    int                     m_protoc = NoBase;
     bool                    CreerPremierUser(QString Login, QString MDP, QWidget *parent = Q_NULLPTR);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     bool                    InitialisationBaseEtDossiers(bool NouvelleBaseVierge = false, bool Restauration = false, QWidget *parent = Q_NULLPTR);   //! installe le socle du poste : serveur MySQL, base vierge ou restaurée, dossiers et paramètres
     void                    PremierParametrageMateriel();
-    bool                    InstallationRufus(bool restaurer, QWidget *parent = Q_NULLPTR);   //! crée la base du poste : restauration d'une sauvegarde, sinon base vierge
+    bool                    InstallationRufus(QWidget *parent = Q_NULLPTR);   //! crée la base du poste : restauration d'une sauvegarde, sinon base vierge
 public:
-    bool                    SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL, QWidget* parent = Q_NULLPTR);   //! dump de la base Rufus du serveur qui va être effacé, avec un compte admin MySQL
-private:
-    int         protoc = NoBase;
     enum protoc {BaseExistante, BaseVierge, NoBase};
-
+    bool                    SauvegarderBaseAvantInstallation(QString loginSQL, QString mdpSQL, QWidget* parent = Q_NULLPTR);   //! dump de la base Rufus du serveur qui va être effacé, avec un compte admin MySQL
+    void                    setProtocoleRestauration(protoc protocole = BaseVierge) {m_protoc = protocole;};
 /*! fin première connection -------------------------------------------------------------------------------------------------------- */
 
 
@@ -408,7 +407,7 @@ signals:
                                  * sous Mac, crée le fichier xml rufus.bup.plist
                                  * sous Linux, lance le timer t_timerbackup
                                 */
-        bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true, QWidget *parent = Q_NULLPTR,
+        QString                 RestaureBase(protoc protocole,bool PremierDemarrage = false, bool VerifPostesConnectes = true, QWidget *parent = Q_NULLPTR,
                                              QString cheminRestauration = "");      //! si non vide : restauration AUTOMATIQUE depuis ce dossier (pas de choix ni de mdp à saisir) — pour la migration de base
         bool                    ReinitBase(QWidget *parent = nullptr);
         enum                    BkupRestore { BackupOp, RestoreOp}; Q_ENUM(BkupRestore)
