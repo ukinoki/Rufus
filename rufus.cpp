@@ -19,6 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_rufus.h"
 #include "fichevitale.h"
 #include <cstdlib>
+#include <random>
+#include <QRandomGenerator>
 #include <QStringConverter>
 
 //! Localise le .qm d'une langue. Selon le packaging, le dossier Locale est posé soit
@@ -819,214 +821,80 @@ void Rufus::Moulinette()
     proc->Edit("OK pour villes");*/
 
 
-/*!    // CREATION D'UNE BASE FACTICE ============================================================================================================================================================
-    //Mélange les noms, et 1ère ligne d'adresse dans la base */
-    /*
-    if (UpMessageBox::Question(this,tr("ATTENTION"),tr("Cette fonction sert à générer une base factice pour la démonstration du logiciel") + "<br />"
-                               + tr("Si vous cliquez sur OK, tous les enregistrements de la base seront mélangés et les données seront donc irrémédiablement perdues")) != UpSmallButton::STARTBUTTON)
+    //! CREATION D'UNE BASE ANONYME DE DEMONSTRATION ============================================================================================================================================================
+    /*! Tire NBDOSSIERS patients au sort, supprime tous les autres, puis mélange entre les survivants
+     * les noms, les prénoms et les adresses par trois tirages indépendants, et réattribue à chacun
+     * un couple code postal / ville pris au hasard dans la table Villes.
+     * Les idPat sont conservés : les actes et impressions des patients supprimés restent à nettoyer. */
+    const int NBDOSSIERS = 2000;
+
+    if (UpMessageBox::Question(this, tr("ATTENTION"),
+                               tr("Cette fonction génère une base anonyme pour la démonstration du logiciel.") + "<br />"
+                             + tr("Tous les patients sauf %1 tirés au sort vont être supprimés et les données des survivants mélangées, sans retour possible.").arg(NBDOSSIERS))
+            != UpSmallButton::STARTBUTTON)
         return;
+
     bool ok;
-    int idauhasard;
-    QString copierequete = "drop table if exists rufus.patients2;\n";
-    copierequete += "create table rufus.patients2 like rufus.patients;\n";
-    copierequete += "insert into rufus.patients2 (select * from " TBL_PATIENTS ");";
-    db->StandardSQL(copierequete);
+    QList<QVariantList> eluslist = db->StandardSelectSQL("select idPat from " TBL_PATIENTS " order by rand() limit " + QString::number(NBDOSSIERS), ok);
+    if (!ok || eluslist.size() == 0)
+        return;
+    QStringList listidselus;
+    for (int i = 0; i < eluslist.size(); i++)
+        listidselus << eluslist.at(i).at(0).toString();
+    QString horselus = " where idPat not in (" + listidselus.join(",") + ")";
+    db->StandardSQL("delete from " TBL_PATIENTS + horselus);
+    db->StandardSQL("delete from " TBL_DONNEESSOCIALESPATIENTS + horselus);
 
-    QStringList listNoms;
-    copierequete = "select idPat, patNom from rufus.patients2;";
-    QList<QVariantList> copielist = db->StandardSelectSQL(copierequete,ok);
-    int s = copielist.size();
-    for (int i = 0; i < copielist.size(); i++)
-        listNoms << copielist.at(i).at(1).toString();
-    for (int k = 0; k < s ; k++)
+    QList<QVariantList> patlist = db->StandardSelectSQL("select p.idPat, p.PatNom, p.PatPrenom, d.PatAdresse1, d.PatAdresse2, d.PatAdresse3"
+                                                        " from " TBL_PATIENTS " p"
+                                                        " left join " TBL_DONNEESSOCIALESPATIENTS " d on d.idPat = p.idPat", ok);
+    if (!ok || patlist.size() == 0)
+        return;
+    //! une ligne de Villes = un couple code postal/ville cohérent : en tirer une au hasard règle le cas des CP à plusieurs villes
+    QList<QVariantList> villeslist = db->StandardSelectSQL("select CodePostal, Nom from " TBL_VILLES " where CodePostal <> '' and Nom <> ''", ok);
+    if (!ok || villeslist.size() == 0)
+        return;
+    const int nbpat     = patlist.size();
+    const int nbvilles  = villeslist.size();
+
+    //! trois tirages indépendants : le nom, le prénom et l'adresse d'un dossier viennent de trois dossiers différents
+    QList<int> ordrenoms;
+    for (int i = 0; i < nbpat; i++)
+        ordrenoms << i;
+    QList<int> ordreprenoms  = ordrenoms;
+    QList<int> ordreadresses = ordrenoms;
+    std::shuffle(ordrenoms.begin(),     ordrenoms.end(),        *QRandomGenerator::global());
+    std::shuffle(ordreprenoms.begin(),  ordreprenoms.end(),     *QRandomGenerator::global());
+    std::shuffle(ordreadresses.begin(), ordreadresses.end(),    *QRandomGenerator::global());
+
+    UpProgressDialog *progdial = new UpProgressDialog(0, nbpat, this);
+    progdial    ->setLabelText(tr("Anonymisation des dossiers..."));
+    progdial    ->show();
+    for (int i = 0; i < nbpat; i++)
     {
-        QString idpat = copielist.at(k).at(0).toString();
-        idauhasard = rand() % (listNoms.size());
-        QString AncNom (""), NouvNom;
-        NouvNom = listNoms.at(idauhasard);
-        QVariantList patdata = db->getFirstRecordFromStandardSelectSQL("select patnom, patprenom from " TBL_PATIENTS " where idPat = " + idpat, ok);
-        if (patdata.size()>0)
-            AncNom = patdata.at(0).toString();
-            //Message::I()->TrayMessage(quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s), 1);
-            //qDebug() << quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s);
-        copierequete = "update rufus.patients2 set patnom = '" + Utils::correctquoteSQL(listNoms.at(idauhasard)) + "' where idPat = " + idpat;
-        db->StandardSQL(copierequete);
-        listNoms.removeAt(idauhasard);
+        progdial->setValue(i);
+        QString         idpat   = patlist.at(i).at(0).toString();
+        QVariantList    adresse = patlist.at(ordreadresses.at(i));
+        QVariantList    ville   = villeslist.at(QRandomGenerator::global()->bounded(nbvilles));
 
-        QList<QVariantList> modifacteslist = db->StandardSelectSQL("select idacte, actemotif, acteconclusion, actetexte from " TBL_ACTES " where idpat = " + idpat, ok);
-        for (int m=0; m<modifacteslist.size(); m++)
-        {
-            QString nouvmotif   = modifacteslist.at(m).at(1).toString();
-            QString nouvconcl   = modifacteslist.at(m).at(2).toString();
-            QString nouvtxt     = modifacteslist.at(m).at(3).toString();
-            //qDebug() << nouvtxt;
-            bool b = false;
-            if (nouvmotif.contains(AncNom, Qt::CaseInsensitive))
-            {
-                nouvmotif   = nouvmotif.replace(AncNom,NouvNom, Qt::CaseInsensitive);
-                b = true;
-            }
-            if (nouvconcl.contains(AncNom, Qt::CaseInsensitive))
-            {
-                nouvconcl   = nouvconcl.replace(AncNom,NouvNom, Qt::CaseInsensitive);
-                b = true;
-            }
-            if (nouvtxt.contains(AncNom, Qt::CaseInsensitive))
-            {
-                nouvtxt   = nouvtxt.replace(AncNom,NouvNom, Qt::CaseInsensitive);
-                b = true;
-            }
-            if (b)
-            {
-                QString req1 = "update " TBL_ACTES " set"
-                       " actemotif = '"         + Utils::correctquoteSQL(nouvmotif) + "',"
-                       " actetexte = '"         + Utils::correctquoteSQL(nouvtxt)   + "',"
-                       " acteconclusion = '"    + Utils::correctquoteSQL(nouvconcl) + "'"
-                       " where idacte = " + modifacteslist.at(m).at(0).toString();
-                //qDebug() << req1;
-                db->StandardSQL(req1);
-            }
-        }
-        QList<QVariantList> modifimprlist = db->StandardSelectSQL("select idimpression, textentete, textcorps, textorigine from " TBL_IMPRESSIONS " where idpat = " + idpat, ok);
-        for (int m=0; m<modifimprlist.size(); m++)
-        {
-            QString nouventete  = modifimprlist.at(m).at(1).toString();
-            QString nouvcorps   = modifimprlist.at(m).at(2).toString();
-            QString nouvorigine = modifimprlist.at(m).at(3).toString();
-            bool b = false;
-            if (nouventete.contains(AncNom, Qt::CaseInsensitive))
-            {
-                nouventete   = nouventete.replace(AncNom,NouvNom.toUpper(), Qt::CaseInsensitive);
-                b = true;
-            }
-            if (nouvcorps.contains(AncNom, Qt::CaseInsensitive))
-            {
-                nouvcorps   = nouvcorps.replace(AncNom,NouvNom.toUpper(), Qt::CaseInsensitive);
-                b = true;
-            }
-            if (nouvorigine.contains(AncNom, Qt::CaseInsensitive))
-            {
-                nouvorigine   = nouvorigine.replace(AncNom,NouvNom.toUpper(), Qt::CaseInsensitive);
-                b = true;
-            }
-            if (b)
-            {
-                QString req1 = "update " TBL_IMPRESSIONS " set"
-                       " textentete = '"         + Utils::correctquoteSQL(nouventete) + "',"
-                       " textcorps = '"         + Utils::correctquoteSQL(nouvcorps)   + "',"
-                       " textorigine = '"    + Utils::correctquoteSQL(nouvorigine) + "'"
-                       " where idimpression = " + modifimprlist.at(m).at(0).toString();
-                //qDebug() << req1;
-                db->StandardSQL(req1);
-            }
-        }
+        db->StandardSQL("update " TBL_PATIENTS " set"
+                        " PatNom = '"           + Utils::correctquoteSQL(patlist.at(ordrenoms.at(i)).at(1).toString())      + "',"
+                        " PatPrenom = '"        + Utils::correctquoteSQL(patlist.at(ordreprenoms.at(i)).at(2).toString())   + "'"
+                        " where idPat = "       + idpat);
+        db->StandardSQL("update " TBL_DONNEESSOCIALESPATIENTS " set"
+                        " PatAdresse1 = '"      + Utils::correctquoteSQL(adresse.at(3).toString())   + "',"
+                        " PatAdresse2 = '"      + Utils::correctquoteSQL(adresse.at(4).toString())   + "',"
+                        " PatAdresse3 = '"      + Utils::correctquoteSQL(adresse.at(5).toString())   + "',"
+                        " PatCodepostal = '"    + Utils::correctquoteSQL(ville.at(0).toString())     + "',"
+                        " PatVille = '"         + Utils::correctquoteSQL(ville.at(1).toString())     + "',"
+                        //! un vrai numéro mélangé reste un vrai numéro : on vide plutôt que d'intervertir
+                        " PatTelephone = null, PatPortable = null, PatMail = null, PatNNI = null"
+                        " where idPat = "       + idpat);
     }
-    copierequete = "delete from rufus.patients;\n";
-    copierequete += "insert into rufus.patients (select * from rufus.patients2);\n";
-    copierequete += "drop table if exists rufus.patients2;\n";
-    db->StandardSQL(copierequete);
-
-    UpMessageBox::Watch(this,"OK pour nom");
-
-    copierequete = "drop table if exists  rufus.donneessocialespatients2;\n";
-    copierequete += "create table rufus.donneessocialespatients2 like " TBL_DONNEESSOCIALESPATIENTS ";";
-    copierequete += "insert into rufus.donneessocialespatients2 (select * from " TBL_DONNEESSOCIALESPATIENTS ");";
-    db->StandardSQL(copierequete);
-
-    QStringList listAdresses;
-    copierequete = "select idPat, patAdresse1 from rufus.donneessocialespatients2 order by patAdresse1;";
-    QList<QVariantList> copieAlist = db->StandardSelectSQL(copierequete,ok);
-    s = copieAlist.size();
-    for (int i = 0; i < copieAlist.size(); i++)
-        listAdresses << copieAlist.at(i).at(1).toString();
-    for (int j = 0; j < s ; j++)
-    {
-        QString idpat = copieAlist.at(j).at(0).toString();
-        idauhasard = rand() % (listAdresses.size());
-        copierequete = "update rufus.donneessocialespatients2 set patAdresse1 = '" + Utils::correctquoteSQL(listAdresses.at(idauhasard))
-                + "' where idPat = " + idpat;
-        db->StandardSQL(copierequete);
-        listAdresses.removeAt(idauhasard);
-    }
-    listAdresses.clear();
-    copierequete = "select idPat, patAdresse2 from rufus.donneessocialespatients2 order by patAdresse2;";
-    QList<QVariantList> copieA2list = db->StandardSelectSQL(copierequete,ok);
-    s = copieA2list.size();
-    for (int i = 0; i < copieA2list.size(); i++)
-        listAdresses << copieA2list.at(i).at(1).toString();
-    for (int j = 0; j < s ; j++)
-    {
-        QString idpat = copieA2list.at(j).at(0).toString();
-        idauhasard = rand() % (listAdresses.size());
-        copierequete = "update rufus.donneessocialespatients2 set patAdresse2 = '" + Utils::correctquoteSQL(listAdresses.at(idauhasard))
-                + "' where idPat = " + idpat;
-        db->StandardSQL(copierequete);
-        listAdresses.removeAt(idauhasard);
-    }
-    copierequete = "delete from rufus.donneessocialespatients;\n";
-    copierequete += "insert into rufus.donneessocialespatients (select * from rufus.donneessocialespatients2);\n";
-    copierequete += "drop table if exists rufus.donneessocialespatients2;\n";
-    db->StandardSQL(copierequete);
-    UpMessageBox::Watch(this,"OK pour adresse1 et 2");
+    progdial->setValue(nbpat);
+    delete progdial;
     FiltreTable();
-
-    //Melange des noms des correspondants
-    db->StandardSQL("update " TBL_CORRESPONDANTS " set CorNom = 'Porteix' where CorNom = 'Porte'");
-    db->StandardSQL("update " TBL_CORRESPONDANTS " set CorNom = 'Longeix' where CorNom = 'Long'");
-    QString Corcopierequete = "select idCor, CorNom from " TBL_CORRESPONDANTS;
-    QList<QVariantList> corlist = db->StandardSelectSQL(Corcopierequete, ok);
-    QStringList listnomcor;
-    QList<QVariantList> patlist = db->StandardSelectSQL("select patnom from " TBL_PATIENTS " where patnom not in (select Cornom from " TBL_CORRESPONDANTS ") order by rand() limit " + QString::number(corlist.size()), ok);
-    for (int e=0; e<corlist.size();e++)
-        listnomcor <<  patlist.at(e).at(0).toString();
-    QString Corimpr = "select idimpression, textcorps, textorigine from " TBL_IMPRESSIONS " where textcorps is not null";
-    QList<QVariantList> corimprlist = db->StandardSelectSQL(Corimpr, ok);
-    QString CorAct = "select idacte, actemotif, actetexte from " TBL_ACTES;
-    QList<QVariantList> coractlist = db->StandardSelectSQL(CorAct,ok);
-    for (int k = 0; k< corlist.size(); k++)
-    {
-        QString AncNom, NouvNom, NouvAdresse, idCor;
-        idCor       = corlist.at(k).at(0).toString();
-        AncNom      = corlist.at(k).at(1).toString();
-        NouvNom     = listnomcor.at(k);
-        Corcopierequete = "update " TBL_CORRESPONDANTS " set Cornom = '" + Utils::correctquoteSQL(NouvNom) + "' where idCor = " + idCor;
-        db->StandardSQL(Corcopierequete);
-
-        for (int p=0; p<corimprlist.size(); p++)
-        {
-            if (corimprlist.at(p).at(1).toString().contains(AncNom, Qt::CaseInsensitive))
-            {
-                //qDebug() << AncNom + " - " + QString::number(k) + "/" + QString::number(Corcopie.size()) + " // " + QString::number(p) + "/" + QString::number(Corimprquery.size());
-                db->StandardSQL("update " TBL_IMPRESSIONS " set textcorps = '" + Utils::correctquoteSQL(corimprlist.at(p).at(1).toString().replace(AncNom,NouvNom))
-                           + "' where idimpression = " + corimprlist.at(p).at(0).toString());
-            }
-            if (corimprlist.at(p).at(2).toString().contains(AncNom, Qt::CaseInsensitive))
-            {
-                db->StandardSQL("update " TBL_IMPRESSIONS " set textorigine = '" + Utils::correctquoteSQL(corimprlist.at(p).at(2).toString().replace(AncNom,NouvNom))
-                           + "' where idimpression = " + corimprlist.at(p).at(0).toString());
-            }
-        }
-
-        for (int q=0; q<coractlist.size(); q++)
-        {
-            if (coractlist.at(q).at(1).toString().contains(AncNom, Qt::CaseInsensitive))
-            {
-                //qDebug() << AncNom + " - " + QString::number(k) + "/" + QString::number(Corcopie.size()) + " // " + QString::number(q) + "/" + QString::number(CorActquery.size());
-                db->StandardSQL("update " TBL_ACTES " set actemotif = 'Courrier efffacé' where idacte = " + coractlist.at(q).at(0).toString());
-            }
-            if (coractlist.at(q).at(2).toString().contains(AncNom, Qt::CaseInsensitive))
-            {
-                db->StandardSQL("update " TBL_ACTES " set actetexte = 'Courrier effacé' where idacte = " + coractlist.at(q).at(0).toString());
-            }
-        }
-
-        QVariantList adrdata = db->getFirstRecordFromStandardSelectSQL("select patadresse1 from " TBL_DONNEESSOCIALESPATIENTS " order by rand() limit 1",ok);
-        NouvAdresse = adrdata.at(0).toString();
-        Corcopierequete = "update rufus.correspondants set Coradresse1 = '" + Utils::correctquoteSQL(NouvAdresse) + "' where idCor = " + idCor;
-        db->StandardSQL(Corcopierequete);
-    }
-    UpMessageBox::Watch(this,"OK pour Correspondants");
-    */
+    UpMessageBox::Watch(this, tr("Base anonyme générée"), tr("%1 dossiers conservés et anonymisés").arg(nbpat));
 
     //! INCORPORATION DES IOL de la base xml IOLCON ============================================================================================================================================================
     //dlg_listeiols::ImportListeIOLS();
