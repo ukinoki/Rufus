@@ -1619,14 +1619,12 @@ void MySQLInstaller::restaurerClesSSLMigration()
 
 /*!
  * \brief MySQLInstaller::clesSSLServeurPresentes
- * Le serveur a-t-il ses certificats ? Ce sont eux qu'on exporte vers les postes distants.
+ * Le serveur a-t-il des certificats en service ? On le lui demande : son datadir est en 700 mysql,
+ * illisible par le processus Rufus, qui y verrait toujours des fichiers absents.
  */
 bool MySQLInstaller::clesSSLServeurPresentes()
 {
-    const QString datadir = mysqlDataDir();
-    return QFile::exists(datadir + "/ca.pem")
-        && QFile::exists(datadir + "/client-cert.pem")
-        && QFile::exists(datadir + "/client-key.pem");
+    return dateExpirationCertSSL().isValid();
 }
 
 /*!
@@ -1696,7 +1694,7 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
 bool MySQLInstaller::regenererClesSSL()
 {
     const QString datadir = mysqlDataDir();
-    const QStringList pem  = QStringList()
+    const QStringList pem = QStringList()
         << "ca.pem" << "ca-key.pem" << "server-cert.pem" << "server-key.pem"
         << "client-cert.pem" << "client-key.pem" << "private_key.pem" << "public_key.pem";
 #if defined(Q_OS_WIN)
@@ -1705,12 +1703,15 @@ bool MySQLInstaller::regenererClesSSL()
         QFile::remove(datadir + "/" + f);
     runCmdElevated("net start MySQL");
     waitForMySQL(15);
-    /*! Laisser à mysqld le temps de régénérer les certificats. */
-    for (int i = 0; i < 20 && !QFile::exists(datadir + "/ca.pem"); ++i)
+    /*! L'application est déjà élevée sous Windows : le datadir se lit directement. */
+    for (int i = 0; i < 20 && !QFile::exists(datadir + "/client-key.pem"); ++i)
         Utils::Pause(1000);
+    return QFile::exists(datadir + "/ca.pem")
+        && QFile::exists(datadir + "/client-cert.pem")
+        && QFile::exists(datadir + "/client-key.pem");
 #else
-    QString sh = "exec >/tmp/rufus_ssl.log 2>&1\nset -x\n";
-    sh += "DATA='" + datadir + "'\n";
+    const QString marqueur = QDir::tempPath() + "/rufus_ssl_ok";   /*!< /tmp : lisible sans élévation */
+    QString sh = "DATA='" + datadir + "'\n";
   #if defined(Q_OS_MACOS)
     sh += "PLIST=/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist\n"
           "[ -f \"$PLIST\" ] && launchctl unload \"$PLIST\" 2>/dev/null\n";
@@ -1725,18 +1726,22 @@ bool MySQLInstaller::regenererClesSSL()
   #else
     sh += "systemctl start mysql 2>/dev/null\n";
   #endif
-    /*! Attendre la régénération automatique des certificats (auto_generate_certs). */
-    sh += "for i in $(seq 1 20); do [ -f \"$DATA/ca.pem\" ] && break; sleep 1; done\n"
-          "ls -l \"$DATA\"/*.pem\n";
-    const bool okeleve = runCmdElevated(sh);
+    /*! Attendre la régénération automatique (auto_generate_certs) des TROIS fichiers, pas du seul
+     *  ca.pem : il apparaît en premier et on constatait une génération encore inachevée. */
+    sh += "for i in $(seq 1 20); do [ -f \"$DATA/ca.pem\" ] && [ -f \"$DATA/client-cert.pem\" ] "
+          "&& [ -f \"$DATA/client-key.pem\" ] && break; sleep 1; done\n";
+    /*! Le constat se fait ICI, sous élévation : après le redémarrage la connexion Qt est morte, et le
+     *  datadir reste illisible par Rufus. Le marqueur, lui, est dans /tmp. */
+    sh += "rm -f '" + marqueur + "'\n"
+          "[ -f \"$DATA/ca.pem\" ] && [ -f \"$DATA/client-cert.pem\" ] && [ -f \"$DATA/client-key.pem\" ] "
+          "&& touch '" + marqueur + "'\n";
+    QFile::remove(marqueur);
+    runCmdElevated(sh);
     waitForMySQL(15);
-    qDebug() << "regenererClesSSL eleve=" << okeleve;
+    const bool ok = QFile::exists(marqueur);
+    QFile::remove(marqueur);
+    return ok;
 #endif
-    qDebug() << "regenererClesSSL datadir=" << datadir
-             << "ca=" << QFile::exists(datadir + "/ca.pem")
-             << "cert=" << QFile::exists(datadir + "/client-cert.pem")
-             << "key=" << QFile::exists(datadir + "/client-key.pem");
-    return clesSSLServeurPresentes();
 }
 
 /*!
