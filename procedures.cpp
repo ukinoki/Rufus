@@ -2498,6 +2498,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
     UpSmallButton   OKBouton;
     msgbox.setIcon(UpMessageBox::Warning);
     bool echecfile = true;
+    bool proposerchoix = false;
 
     if (protocole == BaseVierge)
     {
@@ -2642,7 +2643,10 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
                                     UpDialog::ButtonCancel | UpDialog::ButtonOK,
                                     QStringList() << tr("Choisir une autre sauvegarde") << tr("Utiliser la sauvegarde automatique"));
             if (rep == UpSmallButton::STARTBUTTON)
+            {
                 dirtorestore = QDir(cheminRestauration);
+                proposerchoix = true;
+            }
         }
         if (dirtorestore == QDir())
         {
@@ -2720,7 +2724,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         AskBupRestore(RestoreOp, dirtorestore.absolutePath(), dirimagerie, OKini, OKImages, OKVideos, OKFactures, parent);
         int result;
         bool erreurRestauration = false;   //! passe à true si la restauration de la BASE échoue (→ pas de redémarrage auto)
-        if (!cheminRestauration.isEmpty())
+        if (!cheminRestauration.isEmpty() && !proposerchoix)
         {
             //! Migration AUTOMATIQUE : on restaure UNIQUEMENT la base, sans afficher la boîte
             //! de choix (dont le bouton OK ne s'active qu'au clic d'une case).
