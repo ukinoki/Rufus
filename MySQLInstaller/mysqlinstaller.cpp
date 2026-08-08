@@ -1709,7 +1709,8 @@ bool MySQLInstaller::regenererClesSSL()
     for (int i = 0; i < 20 && !QFile::exists(datadir + "/ca.pem"); ++i)
         Utils::Pause(1000);
 #else
-    QString sh = "DATA='" + datadir + "'\n";
+    QString sh = "exec >/tmp/rufus_ssl.log 2>&1\nset -x\n";
+    sh += "DATA='" + datadir + "'\n";
   #if defined(Q_OS_MACOS)
     sh += "PLIST=/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist\n"
           "[ -f \"$PLIST\" ] && launchctl unload \"$PLIST\" 2>/dev/null\n";
@@ -1725,10 +1726,16 @@ bool MySQLInstaller::regenererClesSSL()
     sh += "systemctl start mysql 2>/dev/null\n";
   #endif
     /*! Attendre la régénération automatique des certificats (auto_generate_certs). */
-    sh += "for i in $(seq 1 20); do [ -f \"$DATA/ca.pem\" ] && break; sleep 1; done\n";
-    runCmdElevated(sh);
+    sh += "for i in $(seq 1 20); do [ -f \"$DATA/ca.pem\" ] && break; sleep 1; done\n"
+          "ls -l \"$DATA\"/*.pem\n";
+    const bool okeleve = runCmdElevated(sh);
     waitForMySQL(15);
+    qDebug() << "regenererClesSSL eleve=" << okeleve;
 #endif
+    qDebug() << "regenererClesSSL datadir=" << datadir
+             << "ca=" << QFile::exists(datadir + "/ca.pem")
+             << "cert=" << QFile::exists(datadir + "/client-cert.pem")
+             << "key=" << QFile::exists(datadir + "/client-key.pem");
     return clesSSLServeurPresentes();
 }
 
