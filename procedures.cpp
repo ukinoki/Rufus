@@ -837,35 +837,30 @@ QString Procedures::dirSQLExecutable()
 
 /*!
  * \brief Procedures::setDirSQLExecutable
- * La fonction recherche les éxécutables SQL: mysql et mysqldump
- * Elle les recherche d'abord dans le package logiciel
- * puis dans Rufus.ini
- * puis dans les standardpaths du système
- * Si elle ne les trouve dans aucun de ces 3 endroits, elle interroge l'utilisateur
- * et si l'utilisateur l'informe qu'il ne peut pas trouver les executables
- * le programme est quand même lancé en informant l'utilisateur qu'il ne pourra faire aucune opération de restauration, sauvegarde ou mise à jour de la base
+ * Localise mysql et mysqldump, dans l'ordre : package logiciel, emplacements d'installation connus
+ * (MySQLInstaller::mysqlBin), rufus.ini, puis question à l'utilisateur. Un abandon laisse
+ * m_dirSQLExecutable vide : sauvegarde, restauration et mise à jour de la base deviennent impossibles.
+ * \param parent  fiche parente des boîtes de dialogue
 */
 void Procedures::setDirSQLExecutable(QWidget *parent)
 {
     QString dirdefaultsqlexecutable ("");
     QString dirsqlexecutable ("");
+#ifdef Q_OS_WIN
+    m_executable        = "/mysql.exe";
+    m_dumpexecutable    = "/mysqldump.exe";
+#else
     m_executable        = "/mysql";
     m_dumpexecutable    = "/mysqldump";
+#endif
     bool a = false;
 
 /*! 1. On recherche dans le package logiciel */
-/*! ne marche pas sous Mac Silicon pour le moment */
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     QDir mysqldir           = QDir(QCoreApplication::applicationDirPath());
+  #ifdef Q_OS_MACOS
     mysqldir.cdUp();
-    dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-    a                       = QFile(dirdefaultsqlexecutable + m_executable).exists();
-#endif
-
-#ifdef Q_OS_WIN
-    m_executable            = "/mysql.exe";
-    m_dumpexecutable        = "/mysqldump.exe";
-    QDir mysqldir           = QDir(QCoreApplication::applicationDirPath());
+  #endif
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
     a                       = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
@@ -877,46 +872,16 @@ void Procedures::setDirSQLExecutable(QWidget *parent)
         return;
     }
 
-/*! 2. on recherche dans les chemins habituels du système */
-#ifdef Q_OS_MACOS
-    dirsqlexecutable = "/usr/local/mysql/bin";
-    if (!QFile(dirsqlexecutable + "/mysql").exists())
+/*! 2. On délègue à l'installeur, qui connaît déjà les emplacements Oracle (8.4 puis 8.0), Homebrew
+ *  et le PATH. */
+    QString bin = MySQLInstaller().mysqlBin("mysql");
+    if (!QDir::isAbsolutePath(bin))
+        bin = QStandardPaths::findExecutable(bin);
+    if (!bin.isEmpty() && QFile::exists(bin))
     {
-        dirsqlexecutable = "/usr/local/bin";
-        if (!QFile(dirsqlexecutable + "/mysql").exists())
-            dirsqlexecutable = "/opt/homebrew/opt/mariadb/bin";
+        dirsqlexecutable = QFileInfo(bin).absolutePath();
+        a = QFile(dirsqlexecutable + m_dumpexecutable).exists();   /*!< mysqldump vit dans le même dossier */
     }
-    a = (QFile(dirsqlexecutable + "/mysql").exists());
-#endif
-#ifdef Q_OS_LINUX
-    dirsqlexecutable = "/usr/bin";
-    a = (QFile(dirsqlexecutable + m_executable).exists());
-#endif
-#ifdef Q_OS_WIN
-    QDir programs = QDir("C:/Program Files");
-    if (programs.exists())
-    {
-        QStringList listmariadbdirs = programs.entryList(QStringList() << "MariaDB *", QDir::Dirs);
-        if (listmariadbdirs.size() > 0)
-        {
-            dirsqlexecutable = programs.absolutePath() + "/"  + listmariadbdirs.at(0) + "/bin";
-            a = (QFile(dirsqlexecutable + m_executable).exists());
-        }
-        if (!a)
-        {
-            programs = QDir("C:/Program Files/MySQL");
-            if (programs.exists())
-            {
-                QStringList listmysqldirs = programs.entryList(QStringList() << "MySQL Server *", QDir::Dirs);
-                if (listmysqldirs.size() > 0)
-                {
-                    dirsqlexecutable = programs.absolutePath() + "/"  + listmysqldirs.at(0) + "/bin";
-                    a = (QFile(dirsqlexecutable + m_executable).exists());
-                }
-            }
-        }
-    }
-#endif
 
     if (a)
     {
@@ -937,9 +902,9 @@ void Procedures::setDirSQLExecutable(QWidget *parent)
 /*! 4. On n'a rien trouvé - on interroge l'utilisateur */
 
     UpMessageBox::Information(parent,
-                              tr("le chemin des programmes mysql et mysqldump (") + dirsqlexecutable + ") n'est pas valide"),
-                              tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
-        while (!a)
+                              tr("Le chemin des programmes mysql et mysqldump (%1) n'est pas valide").arg(dirsqlexecutable),
+                              tr("Choisissez un dossier valide dans la boîte de dialogue suivante"));
+    while (!a)
     {
 
         QString urlexecutabledir = QFileDialog::getExistingDirectory(parent,

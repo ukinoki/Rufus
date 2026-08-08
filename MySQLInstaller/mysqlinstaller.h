@@ -319,7 +319,8 @@ private:
     bool testSharedFolderRW();     /*!< mysql lit ET écrit un fichier test dans le dossier partagé */
     bool droitsDossierPartageConformes();  /*!< dossier partagé traversable par mysql, et jamais inscriptible par tous */
 public:
-    void retirerEcriturePourTous();     /*!< retire en silence le w des « autres » sous le dossier partagé */
+    void    retirerEcriturePourTous();          /*!< retire en silence le w des « autres » sous le dossier partagé */
+    QString mysqlBin(const QString& binary);    /*!< chemin d'un binaire MySQL (mysql, mysqldump…), le nom nu s'il n'est qu'au PATH */
 private:
     bool partageImageriePresent();      /*!< dossier d'imagerie visible des postes du réseau */
 #if defined(Q_OS_WIN)
@@ -361,7 +362,6 @@ private:
     void    runLongOpProgress(const QString& cmd, const QString& label,
                               int timeoutMs = 360000);   /*!< commande longue avec barre de % (la commande émet « PROGRESS f t ») */
     QString getBrewPrefix();                             /*!< préfixe Homebrew (macOS) */
-    QString mysqlBin(const QString& binary);             /*!< chemin d'un binaire MySQL (mysql, mysqld…) */
     bool    isOracleInstall();                           /*!< installation Oracle (vs Homebrew) ? */
     QString oraclePrefix() const;                        /*!< préfixe d'une install Oracle ("" sinon) */
 };
