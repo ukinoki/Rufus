@@ -822,10 +822,8 @@ void Rufus::Moulinette()
 
 
     //! CREATION D'UNE BASE ANONYME DE DEMONSTRATION ============================================================================================================================================================
-    /*! Tire NBDOSSIERS patients au sort, supprime tous les autres, puis mélange entre les survivants
-     * les noms, les prénoms et les adresses par trois tirages indépendants, et réattribue à chacun
-     * un couple code postal / ville pris au hasard dans la table Villes.
-     * Les idPat sont conservés : les actes et impressions des patients supprimés restent à nettoyer. */
+    /*! Garde NBDOSSIERS patients tirés au sort, supprime les autres partout, mélange noms et adresses,
+     * décale les dates de naissance et réattribue un couple code postal/ville pris dans Villes. */
     const int NBDOSSIERS = 2000;
 
     if (UpMessageBox::Question(this, tr("ATTENTION"),
@@ -841,11 +839,14 @@ void Rufus::Moulinette()
     QStringList listidselus;
     for (int i = 0; i < eluslist.size(); i++)
         listidselus << eluslist.at(i).at(0).toString();
+    //! idPat inchangés : les actes et impressions des supprimés partent avec eux, sans renumérotation
     QString horselus = " where idPat not in (" + listidselus.join(",") + ")";
     db->StandardSQL("delete from " TBL_PATIENTS + horselus);
     db->StandardSQL("delete from " TBL_DONNEESSOCIALESPATIENTS + horselus);
+    db->StandardSQL("delete from " TBL_ACTES + horselus);
+    db->StandardSQL("delete from " TBL_IMPRESSIONS + horselus);
 
-    QList<QVariantList> patlist = db->StandardSelectSQL("select p.idPat, p.PatNom, p.PatPrenom, d.PatAdresse1, d.PatAdresse2, d.PatAdresse3"
+    QList<QVariantList> patlist = db->StandardSelectSQL("select p.idPat, p.PatNom, p.PatDDN, d.PatAdresse1, d.PatAdresse2, d.PatAdresse3"
                                                         " from " TBL_PATIENTS " p"
                                                         " left join " TBL_DONNEESSOCIALESPATIENTS " d on d.idPat = p.idPat", ok);
     if (!ok || patlist.size() == 0)
@@ -857,14 +858,13 @@ void Rufus::Moulinette()
     const int nbpat     = patlist.size();
     const int nbvilles  = villeslist.size();
 
-    //! trois tirages indépendants : le nom, le prénom et l'adresse d'un dossier viennent de trois dossiers différents
+    //! deux tirages indépendants : le nom et l'adresse d'un dossier viennent de deux dossiers différents
+    //! le prénom ne bouge pas, sinon il ne collerait plus au champ Sexe
     QList<int> ordrenoms;
     for (int i = 0; i < nbpat; i++)
         ordrenoms << i;
-    QList<int> ordreprenoms  = ordrenoms;
     QList<int> ordreadresses = ordrenoms;
     std::shuffle(ordrenoms.begin(),     ordrenoms.end(),        *QRandomGenerator::global());
-    std::shuffle(ordreprenoms.begin(),  ordreprenoms.end(),     *QRandomGenerator::global());
     std::shuffle(ordreadresses.begin(), ordreadresses.end(),    *QRandomGenerator::global());
 
     UpProgressDialog *progdial = new UpProgressDialog(0, nbpat, this);
@@ -877,9 +877,13 @@ void Rufus::Moulinette()
         QVariantList    adresse = patlist.at(ordreadresses.at(i));
         QVariantList    ville   = villeslist.at(QRandomGenerator::global()->bounded(nbvilles));
 
+        //! ddn décalée de +/- 2 mois : le dossier reste cohérent en âge mais n'est plus identifiable par sa date
+        QDate   ddn     = patlist.at(i).at(2).toDate();
+        QString nouvddn = ddn.isValid()? "'" + ddn.addDays(QRandomGenerator::global()->bounded(-60, 61)).toString("yyyy-MM-dd") + "'" : QString("null");
+
         db->StandardSQL("update " TBL_PATIENTS " set"
                         " PatNom = '"           + Utils::correctquoteSQL(patlist.at(ordrenoms.at(i)).at(1).toString())      + "',"
-                        " PatPrenom = '"        + Utils::correctquoteSQL(patlist.at(ordreprenoms.at(i)).at(2).toString())   + "'"
+                        " PatDDN = "            + nouvddn +
                         " where idPat = "       + idpat);
         db->StandardSQL("update " TBL_DONNEESSOCIALESPATIENTS " set"
                         " PatAdresse1 = '"      + Utils::correctquoteSQL(adresse.at(3).toString())   + "',"
