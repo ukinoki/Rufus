@@ -16,5 +16,5 @@ export PATH="$HOME/Qt/6.111.1/gcc_64/bin:$PATH"
 
 ## Pour fabriquer l'AppImage directement depuis le programme compilé
 cd ~/Documents/GitHub/Rufus/build_tools/Linux
-export PATH="$HOME/Qt/6.111.1/gcc_64/bin:$PATH"
+export PATH="$HOME/Qt/6.11.1/gcc_64/bin:$PATH"
 ./creer-appimage-installeur.sh ~/Documents/GitHub/Rufus/build/Desktop_Qt_6_11_1_Release/Rufus

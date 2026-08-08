@@ -5159,7 +5159,8 @@ bool Procedures::InstallationRufus(QWidget *parent)
     if (m_protoc == BaseExistante)
     {
         QString pathdirtorestore = RestaureBase(BaseExistante, true, false, parent, dirtorestore);
-        if (pathdirtorestore == "")
+        bool a =  pathdirtorestore != "";
+        if (!a)
             return false;
         if (!QDir(pathdirtorestore).isEmpty())
             QDir(pathdirtorestore).removeRecursively();
@@ -5167,25 +5168,47 @@ bool Procedures::InstallationRufus(QWidget *parent)
             PremierParametrageMateriel();
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
 
-        //! on vérifie que le Rufus.ini récupéré est exploitable et sion, on en crée un minimal
-        QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
-        m_settings->setValue(BasePoste + Param_Active, "YES");
-        m_settings->setValue(BasePoste + Param_Port, "3306");
-        if (!QFile::exists(PATH_FILE_INI) && !iniContientModeValide(*m_settings))
-        {
-            QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
-            m_settings->setValue(BasePoste + Param_Active, "YES");
-            m_settings->setValue(BasePoste + Param_Port, "3306");
-        }
-
+        //! on vérifie que le Rufus.ini récupéré est exploitable et sinon, on en crée un minimal
+        ReconstruitIniMinimal();
         UpMessageBox::Watch(parent, tr("Base restaurée"),
                             tr("Votre base patients a été restaurée. Rufus va redémarrer."));
         Utils::Redemarrage();
         return true;
     }
     else if (m_protoc == BaseVierge)
-        return RestaureBase(BaseVierge, true, true, parent) != "";
+    {
+        QString pathdirtorestore = RestaureBase(BaseVierge, true, true, parent);
+        bool a = pathdirtorestore != "";
+        if (a)
+            ReconstruitIniMinimal();
+        return a;
+    }
     return false;
+}
+
+
+/*!
+ * \brief Procedures::ReconstruitIniMinimal
+ * vérifie que le Rufus.ini récupéré est exploitable et sinon,
+ * le corrige avec un paramétrage minimal
+ * et s'il n'y en a pas en crée avec un paramétrage minimal
+ * monoposte et port 3306
+ */
+void Procedures::ReconstruitIniMinimal()
+{
+    if (m_settings != Q_NULLPTR)
+        delete m_settings;
+    m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
+    QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
+    m_settings->setValue(BasePoste + Param_Active, "YES");
+    m_settings->setValue(BasePoste + Param_Port, "3306");
+    if (!QFile::exists(PATH_FILE_INI) && !iniContientModeValide(*m_settings))
+    {
+        QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
+        m_settings->setValue(BasePoste + Param_Active, "YES");
+        m_settings->setValue(BasePoste + Param_Port, "3306");
+    }
+
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
