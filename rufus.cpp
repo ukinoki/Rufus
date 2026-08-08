@@ -850,9 +850,9 @@ void Rufus::Moulinette()
     for (int i = 0; i < tableslist.size(); i++)
     {
         QString nomtable = tableslist.at(i).at(0).toString() + "." + tableslist.at(i).at(1).toString();
-        //! table d'état des postes connectés : effacer sa propre ligne couperait la session en cours
+        //! simple état des postes, vide hors connexion : on la vide plutôt que d'y trier par idPat
         if (nomtable.compare(QString(TBL_USERSCONNECTES), Qt::CaseInsensitive) == 0)
-            db->StandardSQL("update " TBL_USERSCONNECTES " set idPat = null");
+            db->StandardSQL("delete from " TBL_USERSCONNECTES);
         else
             db->StandardSQL("delete from " + nomtable + horselus);
     }
