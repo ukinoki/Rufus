@@ -1265,12 +1265,26 @@ static void inviterANoterMotDePasse(const QString& mdp, QWidget *parent = nullpt
 
 /*!
  * \brief mysqlDataDir
- * Répertoire de données (datadir) du MySQL installé par Rufus, selon l'OS — là où sont déposés les
- * certificats SSL auto-générés. Utilisé par la conservation des clés lors d'un remplacement de socle.
+ * Répertoire de données (datadir) du serveur, là où vivent les certificats SSL auto-générés. Demandé au
+ * serveur, seul à le connaître : les emplacements ci-dessous ne valent que pour une installation par
+ * défaut et varient avec la version (8.0 / 8.4). Repli sur eux quand aucune connexion n'est disponible,
+ * cas du remplacement de socle où le serveur est arrêté.
  */
 [[maybe_unused]] static QString mysqlDataDir()
 {
+    bool ok = false;
+    const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT @@datadir", ok);
+    if (ok && !r.isEmpty())
+    {
+        /*! Windows renvoie des antislashs et un séparateur final, que cleanPath ne retire pas seul. */
+        const QString d = QDir::cleanPath(QString(r.at(0).toString()).replace('\\', '/'));
+        if (!d.isEmpty())
+            return d;
+    }
 #if defined(Q_OS_WIN)
+    for (const QString& p : {QString("C:/ProgramData/MySQL/MySQL Server 8.4/Data"),
+                             QString("C:/ProgramData/MySQL/MySQL Server 8.0/Data")})
+        if (QDir(p).exists()) return p;
     return "C:/ProgramData/MySQL/MySQL Server 8.4/Data";
 #elif defined(Q_OS_MACOS)
     return "/usr/local/mysql/data";
