@@ -828,7 +828,7 @@ void Rufus::Moulinette()
 
     if (UpMessageBox::Question(this, tr("ATTENTION"),
                                tr("Cette fonction génère une base anonyme pour la démonstration du logiciel.") + "<br />"
-                             + tr("Tous les patients sauf %1 tirés au sort vont être supprimés et les données des survivants mélangées, sans retour possible.").arg(NBDOSSIERS))
+                             + tr("Tous les patients sauf %1 tirés au sort vont être supprimés, avec leurs actes, courriers et examens, et les données des survivants mélangées, sans retour possible.").arg(NBDOSSIERS))
             != UpSmallButton::STARTBUTTON)
         return;
 
@@ -839,12 +839,23 @@ void Rufus::Moulinette()
     QStringList listidselus;
     for (int i = 0; i < eluslist.size(); i++)
         listidselus << eluslist.at(i).at(0).toString();
-    //! idPat inchangés : les actes et impressions des supprimés partent avec eux, sans renumérotation
+    //! idPat inchangés : tout ce qui pend au patient part avec lui, sans renumérotation
     QString horselus = " where idPat not in (" + listidselus.join(",") + ")";
-    db->StandardSQL("delete from " TBL_PATIENTS + horselus);
-    db->StandardSQL("delete from " TBL_DONNEESSOCIALESPATIENTS + horselus);
-    db->StandardSQL("delete from " TBL_ACTES + horselus);
-    db->StandardSQL("delete from " TBL_IMPRESSIONS + horselus);
+    //! le schéma est interrogé plutôt qu'une liste en dur, qu'un futur majbase rendrait incomplète
+    QList<QVariantList> tableslist = db->StandardSelectSQL("select table_schema, table_name from information_schema.columns"
+                                                           " where column_name = 'idPat'"
+                                                           " and table_schema in ('rufus','Ophtalmologie','Images','ComptaMedicale')", ok);
+    if (!ok || tableslist.size() == 0)
+        return;
+    for (int i = 0; i < tableslist.size(); i++)
+    {
+        QString nomtable = tableslist.at(i).at(0).toString() + "." + tableslist.at(i).at(1).toString();
+        //! table d'état des postes connectés : effacer sa propre ligne couperait la session en cours
+        if (nomtable.compare(QString(TBL_USERSCONNECTES), Qt::CaseInsensitive) == 0)
+            db->StandardSQL("update " TBL_USERSCONNECTES " set idPat = null");
+        else
+            db->StandardSQL("delete from " + nomtable + horselus);
+    }
 
     QList<QVariantList> patlist = db->StandardSelectSQL("select p.idPat, p.PatNom, p.PatDDN, d.PatAdresse1, d.PatAdresse2, d.PatAdresse3"
                                                         " from " TBL_PATIENTS " p"
