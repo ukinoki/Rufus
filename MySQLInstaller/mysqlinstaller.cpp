@@ -4232,7 +4232,8 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
-        "sharing -a '%4' -n '%6' -s 001 -g 000 2>/dev/null; "
+        /*! macOS renomme en '-1', '-2'… au lieu de refuser : sans ce test on accumule les doublons. */
+        "sharing -l 2>/dev/null | grep -q '%6' || sharing -a '%4' -n '%6' -s 001 -g 000 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null\n"
         "%5\n")                                                             /*!< restart */
         .arg(cnfTmp, cnfDst, pathTmp, path, restart, NOM_PARTAGE_IMAGERIE);
