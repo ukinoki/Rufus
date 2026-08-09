@@ -647,7 +647,10 @@ dlg_param::dlg_param(QWidget *parent) :
     QListWidgetItem *itwidg = new QListWidgetItem (QPixmap("://Italy.ico"), "Italiano");
     itwidg                  ->setData(Qt::UserRole, "IT");
     contents                ->addItem(itwidg);
-    QList<QListWidgetItem*> listwidg = QList<QListWidgetItem*>() << enwidg << frwidg << eswidg << brwidg << ptwidg << itwidg;
+    QListWidgetItem *rowidg = new QListWidgetItem (QPixmap("://Romania.ico"), "Română");
+    rowidg                  ->setData(Qt::UserRole, "RO");
+    contents                ->addItem(rowidg);
+    QList<QListWidgetItem*> listwidg = QList<QListWidgetItem*>() << enwidg << frwidg << eswidg << brwidg << ptwidg << itwidg << rowidg;
     foreach (QListWidgetItem *item, listwidg) {
         if (item->data(Qt::UserRole).toString() == m_parametres->version())
         {

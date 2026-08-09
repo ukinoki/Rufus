@@ -203,5 +203,6 @@
         <file>Brazil.ico</file>
         <file>Portugal.ico</file>
         <file>Italy.ico</file>
+        <file>Romania.ico</file>
     </qresource>
 </RCC>
