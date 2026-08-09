@@ -370,6 +370,32 @@ dlg_param::dlg_param(QWidget *parent) :
        wdg_CPDefautlineEdit          ->setText(proc->settings()->value(CodePostal_Defaut).toString());
    /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
 
+    /*-------------------- GESTION MODE COMPTABILITÉ-------------------------------------------------------*/
+    ui->NoComptacheckBox->setChecked(m_parametres->sanscompta());
+    connect(ui->NoComptacheckBox, &QCheckBox::checkStateChanged, this, [=, this](int state) {
+        const bool sanscompta = (state == Qt::Checked);
+        UpMessageBox msgbox(this);
+        msgbox.setText(sanscompta? tr("Vous avez choisi de ne pas enregistrer de comptabilité.")
+                                  : tr("Vous avez choisi d'enregistrer une comptabilité."));
+        msgbox.setInformativeText(tr("Ce réglage concerne toute la base et ne sera entièrement pris en compte "
+                                     "qu'au prochain démarrage de Rufus.\nVoulez-vous l'enregistrer?"));
+        msgbox.setIcon(UpMessageBox::Warning);
+        UpSmallButton AnnulBouton(tr("Annuler"));
+        UpSmallButton OKBouton(tr("Enregistrer"));
+        msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() != &OKBouton)
+        {
+            ui->NoComptacheckBox->blockSignals(true);
+            ui->NoComptacheckBox->setChecked(!sanscompta);
+            ui->NoComptacheckBox->blockSignals(false);
+            return;
+        }
+        db->setsanscompta(sanscompta);
+    });
+    /*-------------------- GESTION MODE COMPTABILITÉ-------------------------------------------------------*/
+
     AfficheParamUser();
 
     ui->LoginuplineEdit             ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric,this));
