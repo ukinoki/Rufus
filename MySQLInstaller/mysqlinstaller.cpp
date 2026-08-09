@@ -830,7 +830,7 @@ MySQLInstaller::MySQLInstaller(QWidget* parent)
 {}
 
 /*! ── Multi-plateforme : dossier partagé ───────────────────────────────────────── */
-static const QString NOM_PARTAGE_IMAGERIE = "RufusImagerie";    /*!< même nom sur les 3 systèmes, sans accent : claviers étrangers, URL, SMB1 */
+static const QString NOM_PARTAGE_IMAGERIE = "RufusImagerie";    /*!< sans accent : claviers étrangers, URL, SMB1 */
 
 QString MySQLInstaller::sharedFolderPath()
 {
@@ -4250,7 +4250,7 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
-        "sharing -r 'Partagé' 2>/dev/null; "                                /*!< nom accentué d'une version antérieure */
+        "sharing -r 'Partagé' 2>/dev/null; "                                /*!< nom d'une version antérieure */
         "sharing -a '%4' -n '%6' -s 001 -g 000 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null\n"
         "%5\n")                                                             /*!< restart */
@@ -4339,8 +4339,7 @@ QString MySQLInstaller::windowsPartageImagerieScript(const QString& path) const
 
 /*!
  * \brief MySQLInstaller::partageImageriePresent
- * Le partage RufusImagerie est-il déclaré (partage SMB sous Windows et macOS, section smb.conf
- * sous Linux) ?
+ * Le partage RufusImagerie est-il déclaré ? (partage SMB sous Windows et macOS, smb.conf sous Linux)
  */
 bool MySQLInstaller::partageImageriePresent()
 {
