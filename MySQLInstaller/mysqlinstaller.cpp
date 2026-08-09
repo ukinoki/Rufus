@@ -2192,7 +2192,8 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
         tr("Cette version de Rufus doit mettre à jour le partage réseau du dossier d'imagerie.") + "\n"
         + tr("Vos images et vos partages actuels ne sont pas modifiés.") + "\n\n"
         + tr("Saisissez le mot de passe administrateur de l'ordinateur dans la fenêtre qui suit.") + "\n\n"
-        + tr("L'opération peut durer une à deux minutes, pendant lesquelles l'écran peut sembler figé."));
+        + tr("Selon la taille du dossier d'imagerie, l'opération peut durer une à deux minutes, "
+             "pendant lesquelles l'écran peut sembler figé."));
 #endif
 
     /*! Réparation : on REJOUE les étapes de config (PATH, dossier partagé, secure_file_priv,
