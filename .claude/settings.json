@@ -14,6 +14,10 @@
           {
             "type": "command",
             "command": "echo \"⛔ COMMENTAIRES (CLAUDE.md §3) — plafond DUR : 1 ligne pour un commentaire interne, 1 phrase pour un brief. 2 lignes = exception justifiable. 3 lignes et plus = interdit, on coupe. Un commentaire qui redit le code se supprime. On garde le pourquoi, jamais l'historique du bug, jamais les majuscules d'insistance.\""
+          },
+          {
+            "type": "command",
+            "command": "echo \"⛔ CONCISION — Réponses aussi courtes que possible : l'essentiel, pas de remplissage ni de redites. Et commentaires de code au plus concis (cf. §3).\""
           }
         ]
       }
