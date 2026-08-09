@@ -190,13 +190,17 @@ bool LecteurVitale::lire(QString &err)
 
     // On essaie chaque fente : la Vitale peut être dans l'une ou l'autre (lecteur bi-fente), et
     // une CPS éventuelle dans l'autre est simplement ignorée (elle n'a pas la racine MF_VITALE).
+    QStringList diag;                                   // raisons techniques d'échec, ajoutées au message si rien n'est lu
     for (const QByteArray &nom : noms)
     {
         SCARDHANDLE card;
         DWORD proto = 0;
-        if (SC_Connect(ctx, nom.constData(), SCARD_SHARE_SHARED,
-                       SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1, &card, &proto) != SCARD_S_SUCCESS)
-            continue;                                   // pas de carte dans cette fente
+        LONG rc = SC_Connect(ctx, nom.constData(), SCARD_SHARE_SHARED,
+                             SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1, &card, &proto);
+        if (rc != SCARD_S_SUCCESS) {                    // pas de carte dans cette fente, ou lecteur occupé
+            diag << QString("connexion « %1 » : 0x%2").arg(QString::fromLatin1(nom)).arg((quint32)rc, 8, 16, QChar('0'));
+            continue;
+        }
 
         const SCARD_IO_REQUEST *pci = (proto == SCARD_PROTOCOL_T1) ? SCARD_PCI_T1 : SCARD_PCI_T0;
         SCardBeginTransaction(card);
@@ -216,6 +220,10 @@ bool LecteurVitale::lire(QString &err)
                     if (sousTag(v, l, 0x82, val)) pt.dateNaissance = formateDate(val);
                     m_porteurs.append(pt);
                 });
+            else
+                diag << QString("identité « %1 » : %2").arg(QString::fromLatin1(nom),
+                            id.ok ? QString("SW %1%2 (%3 octets)").arg(id.sw1, 2, 16, QChar('0')).arg(id.sw2, 2, 16, QChar('0')).arg(id.data.size())
+                                  : QString("transmission KO"));
 
             // 2) NIR : application « VITALE » (AID D2 50 00 00 02 56 49 54 41 4C 45), fichier court n°2.
             transmet(card, pci, QByteArray::fromHex("00A404000BD250000002564954414C45"));
@@ -230,6 +238,10 @@ bool LecteurVitale::lire(QString &err)
                 });
             }
         }
+        else
+            diag << QString("SELECT MF « %1 » : %2").arg(QString::fromLatin1(nom),
+                        mf.ok ? QString("SW %1%2").arg(mf.sw1, 2, 16, QChar('0')).arg(mf.sw2, 2, 16, QChar('0'))
+                              : QString("transmission KO"));
 
         SCardEndTransaction(card, SCARD_LEAVE_CARD);
         SCardDisconnect(card, SCARD_RESET_CARD);        // remet la carte à zéro pour la lecture suivante
@@ -242,6 +254,8 @@ bool LecteurVitale::lire(QString &err)
 
     if (m_porteurs.isEmpty()) {
         err = tr("Aucune carte Vitale lisible dans le lecteur.");
+        if (!diag.isEmpty())                            // détail technique : indispensable pour diagnostiquer un échec rare
+            err += " [" + diag.join(" ; ") + "]";
         return false;
     }
     return true;
