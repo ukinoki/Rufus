@@ -830,6 +830,8 @@ MySQLInstaller::MySQLInstaller(QWidget* parent)
 {}
 
 /*! ── Multi-plateforme : dossier partagé ───────────────────────────────────────── */
+static const QString NOM_PARTAGE_IMAGERIE = "RufusImagerie";    /*!< même nom sur les 3 systèmes, sans accent : claviers étrangers, URL, SMB1 */
+
 QString MySQLInstaller::sharedFolderPath()
 {
 #if defined(Q_OS_WIN)
@@ -2053,7 +2055,7 @@ bool MySQLInstaller::uninstallMySQL()
     QFile::remove(script);
     return !isMySQLInstalled();
 #elif defined(Q_OS_LINUX)
-    /*! On retire le partage [Rufus] mais pas samba ni le dossier partagé, dont l'utilisateur peut se
+    /*! On retire le partage de Rufus mais pas samba ni le dossier partagé, dont l'utilisateur peut se
      *  servir. Motifs de purge CIBLÉS : ni 'libmysqlclient.*' ni 'mysql.*', filets trop larges qui
      *  emportaient mysql-workbench ou php-mysql. */
     const QString script =
@@ -2088,7 +2090,7 @@ bool MySQLInstaller::uninstallMySQL()
         "systemctl reload apparmor 2>/dev/null || true;"
         "ufw delete allow 3306 2>/dev/null || true;"
         "SMB=/etc/samba/smb.conf; if [ -f \"$SMB\" ]; then "
-          "sed -i '/^\\[Rufus\\]/,/^\\[/ { /^\\[Rufus\\]/d; /^\\[/!d }' \"$SMB\";"
+          "sed -i '/^\\[Rufus/,/^\\[/ { /^\\[Rufus/d; /^\\[/!d }' \"$SMB\";"
           "sed -i '/server min protocol = NT1/d' \"$SMB\";"
           "systemctl restart smbd 2>/dev/null || true; "
         "fi";
@@ -4181,17 +4183,17 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
         /*! protocole NT1/SMB1 (appareils de mesure anciens) */
         "grep -q 'server min protocol' /etc/samba/smb.conf 2>/dev/null || "
           "sed -i '/^\\[global\\]/a server min protocol = NT1' /etc/samba/smb.conf; "
-        /*! Section [Rufus] effacée puis réécrite : une section d'une version antérieure serait
+        /*! Section effacée puis réécrite : une section d'une version antérieure serait
             incomplète, et la retoucher clé par clé demanderait autant de sed que de clés. */
-        "awk '/^\\[Rufus\\]/{s=1;next} /^\\[/{s=0} !s' /etc/samba/smb.conf > /tmp/smb.rufus "
+        "awk '/^\\[Rufus/{s=1;next} /^\\[/{s=0} !s' /etc/samba/smb.conf > /tmp/smb.rufus "
           "&& cat /tmp/smb.rufus > /etc/samba/smb.conf; rm -f /tmp/smb.rufus; "
-        "printf '\\n[Rufus]\\n   comment = Rufus\\n   path = %1/Rufus\\n"
+        "printf '\\n[%3]\\n   comment = Rufus\\n   path = %1/Rufus\\n"
           "   browseable = yes\\n   read only = no\\n   guest ok = yes\\n   force user = %2\\n"
           "   create mask = 0644\\n   directory mask = 0755\\n' >> /etc/samba/smb.conf; "
         "systemctl restart smbd 2>/dev/null || service smbd restart 2>/dev/null || true; "
         /*! wsdd : activer le service */
         "systemctl enable --now wsdd 2>/dev/null || true"
-        ).arg(path, user);
+        ).arg(path, user, NOM_PARTAGE_IMAGERIE);
 }
 #endif
 
@@ -4248,10 +4250,11 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
-        "sharing -a '%4' -n 'Partagé' -s 001 -g 000 2>/dev/null; "
+        "sharing -r 'Partagé' 2>/dev/null; "                                /*!< nom accentué d'une version antérieure */
+        "sharing -a '%4' -n '%6' -s 001 -g 000 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null\n"
         "%5\n")                                                             /*!< restart */
-        .arg(cnfTmp, cnfDst, pathTmp, path, restart);
+        .arg(cnfTmp, cnfDst, pathTmp, path, restart, NOM_PARTAGE_IMAGERIE);
 
     MySQLProgressDialog* dlg = new MySQLProgressDialog(
         tr("Préparation du serveur…\n"
@@ -4311,8 +4314,6 @@ bool MySQLInstaller::droitsDossierPartageConformes()
 }
 
 #if defined(Q_OS_WIN)
-static const QString NOM_PARTAGE_IMAGERIE = "RufusImagerie";
-
 /*!
  * \brief MySQLInstaller::windowsPartageImagerieScript
  * Partage réseau du seul dossier d'imagerie. « Tout le monde » est résolu depuis son SID : son nom
@@ -4338,8 +4339,8 @@ QString MySQLInstaller::windowsPartageImagerieScript(const QString& path) const
 
 /*!
  * \brief MySQLInstaller::partageImageriePresent
- * Windows : le dossier d'imagerie est-il partagé sur le réseau ? Ailleurs le partage est déjà posé —
- * par Samba sous Linux, par le système sous macOS où /Users/Shared l'est d'origine.
+ * Le partage RufusImagerie est-il déclaré (partage SMB sous Windows et macOS, section smb.conf
+ * sous Linux) ?
  */
 bool MySQLInstaller::partageImageriePresent()
 {
@@ -4352,7 +4353,7 @@ bool MySQLInstaller::partageImageriePresent()
     if (!smb.open(QIODevice::ReadOnly | QIODevice::Text))
         return false;
     const QString conf = QString::fromUtf8(smb.readAll());
-    const int deb = conf.indexOf("[Rufus]");
+    const int deb = conf.indexOf("[" + NOM_PARTAGE_IMAGERIE + "]");
     if (deb < 0)
         return false;
     const int fin = conf.indexOf("\n[", deb);
@@ -4366,7 +4367,7 @@ bool MySQLInstaller::partageImageriePresent()
             return false;
     return true;
 #else
-    return runCmd("sharing -l 2>/dev/null").contains(sharedFolderPath());
+    return runCmd("sharing -l 2>/dev/null").contains(NOM_PARTAGE_IMAGERIE);
 #endif
 }
 
@@ -4436,7 +4437,8 @@ bool MySQLInstaller::setupSharedFolder()
     runCmdElevated(
         "launchctl enable system/com.apple.smbd; "
         "launchctl kickstart -k system/com.apple.smbd; "
-        "sharing -a '" + path + "' -n 'Partagé' -s 001 -g 000; "
+        "sharing -r 'Partagé' 2>/dev/null; "
+        "sharing -a '" + path + "' -n '" + NOM_PARTAGE_IMAGERIE + "' -s 001 -g 000; "
         "launchctl kickstart -k system/com.apple.smbd; " + droits);
 
     return partageImageriePresent();
