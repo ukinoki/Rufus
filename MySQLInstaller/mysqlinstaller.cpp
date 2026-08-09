@@ -4185,7 +4185,7 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
           "sed -i '/^\\[global\\]/a server min protocol = NT1' /etc/samba/smb.conf; "
         /*! Section effacée puis réécrite : une section d'une version antérieure serait
             incomplète, et la retoucher clé par clé demanderait autant de sed que de clés. */
-        "awk '/^\\[Rufus/{s=1;next} /^\\[/{s=0} !s' /etc/samba/smb.conf > /tmp/smb.rufus "
+        "awk '/^\\[%3\\]/{s=1;next} /^\\[/{s=0} !s' /etc/samba/smb.conf > /tmp/smb.rufus "
           "&& cat /tmp/smb.rufus > /etc/samba/smb.conf; rm -f /tmp/smb.rufus; "
         "printf '\\n[%3]\\n   comment = Rufus\\n   path = %1/Rufus\\n"
           "   browseable = yes\\n   read only = no\\n   guest ok = yes\\n   force user = %2\\n"
@@ -4250,7 +4250,6 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
-        "sharing -r 'Partagé' 2>/dev/null; "                                /*!< nom d'une version antérieure */
         "sharing -a '%4' -n '%6' -s 001 -g 000 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null\n"
         "%5\n")                                                             /*!< restart */
@@ -4436,7 +4435,6 @@ bool MySQLInstaller::setupSharedFolder()
     runCmdElevated(
         "launchctl enable system/com.apple.smbd; "
         "launchctl kickstart -k system/com.apple.smbd; "
-        "sharing -r 'Partagé' 2>/dev/null; "
         "sharing -a '" + path + "' -n '" + NOM_PARTAGE_IMAGERIE + "' -s 001 -g 000; "
         "launchctl kickstart -k system/com.apple.smbd; " + droits);
 
