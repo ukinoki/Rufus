@@ -666,7 +666,7 @@ requete = </source>
     </message>
     <message>
         <location filename="ItemsLists/cls_iols.cpp" line="949"/>
-        <source>Metrre à jour</source>
+        <source>Mettre à jour</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -872,7 +872,7 @@ requete = </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="CarteVitale/lecteurvitale.cpp" line="244"/>
+        <location filename="CarteVitale/lecteurvitale.cpp" line="256"/>
         <source>Aucune carte Vitale lisible dans le lecteur.</source>
         <translation type="unfinished"></translation>
     </message>

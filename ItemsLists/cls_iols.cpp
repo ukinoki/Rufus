@@ -946,7 +946,7 @@ void IOLs::HasNewVersion(QWidget *parent)
                              + tr("La version") + " " + QLocale(QLocale::English).toString(lastversion, 'f',1) + " " + tr("de la liste des implants est disponible sur le site https://iolcon.org/") + "\n"
                              + tr("Voulez vous l'incorporer dans Rufus?") + "\n"
                              + tr("Aucun implant de votre base actuelle ne sera modifié"),
-                            UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList()<< tr("Plus tard") << tr("Metrre à jour"))
+                            UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList()<< tr("Plus tard") << tr("Mettre à jour"))
                         == UpSmallButton::STARTBUTTON)
                 {
                     ImportListeIOLS(docxml, guard);

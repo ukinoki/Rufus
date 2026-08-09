@@ -669,7 +669,7 @@ requete = </translation>
     </message>
     <message>
         <location filename="ItemsLists/cls_iols.cpp" line="949"/>
-        <source>Metrre à jour</source>
+        <source>Mettre à jour</source>
         <translation>Actualizar</translation>
     </message>
 </context>
@@ -875,7 +875,7 @@ requete = </translation>
         <translation>No se detectó ningún lector de tarjetas.</translation>
     </message>
     <message>
-        <location filename="CarteVitale/lecteurvitale.cpp" line="244"/>
+        <location filename="CarteVitale/lecteurvitale.cpp" line="256"/>
         <source>Aucune carte Vitale lisible dans le lecteur.</source>
         <translation>No hay ninguna tarjeta Vitale legible en el lector.</translation>
     </message>

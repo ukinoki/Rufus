@@ -670,7 +670,7 @@ query = </translation>
     </message>
     <message>
         <location filename="ItemsLists/cls_iols.cpp" line="949"/>
-        <source>Metrre à jour</source>
+        <source>Mettre à jour</source>
         <translation>Update</translation>
     </message>
 </context>
@@ -876,7 +876,7 @@ query = </translation>
         <translation>No card reader detected.</translation>
     </message>
     <message>
-        <location filename="CarteVitale/lecteurvitale.cpp" line="244"/>
+        <location filename="CarteVitale/lecteurvitale.cpp" line="256"/>
         <source>Aucune carte Vitale lisible dans le lecteur.</source>
         <translation>No readable Vitale card in the reader.</translation>
     </message>
