@@ -2166,8 +2166,8 @@ bool MySQLInstaller::serveurLocalPresent()
 
 /*!
  * \brief MySQLInstaller::verifierEtReparerConfigMonoposte
- * MONOPOSTE : vérification SILENCIEUSE de la config serveur à chaque démarrage, puis réparation SUR
- * CONSENTEMENT si nécessaire. Seul le monoposte corrige la config (un client ne peut pas toucher au serveur).
+ * MONOPOSTE : vérification silencieuse de la config serveur à chaque démarrage, puis réparation
+ * immédiate si nécessaire (un poste client ne touche jamais à la config du serveur).
  */
 void MySQLInstaller::verifierEtReparerConfigMonoposte()
 {
@@ -2177,40 +2177,14 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     m_login    = LOGIN_SQL;
     m_password = motDePasseSQL();
 
-    /*! Deux signaux sûrs, pour rien coûter à un démarrage normal : le dossier partagé a disparu, ou
-     *  secure_file_priv ne pointe plus sur un dossier valide. Le PATH du client n'est pas testé ici (faux
-     *  positifs), et les contrôles lourds sont refaits par executerEtapesConfig() pendant la réparation. */
-    QStringList problemes;
-    if (!QDir(sharedFolderPath()).exists())
-        problemes << tr("le dossier partagé est introuvable");
-    if (!droitsDossierPartageConformes())
-        problemes << tr("les droits du dossier d'imagerie sont incorrects");
-    if (!partageImageriePresent())
-        problemes << tr("le dossier d'imagerie n'est pas partagé sur le réseau");
-    if (!DataBase::I()->dirsecure_file_priv())
-        problemes << tr("la variable serveur secure_file_priv n'est pas correctement positionnée");
-
-    if (problemes.isEmpty())
+    /*! Signaux sûrs, pour rien coûter à un démarrage normal. Le PATH n'est pas testé ici (faux positifs)
+     *  et les contrôles lourds sont refaits par executerEtapesConfig() pendant la réparation. */
+    const bool conforme = QDir(sharedFolderPath()).exists()
+                          && droitsDossierPartageConformes()
+                          && partageImageriePresent()
+                          && DataBase::I()->dirsecure_file_priv();
+    if (conforme)
         return;                                   /*!< cas courant : tout est conforme, RIEN (silencieux) */
-
-    /*! Anomalie détectée : on PROPOSE de corriger (peut demander le mdp administrateur du poste). */
-    UpMessageBox msgbox(m_parent);
-    msgbox.setText(tr("Configuration du serveur MySQL à corriger"));
-    msgbox.setInformativeText(
-        tr("La configuration du serveur MySQL présente une ou plusieurs anomalies :") + "\n• "
-        + problemes.join("\n• ") + "\n\n"
-        + tr("Rufus peut tenter de les corriger maintenant. Cette opération peut demander le mot de "
-             "passe administrateur de l'ordinateur.") + "\n"
-        + tr("Vous pouvez aussi continuer : Rufus fonctionnera, mais certaines fonctions (imagerie, "
-             "sauvegarde) pourraient être perturbées."));
-    msgbox.setIcon(UpMessageBox::Warning);
-    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Plus tard"));
-    UpSmallButton *Rep   = new UpSmallButton(); Rep->setText(tr("Corriger maintenant"));
-    msgbox.addButton(Annul, UpSmallButton::CLOSEBUTTON);
-    msgbox.addButton(Rep,   UpSmallButton::STARTBUTTON);
-    msgbox.exec();
-    if (msgbox.clickedButton() != Rep)
-        return;
 
     /*! Réparation : on REJOUE les étapes de config (PATH, dossier partagé, secure_file_priv,
      *  lecture/écriture, privilèges) SANS réinstaller ni recréer d'utilisateur (m_freshInstall=false). */
