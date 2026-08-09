@@ -1346,192 +1346,193 @@ Verificați că respectivul cont « %2 » deține privilegiul FILE și că drept
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2195"/>
-        <source>L&apos;opération peut durer une à deux minutes, pendant lesquelles l&apos;écran peut sembler figé.</source>
-        <translation>Operațiunea poate dura una-două minute, timp în care ecranul poate părea blocat.</translation>
+        <source>Selon la taille du dossier d&apos;imagerie, l&apos;opération peut durer une à deux minutes, pendant lesquelles l&apos;écran peut sembler figé.</source>
+        <oldsource>L&apos;opération peut durer une à deux minutes, pendant lesquelles l&apos;écran peut sembler figé.</oldsource>
+        <translation>În funcție de dimensiunea folderului de imagistică, operațiunea poate dura una-două minute, timp în care ecranul poate părea blocat.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2202"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2203"/>
         <source>Correction de la configuration MySQL</source>
         <translation>Corectarea configurației MySQL</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2203"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2204"/>
         <source>Vérification et correction de la configuration en cours…</source>
         <translation>Verificarea și corectarea configurației în curs…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2213"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2214"/>
         <source>Configuration corrigée</source>
         <translation>Configurație corectată</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2214"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2215"/>
         <source>La configuration du serveur MySQL a été corrigée.</source>
         <translation>Configurația serverului MySQL a fost corectată.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2216"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2217"/>
         <source>Correction incomplète</source>
         <translation>Corectare incompletă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2217"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2218"/>
         <source>Certaines anomalies de configuration n&apos;ont pas pu être corrigées.</source>
         <translation>Unele anomalii de configurație nu au putut fi corectate.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2218"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2219"/>
         <source>Rufus continue ; certaines fonctions (imagerie, sauvegarde) peuvent être affectées.</source>
         <translation>Rufus continuă; unele funcții (imagistică, copie de siguranță) pot fi afectate.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2602"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2603"/>
         <source>Mot de passe générique bientôt désactivé</source>
         <translation>Parolă generică dezactivată în curând</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2603"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2604"/>
         <source>Ce poste utilise un mot de passe sécurisé pour accèder au serveur de base de données.</source>
         <translation>Această stație utilizează o parolă securizată pentru a accesa serverul bazei de date.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2604"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2605"/>
         <source>Un mot de passe générique est par ailleurs maintenu</source>
         <translation>O parolă generică este de altfel menținută</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2605"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2606"/>
         <source>pour des raisons de compatibilité avec les versions antérieures de Rufus</source>
         <translation>din motive de compatibilitate cu versiunile anterioare ale Rufus</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2606"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2607"/>
         <source>Ce mot de passe générique sera automatiquement désactivé</source>
         <translation>Această parolă generică va fi dezactivată automat</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2607"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2608"/>
         <source>le %1 dans %2 jours</source>
         <translation>la %1, peste %2 zile</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2607"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2608"/>
         <source>dd MMMM yyyy</source>
         <translation>dd MMMM yyyy</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2608"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2609"/>
         <source>Assurez-vous d&apos;ici là que les autres postes qui ont accès à ce serveur ont bien récupéré le mot de passe sécurisé.</source>
         <translation>Asigurați-vă până atunci că celelalte stații care au acces la acest server au recuperat parola securizată.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2610"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2611"/>
         <source>Ne plus afficher ce message</source>
         <translation>Nu mai afișa acest mesaj</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2610"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2611"/>
         <source>J&apos;ai compris</source>
         <translation>Am înțeles</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2628"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2629"/>
         <source>prochainement</source>
         <translation>în curând</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2631"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2632"/>
         <source>Ce poste utilise encore le mot de passe générique (de mise en route),</source>
         <translation>Această stație utilizează încă parola generică (de pornire),</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2633"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2634"/>
         <source>qui sera désactivé le %1 (dans %2 jours).</source>
         <translation>care va fi dezactivată la %1 (peste %2 zile).</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2635"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2636"/>
         <source>qui sera prochainement désactivé.</source>
         <translation>care va fi dezactivată în curând.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2643"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2644"/>
         <source>Le mot de passe sécurisé du cabinet a été mis en place depuis le poste « %1 ».</source>
         <translation>Parola securizată a cabinetului a fost pusă în funcțiune de pe stația « %1 ».</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2644"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2645"/>
         <source>Récupérez-le sur ce poste (copié sur une clé USB, ou via le menu Édition / Paramètres) et enregistrez-le ici : sans lui, cet accès cessera de fonctionner.</source>
         <translation>Recuperați-o pe această stație (copiată pe un stick USB sau prin meniul Editare / Parametri) și înregistrați-o aici: fără ea, acest acces va înceta să funcționeze.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2647"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2648"/>
         <source>Le poste qui a mis en place ce mot de passe n&apos;est pas identifié (sécurisation faite par une version antérieure de Rufus).</source>
         <translation>Stația care a pus în funcțiune această parolă nu este identificată (securizare făcută de o versiune anterioară a Rufus).</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2649"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2650"/>
         <source>Récupérez-le depuis n&apos;importe quel poste à jour du cabinet (copié sur une clé USB, ou via le menu Édition / Paramètres) et enregistrez-le ici : sans lui, cet accès cessera de fonctionner.</source>
         <translation>Recuperați-o de pe orice stație actualizată a cabinetului (copiată pe un stick USB sau prin meniul Editare / Parametri) și înregistrați-o aici: fără ea, acest acces va înceta să funcționeze.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2659"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2660"/>
         <source>Mot de passe du cabinet à récupérer</source>
         <translation>Parola cabinetului de recuperat</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2662"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2663"/>
         <source>Continuer avec le
 mot de passe temporaire</source>
         <translation>Continuă cu
 parola temporară</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2663"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2664"/>
         <source>Renseigner le nouveau
 mot de passe</source>
         <translation>Indică noua
 parolă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2665"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2666"/>
         <source>Le mot de passe est égaré,
 en créer un nouveau</source>
         <translation>Parola este pierdută,
 creează una nouă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2683"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2684"/>
         <source>Récupérer le mot de passe du cabinet</source>
         <translation>Recuperează parola cabinetului</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2684"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2685"/>
         <source>Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur laquelle il a été copié depuis un poste à jour.</source>
         <translation>Introduceți parola securizată a cabinetului sau importați-o de pe stickul USB pe care a fost copiată de pe o stație actualizată.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2692"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2693"/>
         <source>Mot de passe non récupéré</source>
         <translation>Parolă nerecuperată</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2693"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2694"/>
         <source>Ce poste continue avec le mot de passe générique, qui sera désactivé.</source>
         <translation>Această stație continuă cu parola generică, care va fi dezactivată.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2694"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2695"/>
         <source>Connectez-vous depuis un poste du réseau local ou depuis le serveur pour récupérer ou recréer le mot de passe sécurisé du cabinet.</source>
         <translation>Conectați-vă de pe o stație din rețeaua locală sau de pe server pentru a recupera ori a recrea parola securizată a cabinetului.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2716"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2717"/>
         <source>Base de données sécurisée</source>
         <translation>Bază de date securizată</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2718"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2719"/>
         <source>Aucun mot de passe connu ne permet de se connecter à cette base : elle a été sécurisée sur un autre poste.
 
 Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne, ou le saisir si vous le connaissez.</source>
@@ -1540,159 +1541,159 @@ Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB depui
 Puteți recupera parola cabinetului copiată pe un stick USB de pe o stație care funcționează, sau o puteți introduce dacă o cunoașteți.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2722"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2723"/>
         <source>Annuler</source>
         <translation>Anulează</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2723"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2724"/>
         <source>Saisir le mot de passe</source>
         <translation>Introdu parola</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2724"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2725"/>
         <source>Importer depuis une clé USB</source>
         <translation>Importă de pe un stick USB</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2730"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2731"/>
         <source>Je n&apos;ai aucun mot de passe</source>
         <translation>Nu am nicio parolă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2731"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2732"/>
         <source>Réinitialiser le programme</source>
         <translation>Reinițializează programul</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2748"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2749"/>
         <source>Sélectionnez le fichier du mot de passe sur la clé USB</source>
         <translation>Selectați fișierul parolei de pe stickul USB</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2766"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2767"/>
         <source>Fichier illisible</source>
         <translation>Fișier ilizibil</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2767"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2768"/>
         <source>Ce fichier ne contient pas un mot de passe valide.</source>
         <translation>Acest fișier nu conține o parolă validă.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2773"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2774"/>
         <source>Entrez le mot de passe MySQL du cabinet :</source>
         <translation>Introduceți parola MySQL a cabinetului:</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2782"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2783"/>
         <source>Mot de passe incorrect</source>
         <translation>Parolă incorectă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2783"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2784"/>
         <source>Ce mot de passe ne permet pas de se connecter à la base de données.</source>
         <translation>Această parolă nu permite conectarea la baza de date.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2801"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2802"/>
         <source>Impossible depuis un poste distant</source>
         <translation>Imposibil de pe o stație la distanță</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2802"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2803"/>
         <source>La recréation du mot de passe doit se faire depuis un poste du réseau local ou le serveur.</source>
         <translation>Recrearea parolei trebuie făcută de pe o stație din rețeaua locală sau de pe server.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2807"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2808"/>
         <source>Impossible</source>
         <translation>Imposibil</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2808"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2809"/>
         <source>Le serveur MySQL ne prend pas en charge cette opération (version trop ancienne).</source>
         <translation>Serverul MySQL nu acceptă această operațiune (versiune prea veche).</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2814"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2815"/>
         <source>Saisissez le mot de passe Administrateur</source>
         <translation>Introduceți parola de Administrator</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2846"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2847"/>
         <source>Base de données non sécurisée</source>
         <translation>Bază de date nesecurizată</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2847"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2848"/>
         <source>Ce poste se connecte au serveur avec le mot de passe générique de mise en route.</source>
         <translation>Această stație se conectează la server cu parola generică de pornire.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2848"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2849"/>
         <source>Pour sécuriser cet accès, connectez-vous depuis un poste du réseau local ou depuis le serveur :</source>
         <translation>Pentru a securiza acest acces, conectați-vă de pe o stație din rețeaua locală sau de pe server:</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2849"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2850"/>
         <source>la création du mot de passe sécurisé s&apos;y fera automatiquement.</source>
         <translation>crearea parolei securizate se va face acolo automat.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2850"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2851"/>
         <source>Cette sécurisation ne peut pas se faire depuis un poste distant.</source>
         <translation>Această securizare nu poate fi făcută de pe o stație la distanță.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2941"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2942"/>
         <source>Mot de passe générique à désactiver</source>
         <translation>Parolă generică de dezactivat</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2942"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2943"/>
         <source>Ce poste utilise un mot de passe sécurisé pour accéder à la base de données.</source>
         <translation>Această stație utilizează o parolă securizată pentru a accesa baza de date.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2943"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2944"/>
         <source>Un mot de passe générique de compatibilité est cependant toujours actif, alors que sa date d&apos;échéance est dépassée depuis %1 jours.</source>
         <translation>O parolă generică de compatibilitate este însă în continuare activă, deși data ei de expirare este depășită de %1 zile.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2945"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2946"/>
         <source>Sa désactivation ne peut pas se faire depuis un poste distant : connectez-vous depuis un poste du réseau local ou depuis le serveur pour la déclencher.</source>
         <translation>Dezactivarea ei nu poate fi făcută de pe o stație la distanță: conectați-vă de pe o stație din rețeaua locală sau de pe server pentru a o declanșa.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3005"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3006"/>
         <source>Téléchargement de MySQL %1 (Oracle)…</source>
         <translation>Descărcarea MySQL %1 (Oracle)…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3066"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3067"/>
         <source>Installation et configuration de MySQL…
 (Autorisez l&apos;opération dans la fenêtre qui s&apos;affiche)</source>
         <translation>Instalarea și configurarea MySQL…
 (Autorizați operațiunea în fereastra care se afișează)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3204"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3205"/>
         <source>Téléchargement de MySQL %1…</source>
         <translation>Descărcarea MySQL %1…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3258"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3259"/>
         <source>Extraction des fichiers MySQL…</source>
         <translation>Extragerea fișierelor MySQL…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3267"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3268"/>
         <source>Extraction échouée</source>
         <translation>Extragere eșuată</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3268"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3269"/>
         <source>L&apos;archive MySQL n&apos;a pas pu être extraite (mysqld.exe introuvable).
 
 Détail : %1</source>
@@ -1701,34 +1702,34 @@ Détail : %1</source>
 Detaliu: %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3269"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3270"/>
         <source>(aucun détail)</source>
         <translation>(niciun detaliu)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3279"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3280"/>
         <source>Configuration échouée</source>
         <translation>Configurare eșuată</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3280"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3281"/>
         <source>Impossible d&apos;écrire %1.</source>
         <translation>Imposibil de scris %1.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3297"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3298"/>
         <source>Initialisation de la base de données,
 cela peut prendre quelques instants…</source>
         <translation>Inițializarea bazei de date,
 aceasta poate dura câteva momente…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3300"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3301"/>
         <source>Initialisation échouée</source>
         <translation>Inițializare eșuată</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3301"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3302"/>
         <source>L&apos;initialisation du datadir MySQL a échoué.
 
 %1</source>
@@ -1737,22 +1738,22 @@ aceasta poate dura câteva momente…</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3312"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3313"/>
         <source>Installation incomplète</source>
         <translation>Instalare incompletă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3313"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3314"/>
         <source>Les fichiers MySQL sont en place mais l&apos;installation n&apos;est pas détectée correctement.</source>
         <translation>Fișierele MySQL sunt la locul lor, dar instalarea nu este detectată corect.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3318"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3319"/>
         <source>Démarrage du service échoué</source>
         <translation>Pornirea serviciului a eșuat</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3319"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3320"/>
         <source>MySQL est installé mais le service n&apos;a pas démarré.
 
 %1</source>
@@ -1761,17 +1762,17 @@ aceasta poate dura câteva momente…</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3345"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3346"/>
         <source>Installation de MySQL via apt-get…</source>
         <translation>Instalarea MySQL prin apt-get…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3361"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3362"/>
         <source>Initialisation impossible</source>
         <translation>Inițializare imposibilă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3362"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3363"/>
         <source>MySQL est installé mais la base de données n&apos;a pas pu être initialisée (%1/data).
 
 Le serveur ne peut pas démarrer.
@@ -1786,151 +1787,151 @@ Detaliu (%2):
 %3</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3366"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3367"/>
         <source>(journal indisponible)</source>
         <translation>(jurnal indisponibil)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3425"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3426"/>
         <source>Redémarrage de MySQL…</source>
         <translation>Repornirea MySQL…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3473"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3474"/>
         <source>Étape : %1</source>
         <translation>Etapă: %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3474"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3475"/>
         <source>Serveur renvoie : « %1 »</source>
         <translation>Serverul răspunde: « %1 »</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3475"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3476"/>
         <source>(aucune réponse / connexion impossible)</source>
         <translation>(niciun răspuns / conectare imposibilă)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3476"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3477"/>
         <source>Attendu : « %1 »</source>
         <translation>Așteptat: « %1 »</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3477"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3478"/>
         <source>Fichier %1</source>
         <translation>Fișier %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3478"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3479"/>
         <source>contient : « %1 »</source>
         <translation>conține: « %1 »</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3491"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3492"/>
         <source>Écriture du my.ini temporaire impossible.</source>
         <translation>Scrierea fișierului my.ini temporar imposibilă.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3517"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3518"/>
         <source>copie du my.ini / redémarrage du serveur (commande élevée en échec)</source>
         <translation>copierea my.ini / repornirea serverului (comandă cu drepturi ridicate eșuată)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3524"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3525"/>
         <source>vérification de la variable serveur après redémarrage</source>
         <translation>verificarea variabilei serverului după repornire</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3961"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3962"/>
         <source>Compte de secours non créé</source>
         <translation>Cont de rezervă necreat</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3962"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3963"/>
         <source>Rufus n&apos;a pas pu créer le compte de secours sur le serveur MySQL.</source>
         <translation>Rufus nu a putut crea contul de rezervă pe serverul MySQL.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3963"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3964"/>
         <source>Rien n&apos;a été modifié ; Rufus réessaiera au prochain démarrage.</source>
         <translation>Nimic nu a fost modificat; Rufus va încerca din nou la următoarea pornire.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3972"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3977"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3973"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3978"/>
         <source>Mot de passe de secours enregistré</source>
         <translation>Parolă de rezervă înregistrată</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3973"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3974"/>
         <source>Votre mot de passe de secours est en place.</source>
         <translation>Parola dumneavoastră de rezervă este activă.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3974"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3975"/>
         <source>En revanche, Rufus n&apos;a pas pu supprimer le compte « root » de MySQL</source>
         <translation>În schimb, Rufus nu a putut șterge contul « root » din MySQL</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3978"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3979"/>
         <source>Votre mot de passe de secours est en place</source>
         <translation>Parola dumneavoastră de rezervă este activă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3979"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3980"/>
         <source>Ne l&apos;oubliez pas : il n&apos;est écrit nulle part, et c&apos;est lui qui vous permettra de récupérer l&apos;accès à votre base si tous les autres mots de passe sont perdus.</source>
         <translation>Nu o uitați: nu este scrisă nicăieri și ea vă va permite să recuperați accesul la baza dumneavoastră dacă toate celelalte parole se pierd.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4012"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4013"/>
         <source>Mot de passe de secours refusé</source>
         <translation>Parolă de rezervă refuzată</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4013"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4014"/>
         <source>Ce mot de passe n&apos;ouvre pas de session sur le serveur MySQL du cabinet.</source>
         <translation>Această parolă nu deschide o sesiune pe serverul MySQL al cabinetului.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4014"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4015"/>
         <source>Vérifiez qu&apos;il s&apos;agit bien du mot de passe de secours choisi à l&apos;installation de la base.</source>
         <translation>Verificați că este într-adevăr parola de rezervă aleasă la instalarea bazei.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4024"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4025"/>
         <source>Rétablissement impossible</source>
         <translation>Restabilire imposibilă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4025"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4026"/>
         <source>La connexion de secours fonctionne, mais Rufus n&apos;a pas pu réécrire les comptes d&apos;accès à la base.</source>
         <translation>Conectarea de rezervă funcționează, dar Rufus nu a putut rescrie conturile de acces la bază.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4101"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4243"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4102"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4244"/>
         <source>Préparation du serveur…
 Cela peut durer plusieurs minutes.</source>
         <translation>Pregătirea serverului…
 Aceasta poate dura câteva minute.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4545"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4546"/>
         <source>Non</source>
         <translation>Nu</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4545"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4546"/>
         <source>Oui</source>
         <translation>Da</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4865"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4866"/>
         <source>Pas d&apos;accès réseau</source>
         <translation>Fără acces la rețea</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4866"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4867"/>
         <source>Absence d&apos;accès réseau. Le programme ne peut pas télécharger le fichier d&apos;installation de MySQL.
 
 Fermeture du programme.</source>
@@ -1939,12 +1940,12 @@ Fermeture du programme.</source>
 Închiderea programului.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4875"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4876"/>
         <source>Lien de téléchargement introuvable</source>
         <translation>Link de descărcare negăsit</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4876"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4877"/>
         <source>Impossible de résoudre le lien de téléchargement. Le programme ne peut pas télécharger le fichier d&apos;installation de MySQL.
 
 Fermeture du programme.</source>
@@ -1953,42 +1954,42 @@ Fermeture du programme.</source>
 Închiderea programului.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4892"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4893"/>
         <source>Téléchargement de MySQL impossible</source>
         <translation>Descărcare MySQL imposibilă</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4893"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4894"/>
         <source>Rufus n&apos;a pas réussi à télécharger MySQL : le site n&apos;est pas accessible.</source>
         <translation>Rufus nu a reușit să descarce MySQL: site-ul nu este accesibil.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4894"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4895"/>
         <source>Vous pouvez installer MySQL vous-même : téléchargez-le et installez-le sans rien configurer.</source>
         <translation>Puteți instala MySQL dumneavoastră: descărcați-l și instalați-l fără a configura nimic.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4895"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4896"/>
         <source>Notez simplement le login et le mot de passe de l&apos;utilisateur que vous avez créé.</source>
         <translation>Notați doar loginul și parola utilizatorului pe care l-ați creat.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4896"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4897"/>
         <source>Relancez ensuite Rufus : il détectera la présence du serveur</source>
         <translation>Reporniți apoi Rufus: va detecta prezența serverului</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4897"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4898"/>
         <source>et vous demandera ce login et ce mot de passe.</source>
         <translation>și vă va cere acest login și această parolă.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4898"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4899"/>
         <source>Avec ces renseignements, il se connectera au serveur</source>
         <translation>Cu aceste informații, se va conecta la server</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4899"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4900"/>
         <source>et le configurera automatiquement pour son usage.</source>
         <translation>și îl va configura automat pentru utilizarea sa.</translation>
     </message>
@@ -5025,13 +5026,13 @@ de siguranță</translation>
     </message>
     <message>
         <location filename="utils.cpp" line="1121"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3884"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3885"/>
         <source>Confirmez le mot de passe</source>
         <translation>Confirmați parola</translation>
     </message>
     <message>
         <location filename="utils.cpp" line="1147"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3908"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3909"/>
         <source>Saisie incomplète</source>
         <translation>Completare incompletă</translation>
     </message>
@@ -5042,13 +5043,13 @@ de siguranță</translation>
     </message>
     <message>
         <location filename="utils.cpp" line="1152"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3913"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3914"/>
         <source>Mots de passe différents</source>
         <translation>Parole diferite</translation>
     </message>
     <message>
         <location filename="utils.cpp" line="1153"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3914"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3915"/>
         <source>Le mot de passe et sa confirmation ne correspondent pas.</source>
         <translation>Parola și confirmarea ei nu corespund.</translation>
     </message>
@@ -5200,7 +5201,7 @@ Păstrați-o într-un loc sigur (pe hârtie sau pe un stick USB): este necesară
         <translation>IMPORTANT: parola generică de acces la baza de date tocmai a fost ștearsă.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3874"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3875"/>
         <source>Choisissez un mot de passe de SECOURS pour votre base de données.
 
 Il ne servira qu&apos;à reprendre la main sur votre base si tous les autres
@@ -5223,14 +5224,14 @@ Alegeți ceva ce veți regăsi peste zece ani
 - fără caractere speciale sau cu diacritice -</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3882"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3883"/>
         <source>Saisissez le mot de passe de SECOURS choisi lors de l&apos;installation
 de votre base de données.</source>
         <translation>Introduceți parola de REZERVĂ aleasă la instalarea
 bazei dumneavoastră de date.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3909"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3910"/>
         <source>Veuillez renseigner un mot de passe.</source>
         <translation>Vă rugăm să indicați o parolă.</translation>
     </message>
