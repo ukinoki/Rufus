@@ -3537,22 +3537,6 @@ liste des villes</string>
                <bool>true</bool>
               </property>
              </widget>
-             <widget class="QCheckBox" name="NoComptacheckBox">
-              <property name="geometry">
-               <rect>
-                <x>5</x>
-                <y>50</y>
-                <width>351</width>
-                <height>20</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Ne pas enregistrer de comptabilité</string>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
             </widget>
            </widget>
           </item>

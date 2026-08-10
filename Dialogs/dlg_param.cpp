@@ -371,12 +371,13 @@ dlg_param::dlg_param(QWidget *parent) :
    /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
 
     /*-------------------- GESTION MODE COMPTABILITÉ-------------------------------------------------------*/
-    ui->NoComptacheckBox->setChecked(m_parametres->sanscompta());
-    connect(ui->NoComptacheckBox, &QCheckBox::checkStateChanged, this, [=, this](int state) {
-        const bool sanscompta = (state == Qt::Checked);
+    ui->ComptacheckBox->setChecked(!m_parametres->sanscompta());
+    ui->ComptaSimplecheckBox->setEnabled(false);
+    connect(ui->ComptacheckBox, &QCheckBox::checkStateChanged, this, [=, this](int state) {
+        const bool aveccompta = (state == Qt::Checked);
         UpMessageBox msgbox(this);
-        msgbox.setText(sanscompta? tr("Vous avez choisi de ne pas enregistrer de comptabilité.")
-                                  : tr("Vous avez choisi d'enregistrer une comptabilité."));
+        msgbox.setText(aveccompta? tr("Vous avez choisi d'enregistrer une comptabilité.")
+                                  : tr("Vous avez choisi de ne pas enregistrer de comptabilité."));
         msgbox.setInformativeText(tr("Ce réglage concerne toute la base et ne sera entièrement pris en compte "
                                      "qu'au prochain démarrage de Rufus.\nVoulez-vous l'enregistrer?"));
         msgbox.setIcon(UpMessageBox::Warning);
@@ -387,12 +388,12 @@ dlg_param::dlg_param(QWidget *parent) :
         msgbox.exec();
         if (msgbox.clickedButton() != &OKBouton)
         {
-            ui->NoComptacheckBox->blockSignals(true);
-            ui->NoComptacheckBox->setChecked(!sanscompta);
-            ui->NoComptacheckBox->blockSignals(false);
+            ui->ComptacheckBox->blockSignals(true);
+            ui->ComptacheckBox->setChecked(!aveccompta);
+            ui->ComptacheckBox->blockSignals(false);
             return;
         }
-        db->setsanscompta(sanscompta);
+        db->setsanscompta(!aveccompta);
     });
     /*-------------------- GESTION MODE COMPTABILITÉ-------------------------------------------------------*/
 
