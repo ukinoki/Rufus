@@ -1300,19 +1300,6 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
     return textcorps;
 }
 
-/*!
- * \brief Procedures::ResolutionRendu
- * Résolution (dpi) du QPdfWriter, seul périphérique par lequel TextPrinter rend le document
- * (print, preview et exportPdf passent tous par getPDFByteArray). C'est elle qui sert à
- * calibrer la résolution d'enregistrement de la signature.
- */
-int Procedures::ResolutionRendu()
-{
-    QBuffer buf;
-    QPdfWriter pw(&buf);
-    return pw.resolution();
-}
-
 /*---------------------------------------------------------------------------------
     Retourne l'entête du document à imprimer
 -----------------------------------------------------------------------------------*/
@@ -2091,58 +2078,61 @@ QString Procedures::SessionStatus()
             txtstatut += tr("assistant");
     }
 
-    if (soigntnonassistant && currentuser()->NumPS() > 0)
+    if (soigntnonassistant && currentuser()->NumPS() > 0 && db->parametres()->cotationsfrance())
         txtstatut += "\n" + tr("RPPS :") + "\t\t\t" + QString::number(currentuser()->NumPS());
-    if (medecin && ! assistant &&  currentuser()->numOrdre() !="")
+    if (medecin && ! assistant &&  currentuser()->numOrdre() !="" && db->parametres()->cotationsfrance())
         txtstatut += "\nADELI :\t\t\t" + currentuser()->numOrdre();
-    User *employeur = Datas::I()->users->getById(currentuser()->idemployeur());
-    if (soignant)
+    if (!db->parametres()->sanscompta())
     {
-        txtstatut += "\n" + tr("Exercice :\t\t\t");
-        if (liberal)
-            txtstatut += tr("libéral");
-        else if (liberalSEL)
+        User *employeur = Datas::I()->users->getById(currentuser()->idemployeur());
+        if (soignant)
         {
-            QString txtsalarie = tr("libéral en SEL");
-            txtsalarie += " - " + (employeur? employeur->login() : "null");
-            txtstatut += txtsalarie;
-        }
-        else if (salarie)
-        {
-            QString txtsalarie = tr("salarié");
-            txtsalarie += " - " + tr("Employeur : ") + (employeur? employeur->login() : "null");
-            txtstatut += txtsalarie;
-        }
-        else if (remplacant)
-            txtstatut += tr("remplaçant");
-    }
-    if (respliberal)
-    {
-        QString txtliberal ("");
-        Compte * cptencaissement = Datas::I()->comptes->getById(currentuser()->idcompteencaissementhonoraires());
-        if (cptencaissement)
-        {
-            txtliberal +=  "\n" + tr("Honoraires encaissés sur le compte :") + "\t" + cptencaissement->nomabrege();
-            if (Datas::I()->users->getById(currentuser()->idcomptableactes()) != Q_NULLPTR)
-                txtliberal += tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptableactes())->login();
-        }
-        txtstatut += txtliberal;
-    }
-    else if (respsalarie)
-    {
-        if (employeur)
-        {
-            Compte *cptemployeur = Datas::I()->comptes->getById(employeur->idcompteencaissementhonoraires());
-            if (cptemployeur)
+            txtstatut += "\n" + tr("Exercice :\t\t\t");
+            if (liberal)
+                txtstatut += tr("libéral");
+            else if (liberalSEL)
             {
-                txtstatut += "\n" + tr("Honoraires encaissés sur le compte :") + "\t";
-                txtstatut += cptemployeur->nomabrege() + " ";
-                txtstatut += tr("de") + " " + employeur->login();
+                QString txtsalarie = tr("libéral en SEL");
+                txtsalarie += " - " + (employeur? employeur->login() : "null");
+                txtstatut += txtsalarie;
+            }
+            else if (salarie)
+            {
+                QString txtsalarie = tr("salarié");
+                txtsalarie += " - " + tr("Employeur : ") + (employeur? employeur->login() : "null");
+                txtstatut += txtsalarie;
+            }
+            else if (remplacant)
+                txtstatut += tr("remplaçant");
+        }
+        if (respliberal)
+        {
+            QString txtliberal ("");
+            Compte * cptencaissement = Datas::I()->comptes->getById(currentuser()->idcompteencaissementhonoraires());
+            if (cptencaissement)
+            {
+                txtliberal +=  "\n" + tr("Honoraires encaissés sur le compte :") + "\t" + cptencaissement->nomabrege();
+                if (Datas::I()->users->getById(currentuser()->idcomptableactes()) != Q_NULLPTR)
+                    txtliberal += tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptableactes())->login();
+            }
+            txtstatut += txtliberal;
+        }
+        else if (respsalarie)
+        {
+            if (employeur)
+            {
+                Compte *cptemployeur = Datas::I()->comptes->getById(employeur->idcompteencaissementhonoraires());
+                if (cptemployeur)
+                {
+                    txtstatut += "\n" + tr("Honoraires encaissés sur le compte :") + "\t";
+                    txtstatut += cptemployeur->nomabrege() + " ";
+                    txtstatut += tr("de") + " " + employeur->login();
+                }
             }
         }
+        else if (remplacant)
+            txtstatut += "\n" + tr("Statut :") + "\t\t\t" + tr("remplaçant");
     }
-    else if (remplacant)
-        txtstatut += "\n" + tr("Statut :") + "\t\t\t" + tr("remplaçant");
     if (soigntnonassistant && cotation)
         txtstatut += "\n" + tr("Cotation des actes :") + "\t\t" + (cotation? tr("Oui") : tr("Sans"));
     if (medecin && cotation && db->parametres()->cotationsfrance())
@@ -2158,21 +2148,24 @@ QString Procedures::SessionStatus()
         txtstatut += "\n" + tr("Secteur conventionnel :") + "\t\t" + secteur;
         if (!m_parametres->cotationsfrance()) txtstatut += "\n" + tr("OPTAM :") + "\t\t\t" + (currentuser()->isOPTAM() ? "Oui": "Non");
     }
-    if (respliberal || soccomptable)
+    if (!db->parametres()->sanscompta())
     {
-        QString cptabledefaut ("");
-        Compte *cpt = Datas::I()->comptes->getById(currentuser()->idcomptepardefaut());
-        if (cpt)
+        if (respliberal || soccomptable)
         {
-            User *usrcptble = Datas::I()->users->getById(cpt->idUser());
-            cptabledefaut = tr("de") + " " + (usrcptble? usrcptble->login() : "null");
-            txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :") + "\t"
-                         + cpt->nomabrege() + " "
-                         + cptabledefaut;
+            QString cptabledefaut ("");
+            Compte *cpt = Datas::I()->comptes->getById(currentuser()->idcomptepardefaut());
+            if (cpt)
+            {
+                User *usrcptble = Datas::I()->users->getById(cpt->idUser());
+                cptabledefaut = tr("de") + " " + (usrcptble? usrcptble->login() : "null");
+                txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :") + "\t"
+                        + cpt->nomabrege() + " "
+                        + cptabledefaut;
+            }
         }
+        if (respliberal && db->parametres()->comptafrance())
+            txtstatut += "\n" + tr("Membre d'une AGA :") + "\t\t" + (currentuser()->isAGA() ? tr("Oui") : tr("Sans"));
     }
-    if (respliberal && db->parametres()->comptafrance())
-        txtstatut += "\n" + tr("Membre d'une AGA :") + "\t\t" + (currentuser()->isAGA() ? tr("Oui") : tr("Sans"));
     return txtstatut;
 }
 

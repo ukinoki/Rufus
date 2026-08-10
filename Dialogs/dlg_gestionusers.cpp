@@ -480,9 +480,10 @@ void dlg_gestionusers::changeSignature()
         return;
     }
 
-    /*! on stocke à la résolution du rendu (QPdfWriter, cf. Procedures::ResolutionRendu) pour que
-     *  l'image imprimée soit à sa taille native, sans agrandissement/flou */
-    int wpx = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * Procedures::I()->ResolutionRendu() / 25.4);
+    /*! on stocke à la résolution (dpi) du QPdfWriter, seul périphérique par lequel TextPrinter rend le document */
+    QBuffer buf;
+    QPdfWriter pw(&buf);
+    int wpx = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * pw.resolution() / 25.4);
     QByteArray ba = Utils::ImageVersPngTransparent(img, wpx, SIZEMAXISIGNATURE);
     if (ba.isEmpty())
     {

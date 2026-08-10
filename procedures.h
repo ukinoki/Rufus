@@ -254,7 +254,6 @@ public:
     int                     TailleEnTeteALD();
     int                     TaillePieddePage();
     int                     TailleTopMarge();
-    int                     ResolutionRendu();                                                                      /*!< dpi du QPdfWriter : seul périphérique de rendu (print/preview/exportPdf y passent tous), donc c'est lui qui fixe la taille physique des images */
             /*! a - Impression d'un texte */
     QString                 CalcCorpsImpression(QString text, bool ALD = false);
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes, QWidget *parent = nullptr);
