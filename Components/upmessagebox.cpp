@@ -101,7 +101,7 @@ void UpMessageBox::paintEvent(QPaintEvent *event)
 {
     UpDialog::paintEvent(event);
     QPainter peintre(this);
-    peintre .setPen(QPen(QColor(120,120,120), 2));
+    peintre .setPen(QPen(QColor(120,120,120), 1));
     peintre .drawRect(rect().adjusted(1, 1, -1, -1));
 }
 
