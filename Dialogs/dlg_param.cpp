@@ -303,7 +303,7 @@ dlg_param::dlg_param(QWidget *parent) :
     }
 
     /*-------------------- GESTION DE LA COMPTABILITÉ-------------------------------------------------------*/
-    ui->ComptagroupBox->setVisible(false);  // pour le moment
+    ui->ComptagroupBox->setVisible(true);
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
 
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
@@ -426,6 +426,7 @@ dlg_param::dlg_param(QWidget *parent) :
     EnableWidgContent(ui->VilleDefautframe,false);
     ui->CotationsFrancecheckBox         ->setEnabled(false);
     ui->VillesgroupBox                  ->setEnabled(false);
+    ui->ComptagroupBox                  ->setEnabled(false);
     ui->ModifListVillesupPushButton     ->setEnabled(false);
     ui->GestUserpushButton              ->setEnabled(false);
     ui->GestLieuxpushButton             ->setEnabled(false);
@@ -1006,6 +1007,7 @@ void dlg_param::EnableModif(QWidget *obj)
         EnableWidgContent(ui->VilleDefautframe,a);
         ui->ModifListVillesupPushButton     ->setEnabled(a);
         ui->VillesgroupBox                  ->setEnabled(a);
+        ui->ComptagroupBox                  ->setEnabled(a);
         ui->ImportDocsgroupBox              ->setEnabled(a);
     }
     else if (obj == ui->LockParamUserupLabel)
