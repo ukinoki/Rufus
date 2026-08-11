@@ -8784,26 +8784,24 @@ QString Procedures::HtmlAutoref()
         quick = "quick OG";
     if (quick != "")
         Reponse += " <font color=\"red\"><b>" + quick + "</b></font>";
-    QString comment = "";
-    if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD() && !autoref->commentOG().isEmpty() && !autoref->isnullLOG() && autoref->commentOD() == autoref->commentOG())
-    {
-        comment = "<br><font color=\"red\"><b>" + autoref->commentOD() + " " + tr("ODG") + "</b></font>";
-    }
-    else
-    {
-        if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD())
-            comment += "<br><font color=\"red\"><b>" + autoref->commentOD() + " " + tr("OD") + "</b></font>";
-        if (!autoref->commentOG().isEmpty() && !autoref->isnullLOG())
-            comment += "<br><font color=\"red\"><b>" + autoref->commentOG() + " " + tr("OG") + "</b></font>";
-    }
-    if (comment != "")
-        Reponse += comment;
     Reponse = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
                            + tr("Autoref") + ":</b></font></td><td width=\"" BIG_LARGEUR_FORMULE "\">" + Reponse + "</td>";
     if (autoref->ecartIP() >0)
         Reponse += "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
                 + tr("EIP") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + QString::number(autoref->ecartIP()) + "mm</td>";
     Reponse += "</p>";
+
+    if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD() && !autoref->commentOG().isEmpty() && !autoref->isnullLOG() && autoref->commentOD() == autoref->commentOG())
+    {
+        Reponse += HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" BIG_LARGEUR_FORMULE "\"><font color=\"red\"><b>" + autoref->commentOD() + " " + tr("ODG") + "</b></font></td></p>";
+    }
+    else
+    {
+        if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD())
+            Reponse += HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" BIG_LARGEUR_FORMULE "\"><font color=\"red\"><b>" + autoref->commentOD() + " " + tr("OD") + "</b></font></td></p>";
+        if (!autoref->commentOG().isEmpty() && !autoref->isnullLOG())
+            Reponse += HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" BIG_LARGEUR_FORMULE "\"><font color=\"red\"><b>" + autoref->commentOG() + " " + tr("OG") + "</b></font></td></p>";
+    }
     return Reponse;
 }
 
