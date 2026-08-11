@@ -272,7 +272,7 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                             Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(avg.sphere));
                             Datas::I()->mesureautoref->setcylindreOD(Utils::roundToNearestPointTwentyFive(avg.cylinder));
                             Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(avg.axis));
-                            Datas::I()->mesureautoref->setcommentOD("mesures peu fiable");
+                            Datas::I()->mesureautoref->setcommentOD(tr("mesures peu fiable"));
                         }
                     }
                 }
