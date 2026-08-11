@@ -41,6 +41,7 @@ private:
     double m_prismeOD = 0;          //!> prismeOD
     int m_baseprismeOD = 0;         //!> base prisme OD en degré
     QString m_formuleOD = "";       //!> formule de réfraction OD
+    QString m_commentOD = "";       //!> commentaire mesure OD
     double m_sphereOG = 0;          //!> sphere OG
     double m_cylindreOG = 0;        //!> cylindre OG
     int m_axecylindreOG = 0;        //!> axe OG
@@ -50,6 +51,7 @@ private:
     double m_prismeOG = 0;          //!> prismeOG
     int m_baseprismeOG = 0;         //!> base prisme OG en degré
     QString m_formuleOG = "";       //!> formule de réfraction OG
+    QString m_commentOG = "";       //!> commentaire mesure OG
     int m_ecartIP = 0;              //!> ecart interpuppilaire
     bool m_haspressonOD = false;    //!> un presson est utilisé sur l'OD
     bool m_hasdepoliOD = false;     //!> un dépoli est utilisé sur l'OD
@@ -73,6 +75,7 @@ public:
     double prismeOD() const { return m_prismeOD; }                    //!> prismeOD
     int baseprismeOD() const { return m_baseprismeOD; }               //!> base prisme OD en degré
     QString formuleOD() const { return m_formuleOD; }                 //!> formule de réfraction OD
+    QString commentOD() const { return m_commentOD; }                 //!> commentaire mesure OD
     double sphereOG() const { return m_sphereOG; }                    //!> sphere OG
     double cylindreOG() const { return m_cylindreOG; }                //!> cylindre OG
     int axecylindreOG() const { return m_axecylindreOG; }             //!> axe OG
@@ -82,6 +85,7 @@ public:
     double prismeOG() const { return m_prismeOG; }                    //!> prismeOG
     int baseprismeOG() const { return m_baseprismeOG; }               //!> base prisme OG en degré
     QString formuleOG() const { return m_formuleOG; }                 //!> formule de réfraction OG
+    QString commentOG() const { return m_commentOG; }                 //!> commentaire mesure OG
     int ecartIP() const { return m_ecartIP; }                         //!> ecart interpuppilaire
     bool isquickOD() { return m_isquickOD; }                          //!> la mesure d'autoref OD a été faite en mode quick
     bool isquickOG() { return m_isquickOG; }                          //!> la mesure d'autoref OG a été faite en mode quick
@@ -96,6 +100,7 @@ public:
     void setprismeOD(double val)                { m_prismeOD = val; m_cleandatas = false; m_isnullOD = false; }         //!> prismeOD
     void setbaseprismeOD(int base)              { m_baseprismeOD = base; m_cleandatas = false; m_isnullOD = false; }    //!> base prisme OD en degré
     void setformuleOD(QString txt)              { m_formuleOD = txt; m_cleandatas = false; m_isnullOD = false; }        //!> formule de réfraction OD
+    void setcommentOD(QString txt)              { m_commentOD = txt; m_cleandatas = false; }                             //!> commentaire mesure OD
     void setsphereOG(double val)                { m_sphereOG = val; m_cleandatas = false; m_isnullOG = false; }         //!> sphere OG
     void setcylindreOG(double val)              { m_cylindreOG = val; m_cleandatas = false; m_isnullOG = false; }       //!> cylindre OG
     void setaxecylindreOG(int axe)              { m_axecylindreOG = axe; m_cleandatas = false; m_isnullOG = false; }    //!> axe OG
@@ -105,6 +110,7 @@ public:
     void setprismeOG(double val)                { m_prismeOG = val; m_cleandatas = false; m_isnullOG = false; }         //!> prismeOG
     void setbaseprismeOG(int base)              { m_baseprismeOG = base; m_cleandatas = false; m_isnullOG = false; }    //!> base prisme OG en degré
     void setformuleOG(QString txt)              { m_formuleOG = txt; m_cleandatas = false; m_isnullOG = false; }        //!> formule de réfraction OG
+    void setcommentOG(QString txt)              { m_commentOG = txt; m_cleandatas = false; }                             //!> commentaire mesure OG
     void setecartIP(int val)                    { m_ecartIP = val; m_cleandatas = false; }                              //!> ecart interpuppilaire
     void setisquickOD(bool logic)               { m_isquickOD = logic; m_cleandatas = false; }                          //!> la mesure d'autoref OD a été faite en mode quick ou non
     void setisquickOG(bool logic)               { m_isquickOG = logic; m_cleandatas = false; }                          //!> la mesure d'autoref OD a été faite en mode quick ou non
@@ -123,6 +129,7 @@ public:
             m_prismeOD = 0;
             m_baseprismeOD = 0;
             m_formuleOD = "";
+            m_commentOD = "";
             m_sphereOG = 0;
             m_cylindreOG = 0;
             m_axecylindreOG = 0;
@@ -132,6 +139,7 @@ public:
             m_prismeOG = 0;
             m_baseprismeOG = 0;
             m_formuleOG = "";
+            m_commentOG = "";
             m_ecartIP = 0;
             m_cleandatas = true;
             m_isnullOD = true;
@@ -147,6 +155,7 @@ public:
             m_prismeOD = 0;
             m_baseprismeOD = 0;
             m_formuleOD = "";
+            m_commentOD = "";
             m_ecartIP = 0;
             m_isnullOD = true;
             break;
@@ -160,6 +169,7 @@ public:
             m_prismeOG = 0;
             m_baseprismeOG = 0;
             m_formuleOG = "";
+            m_commentOG = "";
             m_ecartIP = 0;
             m_isnullOG = true;
             break;
@@ -181,6 +191,7 @@ public:
             m_prismeOD = 0;
             m_baseprismeOD = 0;
             m_formuleOD = "";
+            m_commentOD = "";
             m_ecartIP = 0;
             m_isnullOD = true;
             if (m_isnullOG)
@@ -203,6 +214,7 @@ public:
             m_prismeOG = 0;
             m_baseprismeOG = 0;
             m_formuleOG = "";
+            m_commentOG = "";
             m_ecartIP = 0;
             m_isnullOG = true;
             if (m_isnullOD)
