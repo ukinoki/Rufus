@@ -244,18 +244,16 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                 QDomElement childRnode = childnode.childNodes().at(j).toElement();
                 if (childRnode.tagName() == "AR")
                 {
-                    bool medianFound = false;
+                    bool hasARMedian = false;
                     for (int k=0; k<childRnode.childNodes().size(); k++)
                     {
                         QDomElement childARnode = childRnode.childNodes().at(k).toElement();
                         if (childARnode.tagName() == "ARMedian")
                         {
-                            bool hasSphere = false;
+                            hasARMedian = true;
                             for (int l=0; l<childARnode.childNodes().size(); l++)
                             {
                                 QDomElement childARmednode = childARnode.childNodes().at(l).toElement();
-                                if (childARmednode.tagName() == "Sphere")
-                                    hasSphere = true;
                                 if (childARmednode.tagName() == "Sphere")
                                     Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
                                 if (childARmednode.tagName() == "Cylinder")
@@ -265,11 +263,10 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                 if (childARmednode.tagName() == "ConfidenceIndex")
                                     Datas::I()->mesureautoref->setisquickOD(childARmednode.text()=="QUICK");
                             }
-                            if (hasSphere)
-                                medianFound = true;
+                            break;
                         }
                     }
-                    if (!medianFound) {
+                    if (!hasARMedian) {
                         ARRefraction avg = extractARListAverage(childRnode);
                         if (avg.sphere != 0 || avg.cylinder != 0 || avg.axis != 0) {
                             Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(avg.sphere));
@@ -287,18 +284,16 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                 QDomElement childRnode = childnode.childNodes().at(j).toElement();
                 if (childRnode.tagName() == "AR")
                 {
-                    bool medianFound = false;
+                    bool hasARMedian = false;
                     for (int k=0; k<childRnode.childNodes().size(); k++)
                     {
                         QDomElement childARnode = childRnode.childNodes().at(k).toElement();
                         if (childARnode.tagName() == "ARMedian")
                         {
-                            bool hasSphere = false;
+                            hasARMedian = true;
                             for (int l=0; l<childARnode.childNodes().size(); l++)
                             {
                                 QDomElement childARmednode = childARnode.childNodes().at(l).toElement();
-                                if (childARmednode.tagName() == "Sphere")
-                                    hasSphere = true;
                                 if (childARmednode.tagName() == "Sphere")
                                     Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
                                 if (childARmednode.tagName() == "Cylinder")
@@ -308,11 +303,10 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                 if (childARmednode.tagName() == "ConfidenceIndex")
                                     Datas::I()->mesureautoref->setisquickOG(childARmednode.text()=="QUICK");
                             }
-                            if (hasSphere)
-                                medianFound = true;
+                            break;
                         }
                     }
-                    if (!medianFound) {
+                    if (!hasARMedian) {
                         ARRefraction avg = extractARListAverage(childRnode);
                         if (avg.sphere != 0 || avg.cylinder != 0 || avg.axis != 0) {
                             Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(avg.sphere));
