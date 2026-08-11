@@ -22,8 +22,6 @@ ARRefraction extractARListAverage(QDomElement arNode)
     ARRefraction avg;
     QList<ARRefraction> values;
 
-    qDebug() << "extractARListAverage: Starting with" << arNode.childNodes().size() << "child nodes";
-
     for (int k = 0; k < arNode.childNodes().size(); k++) {
         QDomElement child = arNode.childNodes().at(k).toElement();
         if (child.tagName() == "ARList") {
@@ -40,14 +38,10 @@ ARRefraction extractARListAverage(QDomElement arNode)
                 else if (item.tagName() == "Axis")
                     val.axis = item.text().toInt();
             }
-            if (hasSphere) {
-                qDebug() << "  Added ARList: sphere=" << val.sphere << "cylinder=" << val.cylinder << "axis=" << val.axis;
+            if (hasSphere)
                 values.append(val);
-            }
         }
     }
-
-    qDebug() << "extractARListAverage: Collected" << values.size() << "valid ARList entries";
 
     if (!values.isEmpty()) {
         for (const auto& v : values) {
@@ -58,7 +52,6 @@ ARRefraction extractARListAverage(QDomElement arNode)
         avg.sphere /= values.size();
         avg.cylinder /= values.size();
         avg.axis = qRound(avg.axis / (double)values.size());
-        qDebug() << "extractARListAverage: Calculated average - sphere=" << avg.sphere << "cylinder=" << avg.cylinder << "axis=" << avg.axis;
     }
 
     return avg;
@@ -241,19 +234,16 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                && nameARK != "NIDEK AR-20");
     bool istonorefIII = (nameARK == "NIDEK TONOREF III");
     QDomElement xml = docxml.documentElement();
-    qDebug() << "LectureDonneesXMLAutoref: Starting with" << xml.childNodes().size() << "root child nodes";
     for (int i=0; i<xml.childNodes().size(); i++)
     {
         QDomElement childnode = xml.childNodes().at(i).toElement();
         if (childnode.tagName() == "R")                         /*! OEIL DROIT  ------------------------------------------------------------------*/
         {
-            qDebug() << "Found R (right eye) node";
             for (int j=0; j<childnode.childNodes().size(); j++)
             {
                 QDomElement childRnode = childnode.childNodes().at(j).toElement();
                 if (childRnode.tagName() == "AR")
                 {
-                    qDebug() << "Found AR node for right eye";
                     bool hasARMedian = false;
                     for (int k=0; k<childRnode.childNodes().size(); k++)
                     {
@@ -261,7 +251,6 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                         if (childARnode.tagName() == "ARMedian")
                         {
                             hasARMedian = true;
-                            qDebug() << "ARMedian found for OD";
                             for (int l=0; l<childARnode.childNodes().size(); l++)
                             {
                                 QDomElement childARmednode = childARnode.childNodes().at(l).toElement();
@@ -278,16 +267,12 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                         }
                     }
                     if (!hasARMedian) {
-                        qDebug() << "No ARMedian found for OD, using ARList average";
                         ARRefraction avg = extractARListAverage(childRnode);
-                        qDebug() << "Before calling setcommentOD";
                         if (avg.sphere != 0 || avg.cylinder != 0 || avg.axis != 0) {
                             Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(avg.sphere));
                             Datas::I()->mesureautoref->setcylindreOD(Utils::roundToNearestPointTwentyFive(avg.cylinder));
                             Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(avg.axis));
-                            qDebug() << "About to set comment OD";
                             Datas::I()->mesureautoref->setcommentOD(tr("mesures peu fiable"));
-                            qDebug() << "Successfully set comment OD";
                         }
                     }
                 }
@@ -295,13 +280,11 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
         }
         if (childnode.tagName() == "L")                         /*! OEIL GAUCHE  ------------------------------------------------------------------*/
         {
-            qDebug() << "Found L (left eye) node";
             for (int j=0; j<childnode.childNodes().size(); j++)
             {
                 QDomElement childRnode = childnode.childNodes().at(j).toElement();
                 if (childRnode.tagName() == "AR")
                 {
-                    qDebug() << "Found AR node for left eye";
                     bool hasARMedian = false;
                     for (int k=0; k<childRnode.childNodes().size(); k++)
                     {
@@ -309,7 +292,6 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                         if (childARnode.tagName() == "ARMedian")
                         {
                             hasARMedian = true;
-                            qDebug() << "ARMedian found for OG";
                             for (int l=0; l<childARnode.childNodes().size(); l++)
                             {
                                 QDomElement childARmednode = childARnode.childNodes().at(l).toElement();
@@ -326,16 +308,12 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                         }
                     }
                     if (!hasARMedian) {
-                        qDebug() << "No ARMedian found for OG, using ARList average";
                         ARRefraction avg = extractARListAverage(childRnode);
-                        qDebug() << "Before calling setcommentOG";
                         if (avg.sphere != 0 || avg.cylinder != 0 || avg.axis != 0) {
                             Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(avg.sphere));
                             Datas::I()->mesureautoref->setcylindreOG(Utils::roundToNearestPointTwentyFive(avg.cylinder));
                             Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(avg.axis));
-                            qDebug() << "About to set comment OG";
                             Datas::I()->mesureautoref->setcommentOG(tr("mesures peu fiable"));
-                            qDebug() << "Successfully set comment OG";
                         }
                     }
                 }
