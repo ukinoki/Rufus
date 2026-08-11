@@ -8787,14 +8787,14 @@ QString Procedures::HtmlAutoref()
     QString comment = "";
     if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD() && !autoref->commentOG().isEmpty() && !autoref->isnullLOG() && autoref->commentOD() == autoref->commentOG())
     {
-        comment = " <font color=\"red\"><b>" + autoref->commentOD() + " " + tr("ODG") + "</b></font>";
+        comment = "<br><font color=\"red\"><b>" + autoref->commentOD() + " " + tr("ODG") + "</b></font>";
     }
     else
     {
         if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD())
-            comment += " <font color=\"red\"><b>" + autoref->commentOD() + " " + tr("OD") + "</b></font>";
+            comment += "<br><font color=\"red\"><b>" + autoref->commentOD() + " " + tr("OD") + "</b></font>";
         if (!autoref->commentOG().isEmpty() && !autoref->isnullLOG())
-            comment += " <font color=\"red\"><b>" + autoref->commentOG() + " " + tr("OG") + "</b></font>";
+            comment += "<br><font color=\"red\"><b>" + autoref->commentOG() + " " + tr("OG") + "</b></font>";
     }
     if (comment != "")
         Reponse += comment;
