@@ -11,6 +11,48 @@ Nidek* Nidek::I()
 
 Nidek::Nidek() {}
 
+struct ARRefraction {
+    double sphere = 0;
+    double cylinder = 0;
+    int axis = 0;
+};
+
+ARRefraction extractARListAverage(QDomElement arNode)
+{
+    ARRefraction avg;
+    QList<ARRefraction> values;
+
+    for (int k = 0; k < arNode.childNodes().size(); k++) {
+        QDomElement child = arNode.childNodes().at(k).toElement();
+        if (child.tagName() == "ARList") {
+            ARRefraction val;
+            for (int l = 0; l < child.childNodes().size(); l++) {
+                QDomElement item = child.childNodes().at(l).toElement();
+                if (item.tagName() == "Sphere")
+                    val.sphere = item.text().toDouble();
+                else if (item.tagName() == "Cylinder")
+                    val.cylinder = item.text().toDouble();
+                else if (item.tagName() == "Axis")
+                    val.axis = item.text().toInt();
+            }
+            values.append(val);
+        }
+    }
+
+    if (!values.isEmpty()) {
+        for (const auto& v : values) {
+            avg.sphere += v.sphere;
+            avg.cylinder += v.cylinder;
+            avg.axis += v.axis;
+        }
+        avg.sphere /= values.size();
+        avg.cylinder /= values.size();
+        avg.axis = qRound(avg.axis / (double)values.size());
+    }
+
+    return avg;
+}
+
 
 void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
 {
@@ -198,14 +240,18 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                 QDomElement childRnode = childnode.childNodes().at(j).toElement();
                 if (childRnode.tagName() == "AR")
                 {
+                    bool medianFound = false;
                     for (int k=0; k<childRnode.childNodes().size(); k++)
                     {
                         QDomElement childARnode = childRnode.childNodes().at(k).toElement();
                         if (childARnode.tagName() == "ARMedian")
                         {
+                            bool hasSphere = false;
                             for (int l=0; l<childARnode.childNodes().size(); l++)
                             {
                                 QDomElement childARmednode = childARnode.childNodes().at(l).toElement();
+                                if (childARmednode.tagName() == "Sphere")
+                                    hasSphere = true;
                                 if (childARmednode.tagName() == "Sphere")
                                     Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
                                 if (childARmednode.tagName() == "Cylinder")
@@ -215,6 +261,16 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                 if (childARmednode.tagName() == "ConfidenceIndex")
                                     Datas::I()->mesureautoref->setisquickOD(childARmednode.text()=="QUICK");
                             }
+                            if (hasSphere)
+                                medianFound = true;
+                        }
+                    }
+                    if (!medianFound) {
+                        ARRefraction avg = extractARListAverage(childRnode);
+                        if (avg.sphere != 0 || avg.cylinder != 0 || avg.axis != 0) {
+                            Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(avg.sphere));
+                            Datas::I()->mesureautoref->setcylindreOD(Utils::roundToNearestPointTwentyFive(avg.cylinder));
+                            Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(avg.axis));
                         }
                     }
                 }
@@ -227,14 +283,18 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                 QDomElement childRnode = childnode.childNodes().at(j).toElement();
                 if (childRnode.tagName() == "AR")
                 {
+                    bool medianFound = false;
                     for (int k=0; k<childRnode.childNodes().size(); k++)
                     {
                         QDomElement childARnode = childRnode.childNodes().at(k).toElement();
                         if (childARnode.tagName() == "ARMedian")
                         {
+                            bool hasSphere = false;
                             for (int l=0; l<childARnode.childNodes().size(); l++)
                             {
                                 QDomElement childARmednode = childARnode.childNodes().at(l).toElement();
+                                if (childARmednode.tagName() == "Sphere")
+                                    hasSphere = true;
                                 if (childARmednode.tagName() == "Sphere")
                                     Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
                                 if (childARmednode.tagName() == "Cylinder")
@@ -244,6 +304,16 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                 if (childARmednode.tagName() == "ConfidenceIndex")
                                     Datas::I()->mesureautoref->setisquickOG(childARmednode.text()=="QUICK");
                             }
+                            if (hasSphere)
+                                medianFound = true;
+                        }
+                    }
+                    if (!medianFound) {
+                        ARRefraction avg = extractARListAverage(childRnode);
+                        if (avg.sphere != 0 || avg.cylinder != 0 || avg.axis != 0) {
+                            Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(avg.sphere));
+                            Datas::I()->mesureautoref->setcylindreOG(Utils::roundToNearestPointTwentyFive(avg.cylinder));
+                            Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(avg.axis));
                         }
                     }
                 }
