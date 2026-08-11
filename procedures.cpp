@@ -8779,6 +8779,20 @@ QString Procedures::HtmlAutoref()
         quick = "quick OG";
     if (quick != "")
         Reponse += " <font color=\"red\"><b>" + quick + "</b></font>";
+    QString comment = "";
+    if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD() && !autoref->commentOG().isEmpty() && !autoref->isnullLOG() && autoref->commentOD() == autoref->commentOG())
+    {
+        comment = " <font color=\"red\"><b>" + autoref->commentOD() + " " + tr("ODG") + "</b></font>";
+    }
+    else
+    {
+        if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD())
+            comment += " <font color=\"red\"><b>" + autoref->commentOD() + " " + tr("OD") + "</b></font>";
+        if (!autoref->commentOG().isEmpty() && !autoref->isnullLOG())
+            comment += " <font color=\"red\"><b>" + autoref->commentOG() + " " + tr("OG") + "</b></font>";
+    }
+    if (comment != "")
+        Reponse += comment;
     Reponse = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
                            + tr("Autoref") + ":</b></font></td><td width=\"" BIG_LARGEUR_FORMULE "\">" + Reponse + "</td>";
     if (autoref->ecartIP() >0)
