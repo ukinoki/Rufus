@@ -5907,9 +5907,6 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     m_portTono                  = "";
     QString                     msg = "";
 
-    /*!
-        Ouvre le port dont le portName() est NomPort en rapport avec l'appareil passé en paramètre
-    */
     auto loadserialsettings = [&] (TypeAppareil appareil)
     {
         QString PortCom = "";
@@ -5969,9 +5966,11 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                 delete sp_portFronto;
             }
             sp_portFronto = loadserialsettings(Fronto);
-            if (sp_portFronto != Q_NULLPTR)
+            if (sp_portFronto != Q_NULLPTR && sp_portFronto->isOpen())
             {
-                if (sp_portFronto->open(QIODevice::ReadWrite))
+                if (!sp_portFronto->isOpen())
+                    sp_portFronto->open(QIODevice::ReadWrite);
+                if (sp_portFronto->isOpen())
                 {
                     connect(sp_portFronto,  &upSerialPort::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
                     msg += (msg != ""? "<br/>" : "") + tr("Connexion frontocomètre") + " " + "<font color=\"red\"><b>OK</b></font>" +" " + tr("sur") + " " + m_portFronto;
@@ -6016,7 +6015,9 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             sp_portRefracteur = loadserialsettings(Refracteur);
             if (sp_portRefracteur != Q_NULLPTR)
             {
-                if (sp_portRefracteur->open(QIODevice::ReadWrite))
+                if (!sp_portRefracteur->isOpen())
+                    sp_portRefracteur->open(QIODevice::ReadWrite);
+                if (sp_portRefracteur->isOpen())
                 {
                     connect(sp_portRefracteur,  &upSerialPort::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
                     msg += (msg != ""? "<br/>" : "") + tr("Connexion refracteur") + " " + "<font color=\"red\"><b>OK</b></font>" +" " + tr("sur") + " " + m_portRefracteur;
@@ -6061,7 +6062,9 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             sp_portAutoref = loadserialsettings(Autoref);
             if (sp_portAutoref != Q_NULLPTR)
             {
-                if (sp_portAutoref->open(QIODevice::ReadWrite))
+                if (!sp_portAutoref->isOpen())
+                    sp_portAutoref->open(QIODevice::ReadWrite);
+                if (sp_portAutoref->isOpen())
                 {
                     connect(sp_portAutoref,  &upSerialPort::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
                     msg += (msg != ""? "<br/>" : "") + tr("Connexion autorefractomètre") + " " + "<font color=\"red\"><b>OK</b></font>" +" " + tr("sur") + " " + m_portAutoref;
@@ -6105,7 +6108,9 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             sp_portTono = loadserialsettings(Tonometre);
             if (sp_portTono != Q_NULLPTR)
             {
-                if (sp_portTono->open(QIODevice::ReadWrite))
+                if (!sp_portTono->isOpen())
+                    sp_portTono->open(QIODevice::ReadWrite);
+                if (sp_portTono->isOpen())
                 {
                     connect(sp_portTono,  &upSerialPort::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
                     msg += (msg != ""? "<br/>" : "") + tr("Connexion tonomètre") + " " + "<font color=\"red\"><b>OK</b></font>" +" " + tr("sur") + " " +  m_portTono;

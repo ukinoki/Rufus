@@ -100,7 +100,7 @@ public:
     void setprismeOD(double val)                { m_prismeOD = val; m_cleandatas = false; m_isnullOD = false; }         //!> prismeOD
     void setbaseprismeOD(int base)              { m_baseprismeOD = base; m_cleandatas = false; m_isnullOD = false; }    //!> base prisme OD en degré
     void setformuleOD(QString txt)              { m_formuleOD = txt; m_cleandatas = false; m_isnullOD = false; }        //!> formule de réfraction OD
-    void setcommentOD(QString txt)              { m_commentOD = txt; m_cleandatas = false; }                             //!> commentaire mesure OD
+    void setcommentOD(QString txt)              { m_commentOD = txt; m_cleandatas = false; }                            //!> commentaire mesure OD
     void setsphereOG(double val)                { m_sphereOG = val; m_cleandatas = false; m_isnullOG = false; }         //!> sphere OG
     void setcylindreOG(double val)              { m_cylindreOG = val; m_cleandatas = false; m_isnullOG = false; }       //!> cylindre OG
     void setaxecylindreOG(int axe)              { m_axecylindreOG = axe; m_cleandatas = false; m_isnullOG = false; }    //!> axe OG
@@ -110,7 +110,7 @@ public:
     void setprismeOG(double val)                { m_prismeOG = val; m_cleandatas = false; m_isnullOG = false; }         //!> prismeOG
     void setbaseprismeOG(int base)              { m_baseprismeOG = base; m_cleandatas = false; m_isnullOG = false; }    //!> base prisme OG en degré
     void setformuleOG(QString txt)              { m_formuleOG = txt; m_cleandatas = false; m_isnullOG = false; }        //!> formule de réfraction OG
-    void setcommentOG(QString txt)              { m_commentOG = txt; m_cleandatas = false; }                             //!> commentaire mesure OG
+    void setcommentOG(QString txt)              { m_commentOG = txt; m_cleandatas = false; }                            //!> commentaire mesure OG
     void setecartIP(int val)                    { m_ecartIP = val; m_cleandatas = false; }                              //!> ecart interpuppilaire
     void setisquickOD(bool logic)               { m_isquickOD = logic; m_cleandatas = false; }                          //!> la mesure d'autoref OD a été faite en mode quick ou non
     void setisquickOG(bool logic)               { m_isquickOG = logic; m_cleandatas = false; }                          //!> la mesure d'autoref OD a été faite en mode quick ou non

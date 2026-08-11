@@ -283,23 +283,21 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->NetworkPathTonoupLineEdit       ->setImmediateToolTip(ui->NetworkPathTonoupLineEdit->text());
     ui->NetworkPathTonoupPushButton     ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le tonomètre"));
 
-    if (QSerialPortInfo::availablePorts().size()>0)
-    {
-        QList<UpComboBox*> listportsbox;
-        listportsbox << ui->PortFrontoupComboBox << ui->PortAutorefupComboBox << ui->PortRefracteurupComboBox << ui->PortTonometreupComboBox;
-        for (int l=0; l< listportsbox.size(); ++l) {
-            connect(listportsbox.at(l),   &QComboBox::currentTextChanged,    this,   [=, this] (QString s) {
-                 if (s!= listportsbox.at(l)->valeuravant())
-                {
-                    listportsbox.at(l)->setvaleuravant(listportsbox.at(l)->currentText());
-                    EnableComOrNetworkWidgetsAppareilRefraction(listportsbox.at(l), s);
-                    EnableOKModifPosteButton();
-                    RecalcAvailablesPorts();
+    QList<UpComboBox*> listportsbox;
+    listportsbox << ui->PortFrontoupComboBox << ui->PortAutorefupComboBox << ui->PortRefracteurupComboBox << ui->PortTonometreupComboBox;
+    for (int l=0; l< listportsbox.size(); ++l) {
+        connect(listportsbox.at(l),   &QComboBox::currentTextChanged,    this,   [=, this] (QString s) {
+            if (s!= listportsbox.at(l)->valeuravant())
+            {
+                listportsbox.at(l)->setvaleuravant(listportsbox.at(l)->currentText());
+                EnableComOrNetworkWidgetsAppareilRefraction(listportsbox.at(l), s);
+                EnableOKModifPosteButton();
+                RecalcAvailablesPorts();
+                if (QSerialPortInfo::availablePorts().size()>0)
                     proc->Ouverture_Ports_Series(this);
-                    proc->Ouverture_Fichiers_Echange(this);
-                }
-            });
-        }
+                proc->Ouverture_Fichiers_Echange(this);
+            }
+        });
     }
 
     /*-------------------- GESTION DE LA COMPTABILITÉ-------------------------------------------------------*/

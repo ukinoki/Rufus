@@ -85,7 +85,7 @@ void dlg_refraction::ConnectSignals()
     connect (ui->PorteRadioButton,                  &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonFronto_Clicked);
     connect (ui->AutorefRadioButton,                &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonAutoref_Clicked);
     connect (ui->sendLMToRefractorpushButton,       &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureFrontoAuRefracteur);
-    connect (ui->sendARToRefractorpushButton,      &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureAutorefAuRefracteur);
+    connect (ui->sendARToRefractorpushButton,       &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureAutorefAuRefracteur);
     connect (ui->ConvODPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvODPushButton_Clicked);
     connect (ui->ConvOGPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvOGPushButton_Clicked);
     connect (ui->CycloplegieCheckBox,               &QCheckBox::clicked,                        this,     &dlg_refraction::CycloplegieCheckBox_Clicked);
