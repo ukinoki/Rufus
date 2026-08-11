@@ -95,34 +95,20 @@ if [ -d "${SQLDRV_DIR}" ]; then
 fi
 
 # ── Clients mysql / mysqldump embarqués (Contents/Applications) ───────────────
-# Sauvegarde et restauration passent par ces deux binaires ; sur un poste CLIENT, sans serveur
-# MySQL local, ils n'existent nulle part ailleurs. Emplacement lu par Procedures::setDirSQLExecutable.
+# Sauvegarde et restauration passent par ces deux binaires ; sur un poste sans serveur MySQL local
+# ils n'existent nulle part ailleurs. Emplacement lu par Procedures::setDirSQLExecutable.
 CLIENTS_DIR="${APP_PATH}/Contents/Applications"
 MYSQL_SRC=""
 for d in /usr/local/mysql/bin /opt/homebrew/opt/mysql-client/bin /opt/homebrew/opt/mysql/bin \
          /usr/local/opt/mysql-client/bin /usr/local/opt/mysql/bin; do
     [ -x "${d}/mysql" ] && [ -x "${d}/mysqldump" ] && { MYSQL_SRC="${d}"; break; }
 done
+[ -n "${MYSQL_SRC}" ] || { echo "   ✗ mysql / mysqldump introuvables : sauvegarde et restauration impossibles"; exit 1; }
 
-if [ -z "${MYSQL_SRC}" ]; then
-    echo "   ⚠ mysql / mysqldump introuvables sur cette machine : le bundle n'aura PAS de clients SQL"
-    echo "     → sauvegarde et restauration seront impossibles sur un poste sans serveur MySQL"
-else
-    echo "==> clients SQL embarqués depuis ${MYSQL_SRC}"
-    mkdir -p "${CLIENTS_DIR}" "${BUNDLE_FW}"
-    for b in mysql mysqldump; do
-        cp -f "${MYSQL_SRC}/${b}" "${CLIENTS_DIR}/${b}"
-        chmod u+w "${CLIENTS_DIR}/${b}"
-        # Dépendances hors système : copiées dans Frameworks et repointées, comme libmariadb.
-        for dep in $(otool -L "${CLIENTS_DIR}/${b}" | awk 'NR>1 && $1 !~ /^(\/usr\/lib|\/System)/ {print $1}'); do
-            n="$(basename "${dep}")"
-            [ -f "${BUNDLE_FW}/${n}" ] || cp -f "${MYSQL_SRC}/../lib/${n}" "${BUNDLE_FW}/${n}" 2>/dev/null || continue
-            chmod u+w "${BUNDLE_FW}/${n}"
-            install_name_tool -change "${dep}" "@loader_path/../Frameworks/${n}" "${CLIENTS_DIR}/${b}" 2>/dev/null || true
-        done
-        echo "   ${b} : $(lipo -archs "${CLIENTS_DIR}/${b}" 2>/dev/null)"
-    done
-fi
+mkdir -p "${CLIENTS_DIR}"
+cp -f "${MYSQL_SRC}/mysql" "${MYSQL_SRC}/mysqldump" "${CLIENTS_DIR}/"
+chmod u+w "${CLIENTS_DIR}/mysql" "${CLIENTS_DIR}/mysqldump"
+echo "==> clients SQL embarqués depuis ${MYSQL_SRC}"
 
 # ── Filet de sécurité : nom du bundle = « Rufus.app » → /Applications/Rufus.app ─
 # Le .pro fixe désormais TARGET = Rufus (bundle « Rufus.app »). Ce renommage ne sert donc plus
