@@ -169,19 +169,20 @@ APPLESCRIPT
 # ── Contrôle ────────────────────────────────────────────────────────────────
 controle_mysql_local; ETAT=$?
 
-# Pas de MySQL local (ETAT=2) ou MySQL local conforme (ETAT=0) → rien à signaler → on installe.
-if [ "${ETAT}" -ne 1 ]; then
+# ETAT=1 : MySQL local présent mais trop ancien (ou MariaDB) → avertissement + consentement.
+#   Annuler → exit 1 : l'installeur stoppe, l'ancien Rufus reste en place ; au 1er lancement d'une
+#   install poursuivie, Rufus proposera la mise à jour du socle si ce poste héberge la base.
+if [ "${ETAT}" -eq 1 ]; then
+    if ! dialogue_consentement_maj; then
+        ecrit_certif "Avertissement MySQL ancien/MariaDB : installation annulée par l'utilisateur"
+        exit 1
+    fi
+    ecrit_certif "Avertissement MySQL ancien/MariaDB accepté : installation poursuivie"
+else
     ecrit_certif "MySQL local conforme ou absent (ETAT=${ETAT}) : installation sans avertissement"
-    exit 0
 fi
 
-# ETAT=1 : MySQL local présent mais trop ancien (ou MariaDB) → avertissement + consentement.
-#   OK      → exit 0 : l'install se fait ; au 1er lancement, si ce poste héberge la base, Rufus
-#             proposera la mise à jour du socle (sauvegarde validée → réinstall → restauration).
-#   Annuler → exit 1 : l'installeur stoppe, l'ancien Rufus reste en place.
-if dialogue_consentement_maj; then
-    ecrit_certif "Avertissement MySQL ancien/MariaDB accepté : installation poursuivie"
-    exit 0
-fi
-ecrit_certif "Avertissement MySQL ancien/MariaDB : installation annulée par l'utilisateur"
-exit 1
+# Le pkg FUSIONNE un bundle au lieu de le remplacer : un fichier retiré entre deux versions y
+# survivrait. Dernier geste du script, une fois l'installation acquise.
+rm -rf /Applications/Rufus.app
+exit 0
