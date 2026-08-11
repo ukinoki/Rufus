@@ -247,6 +247,25 @@ jobs:
             Get-ChildItem "$deploy\sqldrivers" -Filter 'qsql*.dll' |
               Where-Object { $_.Name -ne 'qsqlmysql.dll' } | Remove-Item -Force
           }
+          # Clients mysql / mysqldump dans {app}\Applications, emplacement lu par
+          # Procedures::setDirSQLExecutable : sans eux, un poste sans serveur MySQL local ne peut
+          # ni sauvegarder ni restaurer. Inno embarque le sous-dossier (recursesubdirs).
+          $src = Get-ChildItem -Path 'C:\tools\mysql','C:\Program Files\MySQL' -Recurse `
+                   -Filter mysqldump.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $src) {
+            choco install mysql --no-progress -y | Out-Null
+            $src = Get-ChildItem -Path 'C:\tools\mysql','C:\Program Files\MySQL' -Recurse `
+                     -Filter mysqldump.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if (-not $src) { throw "mysql.exe / mysqldump.exe introuvables : paquet inutilisable pour la sauvegarde" }
+          $bin = $src.DirectoryName
+          New-Item -ItemType Directory -Force -Path "$deploy\Applications" | Out-Null
+          Copy-Item "$bin\mysql.exe","$bin\mysqldump.exe" "$deploy\Applications\" -Force
+          # OpenSSL dont dépendent les clients Oracle depuis MySQL 8.0.3x.
+          Get-ChildItem "$bin" -Filter 'lib*-3-x64.dll' -ErrorAction SilentlyContinue |
+            Copy-Item -Destination "$deploy\Applications\" -Force
+          Write-Host "Clients SQL embarqués depuis $bin"
+
 
       - name: Construire RufusSetup.exe (Inno Setup)
         shell: pwsh
