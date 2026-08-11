@@ -8787,14 +8787,14 @@ QString Procedures::HtmlAutoref()
     QString comment = "";
     if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD() && !autoref->commentOG().isEmpty() && !autoref->isnullLOG() && autoref->commentOD() == autoref->commentOG())
     {
-        comment = "<br><font color=\"red\"><b>" + autoref->commentOD() + " " + tr("ODG") + "</b></font>";
+        comment = "<font color=\"red\"><b>" + autoref->commentOD() + " " + tr("ODG") + "</b></font>";
     }
     else
     {
         if (!autoref->commentOD().isEmpty() && !autoref->isnullLOD())
-            comment += "<br><font color=\"red\"><b>" + autoref->commentOD() + " " + tr("OD") + "</b></font>";
+            comment += "<font color=\"red\"><b>" + autoref->commentOD() + " " + tr("OD") + "</b></font>";
         if (!autoref->commentOG().isEmpty() && !autoref->isnullLOG())
-            comment += "<br><font color=\"red\"><b>" + autoref->commentOG() + " " + tr("OG") + "</b></font>";
+            comment += "<font color=\"red\"><b>" + autoref->commentOG() + " " + tr("OG") + "</b></font>";
     }
     Reponse = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
                            + tr("Autoref") + ":</b></font></td><td width=\"" BIG_LARGEUR_FORMULE "\">" + Reponse + "</td>";
