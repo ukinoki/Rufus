@@ -261,7 +261,13 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                 if (childARmednode.tagName() == "Axis")
                                     Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(childARmednode.text().toInt()));
                                 if (childARmednode.tagName() == "ConfidenceIndex")
-                                    Datas::I()->mesureautoref->setisquickOD(childARmednode.text()=="QUICK");
+                                {
+                                    if (childARmednode.text() == "QUICK")
+                                    {
+                                        Datas::I()->mesureautoref->setisquickOD(true);
+                                        Datas::I()->mesureautoref->setcommentOD(tr("quick mode"));
+                                    }
+                                }
                             }
                             break;
                         }
@@ -302,7 +308,13 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                 if (childARmednode.tagName() == "Axis")
                                     Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(childARmednode.text().toInt()));
                                 if (childARmednode.tagName() == "ConfidenceIndex")
-                                    Datas::I()->mesureautoref->setisquickOG(childARmednode.text()=="QUICK");
+                                {
+                                    if (childARmednode.text() == "QUICK")
+                                    {
+                                        Datas::I()->mesureautoref->setisquickOG(true);
+                                        Datas::I()->mesureautoref->setcommentOG(tr("quick mode"));
+                                    }
+                                }
                             }
                             break;
                         }
