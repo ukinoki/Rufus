@@ -113,6 +113,7 @@ private:
     QString                 m_confirmeMDP           = "confirm";
 
     QStringList             m_listeappareils;
+    QList<QMetaObject::Connection>  m_connectionsPortsComboBox;  //!< connexions des combobox de ports à déconnecter au fermeture
 
     QTimer                  t_timerverifimportdocs;
 
