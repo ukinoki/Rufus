@@ -8796,10 +8796,10 @@ QString Procedures::HtmlAutoref()
         if (!autoref->commentOG().isEmpty() && !autoref->isnullLOG())
             comment += "<br><font color=\"red\"><b>" + autoref->commentOG() + " " + tr("OG") + "</b></font>";
     }
-    if (comment != "")
-        Reponse += comment;
     Reponse = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
                            + tr("Autoref") + ":</b></font></td><td width=\"" BIG_LARGEUR_FORMULE "\">" + Reponse + "</td>";
+    if (comment != "")
+        Reponse += HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" BIG_LARGEUR_FORMULE "\">" + comment + "</td>";
     if (autoref->ecartIP() >0)
         Reponse += "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
                 + tr("EIP") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + QString::number(autoref->ecartIP()) + "mm</td>";
