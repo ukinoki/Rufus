@@ -64,6 +64,9 @@ Un principe ne se déclenche pas au bon moment ; un compteur, si. Donc, concret 
    hypothèses (bouton par défaut, clic égaré, fonction ré-entrée, lambda
    pendante) toutes fausses, et douze `qDebug` ont nommé la cause en deux essais
    (Entrée déclenchait sur le relâchement, qui retombait sur la fiche du dessous).
+6. **Ne pas explorer au-delà de la demande.** Pas de refactoring bonus, pas de
+   vérifications adjacentes, pas de « et si je regardais aussi KM ». Faire
+   exactement ce qui est demandé, rien de plus.
 
 > Cette règle est si souvent enfreinte qu'un *hook* (`.claude/settings.json`) la
 > réinjecte à chaque tour : le document seul ne suffisait pas.
