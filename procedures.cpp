@@ -5624,7 +5624,27 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
             filetype=Xml;
             if (datafile.open(QIODevice::ReadOnly))
             {
-                docxml.setContent(&datafile);
+                QByteArray content = datafile.readAll();
+                // Trouver le premier vrai nœud (< suivi de quelque chose d'autre que ?)
+                int nodeStart = 0;
+                while (nodeStart < content.size() - 1) {
+                    nodeStart = content.indexOf('<', nodeStart);
+                    if (nodeStart < 0) break;
+                    if (content[nodeStart + 1] != '?') break;  // Trouvé un vrai nœud
+                    nodeStart++;
+                }
+                // Corriger les déclarations mal fermées dans l'en-tête - ça arrive avec les frontos Nidek
+                if (nodeStart > 0) {
+                    QByteArray header = content.left(nodeStart);
+                    header.replace("?\n", "?>\n");
+                    content = header + content.mid(nodeStart);
+                }
+                if (!docxml.setContent(content, true, nullptr))
+                {
+                    qDebug() << "XML parsing failed for" << nomfichier;
+                    qDebug() << "First 200 bytes:" << content.left(200);
+                }
+                datafile.close();
                 Utils::removeWithoutPermissions(datafile);
             }
         }
@@ -9040,7 +9060,7 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 }
 
 //---------------------------------------------------------------------------------
-// Calcul de la formule de refraction
+// Insertion de la formule de refraction dans la table rurus.refraction et déclenchement du signal d'affichage de la formule dans la fiche
 //---------------------------------------------------------------------------------
 void Procedures::InsertMesure(GenericProtocol::TypeMesure typemesure)
 {
