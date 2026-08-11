@@ -41,7 +41,7 @@ void MesureRefraction::setdatas(Refraction *ref, bool round)
         m_prismeOD          = ref->prismeOD();
         m_baseprismeOD      = (round? Utils::roundToNearestFive(ref->baseprismeOD()) : ref->baseprismeOD());
         m_formuleOD         = ref->formuleOD();
-        m_commentOD         = "";
+        m_commentOD         = ref->commentOD();
     }
     m_isnullOG = !ref->isOGmesure();
     if (m_isnullOG)
@@ -57,7 +57,7 @@ void MesureRefraction::setdatas(Refraction *ref, bool round)
         m_prismeOG          = ref->prismeOG();
         m_baseprismeOG      = (round? Utils::roundToNearestFive(ref->baseprismeOG()) : ref->baseprismeOG());
         m_formuleOG         = ref->formuleOG();
-        m_commentOG         = "";
+        m_commentOG         = ref->commentOG();
     }
     m_ecartIP           = ref->ecartIP();
     m_typemesure        = ref->typemesure();

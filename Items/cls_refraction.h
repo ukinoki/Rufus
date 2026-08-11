@@ -71,6 +71,8 @@ private:
     bool m_hasplanOG = false;       //!> un verre plan est utilisé sur l'OG
     int m_ryserOG = 0;              //!> puissance Ryser OG
     QString m_formuleOG;            //!> formule de réfraction OG
+    QString m_commentOD;            //!> commentaire mesure OD
+    QString m_commentOG;            //!> commentaire mesure OG
     QString m_commentaireordo;      //!> commentaire de l'ordonnace de verres
     Distance m_typeverres;          //!> la distance d'utilisation des verres
     Cote m_oeil;                    //!> l'oeil pour lequel les verres sont prescrits
@@ -117,6 +119,8 @@ public:
     bool hasplanOG() { return m_hasplanOG; }                    //!> un verre plan est utilisé sur l'OG
     int ryserOG() { return m_ryserOG; }                         //!> puissance Ryser OG
     QString formuleOG() { return m_formuleOG; }                 //!> formule de réfraction OG
+    QString commentOD() { return m_commentOD; }                 //!> commentaire mesure OD
+    QString commentOG() { return m_commentOG; }                 //!> commentaire mesure OG
     QString commentaireordo() { return m_commentaireordo; }     //!> commentaire de l'ordonnace de verres
     Distance typeverres() { return m_typeverres; }              //!> la distance d'utilisation des verres
     Cote oeil() { return m_oeil; }                              //!> l'oeil pour lequel les verres sont prescrits
@@ -198,6 +202,8 @@ public:
                                               m_data[CP_RYSEROG_REFRACTIONS] = val; }
     void setformuleOG(QString txt)          { m_formuleOG = txt;
                                               m_data[CP_FORMULEOG_REFRACTIONS] = txt; }
+    void setcommentOD(QString txt)          { m_commentOD = txt; }
+    void setcommentOG(QString txt)          { m_commentOG = txt; }
     void setcommentaireordo(QString txt)    { m_commentaireordo = txt;
                                               m_data[CP_COMMENTAIREORDO_REFRACTIONS] = txt; }
     void settypeverres(Distance distance)   { m_typeverres = distance;
