@@ -268,12 +268,16 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                     }
                     if (!hasARMedian) {
                         ARRefraction avg = extractARListAverage(childRnode);
+                        qDebug() << "ARMedian absent OD: sphere=" << avg.sphere << "cylinder=" << avg.cylinder << "axis=" << avg.axis;
                         if (avg.sphere != 0 || avg.cylinder != 0 || avg.axis != 0) {
                             Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(avg.sphere));
                             Datas::I()->mesureautoref->setcylindreOD(Utils::roundToNearestPointTwentyFive(avg.cylinder));
                             Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(avg.axis));
                             Datas::I()->mesureautoref->setcommentOD(tr("mesure peu fiable"));
                         }
+                    }
+                    else {
+                        qDebug() << "ARMedian trouvé OD: sphere=" << Datas::I()->mesureautoref->sphereOD();
                     }
                 }
             }
@@ -309,12 +313,16 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                     }
                     if (!hasARMedian) {
                         ARRefraction avg = extractARListAverage(childRnode);
+                        qDebug() << "ARMedian absent OG: sphere=" << avg.sphere << "cylinder=" << avg.cylinder << "axis=" << avg.axis;
                         if (avg.sphere != 0 || avg.cylinder != 0 || avg.axis != 0) {
                             Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(avg.sphere));
                             Datas::I()->mesureautoref->setcylindreOG(Utils::roundToNearestPointTwentyFive(avg.cylinder));
                             Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(avg.axis));
                             Datas::I()->mesureautoref->setcommentOG(tr("mesure peu fiable"));
                         }
+                    }
+                    else {
+                        qDebug() << "ARMedian trouvé OG: sphere=" << Datas::I()->mesureautoref->sphereOG();
                     }
                 }
             }
