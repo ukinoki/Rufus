@@ -26,16 +26,20 @@ ARRefraction extractARListAverage(QDomElement arNode)
         QDomElement child = arNode.childNodes().at(k).toElement();
         if (child.tagName() == "ARList") {
             ARRefraction val;
+            bool hasSphere = false;
             for (int l = 0; l < child.childNodes().size(); l++) {
                 QDomElement item = child.childNodes().at(l).toElement();
-                if (item.tagName() == "Sphere")
+                if (item.tagName() == "Sphere") {
                     val.sphere = item.text().toDouble();
+                    hasSphere = true;
+                }
                 else if (item.tagName() == "Cylinder")
                     val.cylinder = item.text().toDouble();
                 else if (item.tagName() == "Axis")
                     val.axis = item.text().toInt();
             }
-            values.append(val);
+            if (hasSphere)
+                values.append(val);
         }
     }
 
