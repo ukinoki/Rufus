@@ -315,6 +315,11 @@ jobs:
           qmake RufusQt6.pro CONFIG+=release "QMAKE_APPLE_DEVICE_ARCHS=x86_64 arm64"
           make -j"$(sysctl -n hw.ncpu)"
 
+      # mysql et mysqldump sont embarqués dans le bundle (Contents/Applications) : sans eux, un
+      # poste client, sans serveur MySQL local, ne peut ni sauvegarder ni restaurer.
+      - name: Installer le client MySQL (embarqué dans le bundle)
+        run: brew install mysql-client
+
       - name: Construire le pkg (avec pré-contrôle MySQL)
         run: |
           set -e
