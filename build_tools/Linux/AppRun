@@ -514,6 +514,7 @@ inscrire_dans_menus() {
 
     # 1. Copie de l'AppImage dans ~/.local/bin
     local cible="${BIN_DIR}/${APPNAME}.AppImage"
+    rm -f "${cible}"                  # un exécutable en cours refuse d'être écrasé (ETXTBSY)
     cp -f "${APPIMAGE}" "${cible}"
     chmod +x "${cible}"
 
@@ -683,5 +684,13 @@ fi
 if ! composants_systeme_presents; then
     definir_textes                 # textes FR par défaut (aucune fenêtre de choix de langue ici)
     configurer_systeme || true     # best-effort : on lance Rufus même si l'install échoue/est refusée
+fi
+
+# MISE À JOUR : on démarre une AppImage AUTRE que celle du poste. La séquence d'installation
+# étant sautée dès que le .desktop existe, ~/.local/bin garderait sinon l'ANCIENNE version et
+# le menu la relancerait indéfiniment.
+if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ]; then
+    definir_textes
+    inscrire_dans_menus_avec_animation
 fi
 lancer_rufus "$@"
