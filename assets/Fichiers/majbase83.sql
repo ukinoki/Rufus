@@ -109,9 +109,9 @@ BEGIN
                 UPDATE `rufus`.`cotations` SET `Typecotation` = `CCAM`;
                 ALTER TABLE `rufus`.`cotations`
                 MODIFY COLUMN `CCAM` INT(1) NULL DEFAULT NULL
-                    COMMENT 'plus utilisé, gardé pour compatibilité avec les versions antérieures au 15-07-2026',
+                    COMMENT 'plus utilise, garde pour compatibilite avec les versions anterieures au 15-07-2026',
                 MODIFY COLUMN `idUser` INT(11) NULL DEFAULT NULL
-                    COMMENT 'plus utilisé, gardé pour compatibilité avec les versions antérieures au 15-07-2026';
+                    COMMENT 'plus utilise, garde pour compatibilite avec les versions anterieures au 15-07-2026';
         END IF;
 
 -- tables de personnalisation par utilisateur du montant pratiqué (cotations et ccam)
@@ -186,8 +186,14 @@ BEGIN
             THEN
                 ALTER TABLE `rufus`.`ParametresSysteme`
                 ADD COLUMN `Compta` INT(1) NULL DEFAULT 1
-                COMMENT '1 = comptabilité normale\n2 = comptabilité réduite\n3 = pas de comptabilité' AFTER `CotationDesActes`;
+                COMMENT '1 = comptabilite normale\n2 = comptabilite reduite\n3 = pas de comptabilite' AFTER `CotationDesActes`;
         END IF;
+    -- SansCompta et ComptaFrance : remplaces par Compta, conserves pour les postes en version anterieure
+    ALTER TABLE `rufus`.`ParametresSysteme`
+        MODIFY COLUMN `SansCompta` INT(1) NULL DEFAULT NULL
+            COMMENT 'deprecie, remplace par Compta - garde pour compatibilite avec les versions anterieures au 12-08-2026',
+        MODIFY COLUMN `ComptaFrance` INT(1) NULL DEFAULT NULL
+            COMMENT 'deprecie, remplace par Compta - garde pour compatibilite avec les versions anterieures au 12-08-2026';
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|
 CALL MAJ83();
