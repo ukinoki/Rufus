@@ -371,13 +371,17 @@ dlg_param::dlg_param(QWidget *parent) :
    /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
 
     /*-------------------- GESTION MODE COMPTABILITÉ-------------------------------------------------------*/
-    ui->ComptacheckBox->setChecked(!m_parametres->comptanormale());
+    auto AfficheModeCompta = [=, this] {
+        ui->ComptacheckBox          ->setChecked(m_parametres->comptanormale());
+        ui->ComptaSimplecheckBox    ->setChecked(m_parametres->comptareduite());
+        ui->NoComptacheckBox        ->setChecked(m_parametres->sanscompta());
+    };
+    AfficheModeCompta();
     ui->ComptaSimplecheckBox->setEnabled(false);
-    connect(ui->ComptacheckBox, &QCheckBox::checkStateChanged, this, [=, this](int state) {
-        const bool aveccompta = (state == Qt::Checked);
+    //! cases exclusives : on n'écoute que le clic - setChecked n'émet pas clicked, donc pas de rappel en boucle
+    auto ChoixCompta = [=, this](DataBase::compta choix, QString texte) {
         UpMessageBox msgbox(this);
-        msgbox.setText(aveccompta? tr("Vous avez choisi d'enregistrer une comptabilité.")
-                                  : tr("Vous avez choisi de ne pas enregistrer de comptabilité."));
+        msgbox.setText(texte);
         msgbox.setInformativeText(tr("Ce réglage concerne toute la base et ne sera entièrement pris en compte "
                                      "qu'au prochain démarrage de Rufus.\nVoulez-vous l'enregistrer?"));
         msgbox.setIcon(UpMessageBox::Warning);
@@ -388,13 +392,17 @@ dlg_param::dlg_param(QWidget *parent) :
         msgbox.exec();
         if (msgbox.clickedButton() != &OKBouton)
         {
-            ui->ComptacheckBox->blockSignals(true);
-            ui->ComptacheckBox->setChecked(!aveccompta);
-            ui->ComptacheckBox->blockSignals(false);
+            AfficheModeCompta();
             return;
         }
-        db->setsanscompta(!aveccompta);
-    });
+        db  ->setcompta(choix);
+    };
+    connect(ui->ComptacheckBox,         &QCheckBox::clicked, this, [=, this]{
+        ChoixCompta(DataBase::Normal,   tr("Vous avez choisi d'enregistrer une comptabilité.")); });
+    connect(ui->ComptaSimplecheckBox,   &QCheckBox::clicked, this, [=, this]{
+        ChoixCompta(DataBase::Reduite,  tr("Vous avez choisi d'enregistrer une comptabilité simplifiée.")); });
+    connect(ui->NoComptacheckBox,       &QCheckBox::clicked, this, [=, this]{
+        ChoixCompta(DataBase::NoCompta, tr("Vous avez choisi de ne pas enregistrer de comptabilité.")); });
     /*-------------------- GESTION MODE COMPTABILITÉ-------------------------------------------------------*/
 
     AfficheParamUser();
