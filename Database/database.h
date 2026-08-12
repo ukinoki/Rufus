@@ -82,6 +82,7 @@ class DataBase : public QObject
     Q_OBJECT
 public:
     enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };  Q_ENUM(comparateur)
+    enum compta { Normal, Reduite, NoCompta };  Q_ENUM(compta)
     enum QueryResult { Error, Empty, OK}; Q_ENUM(QueryResult)
 
 private:
@@ -231,7 +232,7 @@ public:
     void setdirbkup(QString adress = "");
     void setvillesfrance(bool one = true);
     void setcotationsfrance(bool one = true);
-    void setcomptafrance(bool one= true);
+    void setcompta(enum compta one = Normal);
     void setVersion (QString newversion);
     double versionbaseiol();
     double versionCCAM();

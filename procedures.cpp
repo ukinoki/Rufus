@@ -2082,7 +2082,7 @@ QString Procedures::SessionStatus()
         txtstatut += "\n" + tr("RPPS :") + "\t\t\t" + QString::number(currentuser()->NumPS());
     if (medecin && ! assistant &&  currentuser()->numOrdre() !="" && db->parametres()->cotationsfrance())
         txtstatut += "\nADELI :\t\t\t" + currentuser()->numOrdre();
-    if (!db->parametres()->sanscompta())
+    if (!db->parametres()->compta())
     {
         User *employeur = Datas::I()->users->getById(currentuser()->idemployeur());
         if (soignant)
@@ -2148,7 +2148,7 @@ QString Procedures::SessionStatus()
         txtstatut += "\n" + tr("Secteur conventionnel :") + "\t\t" + secteur;
         if (!m_parametres->cotationsfrance()) txtstatut += "\n" + tr("OPTAM :") + "\t\t\t" + (currentuser()->isOPTAM() ? "Oui": "Non");
     }
-    if (!db->parametres()->sanscompta())
+    if (!db->parametres()->compta())
     {
         if (respliberal || soccomptable)
         {
@@ -2163,7 +2163,7 @@ QString Procedures::SessionStatus()
                         + cptabledefaut;
             }
         }
-        if (respliberal && db->parametres()->comptafrance())
+        if (respliberal && db->parametres()->comptanormale() && QLocale::system().country() == QLocale::France)
             txtstatut += "\n" + tr("Membre d'une AGA :") + "\t\t" + (currentuser()->isAGA() ? tr("Oui") : tr("Sans"));
     }
     return txtstatut;
@@ -4348,7 +4348,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
                 if (RestaureBase(BaseExistante, true,false, parent) != "")
                 {
                     Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-                    UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
+                    UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte"));
                     Utils::Redemarrage();
                 }
             }
@@ -4359,7 +4359,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-                UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
+                UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte"));
                 Utils::Redemarrage();
             }
             break;

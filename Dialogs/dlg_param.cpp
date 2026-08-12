@@ -371,7 +371,7 @@ dlg_param::dlg_param(QWidget *parent) :
    /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
 
     /*-------------------- GESTION MODE COMPTABILITÉ-------------------------------------------------------*/
-    ui->ComptacheckBox->setChecked(!m_parametres->sanscompta());
+    ui->ComptacheckBox->setChecked(!m_parametres->comptanormale());
     ui->ComptaSimplecheckBox->setEnabled(false);
     connect(ui->ComptacheckBox, &QCheckBox::checkStateChanged, this, [=, this](int state) {
         const bool aveccompta = (state == Qt::Checked);
@@ -2451,7 +2451,8 @@ void dlg_param::RestaureBase()
     proc->setProtocoleRestauration(Procedures::BaseExistante);
     if (proc->RestaureBase(Procedures::BaseExistante, false, true, this) != "")
     {
-        UpMessageBox::Watch(this,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
+        UpMessageBox::Watch(this, tr("Base restaurée"),
+                            tr("Votre base patients a été restaurée. Rufus va redémarrer."));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
         Utils::Redemarrage();
     }

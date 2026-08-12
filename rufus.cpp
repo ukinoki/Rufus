@@ -8442,7 +8442,7 @@ void Rufus::InitEventFilters()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::InitMenus()
 {
-    bool sanscompta = m_parametres->sanscompta();
+    bool sanscompta = m_parametres->compta();
     if (QLocale().territory() == QLocale::Madagascar)
     {
         actionPaiementTiers             ->setVisible(!sanscompta && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));

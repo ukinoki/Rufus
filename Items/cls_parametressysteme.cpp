@@ -36,7 +36,6 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataDate(data, CP_VERSIONNGAP_PARAMSYSTEME, m_versionNGAP);
     setDataDouble(data, CP_VALEURAMYMETROPOLE_PARAMSYSTEME, m_valeurAMYmetropole);
     setDataDouble(data, CP_VALEURAMYDOM_PARAMSYSTEME, m_valeurAMYDOM);
-    setDataBool(data, CP_SANSCOMPTA_PARAMSYSTEME, m_sanscompta);
     setDataString(data, CP_ADRESSELOCALSERVEUR_PARAMSYSTEME, m_adresseserveurlocal);
     setDataString(data, CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME, m_adresseserveurdistant);
     setDataTime(data, CP_HEUREBKUP_PARAMSYSTEME, m_heurebkup);
@@ -49,7 +48,7 @@ void ParametresSysteme::setData(QJsonObject data)
     m_daysbkup.setFlag(Utils::Samedi,   data[CP_SAMEDIBKUP_PARAMSYSTEME].toBool());
     m_daysbkup.setFlag(Utils::Dimanche, data[CP_DIMANCHEBKUP_PARAMSYSTEME].toBool());
     setDataBool(data, CP_VILLES_PARAMSYSTEME, m_villesfrance);
-    setDataBool(data, CP_COMPTA_PARAMSYSTEME, m_comptafrance);
+    setDataInt(data, CP_COMPTA_PARAMSYSTEME, m_compta);
     setDataBool(data, CP_COTATIONS_PARAMSYSTEME, m_cotationsfrance);
     setDataString(data, CP_VERSION_PARAMSYSTEME, m_version);
     m_data = data;
@@ -65,7 +64,6 @@ double ParametresSysteme::versionCCAM() const                   { return m_versi
 QDate ParametresSysteme::versionNGAP() const                    { return m_versionNGAP; }
 double ParametresSysteme::valeurAMYmetropole() const            { return m_valeurAMYmetropole; }
 double ParametresSysteme::valeurAMYDOM() const                  { return m_valeurAMYDOM; }
-bool ParametresSysteme::sanscompta() const                      { return m_sanscompta; }
 QString ParametresSysteme::adresseserveurlocal() const          { return m_adresseserveurlocal; }
 QString ParametresSysteme::adresseserveurdistant() const        { return m_adresseserveurdistant; }
 Utils::Days ParametresSysteme::daysbkup() const                 { return m_daysbkup; }
@@ -73,8 +71,11 @@ QTime ParametresSysteme::heurebkup() const                      { return m_heure
 QString ParametresSysteme::dirbkup() const                      { return m_dirbkup; }
 bool ParametresSysteme::villesfrance() const                    { return m_villesfrance; }
 bool ParametresSysteme::cotationsfrance() const                 { return m_cotationsfrance; }
-bool ParametresSysteme::comptafrance() const                    { return m_comptafrance; }
-
+int ParametresSysteme::compta() const                           { return m_compta; }
+bool ParametresSysteme::comptanormale() const                   { return m_compta == 1; }
+bool ParametresSysteme::comptafrance() const                    { return m_compta == 1  && QLocale::system().country() == QLocale::France; }
+bool ParametresSysteme::comptareduite() const                   { return m_compta == 2; }
+bool ParametresSysteme::sanscompta() const                      { return m_compta == 3; }
 void ParametresSysteme::setmdpadmin(QString mdp)                { m_mdpdmin = mdp;
                                                                   m_data[CP_MDPADMIN_PARAMSYSTEME] = mdp; }
 void ParametresSysteme::setnumcentre(int id)                    { m_numcentre = id;
@@ -95,8 +96,6 @@ void ParametresSysteme::setvaleurAMYmetropole(double valeur)   { m_valeurAMYmetr
                                                                   m_data[CP_VALEURAMYMETROPOLE_PARAMSYSTEME] = valeur; }
 void ParametresSysteme::setvaleurAMYDOM(double valeur)         { m_valeurAMYDOM = valeur;
                                                                   m_data[CP_VALEURAMYDOM_PARAMSYSTEME] = valeur; }
-void ParametresSysteme::setsanscompta(bool one)                 { m_sanscompta = one;
-                                                                  m_data[CP_SANSCOMPTA_PARAMSYSTEME] = one; }
 void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserveurlocal = adress;
                                                                   m_data[CP_ADRESSELOCALSERVEUR_PARAMSYSTEME] = adress; }
 void ParametresSysteme::setadresseserveurdistant(QString adress){ m_adresseserveurdistant = adress;
@@ -113,9 +112,18 @@ void ParametresSysteme::setdaysbkup(Utils::Days days)           { m_daysbkup = d
                                                                   m_data[CP_VENDREDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Vendredi);
                                                                   m_data[CP_SAMEDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Samedi);
                                                                   m_data[CP_DIMANCHEBKUP_PARAMSYSTEME] = days.testFlag(Utils::Dimanche); }
-void ParametresSysteme::setvillesfrance(bool one)              { m_villesfrance = one;
+void ParametresSysteme::setvillesfrance(bool one)               { m_villesfrance = one;
                                                                   m_data[CP_VILLES_PARAMSYSTEME] = one; }
-void ParametresSysteme::setcotationsfrance(bool one)           { m_cotationsfrance = one;
+void ParametresSysteme::setcotationsfrance(bool one)            { m_cotationsfrance = one;
                                                                   m_data[CP_COTATIONS_PARAMSYSTEME] = one; }
-void ParametresSysteme::setcomptafrance(bool one)              { m_comptafrance = one;
+void ParametresSysteme::setcompta(int one)                      { m_compta = one;
                                                                   m_data[CP_COMPTA_PARAMSYSTEME] = one; }
+void ParametresSysteme::setcomptanormale()                      { m_compta = 1;
+                                                                  m_data[CP_COMPTA_PARAMSYSTEME] = 1; }
+void ParametresSysteme::setcomptafrance()                       { m_compta = 1;
+                                                                  m_data[CP_COMPTA_PARAMSYSTEME] = 1; }
+void ParametresSysteme::setcomptareduite()                      { m_compta = 2;
+                                                                  m_data[CP_COMPTA_PARAMSYSTEME] = 2; }
+void ParametresSysteme::setsanscompta()                         { m_compta = 3;
+                                                                  m_data[CP_COMPTA_PARAMSYSTEME] = 2; }
+

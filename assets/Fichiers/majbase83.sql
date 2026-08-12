@@ -178,18 +178,6 @@ BEGIN
                 COMMENT 'utiliser ou non le systeme de cotation des actes - 1 = oui' AFTER `Pays`;
         END IF;
     -- ParametresSysteme.Compta : gestion de la comptabilité (1 = normale, 2 = réduite, 3 = aucune)
-    -- renommer SansCompta en Compta si elle existe
-    SELECT COUNT(*) INTO tot FROM
-        (SELECT COLUMN_KEY
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'SansCompta') as chp;
-        IF tot=1
-            THEN
-                ALTER TABLE `rufus`.`ParametresSysteme`
-                CHANGE COLUMN `SansCompta` `Compta` INT(1) NULL DEFAULT 1
-                COMMENT '1 = comptabilité normale\n2 = comptabilité réduite\n3 = pas de comptabilité';
-        END IF;
-    -- si Compta n'existe pas encore, la créer
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
@@ -200,19 +188,6 @@ BEGIN
                 ADD COLUMN `Compta` INT(1) NULL DEFAULT 1
                 COMMENT '1 = comptabilité normale\n2 = comptabilité réduite\n3 = pas de comptabilité' AFTER `CotationDesActes`;
         END IF;
-    UPDATE `rufus`.`ParametresSysteme` SET Compta = 1;
-    -- ParametresSysteme.Compta : gestion de la comptabilité (1 = normale, 2 = réduite, 3 = aucune)
-    SELECT COUNT(*) INTO tot FROM
-        (SELECT COLUMN_KEY
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'Compta') as chp;
-        IF tot=0
-            THEN
-                ALTER TABLE `rufus`.`ParametresSysteme`
-                ADD COLUMN `Compta` INT(1) NULL DEFAULT 1
-                COMMENT '1 = comptabilité normale\n2 = comptabilité réduite\n3 = pas de comptabilité' AFTER `CotationDesActes`;
-        END IF;
-    UPDATE `rufus`.`ParametresSysteme` SET Compta = 1;
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|
 CALL MAJ83();

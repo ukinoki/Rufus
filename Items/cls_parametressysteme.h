@@ -41,7 +41,7 @@ private:
     QDate m_versionNGAP = QDate(2026,7,1);  //!> la date de la version de la NGAP chargée
     double m_valeurAMYmetropole = 2.60;     //!> la valeur de la lettre-clé AMY en métropole
     double m_valeurAMYDOM = 2.72;           //!> la valeur de la lettre-clé AMY dans les DOM
-    bool m_sanscompta = true;               //!> utilise ou non la compta
+    int m_compta = 1;                       //!> gestion de la comptabilité (1 = normale, 2 = réduite, 3 = aucune)
     QString m_adresseserveurlocal = "";     //!> l'adresse IP du serveur dans le réseau local
     QString m_adresseserveurdistant = "";   //!> l'adresse IP ou DNS du lieu où se trouve le serveur
     Utils::Days m_daysbkup;                 //!> flag énumérant les jours de la sauvegarde
@@ -49,7 +49,6 @@ private:
     QString m_dirbkup = "";                 //!> l'adresse du dossier de sauvegarde vue depuis le serveur
     bool m_villesfrance = true;             //!> utilise la base de données des villes françaises
     bool m_cotationsfrance = true;          //!> utilise les cotations d'actes françaises (CMU, ALD, CCAM, secteur conventionnel, OPTAM...etc...)
-    bool m_comptafrance = true;             //!> utilise la comptabilité française
     QString m_version = "FR";               //!> la version du logiciel
 
 public:
@@ -66,7 +65,7 @@ public:
     QDate versionNGAP() const;
     double valeurAMYmetropole() const;
     double valeurAMYDOM() const;
-    bool sanscompta() const;
+    int compta() const;
     QString adresseserveurlocal() const;
     QString adresseserveurdistant() const;
     QString dirimagerieserveur() const;
@@ -75,6 +74,9 @@ public:
     QString dirbkup() const;
     bool villesfrance() const;
     bool cotationsfrance() const;
+    bool comptanormale() const;
+    bool comptareduite() const;
+    bool sanscompta() const;
     bool comptafrance() const;
     QString version()                       { return m_version; }
 
@@ -88,7 +90,11 @@ public:
     void setversionNGAP(QDate date);
     void setvaleurAMYmetropole(double valeur);
     void setvaleurAMYDOM(double valeur);
-    void setsanscompta(bool one);
+    void setcompta(int one);
+    void setcomptanormale();
+    void setcomptareduite();
+    void setsanscompta();
+    void setcomptafrance();
     void setadresseserveurlocal(QString  adress);
     void setadresseserveurdistant(QString adress);
     void setdirbkup(QString adress);
@@ -96,7 +102,6 @@ public:
     void setheurebkup(QTime time);
     void setvillesfrance(bool one);
     void setcotationsfrance(bool one);
-    void setcomptafrance(bool one);
     void setversion(QString version)         { m_version = version; }
 };
 

@@ -382,7 +382,6 @@ public:
 #define CP_VERSIONNGAP_PARAMSYSTEME                     "VersionNGAP"
 #define CP_VALEURAMYMETROPOLE_PARAMSYSTEME              "ValeurAMYMetropole"
 #define CP_VALEURAMYDOM_PARAMSYSTEME                    "ValeurAMYDOM"
-#define CP_SANSCOMPTA_PARAMSYSTEME                      "SansCompta"
 #define CP_ADRESSELOCALSERVEUR_PARAMSYSTEME             "AdresseServeurLocal"
 #define CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME           "AdresseServeurDistant"
 #define CP_LUNDIBKUP_PARAMSYSTEME                       "LundiBkup"
@@ -396,7 +395,7 @@ public:
 #define CP_DIRBKUP_PARAMSYSTEME                         "DirBkup"
 #define CP_VILLES_PARAMSYSTEME                          "VillesFrance"
 #define CP_COTATIONS_PARAMSYSTEME                       "CotationsFrance"
-#define CP_COMPTA_PARAMSYSTEME                          "ComptaFrance"
+#define CP_COMPTA_PARAMSYSTEME                          "Compta"
 #define CP_VERSION_PARAMSYSTEME                         "Version"
 
                             //! Table Rufus.salledattente
