@@ -382,11 +382,11 @@ dlg_param::dlg_param(QWidget *parent) :
     auto ChoixCompta = [=, this](DataBase::compta choix, QString texte) {
         UpMessageBox msgbox(this);
         msgbox.setText(texte);
-        msgbox.setInformativeText(tr("Ce réglage concerne toute la base et ne sera entièrement pris en compte "
-                                     "qu'au prochain démarrage de Rufus.\nVoulez-vous l'enregistrer?"));
+        msgbox.setInformativeText(tr("Ce réglage concerne toute la base et n'est lu qu'au démarrage : "
+                                     "Rufus va redémarrer pour le prendre en compte.\nVoulez-vous l'enregistrer?"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton AnnulBouton(tr("Annuler"));
-        UpSmallButton OKBouton(tr("Enregistrer"));
+        UpSmallButton OKBouton(tr("Enregistrer et redémarrer"));
         msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
         msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
         msgbox.exec();
@@ -396,6 +396,10 @@ dlg_param::dlg_param(QWidget *parent) :
             return;
         }
         db  ->setcompta(choix);
+        ShowMessage::I()->SplashMessage(tr("Redémarrage du programme en cours…"), 3000, true);
+        Utils::Pause(2500);
+        QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+        exit(0);
     };
     connect(ui->ComptacheckBox,         &QCheckBox::clicked, this, [=, this]{
         ChoixCompta(DataBase::Normal,   tr("Vous avez choisi d'enregistrer une comptabilité.")); });
