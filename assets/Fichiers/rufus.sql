@@ -406,7 +406,7 @@ CREATE TABLE `ParametresSysteme` (
   `VersionNGAP` date DEFAULT '2026-07-01',
   `ValeurAMYMetropole` DOUBLE DEFAULT 2.60,
   `ValeurAMYDOM` DOUBLE DEFAULT 2.72,
-  `SansCompta` int(1) DEFAULT NULL COMMENT '0 = AvecCompta\n1 = SansCompta et sans cotation\n2 = Sans compta mais avec cotation\n3 = Avec compta mais sans cotation',
+  `Compta` int(1) DEFAULT 1 COMMENT '1 = comptabilité normale\n2 = comptabilité réduite\n3 = pas de comptabilité',
   `AdresseServeurLocal` varchar(45) DEFAULT NULL,
   `AdresseServeurDistant` varchar(45) DEFAULT NULL,
   `LundiBkup` int(1) DEFAULT NULL,
@@ -420,7 +420,6 @@ CREATE TABLE `ParametresSysteme` (
   `DirBkup` varchar(250) DEFAULT NULL,
   `VillesFrance` int(1) DEFAULT NULL,
   `CotationsFrance` int(1) DEFAULT NULL,
-  `ComptaFrance` int(1) DEFAULT NULL,
   `Version` varchar(2) DEFAULT NULL,
   `Pays` varchar(2) DEFAULT NULL COMMENT 'code pays ISO 3166-1 alpha-2 - null = pas encore choisi',
   `CotationDesActes` int(1) DEFAULT 1 COMMENT 'utiliser ou non le systeme de cotation des actes - 1 = oui'
