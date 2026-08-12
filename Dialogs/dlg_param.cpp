@@ -1018,6 +1018,7 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->ModifListVillesupPushButton     ->setEnabled(a);
         ui->VillesgroupBox                  ->setEnabled(a);
         ui->ComptagroupBox                  ->setEnabled(a);
+        ui->ComptaSimplecheckBox            ->setEnabled(false);     //! compta réduite pas encore disponible
         ui->ImportDocsgroupBox              ->setEnabled(a);
     }
     else if (obj == ui->LockParamUserupLabel)
