@@ -257,7 +257,7 @@ choisir_langue_install() {
     local choix
     # Hauteur imposée : sous 24.04 la liste n'affiche que 2 langues sur 4, sans rien qui le signale.
     choix="$(zenity --list --radiolist --hide-header --title="Rufus — langue / language" \
-        --width=420 --height=300 \
+        --height=300 \
         --text="Choisissez la langue de l'installation / Choose the installation language:" \
         --column="" --column="Langue" \
         "${fr}" "Français" "${en}" "English" "${es}" "Español" "${pt}" "Português" \
