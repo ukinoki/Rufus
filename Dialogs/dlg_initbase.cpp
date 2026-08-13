@@ -74,6 +74,8 @@ dlg_initbase::dlg_initbase(QWidget *parent) :
     UpGroupBox *wdg_languegroup = new UpGroupBox();
     wdg_languegroup     ->setTitle(tr("Langue et territoire"));
     QVBoxLayout *languelay = new QVBoxLayout;
+    languelay           ->setContentsMargins(10, 20, 10, 10);
+    languelay           ->setSpacing(2);
     languelay           ->addWidget(LigneCombo(tr("Langue"),     wdg_languecombo));
     languelay           ->addWidget(LigneCombo(tr("Territoire"), wdg_territoirecombo));
     wdg_languegroup     ->setLayout(languelay);
@@ -113,6 +115,7 @@ UpGroupBox* dlg_initbase::GroupeExclusif(QString titre, QList<UpCheckBox*> cases
     QButtonGroup *grp   = new QButtonGroup(this);
     grp                 ->setExclusive(true);
     QVBoxLayout *lay    = new QVBoxLayout;
+    lay                 ->setContentsMargins(10, 20, 10, 10);   //! 20 en haut : le stylesheet UpGroupBox ne réserve pas la place du titre
     for (UpCheckBox *cas : cases)
     {
         grp             ->addButton(cas);
@@ -169,10 +172,10 @@ void dlg_initbase::RemplitTerritoires()
     for (const QLocale &loc : locales)
     {
         const QString code = QLocale::territoryToCode(loc.territory());
-        if (code.size() != 2 || nomparcode.contains(code))      //! 2 lettres : écarte les regroupements (Monde, Europe…)
+        if (code.size() != 2)                                   //! 2 lettres : écarte les regroupements (Monde, Europe…)
             continue;
-        const QString nom = loc.nativeTerritoryName();
-        nomparcode.insert(code, nom.isEmpty()? QLocale::territoryToString(loc.territory()) : nom);
+        //! nom anglais : nativeTerritoryName() donnait la langue de la 1re locale trouvée (France -> « Frañs », du breton)
+        nomparcode.insert(code, QLocale::territoryToString(loc.territory()));
     }
 
     QList<QPair<QString, QString>> liste;    /*!< nom, code - trié sur le nom affiché */
