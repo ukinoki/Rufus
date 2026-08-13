@@ -131,15 +131,6 @@ int main(int argc, char *argv[])
     splash->close();
     delete splash;
 
-    //! TEST - la fiche des choix d'installation, montrée au lancement pour la mettre au point sans
-    //! recréer une base vierge. Bloc à supprimer (avec son include) quand elle sera au point.
-    {
-        dlg_initbase dlgtest;
-        dlgtest.exec();
-        qDebug() << "dlg_initbase :" << dlgtest.compta() << dlgtest.cotationsfrance()
-                 << dlgtest.langue() << dlgtest.territoire();
-    }
-
     Rufus w;
     w.setApp(&app, &translator); // For dynamic translations
     w.show();
