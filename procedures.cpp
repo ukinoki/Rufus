@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "procedures.h"
+#include "dlg_initbase.h"
 #include "mysqlinstaller.h"
 #include <QBuffer>
 #include <QPdfWriter>
@@ -3977,62 +3978,22 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     db->StandardSQL (req);
     req = "update " TBL_COMMENTAIRESLUNETTES " set " CP_IDUSER_COMLUN " = " + QString::number(idusr) + ", " CP_PUBLIC_COMLUN " = 1";
     db->StandardSQL (req);
-    if (UpMessageBox::Question(parent, tr("Un compte utilisateur a été créé"),
-                               tr("Un compte utilisateur factice a été créé\n") + "\n" +
-                               currentuser()->titre() + " "  + currentuser()->prenom() + " " + currentuser()->nom() + ", " + currentuser()->fonction()
-                               + "\n\n" +
-                               tr("avec le login ") + Login + " " + tr("et le mot de passe que vous avez fourni") + "\n" +
-                               tr("Voulez-vous conserver ces données pour le moment ou les modifier?") + "\n" +
-                               tr("Vous pourrez les modifier par la suite")
-                               + "\n\n" +
-                               tr("Une liste arbitraires de cotations a été créée") + "\n" +
-                               tr("Vous pourrez la modifier par la suite dans le menu Edition/Paramètres\n"),
-                               UpDialog::ButtonOK | UpDialog::ButtonEdit, QStringList() << tr("Modifier les données") << tr("Conserver les données"))
-        == UpSmallButton::EDITBUTTON)
-    {
-        int gidLieuExercice = -1;
-        dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(gidLieuExercice, dlg_gestionusers::PREMIERUSER , true, parent);
-        Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + Login);
-        if (Dlg_GestUsr->exec() == QDialog::Accepted)
-        {
-            m_parametres = db->parametres();
-            Datas::I()->comptes         ->initListe();
-            Datas::I()->postesconnectes ->initListe();
-            Datas::I()->banques         ->initListe();
-            Datas::I()->users           ->initListe();
-            MAJComptesBancaires(currentuser());
-            m_applicationfont = currentuser()->police();
-        }
-        delete Dlg_GestUsr;
-    }
-    QString CP(""),ville("");
-    enum Villes::TownsFrom from;
-    if (UpMessageBox::Question(parent,
-                               tr("Base de données des villes et codes postaux"),
-                               tr("Voulez-vous utiliser la base de données des villes françaises?"),
-                               UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                               QStringList() << tr("Non") << tr("Utiliser les codes postaux français"))
-            == UpSmallButton::STARTBUTTON)
-        from = Villes::DATABASE;
-    else
-        from = Villes::CUSTOM;
-    Datas::I()->villes          ->initListe(from);
 
-    if (Datas::I()->villes->ListeCodesPostaux().size()>0)
-    {
-        Ville *town = Datas::I()->villes->villes()->first();
-        CP = town->codepostal();
-        ville = town->nom();
-    }
-    db->setvillesfrance(from == Villes::DATABASE);
+    //! tous les choix d'installation dans une seule fiche (les 3 messagebox qui défilaient ici ont fait leur temps)
+    dlg_initbase dlg(parent);
+    dlg.exec();
+    m_version = dlg.langue();
 
-    bool a = (UpMessageBox::Question(parent,
-                            tr("Cotations françaises"),
-                            tr("Voulez-vous utiliser le système français de cotation des actes médicaux?"),
-                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                            QStringList() << tr("Non") << tr("Utiliser les cotations françaises"))
-        == UpSmallButton::STARTBUTTON);
-    db->setcotationsfrance(a);
+    db                  ->setcompta(dlg.compta());
+    db                  ->setcotationsfrance(dlg.cotationsfrance());
+    db                  ->setVersion(m_version);
+    if (m_settings != Q_NULLPTR)
+        m_settings      ->setValue(Param_Poste_Version, m_version);      //! la langue du poste vit dans rufus.ini
+
+    //! le territoire ne pilote pour l'instant que la base des villes et codes postaux
+    enum Villes::TownsFrom from = (dlg.territoire() == "FR"? Villes::DATABASE : Villes::CUSTOM);
+    Datas::I()->villes  ->initListe(from);
+    db                  ->setvillesfrance(from == Villes::DATABASE);
 
     m_connexionbaseOK = true;
     return true;

@@ -16,6 +16,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_gestioncomptes.cpp \
     $$PWD/dlg_gestionusers.cpp \
     $$PWD/dlg_identificationcommercial.cpp \
+    $$PWD/dlg_initbase.cpp \
     $$PWD/dlg_identificationcorresp.cpp \
     $$PWD/dlg_identificationiol.cpp \
     $$PWD/dlg_identificationmanufacturer.cpp \
@@ -61,6 +62,7 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_gestioncomptes.h \
     $$PWD/dlg_gestionusers.h \
     $$PWD/dlg_identificationcommercial.h \
+    $$PWD/dlg_initbase.h \
     $$PWD/dlg_identificationcorresp.h \
     $$PWD/dlg_identificationiol.h \
     $$PWD/dlg_identificationmanufacturer.h \
