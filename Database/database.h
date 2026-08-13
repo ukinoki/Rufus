@@ -223,7 +223,6 @@ public:
     void setversionNGAP(QDate date);
     void setvaleurAMYmetropole(double valeur);
     void setvaleurAMYDOM(double valeur);
-    void setsanscompta(bool one);
     void setadresseserveurlocal(QString  adress = "");
     void setadresseserveurdistant(QString adress = "");
     void setporttcp(int port);
@@ -347,7 +346,6 @@ public:
      * Cotations
     */
     QStringList             loadTypesCotations();                       //! charge toutes les cotations possibles à partir des tables cotations et ccam
-    QList<Cotation*>        loadCotationsByUser(User *usr);             //! charge toutes les cotations utilisées par un user à partir des tables cotations et ccam
     QList<Cotation*>        loadCotations();                            //! charge toutes les cotations de la table (avec leur type), sans idUser ni montant pratiqué
     QMap<int, double>       loadMontantsPratiquesByUser(User *usr);     //! idcotation -> montant pratiqué du user, réuni depuis les 4 tables de jointures
 

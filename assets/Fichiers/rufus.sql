@@ -406,7 +406,7 @@ CREATE TABLE `ParametresSysteme` (
   `VersionNGAP` date DEFAULT '2026-07-01',
   `ValeurAMYMetropole` DOUBLE DEFAULT 2.60,
   `ValeurAMYDOM` DOUBLE DEFAULT 2.72,
-  `Compta` int(1) DEFAULT 1 COMMENT '1 = comptabilité normale\n2 = comptabilité réduite\n3 = pas de comptabilité',
+  `Compta` int(1) DEFAULT 1 COMMENT '1 = comptabilite normale\n2 = comptabilite reduite\n3 = pas de comptabilite',
   `AdresseServeurLocal` varchar(45) DEFAULT NULL,
   `AdresseServeurDistant` varchar(45) DEFAULT NULL,
   `LundiBkup` int(1) DEFAULT NULL,
@@ -668,20 +668,17 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `cotations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cotations` (
-  `idcotation` int(11) NOT NULL AUTO_INCREMENT,
+  `idcotation` int NOT NULL AUTO_INCREMENT,
   `Typeacte` varchar(15) NOT NULL,
   `MontantOPTAM` decimal(9,2) DEFAULT NULL,
   `MontantNonOPTAM` decimal(9,2) DEFAULT NULL,
-  `MontantPratique` decimal(9,2) DEFAULT NULL,
-  `CCAM` int(1) DEFAULT NULL COMMENT 'plus utilisé, gardé pour compatibilité avec les versions antérieures au 15-07-2026',
-  `Typecotation` int(1) DEFAULT NULL COMMENT '1 = CCAM\n2 = Association CCAM\n3 = NGAP\n4 = Autre',
-  `idUser` int(11) DEFAULT NULL COMMENT 'plus utilisé, gardé pour compatibilité avec les versions antérieures au 15-07-2026',
-  `Frequence` int(11) DEFAULT NULL,
-  `Tip` text DEFAULT NULL,
+  `Typecotation` int DEFAULT NULL COMMENT '1 = CCAM\n2 = Association CCAM\n3 = NGAP\n4 = Autre',
+  `Frequence` int DEFAULT NULL,
+  `Tip` text,
   PRIMARY KEY (`idcotation`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -690,7 +687,7 @@ CREATE TABLE `cotations` (
 
 LOCK TABLES `cotations` WRITE;
 /*!40000 ALTER TABLE `cotations` DISABLE KEYS */;
-INSERT INTO `cotations` VALUES (3,'astigmatisme',110.00,110.00,110.00,NULL,4,2,NULL,NULL),(4,'BAFA005',94.49,NULL,94.49,NULL,1,2,NULL,'Exérèse non transfixiante de lésions multiples unilatérales de paupière'),(5,'BAFA013',32.16,NULL,32.16,NULL,1,2,NULL,'Exérèse de chalazion'),(6,'BBLD003',21.87,NULL,21.87,NULL,1,2,NULL,'Sondage des voies lacrymales'),(7,'BCCA001',52.25,NULL,52.25,NULL,1,2,NULL,'Suture de plaie de la conjonctive'),(8,'BCFA003',105.59,NULL,105.59,NULL,1,2,NULL,'Exérèse primitive de ptérygion, avec autogreffe de conjonctive ou de muqueuse'),(9,'BCFA008',52.25,NULL,52.25,NULL,1,2,NULL,'Exérèse de lésion de la conjonctive, sans autogreffe'),(10,'BCFA009',66.40,NULL,66.40,NULL,1,2,NULL,'Exérèse primitive de ptérygion, sans autogreffe'),(11,'BDGA005',52.25,NULL,52.25,NULL,1,2,NULL,'Ablation d\'un corps étranger profond [stromal] de la cornée'),(12,'BDMP002',44.16,NULL,44.16,NULL,1,2,NULL,'Adaptation unilatérale ou bilatérale de lentille cornéenne thérapeutique ou de lentille-pansement'),(13,'BEFA008',209.00,NULL,209.00,NULL,1,2,NULL,'Trabéculectomie [Sclérectomie transfixiante]'),(14,'BEPP002',83.60,NULL,100.00,NULL,1,2,NULL,'Iridotomie avec laser'),(15,'BFGA002',271.70,NULL,271.70,NULL,1,2,NULL,'Extraction extracapsulaire manuelle du cristallin, avec implantation de cristallin artificiel dans la chambre postérieure de l\'oeil'),(16,'BFGA003',209.00,NULL,209.00,NULL,1,2,NULL,'Extraction extracapsulaire manuelle du cristallin, sans implantation de cristallin artificiel'),(17,'BFGA004',271.70,NULL,271.70,NULL,1,2,NULL,'Extraction extracapsulaire du cristallin par phakoémulsification, avec implantation de cristallin artificiel dans la chambre postérieure de l\'oeil'),(18,'BFGA004+25%',339.62,339.62,339.62,NULL,2,2,NULL,NULL),(19,'BFGA004+BEFA008',376.20,376.20,526.20,NULL,2,2,NULL,NULL),(20,'BFGA004+BELB001',296.41,296.41,446.41,NULL,2,2,NULL,NULL),(21,'BFGA008',209.00,NULL,209.00,NULL,1,2,NULL,'Extraction extracapsulaire du cristallin par phakoémulsification, sans implantation de cristallin artificiel'),(22,'BFKA001',156.75,NULL,156.75,NULL,1,2,NULL,'Changement de matériel implanté dans le segment antérieur de l\'oeil'),(23,'BFLA001',125.40,NULL,125.40,NULL,1,2,NULL,'Implantation secondaire d\'un cristallin artificiel non suturé'),(24,'BFPP001',83.60,NULL,100.00,NULL,1,2,NULL,'Capsulotomie du cristallin pour cataracte secondaire, avec laser'),(25,'BFQM001',34.11,NULL,50.00,NULL,1,2,NULL,'Biométrie oculaire par échographie avec mesure des différents paramètres oculaires pour détermination de la puissance d\'un implant'),(26,'BFQM001+BGQP002',60.00,60.00,60.00,NULL,2,2,NULL,NULL),(27,'BGLB001',83.60,NULL,83.60,NULL,1,2,NULL,'Injection d\'agent pharmacologique dans le corps vitré'),(28,'BGNP003',101.16,NULL,101.16,NULL,1,2,NULL,'Séance de destruction de lésion choriorétinienne par photocoagulation avec laser, à l\'aide de verre de contact'),(29,'BGNP008',125.40,NULL,125.40,NULL,1,2,NULL,'Séance de photocoagulation choriorétinienne du pôle postérieur, avec laser à argon ou diode'),(30,'BGQP002',28.29,NULL,28.29,NULL,1,2,NULL,'Examen du fond d\'oeil par biomicroscopie avec verre de contact'),(31,'BJQP002+BLQP010',38.90,38.90,38.90,NULL,2,2,NULL,NULL),(32,'BLMP001',88.32,NULL,88.32,NULL,1,2,NULL,'Adaptation bilatérale de lentille de contact pour kératocône ou astigmatisme irrégulier'),(33,'BLMP002',81.60,NULL,81.60,NULL,1,2,NULL,'Adaptation unilatérale ou bilatérale de lentille de contact souple'),(34,'BLMP003',71.04,NULL,71.04,NULL,1,2,NULL,'Adaptation unilatérale de lentille de contact pour kératocône ou astigmatisme irrégulier'),(35,'BLMP005',88.32,NULL,88.32,NULL,1,2,NULL,'Adaptation unilatérale ou bilatérale de lentille de contact rigide'),(36,'BLQP004',33.36,NULL,46.00,NULL,1,2,NULL,'Campimétrie ou périmétrie manuelle ou automatisée, avec programmes spécifiques de mesure de seuils'),(37,'BLQP004+BDQP003',60.00,60.00,60.00,NULL,2,2,NULL,NULL),(38,'BLQP004+BGQP002',50.00,50.00,50.00,NULL,2,2,NULL,NULL),(39,'BLQP004+BHQP002',60.00,60.00,60.00,NULL,2,2,NULL,NULL),(40,'BZQK001',47.88,NULL,66.00,NULL,1,2,NULL,'Tomographie unilatérale ou bilatérale de l\'oeil par scanographie à cohérence optique'),(41,'BZQK001+BGQP002',80.00,80.00,80.00,NULL,2,2,NULL,NULL),(42,'BZQK001x1.5',71.82,71.82,90.00,NULL,2,2,NULL,NULL),(44,'Cs',23.00,23.00,45.00,NULL,4,2,NULL,NULL),(45,'Cs+MPC+MCS',30.00,30.00,30.00,NULL,4,2,NULL,NULL),(46,'Cs+MPJ',28.00,28.00,28.00,NULL,4,2,NULL,NULL),(47,'EBQF002',72.41,NULL,90.00,NULL,1,2,NULL,'Angiographie unilatérale ou bilatérale du segment postérieur de l\'oeil par injection intraveineuse transcutanée de fluorescéine, avec superposition d\'images'),(48,'lentilles',110.00,110.00,110.00,NULL,4,2,NULL,NULL),(49,'BJQP002+BLQP010',38.90,38.90,50.00,NULL,2,2,NULL,NULL),(50,'AMY10',26.00,26.00,26.00,NULL,3,2,NULL,NULL),(51,'AMY4',10.40,10.40,10.40,NULL,3,2,NULL,NULL),(52,'AMY5.4',14.04,14.04,14.04,NULL,3,2,NULL,NULL),(53,'AMY10.3',26.78,26.78,26.78,NULL,3,2,NULL,NULL),(54,'AMY10+4.1',36.66,36.66,36.66,NULL,3,2,NULL,NULL),(58,'BAFA015',125.40,NULL,125.40,NULL,1,2,NULL,'Résection cutanée, musculaire et/ou graisseuse au niveau d\'une paupière, par abord cutané'),(59,'BAFA006',48.62,NULL,48.62,NULL,1,2,NULL,'Exérèse non transfixiante d\'une lésion d\'une paupière'),(60,'BENP001',125.40,NULL,130.00,NULL,1,2,NULL,'Séance de photocoagulation de l\'angle iridocornéen avec laser'),(61,'BCFA004',104.50,NULL,104.50,NULL,1,2,NULL,'Exérèse de lésion de la conjonctive, avec autogreffe de muqueuse');
+INSERT INTO `cotations` VALUES (3,'astigmatisme',110.00,110.00,4,NULL,NULL),(4,'BAFA005',98.30,83.35,1,NULL,'Exérèse non transfixiante de lésions multiples unilatérales de paupière'),(5,'BAFA013',34.06,32.92,1,NULL,'Exérèse de chalazion'),(6,'BBLD003',24.77,22.43,1,NULL,'Sondage des voies lacrymales'),(7,'BCCA001',52.25,52.25,1,NULL,'Suture de plaie de la conjonctive'),(8,'BCFA003',110.68,108.08,1,NULL,'Exérèse primitive de ptérygion, avec autogreffe de conjonctive ou de muqueuse'),(9,'BCFA008',52.25,52.25,1,NULL,'Exérèse de lésion de la conjonctive, sans autogreffe'),(10,'BCFA009',79.72,68.18,1,NULL,'Exérèse primitive de ptérygion, sans autogreffe'),(11,'BDGA005',52.25,52.25,1,NULL,'Ablation d\'un corps étranger profond [stromal] de la cornée'),(12,'BDMP002',44.16,44.16,1,NULL,'Adaptation unilatérale ou bilatérale de lentille cornéenne thérapeutique ou de lentille-pansement'),(13,'BEFA008',209.00,209.00,1,NULL,'Trabéculectomie [Sclérectomie transfixiante]'),(14,'BEPP002',83.60,83.60,1,NULL,'Iridotomie avec laser'),(15,'BFGA002',271.70,271.70,1,NULL,'Extraction extracapsulaire manuelle du cristallin, avec implantation de cristallin artificiel dans la chambre postérieure de l\'oeil'),(16,'BFGA003',209.00,209.00,1,NULL,'Extraction extracapsulaire manuelle du cristallin, sans implantation de cristallin artificiel'),(17,'BFGA004',271.70,NULL,1,NULL,'Extraction extracapsulaire du cristallin par phakoémulsification, avec implantation de cristallin artificiel dans la chambre postérieure de l\'oeil'),(18,'BFGA004+25%',339.62,339.62,2,NULL,NULL),(19,'BFGA004+BEFA008',376.20,376.20,2,NULL,NULL),(20,'BFGA004+BELB001',296.41,296.41,2,NULL,NULL),(21,'BFGA008',209.00,209.00,1,NULL,'Extraction extracapsulaire du cristallin par phakoémulsification, sans implantation de cristallin artificiel'),(22,'BFKA001',188.08,156.75,1,NULL,'Changement de matériel implanté dans le segment antérieur de l\'oeil'),(23,'BFLA001',146.29,125.40,1,NULL,'Implantation secondaire d\'un cristallin artificiel non suturé'),(24,'BFPP001',83.60,83.60,1,NULL,'Capsulotomie du cristallin pour cataracte secondaire, avec laser'),(25,'BFQM001',33.22,33.22,1,NULL,'Biométrie oculaire par échographie avec mesure des différents paramètres oculaires pour détermination de la puissance d\'un implant'),(26,'BFQM001+BGQP002',47.76,47.76,2,NULL,NULL),(27,'BGLB001',83.60,83.60,1,NULL,'Injection d\'agent pharmacologique dans le corps vitré'),(28,'BGNP003',101.16,101.16,1,NULL,'Séance de destruction de lésion choriorétinienne par photocoagulation avec laser, à l\'aide de verre de contact'),(29,'BGNP008',125.40,125.40,1,NULL,'Séance de photocoagulation choriorétinienne du pôle postérieur, avec laser à argon ou diode'),(30,'BGQP002',29.07,29.07,1,NULL,'Examen du fond d\'oeil par biomicroscopie avec verre de contact'),(31,'BJQP002+BLQP010',40.02,40.02,2,NULL,NULL),(32,'BLMP001',88.32,88.32,1,NULL,'Adaptation bilatérale de lentille de contact pour kératocône ou astigmatisme irrégulier'),(33,'BLMP002',81.60,81.60,1,NULL,'Adaptation unilatérale ou bilatérale de lentille de contact souple'),(34,'BLMP003',71.04,71.04,1,NULL,'Adaptation unilatérale de lentille de contact pour kératocône ou astigmatisme irrégulier'),(35,'BLMP005',88.32,88.32,1,NULL,'Adaptation unilatérale ou bilatérale de lentille de contact rigide'),(36,'BLQP004',41.02,34.27,1,NULL,'Campimétrie ou périmétrie manuelle ou automatisée, avec programmes spécifiques de mesure de seuils'),(37,'BLQP004+BDQP003',52.25,44.41,2,NULL,NULL),(38,'BLQP004+BGQP002',55.56,48.81,2,NULL,NULL),(39,'BLQP004+BHQP002',49.66,42.91,2,NULL,NULL),(40,'BZQK001',58.82,49.20,1,NULL,'Tomographie unilatérale ou bilatérale de l\'oeil par scanographie à cohérence optique'),(41,'BZQK001+BGQP002',73.36,63.74,2,NULL,NULL),(42,'BZQK001x1.5',71.82,71.82,2,NULL,NULL),(44,'Cs',23.00,23.00,4,NULL,NULL),(45,'Cs+MPC+MCS',30.00,30.00,4,NULL,NULL),(46,'Cs+MPJ',28.00,28.00,4,NULL,NULL),(47,'EBQF002',83.59,74.29,1,NULL,'Angiographie unilatérale ou bilatérale du segment postérieur de l\'oeil par injection intraveineuse transcutanée de fluorescéine, avec superposition d\'images'),(48,'lentilles',110.00,110.00,4,NULL,NULL),(49,'BJQP002+BLQP010',40.02,40.02,2,NULL,NULL),(50,'AMY10',26.00,26.00,3,NULL,'Bilan des déséquilibres de la vision binoculaire lié à un trouble des capacités fusionnelles'),(51,'AMY4',10.40,10.40,3,NULL,'Traitement des hétérophories et des déséquilibres binoculaires par série de vingt séances de l\'ordre de 20 minutes, par séance'),(52,'AMY5.4',14.04,14.04,3,NULL,NULL),(53,'AMY10.3',26.78,26.78,3,NULL,NULL),(54,'AMY10+4.1',36.66,36.66,3,NULL,NULL),(58,'BAFA015',125.40,125.40,1,NULL,'Résection cutanée, musculaire et/ou graisseuse au niveau d\'une paupière, par abord cutané'),(59,'BAFA006',55.73,49.88,1,NULL,'Exérèse non transfixiante d\'une lésion d\'une paupière'),(60,'BENP001',125.40,125.40,1,NULL,'Séance de photocoagulation de l\'angle iridocornéen avec laser'),(61,'BCFA004',104.50,104.50,1,NULL,'Exérèse de lésion de la conjonctive, avec autogreffe de muqueuse');
 /*!40000 ALTER TABLE `cotations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -796,7 +793,7 @@ CREATE TABLE `jointuresccam` (
   `idJointure` int(11) NOT NULL AUTO_INCREMENT,
   `idCotation` int(11) DEFAULT NULL,
   `idUser` int(11) DEFAULT NULL,
-  `MontantPratique` DOUBLE DEFAULT NULL,
+  `MontantPratique` decimal(9,2) DEFAULT NULL,
   PRIMARY KEY (`idJointure`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -822,8 +819,8 @@ CREATE TABLE `jointuresautrescotations` (
   `idJointure` int(11) NOT NULL AUTO_INCREMENT,
   `idCotation` int(11) DEFAULT NULL,
   `idUser` int(11) DEFAULT NULL,
-  `MontantConventionnel` DOUBLE NULL DEFAULT NULL,
-  `MontantPratique` DOUBLE DEFAULT NULL,
+  `MontantConventionnel` decimal(9,2) NULL DEFAULT NULL,
+  `MontantPratique` decimal(9,2) DEFAULT NULL,
   PRIMARY KEY (`idJointure`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -849,7 +846,7 @@ CREATE TABLE `jointuresassociations` (
   `idJointure` int(11) NOT NULL AUTO_INCREMENT,
   `idCotation` int(11) DEFAULT NULL,
   `idUser` int(11) DEFAULT NULL,
-  `MontantPratique` DOUBLE DEFAULT NULL,
+  `MontantPratique` decimal(9,2) DEFAULT NULL,
   PRIMARY KEY (`idJointure`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

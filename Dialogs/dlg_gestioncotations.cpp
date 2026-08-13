@@ -385,7 +385,6 @@ bool dlg_gestioncotations::VerifFiche()
     const QString nonoptamSQL = (m_typecotation == 4) ? "null" : QString::number(QLocale().toDouble(wdg_tarifnooptamline->text()));
     const QString tipSQL      = Utils::correctquoteSQL(wdg_tipline->toPlainText());
     const QString codeSQL     = Utils::correctquoteSQL(code);
-    const QString iduserSQL   = QString::number(iduser);
     bool ok;
 
     //! --- MODIFICATION (réservée au type 4) : update par idcotation ---
@@ -430,9 +429,9 @@ bool dlg_gestioncotations::VerifFiche()
     {
         db->StandardSQL("insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
               CP_MONTANTNONOPTAM_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", "
-              CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
+               CP_TIP_COTATIONS ") VALUES ('"
               + codeSQL + "', " + optamSQL + ", " + nonoptamSQL + ", "
-              + QString::number(m_typecotation) + ", " + iduserSQL + ", '" + tipSQL + "')");
+              + QString::number(m_typecotation) + ", " + tipSQL + "')");
         QVariantList n = db->getFirstRecordFromStandardSelectSQL(
             "select min(" CP_ID_COTATIONS ") from " TBL_COTATIONS " where " + whereActe, ok);
         idcot = (ok && n.size() > 0 && !n.at(0).isNull()) ? n.at(0).toInt() : 0;
