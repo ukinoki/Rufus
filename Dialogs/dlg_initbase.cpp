@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_initbase.h"
 
 //! territoires où s'appliquent les cotations françaises (CCAM, NGAP)
-static const QStringList TERRITOIRES_FRANCE = {"FR", "GF", "PF", "NC", "GP", "MQ"};
+static const QStringList TERRITOIRES_FRANCE = {"FR", "GF", "PF", "NC", "GP", "MQ", "RE", "YT"};
 
 //! Drapeau émoji d'un code ISO à 2 lettres (2 « indicateurs régionaux ») : les .ico du dépôt ne couvrent que les 7 langues
 static QString Drapeau(QString code)

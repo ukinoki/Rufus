@@ -3987,6 +3987,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     db                  ->setcompta(dlg.compta());
     db                  ->setcotationsfrance(dlg.cotationsfrance());
     db                  ->setVersion(m_version);
+    db                  ->setPays(dlg.territoire());
     if (m_settings != Q_NULLPTR)
         m_settings      ->setValue(Param_Poste_Version, m_version);      //! la langue du poste vit dans rufus.ini
 

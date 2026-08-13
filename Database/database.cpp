@@ -1404,6 +1404,14 @@ void DataBase::setVersion (QString newversion)
     parametres()->setversion(newversion);
 }
 
+void DataBase::setPays (QString newpays)
+{
+    if (!m_db.isOpen())
+        return;
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_PAYS_PARAMSYSTEME " = '" + newpays + "'");
+    parametres()->setpays(newpays);
+}
+
 /*
  * Donnes ophtapatient
 */

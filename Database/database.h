@@ -233,6 +233,7 @@ public:
     void setcotationsfrance(bool one = true);
     void setcompta(enum compta one = Normal);
     void setVersion (QString newversion);
+    void setPays (QString newpays);
     double versionbaseiol();
     double versionCCAM();
     QDate versionNGAP();
