@@ -2149,7 +2149,7 @@ QString Procedures::SessionStatus()
         txtstatut += "\n" + tr("Secteur conventionnel :") + "\t\t" + secteur;
         if (!m_parametres->cotationsfrance()) txtstatut += "\n" + tr("OPTAM :") + "\t\t\t" + (currentuser()->isOPTAM() ? "Oui": "Non");
     }
-    if (!db->parametres()->compta())
+    if (db->parametres()->compta() != 3)
     {
         if (respliberal || soccomptable)
         {
