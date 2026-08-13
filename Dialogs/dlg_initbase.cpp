@@ -39,13 +39,20 @@ static QString Drapeau(QString code)
 dlg_initbase::dlg_initbase(QWidget *parent) :
     UpDialog(parent)
 {
-    setWindowTitle(tr("Configuration de votre nouvelle base"));
+    setWindowTitle(tr("Premier paramétrage de Rufus"));
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     /*! contenu inséré au-dessus de la rangée de boutons (cf. Utils::SaisirNouvelUtilisateur) */
     QVBoxLayout *lay = new QVBoxLayout();
     lay                 ->setContentsMargins(5, 5, 5, 5);
     lay                 ->setSpacing(5);
+
+    UpLabel *soustitre  = new UpLabel();
+    soustitre           ->setText(tr("Votre base patients est créée. Ces réglages valent pour tout le cabinet ; "
+                                     "vous pourrez les changer dans Edition/Paramètres."));
+    soustitre           ->setWordWrap(true);
+    soustitre           ->setMaximumWidth(400);
+    lay                 ->addWidget(soustitre);
 
     //! --- comptabilité : libellés repris de l'onglet Paramètres, pour ne pas dire deux choses ---
     wdg_comptanormalecheck  = new UpCheckBox(tr("Enregistrer une comptabilité"));
