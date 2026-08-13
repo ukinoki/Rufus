@@ -48,7 +48,7 @@ dlg_initbase::dlg_initbase(QWidget *parent) :
     lay                 ->setSpacing(5);
 
     UpLabel *soustitre  = new UpLabel();
-    soustitre           ->setText(tr("Votre base patients est créée. Ces réglages valent pour tout le cabinet ; "
+    soustitre           ->setText(tr("La base patients est créée. Ces réglages valent pour tout le cabinet ; "
                                      "vous pourrez les changer dans Edition/Paramètres."));
     soustitre           ->setWordWrap(true);
     soustitre           ->setMaximumWidth(400);
