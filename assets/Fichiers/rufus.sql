@@ -432,7 +432,11 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,83,1,77,'2026-07-01',2.60,2.72,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1,'FR',NULL,1);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,83,
+                                        1,77,'2026-07-01',2.60,2.72,
+                                        1,NULL,NULL,NULL,NULL,
+                                        NULL,NULL,NULL,NULL,NULL,
+                                        NULL,NULL,1,1,'FR','FR',1);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -678,7 +682,7 @@ CREATE TABLE `cotations` (
   `Frequence` int DEFAULT NULL,
   `Tip` text,
   PRIMARY KEY (`idcotation`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

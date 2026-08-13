@@ -7705,7 +7705,7 @@ void Rufus::CreerMenu()
         connect (actionFabricants,                  &QAction::triggered,        this,                   &Rufus::ListeManufacturers);
         connect (actionIOLs,                        &QAction::triggered,        this,                   &Rufus::ListeIOLs);
         connect (actionTiers,                       &QAction::triggered,        this,                   &Rufus::ListeTiersPayants);
-        connect (actionEnregistrerDocument,       &QAction::triggered,        this,                   [=, this] {EnregistreDocScanner(currentpatient());});
+        connect (actionEnregistrerDocument,         &QAction::triggered,        this,                   [=, this] {EnregistreDocScanner(currentpatient());});
         connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=, this] {EnregistreVideo(currentpatient());});
         connect (actionExportActe,                  &QAction::triggered,        this,                   [=, this] {ExporteActe(currentacte());});
         connect (actionRechercheCourrier,           &QAction::triggered,        this,                   &Rufus::AfficheCourriersAFaire);
@@ -8449,29 +8449,29 @@ void Rufus::InitEventFilters()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::InitMenus()
 {
-    bool sanscompta = m_parametres->compta();
+    int compta = m_parametres->compta();
     if (QLocale().territory() == QLocale::Madagascar)
     {
-        actionPaiementTiers             ->setVisible(!sanscompta && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
-        actionPaiementDirect            ->setVisible(!sanscompta && (currentuser()->isComptableActes() || currentuser()->isSecretaire() || currentuser()->isRemplacant()));
-        actionBilanRecettes             ->setVisible(!sanscompta && (currentuser()->isSecretaire() || currentuser()->isAutreFonction() || currentuser()->isComptableActes()));
-        actionRecettesSpeciales         ->setVisible(!sanscompta && currentuser()->isComptableActes());
-        actionJournalDepenses           ->setVisible(!sanscompta && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
-        actionGestionComptesBancaires   ->setVisible(!sanscompta && currentuser()->isComptableActes());
-        actionRemiseCheques             ->setVisible(!sanscompta && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
-        menuComptabilite                ->setVisible(!sanscompta && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
+        actionPaiementTiers             ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
+        actionPaiementDirect            ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire() || currentuser()->isRemplacant()));
+        actionBilanRecettes             ->setVisible(compta == 1 && (currentuser()->isSecretaire() || currentuser()->isAutreFonction() || currentuser()->isComptableActes()));
+        actionRecettesSpeciales         ->setVisible(compta == 1 && currentuser()->isComptableActes());
+        actionJournalDepenses           ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
+        actionGestionComptesBancaires   ->setVisible(compta == 1 && currentuser()->isComptableActes());
+        actionRemiseCheques             ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
+        menuComptabilite->menuAction()  ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
     }
     else
     {
         bool a = (currentuser()->isComptableActes() || currentuser()->isSecretaire() || currentuser()->isSoignantSalarie());
-        actionPaiementTiers             ->setVisible(!sanscompta && a);
-        actionPaiementDirect            ->setVisible(!sanscompta && (a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant()));
-        actionBilanRecettes             ->setVisible(!sanscompta && a);
-        actionRecettesSpeciales         ->setVisible(!sanscompta && currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
-        actionJournalDepenses           ->setVisible(!sanscompta && a && (Datas::I()->users->comptablesActes()->size() + Datas::I()->users->liberaux()->size() > 0));
-        actionGestionComptesBancaires   ->setVisible(!sanscompta && currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
-        actionRemiseCheques             ->setVisible(!sanscompta && a);
-        menuComptabilite                ->setVisible(!sanscompta && (a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant()));
+        actionPaiementTiers             ->setVisible(compta == 1 && a);
+        actionPaiementDirect            ->setVisible(compta == 1 && (a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant()));
+        actionBilanRecettes             ->setVisible(compta == 1 && a);
+        actionRecettesSpeciales         ->setVisible(compta == 1 && currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
+        actionJournalDepenses           ->setVisible(compta == 1 && a && (Datas::I()->users->comptablesActes()->size() + Datas::I()->users->liberaux()->size() > 0));
+        actionGestionComptesBancaires   ->setVisible(compta == 1 && currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
+        actionRemiseCheques             ->setVisible(compta == 1 && a);
+        menuComptabilite->menuAction()  ->setVisible(compta == 1 && (a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant()));
     }
     actionEnregistrerVideo          ->setVisible(db->ModeAccesDataBase() != Utils::Distant);
 }

@@ -2083,7 +2083,7 @@ QString Procedures::SessionStatus()
         txtstatut += "\n" + tr("RPPS :") + "\t\t\t" + QString::number(currentuser()->NumPS());
     if (medecin && ! assistant &&  currentuser()->numOrdre() !="" && db->parametres()->cotationsfrance())
         txtstatut += "\nADELI :\t\t\t" + currentuser()->numOrdre();
-    if (!db->parametres()->compta())
+    if (!db->parametres()->sanscompta())
     {
         User *employeur = Datas::I()->users->getById(currentuser()->idemployeur());
         if (soignant)
@@ -2164,7 +2164,7 @@ QString Procedures::SessionStatus()
                         + cptabledefaut;
             }
         }
-        if (respliberal && db->parametres()->comptanormale() && QLocale::system().country() == QLocale::France)
+        if (respliberal && db->parametres()->comptafrance())
             txtstatut += "\n" + tr("Membre d'une AGA :") + "\t\t" + (currentuser()->isAGA() ? tr("Oui") : tr("Sans"));
     }
     return txtstatut;
@@ -6940,21 +6940,24 @@ QString Procedures::currentuserstatus() const
         strParent = usrparent->login();
     str += tr("parent") + "\t\t= " + strParent + "\n";
 
-    QString strComptable = "";
-    User * usrcptble = Datas::I()->users->getById(usr->idcomptableactes());
-    if ( usr->idcomptableactes() == User::ROLE_NON_RENSEIGNE )
-        strComptable = tr("sans objet");
-    else if ( usr->idcomptableactes() == User::ROLE_VIDE )
-        strComptable = tr("sans objet");
-    else if ( usr->idcomptableactes() == User::ROLE_INDETERMINE )
-        strComptable = tr("indéterminé");
-    else if (usrcptble)
-        strComptable = usrcptble->login();
-    str += tr("comptable") + "\t\t= " + (usrcptble? strComptable : "null") + "\n";
-    if ( usrcptble )
+    if (!db->parametres()->sanscompta())
     {
-        Compte * cpt = Datas::I()->comptes->getById(usrcptble->idcompteencaissementhonoraires());
-        str += tr("cpte banque") + "\t= " + (cpt? cpt->nomabrege() : "null") + "\n";
+        QString strComptable = "";
+        User * usrcptble = Datas::I()->users->getById(usr->idcomptableactes());
+        if ( usr->idcomptableactes() == User::ROLE_NON_RENSEIGNE )
+            strComptable = tr("sans objet");
+        else if ( usr->idcomptableactes() == User::ROLE_VIDE )
+            strComptable = tr("sans objet");
+        else if ( usr->idcomptableactes() == User::ROLE_INDETERMINE )
+            strComptable = tr("indéterminé");
+        else if (usrcptble)
+            strComptable = usrcptble->login();
+        str += tr("comptable") + "\t\t= " + (usrcptble? strComptable : "null") + "\n";
+        if ( usrcptble )
+        {
+            Compte * cpt = Datas::I()->comptes->getById(usrcptble->idcompteencaissementhonoraires());
+            str += tr("cpte banque") + "\t= " + (cpt? cpt->nomabrege() : "null") + "\n";
+        }
     }
 
     return str;
