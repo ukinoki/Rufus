@@ -102,7 +102,7 @@ BEGIN
         (SELECT COLUMN_NAME
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'cotations' AND COLUMN_NAME = 'CCAM') as chp;
-        IF tot=0
+        IF tot=1
             THEN
                 ALTER TABLE `rufus`.`cotations`
                 MODIFY COLUMN `CCAM` INT(1) NULL DEFAULT NULL
@@ -112,7 +112,7 @@ BEGIN
         (SELECT COLUMN_NAME
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'cotations' AND COLUMN_NAME = 'idUser') as chp;
-        IF tot=0
+        IF tot=1
             THEN
                 ALTER TABLE `rufus`.`cotations`
                 MODIFY COLUMN `idUser` INT(11) NULL DEFAULT NULL
@@ -122,7 +122,7 @@ BEGIN
         (SELECT COLUMN_NAME
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'cotations' AND COLUMN_NAME = 'MontantPratique') as chp;
-        IF tot=0
+        IF tot=1
             THEN
                 ALTER TABLE `rufus`.`cotations`
                 MODIFY COLUMN `MontantPratique` decimal(9,2) NULL DEFAULT NULL
@@ -198,11 +198,26 @@ BEGIN
                 COMMENT '1 = comptabilite normale\n2 = comptabilite reduite\n3 = pas de comptabilite' AFTER `CotationDesActes`;
         END IF;
     -- SansCompta et ComptaFrance : remplaces par Compta, conserves pour les postes en version anterieure
-    ALTER TABLE `rufus`.`ParametresSysteme`
-        MODIFY COLUMN `SansCompta` INT(1) NULL DEFAULT NULL
-            COMMENT 'deprecie, remplace par Compta - garde pour compatibilite avec les versions anterieures au 12-08-2026',
-        MODIFY COLUMN `ComptaFrance` INT(1) NULL DEFAULT NULL
-            COMMENT 'deprecie, remplace par Compta - garde pour compatibilite avec les versions anterieures au 12-08-2026';
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'SansCompta') as chp;
+        IF tot=1
+            THEN
+                ALTER TABLE `rufus`.`ParametresSysteme`
+                MODIFY COLUMN `SansCompta` INT(1) NULL DEFAULT NULL
+                COMMENT 'deprecie, remplace par Compta - garde pour compatibilite avec les versions anterieures au 12-08-2026';
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'ComptaFrance') as chp;
+        IF tot=1
+            THEN
+                ALTER TABLE `rufus`.`ParametresSysteme`
+                MODIFY COLUMN `ComptaFrance` INT(1) NULL DEFAULT NULL
+                COMMENT 'deprecie, remplace par Compta - garde pour compatibilite avec les versions anterieures au 12-08-2026';
+        END IF;
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|
 CALL MAJ83();
