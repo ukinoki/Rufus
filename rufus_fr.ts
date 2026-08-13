@@ -5141,6 +5141,11 @@ de votre base de données.</source>
         <source>Le mot de passe et sa confirmation ne correspondent pas.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="procedures.cpp" line="5389"/>
+        <source>Langue de l&apos;interface</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>RechercheDossier</name>
@@ -13810,6 +13815,119 @@ Vous devez d&apos;abord rendre ce dossier privé!</source>
     <message>
         <location filename="Dialogs/dlg_impressions.h" line="208"/>
         <source>PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>dlg_initbase</name>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="42"/>
+        <source>Premier paramétrage de Rufus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="51"/>
+        <source>La base patients est créée. Ces réglages valent pour tout le cabinet ; vous pourrez les changer dans Edition/Paramètres.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="58"/>
+        <source>Enregistrer une comptabilité</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="59"/>
+        <source>Enregistrer une comptabilité simplifiée</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="60"/>
+        <source>Ne pas enregistrer de comptabilité</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="61"/>
+        <source>Actes, recettes, dépenses et comptes bancaires</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="62"/>
+        <source>Les recettes des actes, sans dépenses ni banque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="63"/>
+        <source>Aucune écriture comptable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="65"/>
+        <source>Comptabilité</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="69"/>
+        <source>Utiliser les cotations d&apos;actes françaises</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="70"/>
+        <source>Utiliser des cotations génériques</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="71"/>
+        <source>CCAM, NGAP, ALD, secteur conventionnel, OPTAM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="72"/>
+        <source>Libellés et montants libres, sans nomenclature</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="74"/>
+        <source>Cotation des actes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="83"/>
+        <source>Langue de l&apos;interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="84"/>
+        <source>Pays d&apos;exercice : villes et codes postaux</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="86"/>
+        <source>Langue et territoire</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="90"/>
+        <source>Langue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="91"/>
+        <source>Territoire</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="96"/>
+        <source>Un utilisateur factice est créé pour démarrer ; vous pourrez le modifier ou le supprimer dans Edition/Paramètres</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="98"/>
+        <source>Créer l&apos;utilisateur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="98"/>
+        <source>Docteur</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

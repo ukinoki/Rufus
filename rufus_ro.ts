@@ -5245,6 +5245,11 @@ bazei dumneavoastră de date.</translation>
         <source>HH:mm:ss</source>
         <translation>HH:mm:ss</translation>
     </message>
+    <message>
+        <location filename="procedures.cpp" line="5389"/>
+        <source>Langue de l&apos;interface</source>
+        <translation>Limba interfeței</translation>
+    </message>
 </context>
 <context>
     <name>RechercheDossier</name>
@@ -14029,6 +14034,119 @@ Trebuie mai întâi să faceți privat acest dosar!</translation>
         <location filename="Dialogs/dlg_impressions.h" line="208"/>
         <source>PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT</source>
         <translation>NICIUN CORESPONDENT REFERENȚIAT PENTRU ACEST PACIENT</translation>
+    </message>
+</context>
+<context>
+    <name>dlg_initbase</name>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="42"/>
+        <source>Premier paramétrage de Rufus</source>
+        <translation>Prima configurare a Rufus</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="51"/>
+        <source>La base patients est créée. Ces réglages valent pour tout le cabinet ; vous pourrez les changer dans Edition/Paramètres.</source>
+        <translation>Baza de pacienți a fost creată. Aceste setări sunt valabile pentru tot cabinetul; le veți putea schimba în Editare/Parametri.</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="58"/>
+        <source>Enregistrer une comptabilité</source>
+        <translation>Ține o contabilitate</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="59"/>
+        <source>Enregistrer une comptabilité simplifiée</source>
+        <translation>Ține o contabilitate simplificată</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="60"/>
+        <source>Ne pas enregistrer de comptabilité</source>
+        <translation>Nu ține contabilitate</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="61"/>
+        <source>Actes, recettes, dépenses et comptes bancaires</source>
+        <translation>Acte, încasări, cheltuieli și conturi bancare</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="62"/>
+        <source>Les recettes des actes, sans dépenses ni banque</source>
+        <translation>Doar încasările actelor, fără cheltuieli și fără bancă</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="63"/>
+        <source>Aucune écriture comptable</source>
+        <translation>Nicio înregistrare contabilă</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="65"/>
+        <source>Comptabilité</source>
+        <translation>Contabilitate</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="69"/>
+        <source>Utiliser les cotations d&apos;actes françaises</source>
+        <translation>Utilizează codificările de acte franceze</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="70"/>
+        <source>Utiliser des cotations génériques</source>
+        <translation>Utilizează codificări generice</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="71"/>
+        <source>CCAM, NGAP, ALD, secteur conventionnel, OPTAM</source>
+        <translation>CCAM, NGAP, ALD, sector convenționat, OPTAM</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="72"/>
+        <source>Libellés et montants libres, sans nomenclature</source>
+        <translation>Denumiri și sume libere, fără nomenclator</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="74"/>
+        <source>Cotation des actes</source>
+        <translation>Codificarea actelor</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="83"/>
+        <source>Langue de l&apos;interface</source>
+        <translation>Limba interfeței</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="84"/>
+        <source>Pays d&apos;exercice : villes et codes postaux</source>
+        <translation>Țara de exercitare: orașe și coduri poștale</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="86"/>
+        <source>Langue et territoire</source>
+        <translation>Limbă și teritoriu</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="90"/>
+        <source>Langue</source>
+        <translation>Limbă</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="91"/>
+        <source>Territoire</source>
+        <translation>Teritoriu</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="96"/>
+        <source>Un utilisateur factice est créé pour démarrer ; vous pourrez le modifier ou le supprimer dans Edition/Paramètres</source>
+        <translation>Un utilizator fictiv este creat pentru început; îl veți putea modifica sau șterge în Editare/Parametri</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="98"/>
+        <source>Créer l&apos;utilisateur</source>
+        <translation>Creează utilizatorul</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="98"/>
+        <source>Docteur</source>
+        <translation>Doctor</translation>
     </message>
 </context>
 <context>

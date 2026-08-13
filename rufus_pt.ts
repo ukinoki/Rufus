@@ -5245,6 +5245,11 @@ da sua base de dados.</translation>
         <source>Le mot de passe et sa confirmation ne correspondent pas.</source>
         <translation>A palavra-passe e a sua confirmação não correspondem.</translation>
     </message>
+    <message>
+        <location filename="procedures.cpp" line="5389"/>
+        <source>Langue de l&apos;interface</source>
+        <translation>Idioma da interface</translation>
+    </message>
 </context>
 <context>
     <name>RechercheDossier</name>
@@ -14030,6 +14035,119 @@ Você deve primeiro tornar esta pasta privada!</translation>
         <location filename="Dialogs/dlg_impressions.h" line="208"/>
         <source>PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT</source>
         <translation>NENHUM CORRESPONDENTE REFERENCIADO PARA ESTE PACIENTE</translation>
+    </message>
+</context>
+<context>
+    <name>dlg_initbase</name>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="42"/>
+        <source>Premier paramétrage de Rufus</source>
+        <translation>Primeira configuração do Rufus</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="51"/>
+        <source>La base patients est créée. Ces réglages valent pour tout le cabinet ; vous pourrez les changer dans Edition/Paramètres.</source>
+        <translation>A sua base de doentes foi criada. Estes ajustes valem para todo o consultório; poderá alterá-los em Edição/Parâmetros.</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="58"/>
+        <source>Enregistrer une comptabilité</source>
+        <translation>Registrar uma contabilidade</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="59"/>
+        <source>Enregistrer une comptabilité simplifiée</source>
+        <translation>Registrar uma contabilidade simplificada</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="60"/>
+        <source>Ne pas enregistrer de comptabilité</source>
+        <translation>Não registrar contabilidade</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="61"/>
+        <source>Actes, recettes, dépenses et comptes bancaires</source>
+        <translation>Atos, receitas, despesas e contas bancárias</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="62"/>
+        <source>Les recettes des actes, sans dépenses ni banque</source>
+        <translation>Apenas as receitas dos atos, sem despesas nem banco</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="63"/>
+        <source>Aucune écriture comptable</source>
+        <translation>Nenhum lançamento contabilístico</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="65"/>
+        <source>Comptabilité</source>
+        <translation>Contabilidade</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="69"/>
+        <source>Utiliser les cotations d&apos;actes françaises</source>
+        <translation>Usar as codificações de atos francesas</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="70"/>
+        <source>Utiliser des cotations génériques</source>
+        <translation>Usar codificações genéricas</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="71"/>
+        <source>CCAM, NGAP, ALD, secteur conventionnel, OPTAM</source>
+        <translation>CCAM, NGAP, ALD, setor convencionado, OPTAM</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="72"/>
+        <source>Libellés et montants libres, sans nomenclature</source>
+        <translation>Descrições e montantes livres, sem nomenclatura</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="74"/>
+        <source>Cotation des actes</source>
+        <translation>Codificação dos atos</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="83"/>
+        <source>Langue de l&apos;interface</source>
+        <translation>Idioma da interface</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="84"/>
+        <source>Pays d&apos;exercice : villes et codes postaux</source>
+        <translation>País de exercício: cidades e códigos postais</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="86"/>
+        <source>Langue et territoire</source>
+        <translation>Idioma e território</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="90"/>
+        <source>Langue</source>
+        <translation>Idioma</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="91"/>
+        <source>Territoire</source>
+        <translation>Território</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="96"/>
+        <source>Un utilisateur factice est créé pour démarrer ; vous pourrez le modifier ou le supprimer dans Edition/Paramètres</source>
+        <translation>Um utilizador fictício é criado para começar; poderá alterá-lo ou eliminá-lo em Edição/Parâmetros</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="98"/>
+        <source>Créer l&apos;utilisateur</source>
+        <translation>Criar o utilizador</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_initbase.cpp" line="98"/>
+        <source>Docteur</source>
+        <translation>Doutor</translation>
     </message>
 </context>
 <context>
