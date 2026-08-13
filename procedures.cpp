@@ -5326,10 +5326,10 @@ void Procedures::VerifierIni(QWidget *parent)
     //! Libellés créés avant le message : celui du bouton y est injecté à la place de « %1 ».
     const bool sauvegardeOK   = sauvegardeIniValide();
     UpSmallButton *bAnnuler   = new UpSmallButton(QObject::tr("Abandonner et\nquitter Rufus"));
-    UpSmallButton *bReseau    = new UpSmallButton(QObject::tr("Installation et connexion d'un poste Rufus\nà une base patients fonctionnelle"));
+    UpSmallButton *bReseau    = new UpSmallButton(QObject::tr("Connexion de ce poste à une\nbase patients Rufus déjà existante"));
     UpSmallButton *bPremiere  = new UpSmallButton(QObject::tr("Installation d'une base\npatients Rufus"));
     UpSmallButton *bRestaurer = sauvegardeOK
-                              ? new UpSmallButton(QObject::tr("Restaurer la copie\nde sauvegarde"))
+                              ? new UpSmallButton(QObject::tr("Restaurer la copie de\nsauvegarde du fichier Rufus.ini"))
                               : nullptr;
     bReseau  ->setImmediateToolTip(QObject::tr("Se connecter à une base patients Rufus existante sur ce poste ou sur le réseau"));
     bPremiere->setImmediateToolTip(QObject::tr("Installer une base patients vierge ou à partir d'une restauration"));
