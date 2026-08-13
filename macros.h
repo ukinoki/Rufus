@@ -395,6 +395,7 @@ public:
 #define CP_VILLES_PARAMSYSTEME                          "VillesFrance"
 #define CP_COTATIONS_PARAMSYSTEME                       "CotationsFrance"
 #define CP_COMPTA_PARAMSYSTEME                          "Compta"
+#define CP_PAYS_PARAMSYSTEME                            "Pays"
 #define CP_VERSION_PARAMSYSTEME                         "Version"
 
                             //! Table Rufus.salledattente

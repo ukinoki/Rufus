@@ -835,7 +835,7 @@ void DataBase::initParametresSysteme()
     if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
     {
         req = "select " CP_VERSIONCCAM_PARAMSYSTEME ", " CP_VERSIONNGAP_PARAMSYSTEME ", "
-              CP_VALEURAMYMETROPOLE_PARAMSYSTEME ", " CP_VALEURAMYDOM_PARAMSYSTEME ", " CP_COMPTA_PARAMSYSTEME ", "
+              CP_VALEURAMYMETROPOLE_PARAMSYSTEME ", " CP_VALEURAMYDOM_PARAMSYSTEME ", " CP_COMPTA_PARAMSYSTEME ", " CP_PAYS_PARAMSYSTEME
               " from " TBL_PARAMSYSTEME;
         paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
         if(!ok || paramdata.size() == 0)
@@ -845,6 +845,7 @@ void DataBase::initParametresSysteme()
         paramData[CP_VALEURAMYMETROPOLE_PARAMSYSTEME]  = (paramdata.at(2).toDouble());
         paramData[CP_VALEURAMYDOM_PARAMSYSTEME]        = (paramdata.at(3).toDouble());
         paramData[CP_COMPTA_PARAMSYSTEME]              = (paramdata.at(4).toInt());
+        paramData[CP_PAYS_PARAMSYSTEME]                = (paramdata.at(5).toString());
         m_parametres->setData(paramData);
     }
 }

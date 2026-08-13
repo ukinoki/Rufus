@@ -51,6 +51,7 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataInt(data, CP_COMPTA_PARAMSYSTEME, m_compta);
     setDataBool(data, CP_COTATIONS_PARAMSYSTEME, m_cotationsfrance);
     setDataString(data, CP_VERSION_PARAMSYSTEME, m_version);
+    setDataString(data, CP_PAYS_PARAMSYSTEME, m_country);
     m_data = data;
 }
 
@@ -73,7 +74,7 @@ bool ParametresSysteme::villesfrance() const                    { return m_ville
 bool ParametresSysteme::cotationsfrance() const                 { return m_cotationsfrance; }
 int ParametresSysteme::compta() const                           { return m_compta; }
 bool ParametresSysteme::comptanormale() const                   { return m_compta == 1; }
-bool ParametresSysteme::comptafrance() const                    { return m_compta == 1  && QLocale::system().country() == QLocale::France; }
+bool ParametresSysteme::comptafrance() const                    { return m_compta == 1  && QLocale::system().territory() == QLocale::France; }
 bool ParametresSysteme::comptareduite() const                   { return m_compta == 2; }
 bool ParametresSysteme::sanscompta() const                      { return m_compta == 3; }
 void ParametresSysteme::setmdpadmin(QString mdp)                { m_mdpdmin = mdp;

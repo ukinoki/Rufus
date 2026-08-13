@@ -379,7 +379,7 @@ dlg_param::dlg_param(QWidget *parent) :
     AfficheModeCompta();
     ui->ComptaSimplecheckBox->setEnabled(false);
     //! cases exclusives : on n'écoute que le clic - setChecked n'émet pas clicked, donc pas de rappel en boucle
-    auto ChoixCompta = [=, this](DataBase::compta choix, QString texte) {
+    auto ChoixCompta = [=](DataBase::compta choix, QString texte) {
         UpMessageBox msgbox(this);
         msgbox.setText(texte);
         msgbox.setInformativeText(tr("Ce réglage concerne toute la base et n'est lu qu'au démarrage : "
@@ -401,11 +401,11 @@ dlg_param::dlg_param(QWidget *parent) :
         QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
         exit(0);
     };
-    connect(ui->ComptacheckBox,         &QCheckBox::clicked, this, [=, this]{
+    connect(ui->ComptacheckBox,         &QCheckBox::clicked, this, [=]{
         ChoixCompta(DataBase::Normal,   tr("Vous avez choisi d'enregistrer une comptabilité.")); });
-    connect(ui->ComptaSimplecheckBox,   &QCheckBox::clicked, this, [=, this]{
+    connect(ui->ComptaSimplecheckBox,   &QCheckBox::clicked, this, [=]{
         ChoixCompta(DataBase::Reduite,  tr("Vous avez choisi d'enregistrer une comptabilité simplifiée.")); });
-    connect(ui->NoComptacheckBox,       &QCheckBox::clicked, this, [=, this]{
+    connect(ui->NoComptacheckBox,       &QCheckBox::clicked, this, [=]{
         ChoixCompta(DataBase::NoCompta, tr("Vous avez choisi de ne pas enregistrer de comptabilité.")); });
     /*-------------------- GESTION MODE COMPTABILITÉ-------------------------------------------------------*/
 
