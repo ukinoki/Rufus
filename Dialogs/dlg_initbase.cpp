@@ -20,6 +20,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPair>
 #include "dlg_initbase.h"
 
+//! territoires où s'appliquent les cotations françaises (CCAM, NGAP)
+static const QStringList TERRITOIRES_FRANCE = {"FR", "GF", "PF", "NC", "GP", "MQ"};
+
 //! Drapeau émoji d'un code ISO à 2 lettres (2 « indicateurs régionaux ») : les .ico du dépôt ne couvrent que les 7 langues
 static QString Drapeau(QString code)
 {
@@ -61,8 +64,9 @@ dlg_initbase::dlg_initbase(QWidget *parent) :
     wdg_cotationsfrancecheck        ->setImmediateToolTip(tr("CCAM, NGAP, ALD, secteur conventionnel, OPTAM"));
     wdg_cotationsgeneriquescheck    ->setImmediateToolTip(tr("Libellés et montants libres, sans nomenclature"));
     wdg_cotationsfrancecheck        ->setChecked(true);
-    lay                             ->addWidget(GroupeExclusif(tr("Cotation des actes"),
-                                                               {wdg_cotationsfrancecheck, wdg_cotationsgeneriquescheck}));
+    wdg_cotationsgroup              = GroupeExclusif(tr("Cotation des actes"),
+                                                     {wdg_cotationsfrancecheck, wdg_cotationsgeneriquescheck});
+    lay                             ->addWidget(wdg_cotationsgroup);
 
     //! --- langue de l'interface et territoire d'exercice ---
     wdg_languecombo     = new QComboBox();
@@ -74,7 +78,7 @@ dlg_initbase::dlg_initbase(QWidget *parent) :
     UpGroupBox *wdg_languegroup = new UpGroupBox();
     wdg_languegroup     ->setTitle(tr("Langue et territoire"));
     QVBoxLayout *languelay = new QVBoxLayout;
-    languelay           ->setContentsMargins(10, 20, 10, 10);
+    languelay           ->setContentsMargins(10, 28, 10, 10);
     languelay           ->setSpacing(2);
     languelay           ->addWidget(LigneCombo(tr("Langue"),     wdg_languecombo));
     languelay           ->addWidget(LigneCombo(tr("Territoire"), wdg_territoirecombo));
@@ -96,6 +100,17 @@ dlg_initbase::dlg_initbase(QWidget *parent) :
     wdg_snowframe       ->setLayout(snowlay);
     lay                 ->addWidget(wdg_snowframe);
 
+    //! la cotation suit le territoire, et n'a plus de sens sans comptabilité
+    connect(wdg_territoirecombo, &QComboBox::currentIndexChanged, this, [=, this] {
+        if (TERRITOIRES_FRANCE.contains(territoire()))
+            wdg_cotationsfrancecheck    ->setChecked(true);
+        else
+            wdg_cotationsgeneriquescheck->setChecked(true);
+    });
+    connect(wdg_sanscomptacheck, &QCheckBox::toggled, this, [=, this] (bool sanscompta) {
+        wdg_cotationsgroup->setEnabled(!sanscompta);
+    });
+
     AjouteLayButtons(UpDialog::ButtonOK);
     dlglayout()         ->insertLayout(0, lay);
     dlglayout()         ->setSizeConstraint(QLayout::SetFixedSize);
@@ -115,7 +130,7 @@ UpGroupBox* dlg_initbase::GroupeExclusif(QString titre, QList<UpCheckBox*> cases
     QButtonGroup *grp   = new QButtonGroup(this);
     grp                 ->setExclusive(true);
     QVBoxLayout *lay    = new QVBoxLayout;
-    lay                 ->setContentsMargins(10, 20, 10, 10);   //! 20 en haut : le stylesheet UpGroupBox ne réserve pas la place du titre
+    lay                 ->setContentsMargins(10, 28, 10, 10);   //! 20 en haut : le stylesheet UpGroupBox ne réserve pas la place du titre
     for (UpCheckBox *cas : cases)
     {
         grp             ->addButton(cas);

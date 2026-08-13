@@ -56,6 +56,8 @@ private:
     UpCheckBox      *wdg_cotationsfrancecheck, *wdg_cotationsgeneriquescheck;
     /*! les listes déroulantes - QComboBox nu, comme le sélecteur de langue de dlg_param */
     QComboBox       *wdg_languecombo, *wdg_territoirecombo;
+    /*! le groupe des cotations, grisé quand on ne tient pas de comptabilité */
+    UpGroupBox      *wdg_cotationsgroup;
 
     UpGroupBox*     GroupeExclusif(QString titre, QList<UpCheckBox*> cases);    //!< groupe où une seule case peut être cochée
     QWidget*        LigneCombo(QString texte, QComboBox *combo);                //!< libellé + liste déroulante sur une ligne
