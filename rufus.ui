@@ -142,7 +142,7 @@
          <x>0</x>
          <y>0</y>
          <width>1358</width>
-         <height>1034</height>
+         <height>1036</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -173,7 +173,7 @@
            <enum>QTabWidget::TabShape::Triangular</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <property name="elideMode">
            <enum>Qt::TextElideMode::ElideLeft</enum>
@@ -475,7 +475,7 @@ patients - F5</string>
                   </property>
                   <property name="dateTime">
                    <datetime>
-                    <hour>12</hour>
+                    <hour>11</hour>
                     <minute>0</minute>
                     <second>0</second>
                     <year>1999</year>
@@ -2655,9 +2655,6 @@ correspondants</string>
                   </item>
                   <item>
                    <widget class="UpSmallButton" name="Vitale3pushButton">
-                    <property name="toolTip">
-                     <string>ouvrir ou créer un dossier à partir de la carte vitale</string>
-                    </property>
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2681,6 +2678,9 @@ correspondants</string>
                       <width>40</width>
                       <height>40</height>
                      </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>ouvrir ou créer un dossier à partir de la carte vitale</string>
                     </property>
                     <property name="text">
                      <string/>

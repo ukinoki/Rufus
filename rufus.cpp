@@ -7020,9 +7020,11 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     }
 }
 
-/*-----------------------------------------------------------------------------------------------------------------
--- Vérifie la cohérence des renseignements comptables avant de quitter un acte ------------------------------------
------------------------------------------------------------------------------------------------------------------*/
+/*!
+/*! * \brief Rufus::AutorDepartConsult -- Vérifie la cohérence des renseignements comptables avant de quitter un acte -
+/*! * \param ChgtDossier - indique si on quitte l'acte pour changer de patient ou si on reste dans le dossier du patient en cours
+/*! * \return
+*/
 bool Rufus::AutorDepartConsult(bool ChgtDossier)
 {
     QString         Titre = "";
@@ -7037,92 +7039,95 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
     if (focusWidget() != nullptr)
         focusWidget()->clearFocus();      //!> Valide les changements dans les champs du dossier en cours d'affichage
 
-    /*! 1. On vérifie si on peut quitter la consultation sans quitter le dossier (il n'est pas obligatoire d'avoir la ligne correspondante dans typepaiementactes */
-    if (ui->ActeCotationcomboBox->currentText() == "")
-        Titre = tr("Il manque la cotation!");
-    else if (ui->ActeMontantlineEdit->text() == "")
-        Titre = tr("Il manque le montant!");
-    if (Titre != "")
-        AutorDepart = false;
-
-    /* 2. On ne cherche pas à quitter le dossier mais seulement à se déplacer dans les consultations du dossier */
-    if (!ChgtDossier)
+    /*! 1. On vérifie si on peut quitter la cohérence de la cotation et des renseignements comptablessans quitter le dossier (il n'est pas obligatoire d'avoir la ligne correspondante dans typepaiementactes */
+    if (db->parametres()->comptanormale())
     {
-        if (AutorDepart)    return true;
+        if (ui->ActeCotationcomboBox->currentText() == "")
+            Titre = tr("Il manque la cotation!");
+        else if (ui->ActeMontantlineEdit->text() == "")
+            Titre = tr("Il manque le montant!");
+        if (Titre != "")
+            AutorDepart = false;
+
+
+        /*! 2. On ne cherche pas à quitter le dossier mais seulement à se déplacer dans les consultations du dossier */
+        if (!ChgtDossier)
+        {
+            if (AutorDepart)    return true;
+            else
+            {
+                UpMessageBox::Watch(this, tr("Consultation incomplète"), Titre);
+                if (Titre == tr("Il manque la cotation!"))
+                {
+                    ui->ActeCotationcomboBox->setFocus();
+                    ui->ActeCotationcomboBox->showPopup();
+                }
+                else if (Titre == tr("Il manque le montant!"))
+                    ui->ActeMontantlineEdit->setFocus();
+                return false;
+            }
+        }
         else
         {
-            UpMessageBox::Watch(this, tr("Consultation incomplète"), Titre);
-            if (Titre == tr("Il manque la cotation!"))
+            /*! 3 On veut quitter le dossier;
+            * On vérifie si on peut quitter le dossier et la cohérence avec TypePaimentsActes */
+            if (AutorDepart)
             {
-                ui->ActeCotationcomboBox->setFocus();
-                ui->ActeCotationcomboBox->showPopup();
-            }
-            else if (Titre == tr("Il manque le montant!"))
-                ui->ActeMontantlineEdit->setFocus();
-            return false;
-        }
-    }
-    else
-    {
-        /* 3 On veut quitter le dossier;
-        * On vérifie si on peut quitter le dossier et la cohérence avec TypePaimentsActes */
-        if (AutorDepart)
-        {
-            //! on recherche si le dernier acte du dossier est enregistré dans typepaiements - si le montant de l'acte est 0, on propose de l'enregistrer comme gratuit
+                //! on recherche si le dernier acte du dossier est enregistré dans typepaiements - si le montant de l'acte est 0, on propose de l'enregistrer comme gratuit
 
-            QString requete =   "SELECT max(act." CP_ID_ACTES "), " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES " FROM " TBL_ACTES
-                    " act WHERE " CP_IDPAT_ACTES " = " + QString::number(currentpatient()->id()) +
-                    //" AND act." CP_DATE_ACTES " = " + QDate::currentDate().toString("yy-mm-dddd") +
-                    " AND act." CP_ID_ACTES " NOT IN (SELECT typ." CP_IDACTE_TYPEPAIEMENTACTES " FROM " TBL_TYPEPAIEMENTACTES " typ)";
+                QString requete =   "SELECT max(act." CP_ID_ACTES "), " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES " FROM " TBL_ACTES
+                        " act WHERE " CP_IDPAT_ACTES " = " + QString::number(currentpatient()->id()) +
+                        " AND act." CP_ID_ACTES " NOT IN (SELECT typ." CP_IDACTE_TYPEPAIEMENTACTES " FROM " TBL_TYPEPAIEMENTACTES " typ)";
 
-            QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok,tr("Impossible de retrouver le dernier acte du patient pour le contrôler!"));
-            // cette requête renvoie toujours une table non vide en QT même si elle est vide en mysql... d'où la suite
-            if (actdata.size()>0 && actdata.at(0).toInt() > 0) // =il n'y a pas de paiement enregistré pour le dernier acte
-            {
-                if (actdata.at(0).toInt() != currentacte()->id())
-                    AfficheActe(m_listeactes->getById(actdata.at(0).toInt()));
-                if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
+                QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok,tr("Impossible de retrouver le dernier acte du patient pour le contrôler!"));
+                // cette requête renvoie toujours une table non vide en QT même si elle est vide en mysql... d'où la suite
+                if (actdata.size()>0 && actdata.at(0).toInt() > 0) // =il n'y a pas de paiement enregistré pour le dernier acte
                 {
-                    msgbox.setText(tr("Vous avez entré un montant nul !"));
-                    msgbox.setInformativeText(tr("Enregistrer cet acte comme gratuit?"));
-                    msgbox.setIcon(UpMessageBox::Warning);
-                    UpSmallButton OKBouton(tr("Consultation gratuite"));
-                    UpSmallButton NoBouton(tr("Non"));
-                    msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
-                    msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
-                    msgbox.exec();
-                    if (msgbox.clickedButton() != &OKBouton)
-                        return false;
+                    if (actdata.at(0).toInt() != currentacte()->id())
+                        AfficheActe(m_listeactes->getById(actdata.at(0).toInt()));
+                    if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
+                    {
+                        msgbox.setText(tr("Vous avez entré un montant nul !"));
+                        msgbox.setInformativeText(tr("Enregistrer cet acte comme gratuit?"));
+                        msgbox.setIcon(UpMessageBox::Warning);
+                        UpSmallButton OKBouton(tr("Consultation gratuite"));
+                        UpSmallButton NoBouton(tr("Non"));
+                        msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+                        msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+                        msgbox.exec();
+                        if (msgbox.clickedButton() != &OKBouton)
+                            return false;
+                        else
+                        {
+                            requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ") VALUES (" + QString::number(currentacte()->id()) + ",'G')";
+                            if (db->StandardSQL(requete))
+                                AutorDepart = true;
+                        }
+                    }
                     else
                     {
-                        requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ") VALUES (" + QString::number(currentacte()->id()) + ",'G')";
-                        if (db->StandardSQL(requete))
-                            AutorDepart = true;
+                        Titre = tr("il manque les informations de paiement");
+                        AutorDepart = false;
                     }
                 }
-                else
-                {
-                    Titre = tr("il manque les informations de paiement");
-                    AutorDepart = false;
-                }
             }
-        }
 
-        if (AutorDepart)
-            return FermeDossier(currentpatient());
-        else
-        {
-            bool a = (Titre == ""? true : RetourSalleDattente(Titre));
-            if (!a)
+
+            if (!AutorDepart)
             {
-                if (Titre == tr("Il manque le montant!"))
-                    ui->ActeMontantlineEdit->setFocus();
-                else
-                    ui->ActeCotationcomboBox->setFocus();
+                bool a = (Titre == ""? true : RetourSalleDattente(Titre));
+                if (!a)
+                {
+                    if (Titre == tr("Il manque le montant!"))
+                        ui->ActeMontantlineEdit->setFocus();
+                    else
+                        ui->ActeCotationcomboBox->setFocus();
+                }
+                return a;
             }
-            return a;
         }
     }
+    return FermeDossier(currentpatient());
 }
 
 
@@ -7979,7 +7984,7 @@ bool Rufus::FermeDossier(Patient *patient)
     msgbox.addButton(&SalDatBouton, UpSmallButton::STARTBUTTON);
     msgbox.addButton(&CloseBouton,  UpSmallButton::CLOSEBUTTON);
     msgbox.exec();
-    if (msgbox.clickedButton() == &CloseBouton)                         // Fermer le dossier et le rtire de la liste despatients en cours
+    if (msgbox.clickedButton() == &CloseBouton)                         // Fermer le dossier et le retire de la liste despatients en cours
     {
         Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(patient->id()));
     }
@@ -8389,7 +8394,9 @@ void Rufus::InitWidgets()
     ui->AccueilupTableWidget        ->FixLargeurTotale();
     ui->PatientsVusupTableWidget    ->FixLargeurTotale();
 
-    ui->GratuitpushButton->setImmediateToolTip(Utils::ConvertitModePaiementtotr(GRATUIT));
+    ui->GratuitpushButton   ->setImmediateToolTip(Utils::ConvertitModePaiementtotr(GRATUIT));
+    ui->Cotationframe       ->setVisible(db->parametres()->compta() != 3);
+    ui->Comptaframe         ->setVisible(db->parametres()->compta() != 3);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
