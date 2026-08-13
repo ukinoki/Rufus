@@ -31,6 +31,18 @@ Procedures* Procedures::I()
     return instance;
 }
 
+//! Le .qm d'une langue, à côté du binaire ou un cran au-dessus suivant l'OS (repris de rufus.cpp)
+static QString cheminQmLangue(const QString &lang)
+{
+    const QString dirBin  = QCoreApplication::applicationDirPath();
+    const QString suffixe = "/Locale/rufus_" + lang.toLower() + ".qm";
+    if (QFile::exists(dirBin + suffixe))
+        return dirBin + suffixe;
+    QDir parent(dirBin);
+    parent.cdUp();
+    return parent.absolutePath() + suffixe;
+}
+
 //! Un mode actif, son port, et ce que ce mode exige de plus : rien en monoposte, le serveur en
 //! local, le serveur et le dossier des clés en distant (leur contenu ne regarde pas le fichier).
 static bool iniContientModeValide(QSettings& s)
@@ -168,14 +180,13 @@ Procedures::Procedures(QObject *parent) :
         }
     }
     // Traducteur des boîtes de démarrage (portée constructeur → couvre toutes les boîtes ci-dessous).
-    QDir dirlocLang = QDir(QCoreApplication::applicationDirPath());
-    dirlocLang.cdUp();
     QTranslator startupTranslator;
-    if (startupTranslator.load(dirlocLang.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm"))
+    if (startupTranslator.load(cheminQmLangue(m_version)))
         QCoreApplication::installTranslator(&startupTranslator);
 
     //! Ne rend la main qu'avec un Rufus.ini exploitable et m_settings prêt à l'emploi (§ II.1).
-    VerifierIni();
+    //! Le traducteur lui est confié : on peut y changer de langue, et le choix vaut pour la suite.
+    VerifierIni(&startupTranslator);
 
     m_nomImprimante  = "";
 
@@ -5312,7 +5323,7 @@ bool Procedures::EprouverConnexionApresSaisie(QWidget *parent)
     return false;
 }
 
-void Procedures::VerifierIni(QWidget *parent)
+void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
 {
     auto Relectureini = [this]() -> bool {
         if (m_settings != Q_NULLPTR)
@@ -5323,27 +5334,11 @@ void Procedures::VerifierIni(QWidget *parent)
     if (Relectureini())
         return;
 
-    //! Libellés créés avant le message : celui du bouton y est injecté à la place de « %1 ».
     const bool sauvegardeOK   = sauvegardeIniValide();
-    UpSmallButton *bAnnuler   = new UpSmallButton(QObject::tr("Abandonner et\nquitter Rufus"));
-    UpSmallButton *bReseau    = new UpSmallButton(QObject::tr("Connexion de ce poste à une\nbase patients Rufus déjà existante"));
-    UpSmallButton *bPremiere  = new UpSmallButton(QObject::tr("Installation d'une base\npatients Rufus"));
-    UpSmallButton *bRestaurer = sauvegardeOK
-                              ? new UpSmallButton(QObject::tr("Restaurer la copie de\nsauvegarde du fichier Rufus.ini"))
-                              : nullptr;
-    bReseau  ->setImmediateToolTip(QObject::tr("Se connecter à une base patients Rufus existante sur ce poste ou sur le réseau"));
-    bPremiere->setImmediateToolTip(QObject::tr("Installer une base patients vierge ou à partir d'une restauration"));
-
-    QString msgInfo = QObject::tr("Le fichier d'initialisation") + "\n" + PATH_FILE_INI "\n"
-                    + QObject::tr("est absent, ou ne contient pas de renseignement valide "
-                                  "permettant la connexion à la base de données.") + "\n\n"
-                    + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
-                    + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois sur ce poste.") + "\n"
-                    + QObject::tr("Si c'est le cas, choisissez l'option \"%1\"") + "\n";
-    msgInfo.replace("%1", bPremiere->text().replace('\n', ' '));
-    if (sauvegardeOK)
-        msgInfo += "\n" + QObject::tr("Une copie de sauvegarde valide de ce fichier existe sur ce "
-                                      "poste : voulez-vous la restaurer ?") + "\n";
+    UpSmallButton *bAnnuler   = new UpSmallButton();
+    UpSmallButton *bReseau    = new UpSmallButton();
+    UpSmallButton *bPremiere  = new UpSmallButton();
+    UpSmallButton *bRestaurer = sauvegardeOK? new UpSmallButton() : nullptr;
 
     bAnnuler ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
     bReseau  ->setUpButtonStyle(UpSmallButton::RECEPTIONBUTTON);
@@ -5355,20 +5350,50 @@ void Procedures::VerifierIni(QWidget *parent)
     UpMessageBox dlg(parent);
     dlg.setWindowModality(Qt::ApplicationModal);
     dlg.setIcon(UpMessageBox::Warning);
-    dlg.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
-    dlg.setInformativeText(msgInfo);
     for (UpSmallButton *b : {bAnnuler, bReseau, bPremiere, bRestaurer})
         if (b)
             dlg.AjouteWidgetLayButtons(b);
+
+    //! tous les libellés en un seul endroit : changer de langue les réécrit sans refermer la fiche
+    auto Retraduit = [&] {
+        bAnnuler ->setText(QObject::tr("Abandonner et\nquitter Rufus"));
+        bReseau  ->setText(QObject::tr("Connexion de ce poste à une\nbase patients Rufus déjà existante"));
+        bPremiere->setText(QObject::tr("Installation d'une base\npatients Rufus"));
+        if (bRestaurer)
+            bRestaurer->setText(QObject::tr("Restaurer la copie de\nsauvegarde du fichier Rufus.ini"));
+        bReseau  ->setImmediateToolTip(QObject::tr("Se connecter à une base patients Rufus existante sur ce poste ou sur le réseau"));
+        bPremiere->setImmediateToolTip(QObject::tr("Installer une base patients vierge ou à partir d'une restauration"));
+
+        //! le libellé du bouton est injecté dans le message à la place de « %1 »
+        QString msgInfo = QObject::tr("Le fichier d'initialisation") + "\n" + PATH_FILE_INI "\n"
+                        + QObject::tr("est absent, ou ne contient pas de renseignement valide "
+                                      "permettant la connexion à la base de données.") + "\n\n"
+                        + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
+                        + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois sur ce poste.") + "\n"
+                        + QObject::tr("Si c'est le cas, choisissez l'option \"%1\"") + "\n";
+        msgInfo.replace("%1", bPremiere->text().replace('\n', ' '));
+        if (sauvegardeOK)
+            msgInfo += "\n" + QObject::tr("Une copie de sauvegarde valide de ce fichier existe sur ce "
+                                          "poste : voulez-vous la restaurer ?") + "\n";
+        dlg.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
+        dlg.setInformativeText(msgInfo);
+    };
 
     //! le poste n'a pas encore de rufus.ini : c'est ici qu'on fixe sa langue (UpMessageBox dérive d'UpDialog)
     QComboBox *languecombo = new QComboBox();
     languecombo ->setToolTip(QObject::tr("Langue de l'interface"));
     dlg_initbase::RemplitComboLangues(languecombo, m_version);
     dlg.dlglayout()->insertWidget(1, languecombo, 0, Qt::AlignRight);
-    connect(languecombo, &QComboBox::currentIndexChanged, &dlg, [=, this] (int idx) {
+    connect(languecombo, &QComboBox::currentIndexChanged, &dlg, [&] (int idx) {
         m_version = languecombo->itemData(idx).toString();
+        qApp        ->removeTranslator(traducteur);
+        if (traducteur->load(cheminQmLangue(m_version)))
+            qApp    ->installTranslator(traducteur);
+        Retraduit();
+        languecombo ->setToolTip(QObject::tr("Langue de l'interface"));
+        dlg.adjustSize();
     });
+    Retraduit();
 
     connect(bAnnuler,   &QPushButton::clicked, &dlg, [] { exit(0); });
 
