@@ -405,15 +405,9 @@ dlg_param::dlg_param(QWidget *parent) :
     };
     connect(ui->ComptacheckBox,         &QCheckBox::clicked, this, [=]{
         ChoixCompta(DataBase::Normal,   tr("Vous avez choisi d'enregistrer une comptabilité.")); });
-<<<<<<< Updated upstream
-    connect(ui->ComptaSimplecheckBox,   &QCheckBox::clicked, this, [=]{
-        ChoixCompta(DataBase::Reduite,  tr("Vous avez choisi d'enregistrer une comptabilité simplifiée.")); });
-    connect(ui->NoComptacheckBox,       &QCheckBox::clicked, this, [=]{
-=======
     connect(ui->ComptaSimplecheckBox,   &QCheckBox::clicked, this, [=, this]{UpMessageBox::Watch(this,tr("En chantier"),tr("Cette fonction n'est pas encore implémentée."));});
     //    ChoixCompta(DataBase::Reduite,  tr("Vous avez choisi d'enregistrer une comptabilité simplifiée.")); });
     connect(ui->NoComptacheckBox,       &QCheckBox::clicked, this, [=, this]{
->>>>>>> Stashed changes
         ChoixCompta(DataBase::NoCompta, tr("Vous avez choisi de ne pas enregistrer de comptabilité.")); });
     /*-------------------- GESTION MODE COMPTABILITÉ-------------------------------------------------------*/
 
