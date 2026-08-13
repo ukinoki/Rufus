@@ -42,7 +42,8 @@ class dlg_initbase : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit            dlg_initbase(QWidget *parent = Q_NULLPTR);
+    explicit            dlg_initbase(QString langue, QWidget *parent = Q_NULLPTR);
+    static void         RemplitComboLangues(QComboBox *combo, QString langue = "FR");   //!< les 7 langues traduites, avec leur drapeau
     DataBase::compta    compta() const           { return wdg_comptareduitecheck->isChecked()? DataBase::Reduite
                                                         : wdg_sanscomptacheck->isChecked()?    DataBase::NoCompta
                                                                                              : DataBase::Normal; }
@@ -61,8 +62,7 @@ private:
 
     UpGroupBox*     GroupeExclusif(QString titre, QList<UpCheckBox*> cases);    //!< groupe où une seule case peut être cochée
     QWidget*        LigneCombo(QString texte, QComboBox *combo);                //!< libellé + liste déroulante sur une ligne
-    void            RemplitLangues();                                          //!< les 7 langues traduites, avec leur drapeau
-    void            RemplitTerritoires();                                      //!< territoires de QLocale, nom natif + code ISO à 2 lettres
+    void            RemplitTerritoires();                                      //!< territoires de QLocale, nom anglais + code ISO à 2 lettres
 };
 
 #endif // DLG_INITBASE_H

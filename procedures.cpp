@@ -3980,7 +3980,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     db->StandardSQL (req);
 
     //! tous les choix d'installation dans une seule fiche (les 3 messagebox qui défilaient ici ont fait leur temps)
-    dlg_initbase dlg(parent);
+    dlg_initbase dlg(m_version, parent);
     dlg.exec();
     m_version = dlg.langue();
 
@@ -5360,6 +5360,15 @@ void Procedures::VerifierIni(QWidget *parent)
     for (UpSmallButton *b : {bAnnuler, bReseau, bPremiere, bRestaurer})
         if (b)
             dlg.AjouteWidgetLayButtons(b);
+
+    //! le poste n'a pas encore de rufus.ini : c'est ici qu'on fixe sa langue (UpMessageBox dérive d'UpDialog)
+    QComboBox *languecombo = new QComboBox();
+    languecombo ->setToolTip(QObject::tr("Langue de l'interface"));
+    dlg_initbase::RemplitComboLangues(languecombo, m_version);
+    dlg.dlglayout()->insertWidget(1, languecombo, 0, Qt::AlignRight);
+    connect(languecombo, &QComboBox::currentIndexChanged, &dlg, [=, this] (int idx) {
+        m_version = languecombo->itemData(idx).toString();
+    });
 
     connect(bAnnuler,   &QPushButton::clicked, &dlg, [] { exit(0); });
 

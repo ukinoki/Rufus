@@ -36,7 +36,7 @@ static QString Drapeau(QString code)
     return drapeau;
 }
 
-dlg_initbase::dlg_initbase(QWidget *parent) :
+dlg_initbase::dlg_initbase(QString langue, QWidget *parent) :
     UpDialog(parent)
 {
     setWindowTitle(tr("Premier paramétrage de Rufus"));
@@ -78,7 +78,7 @@ dlg_initbase::dlg_initbase(QWidget *parent) :
     //! --- langue de l'interface et territoire d'exercice ---
     wdg_languecombo     = new QComboBox();
     wdg_territoirecombo = new QComboBox();
-    RemplitLangues();
+    RemplitComboLangues(wdg_languecombo, langue);
     RemplitTerritoires();
     wdg_languecombo     ->setToolTip(tr("Langue de l'interface"));
     wdg_territoirecombo ->setToolTip(tr("Pays d'exercice : villes et codes postaux"));
@@ -108,12 +108,14 @@ dlg_initbase::dlg_initbase(QWidget *parent) :
     lay                 ->addWidget(wdg_snowframe);
 
     //! la cotation suit le territoire, et n'a plus de sens sans comptabilité
-    connect(wdg_territoirecombo, &QComboBox::currentIndexChanged, this, [=, this] {
+    auto SuitTerritoire = [=, this] {
         if (TERRITOIRES_FRANCE.contains(territoire()))
             wdg_cotationsfrancecheck    ->setChecked(true);
         else
             wdg_cotationsgeneriquescheck->setChecked(true);
-    });
+    };
+    connect(wdg_territoirecombo, &QComboBox::currentIndexChanged, this, SuitTerritoire);
+    SuitTerritoire();
     connect(wdg_sanscomptacheck, &QCheckBox::toggled, this, [=, this] (bool sanscompta) {
         wdg_cotationsgroup->setEnabled(!sanscompta);
     });
@@ -169,17 +171,22 @@ QWidget* dlg_initbase::LigneCombo(QString texte, QComboBox *combo)
     return widg;
 }
 
-void dlg_initbase::RemplitLangues()
+/*!
+ * \brief dlg_initbase::RemplitComboLangues
+ * Remplit une liste déroulante des 7 langues traduites, à la présentation du sélecteur de dlg_param.
+ * \param combo   la liste à remplir
+ * \param langue  la langue à présenter, repli sur le premier item si elle est inconnue
+ */
+void dlg_initbase::RemplitComboLangues(QComboBox *combo, QString langue)
 {
-    /*! les 7 langues traduites, dans la présentation du sélecteur de dlg_param (nom natif + drapeau) */
-    wdg_languecombo ->addItem(QIcon(QPixmap("://France.ico")),          "Français",     QStringLiteral("FR"));
-    wdg_languecombo ->addItem(QIcon(QPixmap("://United-kingdom.ico")),  "English",      QStringLiteral("EN"));
-    wdg_languecombo ->addItem(QIcon(QPixmap("://Spain.ico")),           "Español",      QStringLiteral("ES"));
-    wdg_languecombo ->addItem(QIcon(QPixmap("://Brazil.ico")),          "Brasileiro",   QStringLiteral("BR"));
-    wdg_languecombo ->addItem(QIcon(QPixmap("://Portugal.ico")),        "Português",    QStringLiteral("PT"));
-    wdg_languecombo ->addItem(QIcon(QPixmap("://Italy.ico")),           "Italiano",     QStringLiteral("IT"));
-    wdg_languecombo ->addItem(QIcon(QPixmap("://Romania.ico")),         "Română",       QStringLiteral("RO"));
-    wdg_languecombo ->setCurrentIndex(wdg_languecombo->findData(QStringLiteral("FR")));
+    combo   ->addItem(QIcon(QPixmap("://France.ico")),          "Français",     QStringLiteral("FR"));
+    combo   ->addItem(QIcon(QPixmap("://United-kingdom.ico")),  "English",      QStringLiteral("EN"));
+    combo   ->addItem(QIcon(QPixmap("://Spain.ico")),           "Español",      QStringLiteral("ES"));
+    combo   ->addItem(QIcon(QPixmap("://Brazil.ico")),          "Brasileiro",   QStringLiteral("BR"));
+    combo   ->addItem(QIcon(QPixmap("://Portugal.ico")),        "Português",    QStringLiteral("PT"));
+    combo   ->addItem(QIcon(QPixmap("://Italy.ico")),           "Italiano",     QStringLiteral("IT"));
+    combo   ->addItem(QIcon(QPixmap("://Romania.ico")),         "Română",       QStringLiteral("RO"));
+    combo   ->setCurrentIndex(qMax(0, combo->findData(langue)));
 }
 
 /*!
@@ -208,6 +215,11 @@ void dlg_initbase::RemplitTerritoires()
 
     for (const QPair<QString, QString> &terr : liste)
         wdg_territoirecombo->addItem(Drapeau(terr.second) + "  " + terr.first + " (" + terr.second + ")", terr.second);
-    wdg_territoirecombo ->setCurrentIndex(wdg_territoirecombo->findData(QStringLiteral("FR")));
+
+    //! le pays du poste, à défaut la France
+    int idx = wdg_territoirecombo->findData(QLocale::territoryToCode(QLocale::system().territory()));
+    if (idx < 0)
+        idx = wdg_territoirecombo->findData(QStringLiteral("FR"));
+    wdg_territoirecombo ->setCurrentIndex(idx);
 }
 
