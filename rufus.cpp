@@ -7044,8 +7044,11 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
     {
         QString requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ")"
                           " VALUES (" + QString::number(currentacte()->id()) + ",'G')";
-        if (db->StandardSQL(requete))
-            AutorDepart = true;
+        db->StandardSQL(requete);
+        if (ChgtDossier)
+            return FermeDossier(currentpatient());
+        else
+            return true;
     }
     if (db->parametres()->comptanormale())
     {
@@ -7060,7 +7063,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
         /*! 2. On ne cherche pas à quitter le dossier mais seulement à se déplacer dans les consultations du dossier */
         if (!ChgtDossier)
         {
-            if (AutorDepart)    return true;
+            if (AutorDepart) return true;
             else
             {
                 UpMessageBox::Watch(this, tr("Consultation incomplète"), Titre);
@@ -7120,8 +7123,9 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
                 }
             }
 
-
-            if (!AutorDepart)
+            if (AutorDepart)
+                return FermeDossier(currentpatient());
+            else
             {
                 bool a = (Titre == ""? true : RetourSalleDattente(Titre));
                 if (!a)
@@ -7135,7 +7139,6 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             }
         }
     }
-    return FermeDossier(currentpatient());
 }
 
 
