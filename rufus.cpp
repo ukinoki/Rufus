@@ -7068,7 +7068,8 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
                 ui->ActeMontantlineEdit->setFocus();
             return false;
         }
-        EnregistreRecetteReduite(currentacte());
+        if (!EnregistreRecetteReduite(currentacte()))
+            return false;
         if (ChgtDossier)
             return FermeDossier(currentpatient());
         else
@@ -8003,15 +8004,16 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
 
 /*!
  * \brief Rufus::EnregistreRecetteReduite
- * en comptabilité réduite, encaisse l'acte en espèces sans rien demander à l'utilisateur
+ * en comptabilité réduite, encaisse l'acte du jour en espèces, ou l'enregistre comme gratuit si son montant est nul
  * \param act  l'acte à encaisser
+ * \return faux si l'utilisateur refuse d'enregistrer l'acte comme gratuit
  */
-void Rufus::EnregistreRecetteReduite(Acte *act)
+bool Rufus::EnregistreRecetteReduite(Acte *act)
 {
     RecalcCurrentDateTime();
     //! un acte ancien ne se réenregistre pas à chaque passage dessus
     if (act == nullptr || act->date() != m_currentdate)
-        return;
+        return true;
 
     QString idacte = QString::number(act->id());
     //! l'acte peut être quitté plusieurs fois : on écrase l'enregistrement précédent
@@ -8021,6 +8023,25 @@ void Rufus::EnregistreRecetteReduite(Acte *act)
     db->StandardSQL(requete);
     db->SupprRecordFromTable(act->id(), CP_IDACTE_LIGNEPAIEMENT, TBL_LIGNESPAIEMENTS);
     db->SupprRecordFromTable(act->id(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
+
+    if (act->montant() == 0.0)
+    {
+        UpMessageBox msgbox(this);
+        msgbox.setText(tr("Vous avez entré un montant nul !"));
+        msgbox.setInformativeText(tr("Enregistrer cet acte comme gratuit?"));
+        msgbox.setIcon(UpMessageBox::Warning);
+        UpSmallButton OKBouton(tr("Consultation gratuite"));
+        UpSmallButton NoBouton(tr("Non"));
+        msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() != &OKBouton)
+            return false;
+        requete =   "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ")"
+                    " VALUES (" + idacte + ", '" GRAT "')";
+        db->StandardSQL(requete);
+        return true;
+    }
 
     requete =   "INSERT INTO " TBL_RECETTES " ("
                 CP_IDUSER_LIGNRECETTES ", " CP_DATE_LIGNRECETTES ", " CP_DATEENREGISTREMENT_LIGNRECETTES ", "
@@ -8032,21 +8053,22 @@ void Rufus::EnregistreRecetteReduite(Acte *act)
                 + ", '" ESP "', " + QString::number(currentuser()->id()) + ", 1, '"
                 + Utils::correctquoteSQL(currentpatient()->nom()) + "')";
     if (!db->StandardSQL(requete, tr("Impossible d'enregistrer la recette de cet acte")))
-        return;
+        return true;
 
     QVariantList recdata = db->getFirstRecordFromStandardSelectSQL("SELECT Max(" CP_ID_LIGNRECETTES ") FROM " TBL_RECETTES, m_ok);
     if (!m_ok || recdata.size() == 0)
-        return;
+        return true;
     QString idrecette = recdata.at(0).toString();
 
     requete =   "INSERT INTO " TBL_LIGNESPAIEMENTS " (" CP_IDACTE_LIGNEPAIEMENT ", " CP_PAYE_LIGNEPAIEMENT ", " CP_IDRECETTE_LIGNEPAIEMENT ")"
                 " VALUES (" + idacte + ", " + QString::number(act->montant()) + ", " + idrecette + ")";
     if (!db->StandardSQL(requete, tr("Impossible d'enregistrer le paiement de cet acte")))
-        return;
+        return true;
 
     requete =   "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ")"
                 " VALUES (" + idacte + ", '" ESP "')";
     db->StandardSQL(requete);
+    return true;
 }
 
 /*!
