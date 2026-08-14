@@ -2133,7 +2133,7 @@ Closing the program.</translation>
         <location filename="Protocols/nidek.cpp" line="+281"/>
         <location line="+47"/>
         <source>mesure peu fiable</source>
-        <translation type="unfinished"></translation>
+        <translation>unreliable measurement</translation>
     </message>
 </context>
 <context>
