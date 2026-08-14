@@ -3794,8 +3794,9 @@ server nou</translation>
     <message>
         <location line="+346"/>
         <location line="+11"/>
-        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte</source>
-        <translation type="unfinished"></translation>
+        <location line="+745"/>
+        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
+        <translation>Programul va reporni pentru ca modificările bazei Rufus să poată fi luate în considerare.</translation>
     </message>
     <message>
         <source>Un compte utilisateur a été créé</source>
@@ -3874,7 +3875,7 @@ server nou</translation>
         <translation type="vanished">Utilizează codificările franceze</translation>
     </message>
     <message>
-        <location line="-263"/>
+        <location line="-1008"/>
         <source>Docteur</source>
         <translation>Doctor</translation>
     </message>
@@ -4165,7 +4166,9 @@ salvează baza</translation>
         <translation>Repornire necesară</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-755"/>
+        <location line="+11"/>
+        <location line="+745"/>
         <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
         <translation>Programul va reporni pentru ca modificările bazei Rufus să poată fi luate în considerare.</translation>
     </message>

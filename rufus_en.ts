@@ -3559,11 +3559,12 @@ new server</translation>
     <message>
         <location line="+59"/>
         <location line="+11"/>
-        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte</source>
-        <translation type="unfinished"></translation>
+        <location line="+745"/>
+        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
+        <translation>The program will restart so that the changes to the Rufus database can be taken into account.</translation>
     </message>
     <message>
-        <location line="+598"/>
+        <location line="-147"/>
         <source>L&apos;installation d&apos;une base Rufus va effacer les données</source>
         <translation>Installing a Rufus database will erase the data</translation>
     </message>
@@ -4604,7 +4605,9 @@ patient database</translation>
         <translation>1. I am installing Rufus on this computer by creating a new patient database</translation>
     </message>
     <message>
-        <location line="+119"/>
+        <location line="-637"/>
+        <location line="+11"/>
+        <location line="+745"/>
         <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
         <translation>The program will restart so that the changes to the Rufus database can be taken into account.</translation>
     </message>
