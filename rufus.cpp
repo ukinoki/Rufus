@@ -7040,6 +7040,13 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
         focusWidget()->clearFocus();      //!> Valide les changements dans les champs du dossier en cours d'affichage
 
     /*! 1. On vérifie si on peut quitter la cohérence de la cotation et des renseignements comptablessans quitter le dossier (il n'est pas obligatoire d'avoir la ligne correspondante dans typepaiementactes */
+    if (db->parametres()->sanscompta())
+    {
+        QString requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ")"
+                          " VALUES (" + QString::number(currentacte()->id()) + ",'G')";
+        if (db->StandardSQL(requete))
+            AutorDepart = true;
+    }
     if (db->parametres()->comptanormale())
     {
         if (ui->ActeCotationcomboBox->currentText() == "")
@@ -7099,7 +7106,8 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
                             return false;
                         else
                         {
-                            requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ") VALUES (" + QString::number(currentacte()->id()) + ",'G')";
+                            requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ")"
+                                      " VALUES (" + QString::number(currentacte()->id()) + ",'G')";
                             if (db->StandardSQL(requete))
                                 AutorDepart = true;
                         }
