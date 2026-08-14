@@ -2129,13 +2129,7 @@ Fermeture du programme.</source>
 <context>
     <name>Nidek</name>
     <message>
-        <location filename="Protocols/nidek.cpp" line="+268"/>
-        <location line="+47"/>
-        <source>quick mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-34"/>
+        <location filename="Protocols/nidek.cpp" line="+281"/>
         <location line="+47"/>
         <source>mesure peu fiable</source>
         <translation type="unfinished"></translation>
@@ -4902,12 +4896,7 @@ de siguranță</translation>
         <translation>Dacă acesta este cazul, alegeți opțiunea &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Une copie de sauvegarde valide de ce fichier existe sur ce poste : voulez-vous la restaurer ?</source>
-        <translation>O copie de siguranță validă a acestui fișier există pe această stație: doriți să o restaurați?</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+5"/>
         <source>Fichier de configuration Rufus.ini absent ou corrompu</source>
         <translation>Fișier de configurare Rufus.ini absent sau corupt</translation>
     </message>
@@ -16855,7 +16844,7 @@ instituțiilor bancare</translation>
     <message>
         <location line="+24"/>
         <source>cette fonction n&apos;est encore implémentée</source>
-        <translation type="unfinished"></translation>
+        <translation>această funcție nu este încă implementată</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -16904,32 +16893,33 @@ Doriți să îl salvați?</translation>
         <location line="+22"/>
         <source>Ce réglage concerne toute la base et n&apos;est lu qu&apos;au démarrage : Rufus va redémarrer pour le prendre en compte.
 Voulez-vous l&apos;enregistrer?</source>
-        <translation type="unfinished"></translation>
+        <translation>Această setare privește întreaga bază și este citită doar la pornire: Rufus se va reporni pentru a o lua în calcul.
+Doriți să o salvați?</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Enregistrer et redémarrer</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvează și repornește</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Vous avez choisi d&apos;enregistrer une comptabilité.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ați ales să țineți o contabilitate.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>En chantier</source>
-        <translation type="unfinished"></translation>
+        <translation>În lucru</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Cette fonction n&apos;est pas encore implémentée.</source>
-        <translation type="unfinished"></translation>
+        <translation>Această funcție nu este încă implementată.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Vous avez choisi de ne pas enregistrer de comptabilité.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ați ales să nu țineți contabilitate.</translation>
     </message>
     <message>
         <location line="+128"/>
@@ -17420,12 +17410,12 @@ pentru a putea lua în considerare modificările aduse!</translation>
     <message>
         <location line="+90"/>
         <source>Base restaurée</source>
-        <translation type="unfinished">Bază restaurată</translation>
+        <translation>Bază restaurată</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Votre base patients a été restaurée. Rufus va redémarrer.</source>
-        <translation type="unfinished">Baza dumneavoastră de pacienți a fost restaurată. Rufus va reporni.</translation>
+        <translation>Baza dumneavoastră de pacienți a fost restaurată. Rufus va reporni.</translation>
     </message>
     <message>
         <location line="-2068"/>

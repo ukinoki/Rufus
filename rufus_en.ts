@@ -2130,13 +2130,7 @@ Closing the program.</translation>
 <context>
     <name>Nidek</name>
     <message>
-        <location filename="Protocols/nidek.cpp" line="+268"/>
-        <location line="+47"/>
-        <source>quick mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-34"/>
+        <location filename="Protocols/nidek.cpp" line="+281"/>
         <location line="+47"/>
         <source>mesure peu fiable</source>
         <translation type="unfinished"></translation>
@@ -4947,12 +4941,7 @@ backup copy</translation>
         <translation>This absence is normal if you are starting the application for the first time on this computer.</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Une copie de sauvegarde valide de ce fichier existe sur ce poste : voulez-vous la restaurer ?</source>
-        <translation>A valid backup copy of this file exists on this computer: do you want to restore it?</translation>
-    </message>
-    <message>
-        <location line="+874"/>
+        <location line="+878"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation>Unknown default settings for the device</translation>
     </message>
@@ -17204,7 +17193,7 @@ in order to take account of the changes you have made!</translation>
     <message>
         <location line="+169"/>
         <source>cette fonction n&apos;est encore implémentée</source>
-        <translation type="unfinished"></translation>
+        <translation>this function is not implemented yet</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -17227,32 +17216,33 @@ Do you want to save it?</translation>
         <location line="+66"/>
         <source>Ce réglage concerne toute la base et n&apos;est lu qu&apos;au démarrage : Rufus va redémarrer pour le prendre en compte.
 Voulez-vous l&apos;enregistrer?</source>
-        <translation type="unfinished"></translation>
+        <translation>This setting applies to the whole database and is only read at startup: Rufus will restart to take it into account.
+Do you want to save it?</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Enregistrer et redémarrer</source>
-        <translation type="unfinished"></translation>
+        <translation>Save and restart</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Vous avez choisi d&apos;enregistrer une comptabilité.</source>
-        <translation type="unfinished"></translation>
+        <translation>You have chosen to use accounting.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>En chantier</source>
-        <translation type="unfinished"></translation>
+        <translation>Work in progress</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Cette fonction n&apos;est pas encore implémentée.</source>
-        <translation type="unfinished"></translation>
+        <translation>This function is not implemented yet.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Vous avez choisi de ne pas enregistrer de comptabilité.</source>
-        <translation type="unfinished"></translation>
+        <translation>You have chosen not to use accounting.</translation>
     </message>
     <message>
         <location line="+998"/>
@@ -17602,12 +17592,12 @@ par défaut pour cet appareil</source>
     <message>
         <location line="-1129"/>
         <source>Base restaurée</source>
-        <translation type="unfinished">Database restored</translation>
+        <translation>Database restored</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Votre base patients a été restaurée. Rufus va redémarrer.</source>
-        <translation type="unfinished">Your patient database has been restored. Rufus will restart.</translation>
+        <translation>Your patient database has been restored. Rufus will restart.</translation>
     </message>
     <message>
         <location line="+172"/>

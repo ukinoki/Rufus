@@ -2085,13 +2085,7 @@ Fermeture du programme.</source>
 <context>
     <name>Nidek</name>
     <message>
-        <location filename="Protocols/nidek.cpp" line="+268"/>
-        <location line="+47"/>
-        <source>quick mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-34"/>
+        <location filename="Protocols/nidek.cpp" line="+281"/>
         <location line="+47"/>
         <source>mesure peu fiable</source>
         <translation type="unfinished"></translation>
@@ -4759,12 +4753,7 @@ patients Rufus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Une copie de sauvegarde valide de ce fichier existe sur ce poste : voulez-vous la restaurer ?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+874"/>
+        <location line="+878"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation type="unfinished"></translation>
     </message>

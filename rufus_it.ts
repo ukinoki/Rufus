@@ -2129,13 +2129,7 @@ Chiusura del programma.</translation>
 <context>
     <name>Nidek</name>
     <message>
-        <location filename="Protocols/nidek.cpp" line="+268"/>
-        <location line="+47"/>
-        <source>quick mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-34"/>
+        <location filename="Protocols/nidek.cpp" line="+281"/>
         <location line="+47"/>
         <source>mesure peu fiable</source>
         <translation type="unfinished"></translation>
@@ -4932,12 +4926,7 @@ di backup</translation>
         <translation>Questa assenza è normale se avvii l&apos;applicazione per la prima volta su questa postazione.</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Une copie de sauvegarde valide de ce fichier existe sur ce poste : voulez-vous la restaurer ?</source>
-        <translation>Su questa postazione esiste una copia di backup valida di questo file: vuoi ripristinarla?</translation>
-    </message>
-    <message>
-        <location line="+874"/>
+        <location line="+878"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation>Impostazioni predefinite sconosciute per il dispositivo</translation>
     </message>
@@ -17197,7 +17186,7 @@ perché le modifiche apportate siano prese in considerazione!</translation>
     <message>
         <location line="+169"/>
         <source>cette fonction n&apos;est encore implémentée</source>
-        <translation type="unfinished"></translation>
+        <translation>questa funzione non è ancora implementata</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -17220,32 +17209,33 @@ Vuoi salvarla?</translation>
         <location line="+66"/>
         <source>Ce réglage concerne toute la base et n&apos;est lu qu&apos;au démarrage : Rufus va redémarrer pour le prendre en compte.
 Voulez-vous l&apos;enregistrer?</source>
-        <translation type="unfinished"></translation>
+        <translation>Questa impostazione riguarda tutto l&apos;archivio e viene letta solo all&apos;avvio: Rufus si riavvierà per applicarla.
+Vuole salvarla?</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Enregistrer et redémarrer</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvare e riavviare</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Vous avez choisi d&apos;enregistrer une comptabilité.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha scelto di registrare una contabilità.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>En chantier</source>
-        <translation type="unfinished"></translation>
+        <translation>In lavorazione</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Cette fonction n&apos;est pas encore implémentée.</source>
-        <translation type="unfinished"></translation>
+        <translation>Questa funzione non è ancora implementata.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Vous avez choisi de ne pas enregistrer de comptabilité.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha scelto di non registrare alcuna contabilità.</translation>
     </message>
     <message>
         <location line="+998"/>
@@ -17596,12 +17586,12 @@ predefinite per questo dispositivo</translation>
     <message>
         <location line="-1129"/>
         <source>Base restaurée</source>
-        <translation type="unfinished">Database ripristinato</translation>
+        <translation>Database ripristinato</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Votre base patients a été restaurée. Rufus va redémarrer.</source>
-        <translation type="unfinished">Il tuo database pazienti è stato ripristinato. Rufus si riavvierà.</translation>
+        <translation>Il tuo database pazienti è stato ripristinato. Rufus si riavvierà.</translation>
     </message>
     <message>
         <location line="+172"/>

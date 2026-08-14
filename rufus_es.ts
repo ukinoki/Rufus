@@ -2129,13 +2129,7 @@ Cerrando el programa.</translation>
 <context>
     <name>Nidek</name>
     <message>
-        <location filename="Protocols/nidek.cpp" line="+268"/>
-        <location line="+47"/>
-        <source>quick mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-34"/>
+        <location filename="Protocols/nidek.cpp" line="+281"/>
         <location line="+47"/>
         <source>mesure peu fiable</source>
         <translation type="unfinished"></translation>
@@ -4929,12 +4923,7 @@ de seguridad</translation>
         <translation>Esta ausencia es normal si inicia la aplicación por primera vez en este equipo.</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Une copie de sauvegarde valide de ce fichier existe sur ce poste : voulez-vous la restaurer ?</source>
-        <translation>Existe una copia de seguridad válida de este archivo en este equipo: ¿desea restaurarla?</translation>
-    </message>
-    <message>
-        <location line="+874"/>
+        <location line="+878"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation>Ajustes por defecto desconocidos para el dispositivo</translation>
     </message>
@@ -17175,7 +17164,7 @@ para que los cambios surtan efecto!</translation>
     <message>
         <location line="+169"/>
         <source>cette fonction n&apos;est encore implémentée</source>
-        <translation type="unfinished"></translation>
+        <translation>esta función aún no está implementada</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -17198,32 +17187,33 @@ Voulez-vous l&apos;enregistrer?</source>
         <location line="+66"/>
         <source>Ce réglage concerne toute la base et n&apos;est lu qu&apos;au démarrage : Rufus va redémarrer pour le prendre en compte.
 Voulez-vous l&apos;enregistrer?</source>
-        <translation type="unfinished"></translation>
+        <translation>Este ajuste afecta a toda la base y solo se lee al arrancar: Rufus se reiniciará para tenerlo en cuenta.
+¿Desea guardarlo?</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Enregistrer et redémarrer</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar y reiniciar</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Vous avez choisi d&apos;enregistrer une comptabilité.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha elegido registrar una contabilidad.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>En chantier</source>
-        <translation type="unfinished"></translation>
+        <translation>En obras</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Cette fonction n&apos;est pas encore implémentée.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esta función aún no está implementada.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Vous avez choisi de ne pas enregistrer de comptabilité.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha elegido no registrar contabilidad.</translation>
     </message>
     <message>
         <location line="+998"/>
@@ -17573,12 +17563,12 @@ par défaut pour cet appareil</source>
     <message>
         <location line="-1129"/>
         <source>Base restaurée</source>
-        <translation type="unfinished">Base de datos restaurada</translation>
+        <translation>Base de datos restaurada</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Votre base patients a été restaurée. Rufus va redémarrer.</source>
-        <translation type="unfinished">Su base de pacientes se ha restaurado. Rufus va a reiniciarse.</translation>
+        <translation>Su base de pacientes se ha restaurado. Rufus va a reiniciarse.</translation>
     </message>
     <message>
         <location line="+172"/>

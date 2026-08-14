@@ -265,7 +265,7 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                     if (childARmednode.text() == "QUICK")
                                     {
                                         Datas::I()->mesureautoref->setisquickOD(true);
-                                        Datas::I()->mesureautoref->setcommentOD(tr("quick mode"));
+                                        Datas::I()->mesureautoref->setcommentOD("quick mode");
                                     }
                                 }
                             }
@@ -312,7 +312,7 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                     if (childARmednode.text() == "QUICK")
                                     {
                                         Datas::I()->mesureautoref->setisquickOG(true);
-                                        Datas::I()->mesureautoref->setcommentOG(tr("quick mode"));
+                                        Datas::I()->mesureautoref->setcommentOG("quick mode");
                                     }
                                 }
                             }
