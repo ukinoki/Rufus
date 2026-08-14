@@ -7050,7 +7050,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
         else
             return true;
     }
-    if (db->parametres()->comptanormale())
+    if (db->parametres()->comptanormale() || db->parametres()->comptareduite())
     {
         if (ui->ActeCotationcomboBox->currentText() == "")
             Titre = tr("Il manque la cotation!");
@@ -7093,8 +7093,12 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
                 // cette requête renvoie toujours une table non vide en QT même si elle est vide en mysql... d'où la suite
                 if (actdata.size()>0 && actdata.at(0).toInt() > 0) // =il n'y a pas de paiement enregistré pour le dernier acte
                 {
+                    //! l'acte à contrôler n'est pas celui affiché : on le montre et on refait le contrôle sur lui
                     if (actdata.at(0).toInt() != currentacte()->id())
+                    {
                         AfficheActe(m_listeactes->getById(actdata.at(0).toInt()));
+                        return AutorDepartConsult(ChgtDossier);
+                    }
                     if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
                     {
                         msgbox.setText(tr("Vous avez entré un montant nul !"));
@@ -7139,6 +7143,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             }
         }
     }
+    return true;        //! garde-fou : valeur de compta inattendue, on ne bloque pas l'utilisateur
 }
 
 
