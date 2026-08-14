@@ -4319,7 +4319,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
                 if (RestaureBase(BaseExistante, true,false, parent) != "")
                 {
                     Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-                    UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte"));
+                    UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte."));
                     Utils::Redemarrage();
                 }
             }
@@ -4330,7 +4330,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-                UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte"));
+                UpMessageBox::Watch(parent,tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte."));
                 Utils::Redemarrage();
             }
             break;

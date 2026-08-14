@@ -4111,7 +4111,9 @@ quitter Rufus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="-705"/>
+        <location line="+11"/>
+        <location line="+745"/>
         <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4155,11 +4157,12 @@ quitter Rufus</source>
     <message>
         <location line="-1129"/>
         <location line="+11"/>
-        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte</source>
-        <translation type="unfinished"></translation>
+        <location line="+745"/>
+        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
+        <translation></translation>
     </message>
     <message>
-        <location line="+1119"/>
+        <location line="+374"/>
         <source>La base de données a été restaurée. Rufus va redémarrer.</source>
         <translation type="unfinished"></translation>
     </message>

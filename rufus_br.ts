@@ -3675,11 +3675,12 @@ servidor novo</translation>
     <message>
         <location line="+59"/>
         <location line="+11"/>
-        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte</source>
-        <translation type="unfinished"></translation>
+        <location line="+745"/>
+        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
+        <translation>O programa vai reiniciar para que as alterações no banco de dados Rufus possam ser consideradas.</translation>
     </message>
     <message>
-        <location line="+598"/>
+        <location line="-147"/>
         <source>L&apos;installation d&apos;une base Rufus va effacer les données</source>
         <translation>A instalação de um banco Rufus vai apagar os dados</translation>
     </message>
@@ -4278,7 +4279,9 @@ sair do Rufus</translation>
         <translation>A conexão com o MySQL falhou após a instalação.</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="-705"/>
+        <location line="+11"/>
+        <location line="+745"/>
         <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
         <translation>O programa vai reiniciar para que as alterações no banco de dados Rufus possam ser consideradas.</translation>
     </message>
