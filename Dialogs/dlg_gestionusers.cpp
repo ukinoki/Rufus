@@ -1175,7 +1175,8 @@ void dlg_gestionusers::RegleAffichage()
     ui->AutreSoignantupLineEdit     ->setVisible(ui->AutreSoignantupRadioButton->isChecked());
     ui->AutreFonctionuplineEdit     ->setVisible(ui->AutreFonctionupRadioButton->isChecked());
 
-    ui->Comptawidget                ->setVisible(m_responsable || m_soccomptable);
+    //! Comptawidget porte tous les widgets comptables : le masquer les masque tous
+    ui->Comptawidget                ->setVisible((m_responsable || m_soccomptable) && db->parametres()->comptanormale());
     ui->ComptagroupBox              ->setVisible(m_responsable);
     ui->ComptaNoLiberalupRadioButton->setImmediateToolTip("");
     if (ui->ListUserstableWidget    ->currentItem()!=Q_NULLPTR)
@@ -1888,7 +1889,7 @@ bool dlg_gestionusers::VerifFiche()
             return false;
         }
     }
-    if (m_responsable)
+    if (m_responsable && db->parametres()->comptanormale())
     {
         QList<QRadioButton*> listbouton = ui->ComptagroupBox->findChildren<QRadioButton*>();
         bool a = false;
@@ -1938,13 +1939,13 @@ bool dlg_gestionusers::VerifFiche()
             return false;
         }
     }
-    if (m_respliberal || m_soccomptable || m_respliberalSEL)
+    if ((m_respliberal || m_soccomptable || m_respliberalSEL) && db->parametres()->comptanormale())
         if (ui->CompteParDefautcomboBox->currentIndex()==-1)
         {
             UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier un compte bancaire pour l'enregistrement de la comptabilité!"));
             return false;
         }
-    if (m_pasliberal)
+    if (m_pasliberal && db->parametres()->comptanormale())
         if (ui->EmployeurcomboBox->currentIndex()==-1)
         {
             UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier un employeur pour cet utilisateur non libéral!"));
