@@ -62,19 +62,7 @@ dlg_param::dlg_param(QWidget *parent) :
     //! de la table ; comme il n'y a pas de « ? » de barre de titre ici (ni sous macOS), un petit bouton
     //! « ? » le fait apparaître. Images intégrées en inline (data URI) -> rendu garanti dans le rich
     //! text hors-écran de QWhatsThis, sans dépendre de la résolution des ressources qrc.
-    //! chaque pixmap devient une balise <img> inline (data URI) DONT LA TAILLE EST FIXÉE explicitement
-    //! (largeur/hauteur), à la hauteur h passée : sans ça, le rich text affiche l'image à sa taille
-    //! physique — gonflée par le facteur d'échelle de l'écran / la taille native de l'icône — d'où les
-    //! icônes du buttonframe bien trop grandes. Largeur proportionnelle pour ne pas déformer.
-    auto baliseImg = [](const QPixmap &px, int h) -> QString {
-        QByteArray ba;
-        QBuffer buf(&ba);
-        buf.open(QIODevice::WriteOnly);
-        px.save(&buf, "PNG");
-        const int w = (px.height() > 0) ? qRound(double(px.width()) * h / double(px.height())) : h;
-        return "<img width=\"" + QString::number(w) + "\" height=\"" + QString::number(h)
-             + "\" src=\"data:image/png;base64," + QString::fromLatin1(ba.toBase64()) + "\">";
-    };
+    auto baliseImg = [](const QPixmap &px, int h) -> QString { return Utils::BaliseImg(px, h); };
     //! pictogramme de la case à cocher (cochée) : dessiné par le style courant, comme dans la table.
     //! Sa hauteur (hcb) sert de gabarit commun -> on ramène TOUTES les autres icônes à cette taille.
     QStyleOptionButton optcheck;
@@ -105,14 +93,8 @@ dlg_param::dlg_param(QWidget *parent) :
     //! enableCotations + eventFilter) : invite à déverrouiller, avec l'image du cadenas.
     m_msgVerrouCotations = baliseImg(Icons::pxVerrouiller(), 22)
                          + "  " + tr("Page verrouillée : cliquez sur le cadenas pour la déverrouiller et pouvoir la modifier.");
-    UpSmallButton *aideCotationsBouton = new UpSmallButton();
-    aideCotationsBouton         ->setIcon(style()->standardIcon(QStyle::SP_TitleBarContextHelpButton));   //! « ? » cerclé = icône standard des whatsThis
-    aideCotationsBouton         ->setIconSize(QSize(18, 18));
-    aideCotationsBouton         ->setToolTip(tr("Que puis-je faire dans cette table ?"));
-    connect(aideCotationsBouton, &UpSmallButton::clicked, this, [=, this] {
-        QWhatsThis::showText(aideCotationsBouton->mapToGlobal(QPoint(0, aideCotationsBouton->height())),
-                             ui->cotationsUpTableView->whatsThis(), aideCotationsBouton);
-    });
+    UpSmallButton *aideCotationsBouton = Utils::BoutonAide(ui->cotationsUpTableView->whatsThis(),
+                                                           tr("Que puis-je faire dans cette table ?"));
 
     QHBoxLayout *Margelay       = new QHBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();

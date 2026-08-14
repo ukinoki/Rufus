@@ -293,6 +293,11 @@ public:
     //! renvoie une couleur
     static QColor   SelectCouleur(QColor colordep, QWidget *parent= Q_NULLPTR);
 
+    //! bouton « ? » d'aide, qui déroule texte sous lui - il n'y a pas de « ? » de barre de titre sous macOS
+    static UpSmallButton*   BoutonAide(QString texte, QString tip = "");
+    //! balise <img> en data URI, de hauteur h - pour glisser un pictogramme dans le texte d'un BoutonAide
+    static QString          BaliseImg(const QPixmap &px, int h);
+
 
     //! arrondit un int au multiple de 5 le plus proche
     static int roundToNearestFive(int number)                   { return static_cast<int>(number / 5. + .5) * 5; }

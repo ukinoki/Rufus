@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLocale>
 #include <QPair>
 #include "dlg_initbase.h"
+#include "utils.h"
 
 //! territoires où s'appliquent les cotations françaises (CCAM, NGAP)
 static const QStringList TERRITOIRES_FRANCE = {"FR", "GF", "PF", "NC", "GP", "MQ", "RE", "YT"};
@@ -52,7 +53,14 @@ dlg_initbase::dlg_initbase(QString langue, QWidget *parent) :
                                      "vous pourrez les changer dans Edition/Paramètres."));
     soustitre           ->setWordWrap(true);
     soustitre           ->setMaximumWidth(400);
-    lay                 ->addWidget(soustitre);
+
+    //! le « ? » sur la ligne du sous-titre, calé à droite, comme au-dessus de la table des cotations
+    QHBoxLayout *titrelay = new QHBoxLayout();
+    titrelay            ->setContentsMargins(0,0,0,0);
+    titrelay            ->addWidget(soustitre, 1);
+    titrelay            ->addWidget(Utils::BoutonAide(TexteAide(), tr("Que règle cette fiche ?")),
+                                    0, Qt::AlignTop | Qt::AlignRight);
+    lay                 ->addLayout(titrelay);
 
     //! --- comptabilité : libellés repris de l'onglet Paramètres, pour ne pas dire deux choses ---
     wdg_comptanormalecheck  = new UpCheckBox(tr("Enregistrer une comptabilité"));
@@ -124,6 +132,48 @@ dlg_initbase::dlg_initbase(QString langue, QWidget *parent) :
     dlglayout()         ->insertLayout(0, lay);
     dlglayout()         ->setSizeConstraint(QLayout::SetFixedSize);
     connect(OKButton, &QPushButton::clicked, this, [=, this] {accept();});
+}
+
+/*!
+ * \brief dlg_initbase::TexteAide
+ * Le texte du bouton « ? » : ce que fait chaque choix de la fiche.
+ */
+QString dlg_initbase::TexteAide()
+{
+    return tr("<b>Premier paramétrage de Rufus</b><br>"
+              "Ces réglages valent pour tout le cabinet et sont modifiables à tout moment "
+              "dans Edition/Paramètres. Rien n'est définitif ici.<br><br>")
+
+         + tr("<b>Comptabilité</b><br>")
+         + tr("<i>Enregistrer une comptabilité</i> : la comptabilité complète — recettes, dépenses, "
+              "comptes bancaires, remises de chèques. Le mode de paiement est demandé à chaque acte.<br>")
+         + tr("<i>Enregistrer une comptabilité simplifiée</i> : seuls la cotation et le montant de l'acte "
+              "sont enregistrés, au fil des consultations et sans rien vous demander. Vous consultez le "
+              "journal des recettes, mais il n'y a ni dépenses, ni comptes bancaires.<br>")
+         + tr("<i>Ne pas enregistrer de comptabilité</i> : aucune écriture comptable, le menu Comptabilité "
+              "disparaît. Les actes sont enregistrés comme gratuits, ce qui vous laisse libre de passer "
+              "à une comptabilité plus tard sans aucune alerte sur les actes déjà saisis.<br><br>")
+
+         + tr("<b>Cotation des actes</b><br>")
+         + tr("<i>Cotations françaises</i> : CCAM, NGAP, ALD, secteur conventionnel et OPTAM. "
+              "À réserver à un exercice en France ou dans les DOM-TOM.<br>")
+         + tr("<i>Cotations génériques</i> : vous composez vos propres libellés et montants, sans "
+              "nomenclature imposée. C'est le choix des versions internationales.<br>")
+         + tr("Ce groupe se grise si vous ne tenez aucune comptabilité, et suit automatiquement le "
+              "territoire choisi plus bas — vous pouvez toujours le corriger à la main.<br><br>")
+
+         + tr("<b>Langue et territoire</b><br>")
+         + tr("<i>Langue</i> : la langue de l'interface, propre à ce poste. Un autre poste du cabinet "
+              "peut travailler dans une autre langue.<br>")
+         + tr("<i>Territoire</i> : le pays d'exercice. Il détermine les villes et les codes postaux "
+              "proposés dans les fiches patients. Il est distinct de la langue : un cabinet mexicain "
+              "et un cabinet espagnol travaillent tous deux en espagnol.<br><br>")
+
+         + tr("<b>Utilisateur</b><br>")
+         + tr("Un utilisateur factice, <i>Docteur Snow</i>, est systématiquement créé : Rufus ne peut pas "
+              "démarrer sans au moins un soignant enregistré. C'est pourquoi la case est cochée et "
+              "verrouillée. Dès la première ouverture, allez dans Edition/Paramètres pour le renommer à "
+              "votre nom, ou créez votre propre compte et supprimez celui-ci.");
 }
 
 /*!

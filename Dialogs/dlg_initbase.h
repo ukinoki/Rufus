@@ -60,6 +60,7 @@ private:
     /*! le groupe des cotations, grisé quand on ne tient pas de comptabilité */
     UpGroupBox      *wdg_cotationsgroup;
 
+    QString         TexteAide();                                               //!< le texte du bouton « ? » : le rôle de chaque choix
     UpGroupBox*     GroupeExclusif(QString titre, QList<UpCheckBox*> cases);    //!< groupe où une seule case peut être cochée
     QWidget*        LigneCombo(QString texte, QComboBox *combo);                //!< libellé + liste déroulante sur une ligne
     void            RemplitTerritoires();                                      //!< territoires de QLocale, nom anglais + code ISO à 2 lettres

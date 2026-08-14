@@ -19,6 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include <QBuffer>
 #include <QRegularExpressionValidator>
+#include <QStyle>
+#include <QWhatsThis>
 
 Utils* Utils::instance =  Q_NULLPTR;
 Utils* Utils::I()
@@ -1684,6 +1686,43 @@ QColor Utils::SelectCouleur(QColor colordep, QWidget *parent)
     dlg.exec();
     QColor colorfin = dlg.selectedColor();
     return  colorfin;
+}
+
+/*!
+ * \brief Utils::BaliseImg
+ * Balise <img> en data URI, à la taille fixée : sans dimensions explicites, le rich text
+ * affiche l'image à sa taille physique, gonflée par le facteur d'échelle de l'écran.
+ * \param px  le pictogramme
+ * \param h   la hauteur voulue, la largeur suit pour ne pas déformer
+ */
+QString Utils::BaliseImg(const QPixmap &px, int h)
+{
+    QByteArray ba;
+    QBuffer buf(&ba);
+    buf.open(QIODevice::WriteOnly);
+    px.save(&buf, "PNG");
+    const int w = (px.height() > 0) ? qRound(double(px.width()) * h / double(px.height())) : h;
+    return "<img width=\"" + QString::number(w) + "\" height=\"" + QString::number(h)
+         + "\" src=\"data:image/png;base64," + QString::fromLatin1(ba.toBase64()) + "\">";
+}
+
+/*!
+ * \brief Utils::BoutonAide
+ * Bouton « ? » qui déroule un texte d'aide sous lui, le « ? » de barre de titre n'existant pas sous macOS.
+ * \param texte  le texte d'aide, rich text accepté
+ * \param tip    l'infobulle du bouton
+ */
+UpSmallButton* Utils::BoutonAide(QString texte, QString tip)
+{
+    UpSmallButton *bouton = new UpSmallButton();
+    bouton  ->setIcon(qApp->style()->standardIcon(QStyle::SP_TitleBarContextHelpButton));   //! « ? » cerclé = icône standard des whatsThis
+    bouton  ->setIconSize(QSize(18, 18));
+    bouton  ->setToolTip(tip == ""? tr("À quoi sert cette fiche ?") : tip);
+    bouton  ->setWhatsThis(texte);
+    connect(bouton, &UpSmallButton::clicked, bouton, [=] {
+        QWhatsThis::showText(bouton->mapToGlobal(QPoint(0, bouton->height())), bouton->whatsThis(), bouton);
+    });
+    return bouton;
 }
 
 void Utils::EnChantier(QWidget* parent, bool avecMsg)
