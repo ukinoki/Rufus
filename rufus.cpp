@@ -7050,7 +7050,31 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
         else
             return true;
     }
-    if (db->parametres()->comptanormale() || db->parametres()->comptareduite())
+    if (db->parametres()->comptareduite())
+    {
+        if (ui->ActeCotationcomboBox->currentText() == "")
+            Titre = tr("Il manque la cotation!");
+        else if (ui->ActeMontantlineEdit->text() == "")
+            Titre = tr("Il manque le montant!");
+        if (Titre != "")
+        {
+            UpMessageBox::Watch(this, tr("Consultation incomplète"), Titre);
+            if (Titre == tr("Il manque la cotation!"))
+            {
+                ui->ActeCotationcomboBox->setFocus();
+                ui->ActeCotationcomboBox->showPopup();
+            }
+            else
+                ui->ActeMontantlineEdit->setFocus();
+            return false;
+        }
+        EnregistreRecetteReduite(currentacte());
+        if (ChgtDossier)
+            return FermeDossier(currentpatient());
+        else
+            return true;
+    }
+    if (db->parametres()->comptanormale())
     {
         if (ui->ActeCotationcomboBox->currentText() == "")
             Titre = tr("Il manque la cotation!");
@@ -7978,6 +8002,54 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
 }
 
 /*!
+ * \brief Rufus::EnregistreRecetteReduite
+ * en comptabilité réduite, encaisse l'acte en espèces sans rien demander à l'utilisateur
+ * \param act  l'acte à encaisser
+ */
+void Rufus::EnregistreRecetteReduite(Acte *act)
+{
+    RecalcCurrentDateTime();
+    //! un acte ancien ne se réenregistre pas à chaque passage dessus
+    if (act == nullptr || act->date() != m_currentdate)
+        return;
+
+    QString idacte = QString::number(act->id());
+    //! l'acte peut être quitté plusieurs fois : on écrase l'enregistrement précédent
+    QString requete =   "DELETE FROM " TBL_RECETTES " WHERE " CP_ID_LIGNRECETTES " IN"
+                        " (SELECT " CP_IDRECETTE_LIGNEPAIEMENT " FROM " TBL_LIGNESPAIEMENTS
+                        " WHERE " CP_IDACTE_LIGNEPAIEMENT " = " + idacte + ")";
+    db->StandardSQL(requete);
+    db->SupprRecordFromTable(act->id(), CP_IDACTE_LIGNEPAIEMENT, TBL_LIGNESPAIEMENTS);
+    db->SupprRecordFromTable(act->id(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
+
+    requete =   "INSERT INTO " TBL_RECETTES " ("
+                CP_IDUSER_LIGNRECETTES ", " CP_DATE_LIGNRECETTES ", " CP_DATEENREGISTREMENT_LIGNRECETTES ", "
+                CP_MONTANT_LIGNRECETTES ", " CP_MODEPAIEMENT_LIGNRECETTES ", " CP_IDUSERENREGISTREUR_LIGNRECETTES ", "
+                CP_TYPERECETTE_LIGNRECETTES ", " CP_NOMPAYEUR_LIGNRECETTES ") VALUES ("
+                + QString::number(act->idComptable())
+                + ", '" + act->date().toString("yyyy-MM-dd") + "', DATE(NOW()), "
+                + QString::number(act->montant())
+                + ", '" ESP "', " + QString::number(currentuser()->id()) + ", 1, '"
+                + Utils::correctquoteSQL(currentpatient()->nom()) + "')";
+    if (!db->StandardSQL(requete, tr("Impossible d'enregistrer la recette de cet acte")))
+        return;
+
+    QVariantList recdata = db->getFirstRecordFromStandardSelectSQL("SELECT Max(" CP_ID_LIGNRECETTES ") FROM " TBL_RECETTES, m_ok);
+    if (!m_ok || recdata.size() == 0)
+        return;
+    QString idrecette = recdata.at(0).toString();
+
+    requete =   "INSERT INTO " TBL_LIGNESPAIEMENTS " (" CP_IDACTE_LIGNEPAIEMENT ", " CP_PAYE_LIGNEPAIEMENT ", " CP_IDRECETTE_LIGNEPAIEMENT ")"
+                " VALUES (" + idacte + ", " + QString::number(act->montant()) + ", " + idrecette + ")";
+    if (!db->StandardSQL(requete, tr("Impossible d'enregistrer le paiement de cet acte")))
+        return;
+
+    requete =   "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ")"
+                " VALUES (" + idacte + ", '" ESP "')";
+    db->StandardSQL(requete);
+}
+
+/*!
  * \brief Rufus::SupprimeActesVides
  * supprime les actes gratuits dépourvus de tout contenu (motif, texte, conclusion et cotation vides)
  * \param patient  le patient dont on ferme le dossier
@@ -8515,24 +8587,26 @@ void Rufus::InitMenus()
     {
         actionPaiementTiers             ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
         actionPaiementDirect            ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire() || currentuser()->isRemplacant()));
-        actionBilanRecettes             ->setVisible(compta == 1 && (currentuser()->isSecretaire() || currentuser()->isAutreFonction() || currentuser()->isComptableActes()));
+        actionBilanRecettes             ->setVisible(compta != 3 && (currentuser()->isSecretaire() || currentuser()->isAutreFonction() || currentuser()->isComptableActes()));
         actionRecettesSpeciales         ->setVisible(compta == 1 && currentuser()->isComptableActes());
         actionJournalDepenses           ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
         actionGestionComptesBancaires   ->setVisible(compta == 1 && currentuser()->isComptableActes());
         actionRemiseCheques             ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
-        menuComptabilite->menuAction()  ->setVisible(compta == 1 && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
+        actionTiers                     ->setVisible(compta == 1);
+        menuComptabilite->menuAction()  ->setVisible(compta != 3 && (currentuser()->isComptableActes() || currentuser()->isSecretaire()));
     }
     else
     {
         bool a = (currentuser()->isComptableActes() || currentuser()->isSecretaire() || currentuser()->isSoignantSalarie());
         actionPaiementTiers             ->setVisible(compta == 1 && a);
         actionPaiementDirect            ->setVisible(compta == 1 && (a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant()));
-        actionBilanRecettes             ->setVisible(compta == 1 && a);
+        actionBilanRecettes             ->setVisible(compta != 3 && a);
         actionRecettesSpeciales         ->setVisible(compta == 1 && currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
         actionJournalDepenses           ->setVisible(compta == 1 && a && (Datas::I()->users->comptablesActes()->size() + Datas::I()->users->liberaux()->size() > 0));
         actionGestionComptesBancaires   ->setVisible(compta == 1 && currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
         actionRemiseCheques             ->setVisible(compta == 1 && a);
-        menuComptabilite->menuAction()  ->setVisible(compta == 1 && (a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant()));
+        actionTiers                     ->setVisible(compta == 1);
+        menuComptabilite->menuAction()  ->setVisible(compta != 3 && (a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant()));
     }
     actionEnregistrerVideo          ->setVisible(db->ModeAccesDataBase() != Utils::Distant);
 }
