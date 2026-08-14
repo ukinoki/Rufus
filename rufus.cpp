@@ -7985,20 +7985,25 @@ void Rufus::SupprimeActesVides(Patient *patient)
     QString requete =   "SELECT act." CP_ID_ACTES " FROM " TBL_ACTES " act"
                         " JOIN " TBL_TYPEPAIEMENTACTES " typ ON typ." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES
                         " WHERE act." CP_IDPAT_ACTES " = " + QString::number(patient->id()) +
-                        " AND typ." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = '" GRAT "'"
-                        " AND ifnull(act." CP_MOTIF_ACTES ",'') = ''"
-                        " AND ifnull(act." CP_TEXTE_ACTES ",'') = ''"
-                        " AND ifnull(act." CP_CONCLUSION_ACTES ",'') = ''"
-                        " AND ifnull(act." CP_COTATION_ACTES ",'') = ''";
+                        " AND typ." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = '" GRAT "'";
     QList<QVariantList> listactes = db->StandardSelectSQL(requete, m_ok);
     if (!m_ok)
         return;
+
+    //! optiquement vide : converti en texte brut, le champ n'affiche plus rien
+    auto estvide = [](QString txt) {
+        Utils::convertPlainText(txt);
+        return txt.trimmed().isEmpty();
+    };
 
     int nbsuppr = 0;
     for (int i = 0; i < listactes.size(); ++i)
     {
         Acte *act = m_listeactes->getById(listactes.at(i).at(0).toInt());
         if (act == nullptr)
+            continue;
+        if (!estvide(act->motif()) || !estvide(act->texte())
+         || !estvide(act->conclusion()) || !estvide(act->cotation()))
             continue;
         db              ->SupprRecordFromTable(act->id(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
         m_listeactes    ->SupprimeActe(act);
