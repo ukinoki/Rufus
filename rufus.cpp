@@ -7972,6 +7972,45 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
         ui->OuvreDocsExternespushButton->setEnabled(!Datas::I()->docsexternes->docsexternes()->isEmpty());
 }
 
+/*!
+ * \brief Rufus::SupprimeActesVides
+ * supprime les actes gratuits dépourvus de tout contenu (motif, texte, conclusion et cotation vides)
+ * \param patient  le patient dont on ferme le dossier
+ */
+void Rufus::SupprimeActesVides(Patient *patient)
+{
+    if (patient == nullptr)
+        return;
+    //! le mode de paiement est relu en base : celui de l'acte en mémoire date de son chargement
+    QString requete =   "SELECT act." CP_ID_ACTES " FROM " TBL_ACTES " act"
+                        " JOIN " TBL_TYPEPAIEMENTACTES " typ ON typ." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES
+                        " WHERE act." CP_IDPAT_ACTES " = " + QString::number(patient->id()) +
+                        " AND typ." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = '" GRAT "'"
+                        " AND ifnull(act." CP_MOTIF_ACTES ",'') = ''"
+                        " AND ifnull(act." CP_TEXTE_ACTES ",'') = ''"
+                        " AND ifnull(act." CP_CONCLUSION_ACTES ",'') = ''"
+                        " AND ifnull(act." CP_COTATION_ACTES ",'') = ''";
+    QList<QVariantList> listactes = db->StandardSelectSQL(requete, m_ok);
+    if (!m_ok)
+        return;
+
+    int nbsuppr = 0;
+    for (int i = 0; i < listactes.size(); ++i)
+    {
+        Acte *act = m_listeactes->getById(listactes.at(i).at(0).toInt());
+        if (act == nullptr)
+            continue;
+        db              ->SupprRecordFromTable(act->id(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
+        m_listeactes    ->SupprimeActe(act);
+        ++nbsuppr;
+    }
+    if (nbsuppr == 0)
+        return;
+    UpMessageBox::Watch(this, tr("Consultations sans contenu supprimées"),
+                        tr("Ce dossier comportait %1 consultation(s) sans motif, ni texte, ni conclusion, ni cotation.")
+                        .arg(QString::number(nbsuppr)) + "\n" + tr("Elles ont été supprimées."));
+}
+
 /*-----------------------------------------------------------------------------------------------------------------
 -- Fermeture du dossier en cours ----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
@@ -8058,6 +8097,7 @@ bool Rufus::FermeDossier(Patient *patient)
     }
     else a = false;            // Annuler et revenir au dossier
     if (a) {
+        SupprimeActesVides(patient);
         Datas::I()->patients        ->setcurrentpatient(nullptr);
         Datas::I()->actes           ->setcurrentacte(nullptr);
         Datas::I()->docsexternes    ->reset();

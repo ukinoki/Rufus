@@ -379,6 +379,7 @@ private:
     void                ExporteActe(Acte *act);
     void                FermeDlgActesPrecedentsEtDocsExternes();
     bool                FermeDossier(Patient *pat);
+    void                SupprimeActesVides(Patient *pat);       /*!< supprime les actes gratuits sans aucun contenu à la fermeture du dossier */
     Patient*            getPatientFromRow(int row);                         //!> retrouve le patient correspondant à la rangée row
     Patient*            getPatientFromSelectionInTable();                   //!> retrouve le patient sélectionné dans la liste des patients
     Patient*            getPatientFromCursorPositionInTable();              //!> retrouve le patient sous le curseur de la souris dans la liste des patients
