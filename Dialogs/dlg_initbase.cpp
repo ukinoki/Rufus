@@ -172,7 +172,8 @@ QString dlg_initbase::TexteAide()
          + tr("<b>Utilisateur</b><br>")
          + tr("Un utilisateur factice, <i>Docteur Snow</i>, est systématiquement créé : Rufus ne peut pas "
               "démarrer sans au moins un soignant enregistré. C'est pourquoi la case est cochée et "
-              "verrouillée. Dès la première ouverture, allez dans Edition/Paramètres pour le renommer à "
+              "verrouillée. Dès la première ouverture, vous pourrez modifier ou supprimer cet utilisateur."
+              " Allez dans Edition/Paramètres pour le renommer à "
               "votre nom, ou créez votre propre compte et supprimez celui-ci.");
 }
 
