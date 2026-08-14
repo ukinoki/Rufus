@@ -8024,7 +8024,7 @@ bool Rufus::EnregistreRecetteReduite(Acte *act)
     db->SupprRecordFromTable(act->id(), CP_IDACTE_LIGNEPAIEMENT, TBL_LIGNESPAIEMENTS);
     db->SupprRecordFromTable(act->id(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
 
-    if (act->montant() == 0.0)
+    if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")
     {
         UpMessageBox msgbox(this);
         msgbox.setText(tr("Vous avez entré un montant nul !"));
