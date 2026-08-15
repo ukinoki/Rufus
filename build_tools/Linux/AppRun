@@ -300,6 +300,13 @@ definir_textes() {
     MSG_DONE_TEXT="Rufus a été correctement installé sur ce poste et dans les menus,\net le système a été configuré pour qu'il puisse fonctionner.\n\nQue souhaitez-vous faire ?"
     MSG_ACT_DESKTOP="Créer un raccourci sur le bureau"
     MSG_ACT_RUN="Exécuter Rufus maintenant"
+    MSG_REPL_TITLE="Remplacer la version installée ?"
+    MSG_REPL_BODY="Rufus est déjà installé sur ce poste, dans une autre version.\n\nVoulez-vous remplacer l'installation du poste par celle-ci ?\n\nSi vous refusez, cette copie s'exécutera sans rien changer à l'installation en place."
+    MSG_REPL_OK="Remplacer"
+    MSG_REPL_CANCEL="Ne pas remplacer"
+    MSG_REPL_DONE_TITLE="Rufus est à jour"
+    MSG_REPL_DONE_BODY="L'installation du poste a été remplacée par cette version.\nLe raccourci du menu lance désormais celle-ci.\n\nVoulez-vous exécuter Rufus maintenant ?"
+    MSG_REPL_LATER="Plus tard"
     MSG_FONTS_TITLE="Une police va finir de s'installer"
     MSG_FONTS_BODY="Tout est prêt. Un dernier paquet de polices (polices Microsoft, utilisées par certains documents) n'a pas pu se télécharger entièrement à l'instant. Il finira de s'installer tout seul, en arrière-plan, dès que la connexion le permettra (en général dans les minutes qui suivent).\n\nCe n'est pas grave : votre premier lancement de Rufus peut afficher temporairement des polices de remplacement. Tout rentrera dans l'ordre automatiquement, sans aucune action de votre part."
 
@@ -332,6 +339,13 @@ definir_textes() {
         MSG_DONE_TEXT="Rufus has been correctly installed on this computer and in the menus,\nand the system has been configured so that it can run.\n\nWhat would you like to do?"
         MSG_ACT_DESKTOP="Create a desktop shortcut"
         MSG_ACT_RUN="Run Rufus now"
+        MSG_REPL_TITLE="Replace the installed version?"
+        MSG_REPL_BODY="Rufus is already installed on this computer, in another version.\n\nDo you want to replace the installed version with this one?\n\nIf you decline, this copy will simply run, leaving the existing installation untouched."
+        MSG_REPL_OK="Replace"
+        MSG_REPL_CANCEL="Do not replace"
+        MSG_REPL_DONE_TITLE="Rufus is up to date"
+        MSG_REPL_DONE_BODY="The installed version has been replaced with this one.\nThe menu shortcut now starts this version.\n\nDo you want to run Rufus now?"
+        MSG_REPL_LATER="Later"
         MSG_FONTS_TITLE="A font pack will finish installing"
         MSG_FONTS_BODY="Everything is ready. One last font pack (Microsoft fonts, used by some documents) could not finish downloading just now. It will finish installing on its own, in the background, as soon as the connection allows (usually within a few minutes).\n\nThis is harmless: your first launch of Rufus may briefly show substitute fonts. Everything will sort itself out automatically, with nothing for you to do."
         ;;
@@ -363,6 +377,13 @@ definir_textes() {
         MSG_DONE_TEXT="Rufus se ha instalado correctamente en este equipo y en los menús,\ny el sistema se ha configurado para que pueda funcionar.\n\n¿Qué desea hacer?"
         MSG_ACT_DESKTOP="Crear un acceso directo en el escritorio"
         MSG_ACT_RUN="Ejecutar Rufus ahora"
+        MSG_REPL_TITLE="¿Reemplazar la versión instalada?"
+        MSG_REPL_BODY="Rufus ya está instalado en este equipo, en otra versión.\n\n¿Desea reemplazar la instalación del equipo por esta?\n\nSi no acepta, esta copia se ejecutará sin modificar la instalación existente."
+        MSG_REPL_OK="Reemplazar"
+        MSG_REPL_CANCEL="No reemplazar"
+        MSG_REPL_DONE_TITLE="Rufus está actualizado"
+        MSG_REPL_DONE_BODY="La instalación del equipo se ha reemplazado por esta versión.\nEl acceso directo del menú inicia ahora esta versión.\n\n¿Desea ejecutar Rufus ahora?"
+        MSG_REPL_LATER="Más tarde"
         MSG_FONTS_TITLE="Una tipografía terminará de instalarse"
         MSG_FONTS_BODY="Todo está listo. Un último paquete de tipografías (tipografías de Microsoft, usadas por algunos documentos) no pudo descargarse por completo en este momento. Terminará de instalarse solo, en segundo plano, en cuanto la conexión lo permita (normalmente en unos minutos).\n\nNo es grave: su primer inicio de Rufus puede mostrar temporalmente tipografías de sustitución. Todo se resolverá automáticamente, sin que usted tenga que hacer nada."
         ;;
@@ -394,6 +415,13 @@ definir_textes() {
         MSG_DONE_TEXT="O Rufus foi corretamente instalado neste computador e nos menus,\ne o sistema foi configurado para que possa funcionar.\n\nO que deseja fazer?"
         MSG_ACT_DESKTOP="Criar um atalho no ambiente de trabalho"
         MSG_ACT_RUN="Executar o Rufus agora"
+        MSG_REPL_TITLE="Substituir a versão instalada?"
+        MSG_REPL_BODY="O Rufus já está instalado neste computador, noutra versão.\n\nDeseja substituir a instalação do computador por esta?\n\nSe recusar, esta cópia será executada sem alterar a instalação existente."
+        MSG_REPL_OK="Substituir"
+        MSG_REPL_CANCEL="Não substituir"
+        MSG_REPL_DONE_TITLE="O Rufus está atualizado"
+        MSG_REPL_DONE_BODY="A instalação do computador foi substituída por esta versão.\nO atalho do menu inicia agora esta versão.\n\nDeseja executar o Rufus agora?"
+        MSG_REPL_LATER="Mais tarde"
         MSG_FONTS_TITLE="Um tipo de letra vai terminar de instalar"
         MSG_FONTS_BODY="Está tudo pronto. Um último pacote de tipos de letra (tipos de letra da Microsoft, usados por alguns documentos) não conseguiu descarregar por completo neste momento. Irá terminar a instalação sozinho, em segundo plano, assim que a ligação o permitir (normalmente dentro de alguns minutos).\n\nNão é grave: o seu primeiro arranque do Rufus pode mostrar temporariamente tipos de letra de substituição. Tudo se resolverá automaticamente, sem nada que tenha de fazer."
         ;;
@@ -670,11 +698,19 @@ if ! composants_systeme_presents; then
     configurer_systeme || true     # best-effort : on lance Rufus même si l'install échoue/est refusée
 fi
 
-# MISE À JOUR : on démarre une AppImage AUTRE que celle du poste. La séquence d'installation
-# étant sautée dès que le .desktop existe, ~/.local/bin garderait sinon l'ANCIENNE version et
-# le menu la relancerait indéfiniment.
-if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ]; then
+# MISE À JOUR : on démarre une AppImage AUTRE que celle du poste. Remplacer sans rien dire
+# laisserait croire qu'on a simplement lancé sa copie téléchargée : on demande d'abord, et on
+# ne lance ensuite que si l'utilisateur le demande. Refus -> on lance la copie téléchargée.
+if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ] && command -v zenity >/dev/null 2>&1; then
     definir_textes
-    inscrire_dans_menus_avec_animation
+    activer_centrage_fenetres
+    if zenity --question --no-wrap --title="${MSG_REPL_TITLE}" --text="${MSG_REPL_BODY}" \
+              --ok-label="${MSG_REPL_OK}" --cancel-label="${MSG_REPL_CANCEL}" 2>/dev/null; then
+        inscrire_dans_menus_avec_animation
+        zenity --question --no-wrap --title="${MSG_REPL_DONE_TITLE}" --text="${MSG_REPL_DONE_BODY}" \
+               --ok-label="${MSG_ACT_RUN}" --cancel-label="${MSG_REPL_LATER}" 2>/dev/null \
+            || { restaurer_centrage_fenetres; exit 0; }
+    fi
+    restaurer_centrage_fenetres
 fi
 lancer_rufus "$@"
