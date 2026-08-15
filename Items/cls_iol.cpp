@@ -92,7 +92,6 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_HOLL1O_IOLS, m_holladay1_optimized);
     setDataDouble(data, CP_HOFFERQO_IOLS, m_hofferq_optimized);
     QImage img = m_nullimage;
-    bool decode = false;
     if (m_arrayimgiol.size())
     {
         if (m_imageformat == PDF)
@@ -100,20 +99,11 @@ void IOL::setData(QJsonObject data)
             QList<QImage> listimg = Utils::calcImagefromPdf(m_arrayimgiol);
             if (listimg.size() > 0)
                 if (listimg.at(0) != QImage())
-                {
                     img = listimg.at(0);
-                    decode = true;
-                }
         }
         else if (!img.loadFromData(m_arrayimgiol))
             img = m_nullimage;
-        else
-            decode = true;
     }
-    static int ntraceimg = 0;                       /*! trace temporaire : image générique sous Linux/Windows */
-    if (ntraceimg++ < 15)
-        qDebug() << "IMGIOL" << m_modele << m_imageformat << m_arrayimgiol.size()
-                 << m_arrayimgiol.left(4).toHex() << (decode? "OK" : "GENERIQUE");
     m_currentimage = img;
     m_data = data;
 }
