@@ -131,32 +131,18 @@ socle_mysql_ok() {
     # e = 1 : MySQL local présent mais trop ancien (ou MariaDB) → avertissement + consentement.
     command -v zenity >/dev/null 2>&1 || { ecrit_certif "MySQL ancien/MariaDB mais zenity absent : laissé passer"; return 0; }
 
-    # Détail adapté à la situation réelle : MariaDB (incompatible) vs MySQL trop ancien (avec sa version).
+    # Détail adapté à la situation réelle : MariaDB (incompatible) vs MySQL trop ancien.
     local detail
     if [ "${MYSQL_IS_MARIA}" = "1" ]; then
-        detail="Ce poste héberge un serveur MariaDB incompatible avec cette version de Rufus"
+        detail="${MSG_MYSQL_MARIA}"
     else
-        detail="Ce poste héberge bien un serveur MySQL mais sa version est ${MYSQL_VER:-inconnue}, trop ancienne pour exécuter cette version de Rufus"
-    fi
-
-    # Centrer la fenêtre : zenity n'a pas d'option de position. On active BRIÈVEMENT le réglage
-    # GNOME center-new-windows (restauré juste après). No-op hors GNOME/mutter. (Cette fenêtre
-    # s'affiche AVANT la séquence d'install, donc avant activer_centrage_fenetres global.)
-    local c_old c_mod=0
-    if command -v gsettings >/dev/null 2>&1; then
-        c_old="$(gsettings get org.gnome.mutter center-new-windows 2>/dev/null)"
-        if [ -n "${c_old}" ] && [ "${c_old}" != "true" ]; then
-            gsettings set org.gnome.mutter center-new-windows true 2>/dev/null && c_mod=1
-        fi
+        detail="${MSG_MYSQL_OLD//%VER%/${MYSQL_VER}}"
     fi
 
     local reponse=0
-    zenity --question --no-wrap --title="Serveur MySQL à mettre à jour" \
-        --text="<b>IMPORTANT</b>\n\nRufus stocke les données de vos patients dans une base de données gérée par le serveur MySQL, que Rufus installe lui-même à son premier lancement.\n\n<b>Si vous ne comptez pas héberger la base patients sur ce poste, ignorez ce message.</b>\n\nCette version de Rufus nécessite un serveur MySQL dont la version est postérieure à 8.0.14.\n\n${detail}.\n\nAu premier lancement, Rufus proposera de mettre à jour le serveur. Cette mise à jour efface les données et nécessite donc une sauvegarde :\n  •  base patients Rufus → Rufus pourra la sauvegarder puis la restaurer automatiquement ;\n  •  autres données → sauvegardez-les vous-même, sinon elles seront définitivement perdues.\n\nVoulez-vous continuer à installer Rufus ?" \
-        --ok-label="Continuer" --cancel-label="Annuler" 2>/dev/null || reponse=1
-
-    # Restaurer le réglage de centrage AVANT de rendre la main (quel que soit le choix).
-    [ "${c_mod}" = 1 ] && gsettings set org.gnome.mutter center-new-windows "${c_old}" 2>/dev/null
+    zenity --question --no-wrap --title="${MSG_MYSQL_TITLE}" \
+        --text="${MSG_MYSQL_BODY//%DETAIL%/${detail}}" \
+        --ok-label="${MSG_MYSQL_OK}" --cancel-label="${MSG_CFG_CANCEL}" 2>/dev/null || reponse=1
 
     if [ "${reponse}" = 0 ]; then
         ecrit_certif "Avertissement MySQL ancien/MariaDB accepté : poursuite"
@@ -165,13 +151,6 @@ socle_mysql_ok() {
     ecrit_certif "Avertissement MySQL ancien/MariaDB : installation annulée par l'utilisateur"
     return 1
 }
-
-# On contrôle quand on lance une AppImage AUTRE que celle déjà installée (= installation
-# neuve OU nouvelle version qu'on démarre). Lancement normal depuis le menu (AppImage
-# installée) → pas de contrôle, pas de question.
-if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ]; then
-    socle_mysql_ok || exit 1
-fi
 
 # Liste UNIQUE des paquets requis (référencée par la détection de présence, le bloc
 # pkexec et le message d'installation manuelle — un seul endroit à maintenir).
@@ -304,6 +283,11 @@ definir_textes() {
     MSG_DONE_TITLE="Rufus est installé"
     MSG_DONE_TEXT="Rufus a été correctement installé sur ce poste et dans les menus,\net le système a été configuré pour qu'il puisse fonctionner.\n\nQue souhaitez-vous faire ?"
     MSG_ACT_DESKTOP="Créer un raccourci sur le bureau"
+    MSG_MYSQL_TITLE="Serveur MySQL à mettre à jour"
+    MSG_MYSQL_MARIA="Ce poste héberge un serveur MariaDB incompatible avec cette version de Rufus"
+    MSG_MYSQL_OLD="Ce poste héberge bien un serveur MySQL mais sa version est %VER%, trop ancienne pour exécuter cette version de Rufus"
+    MSG_MYSQL_OK="Continuer"
+    MSG_MYSQL_BODY="<b>IMPORTANT</b>\n\nRufus stocke les données de vos patients dans une base de données gérée par le serveur MySQL, que Rufus installe lui-même à son premier lancement.\n\n<b>Si vous ne comptez pas héberger la base patients sur ce poste, ignorez ce message.</b>\n\nCette version de Rufus nécessite un serveur MySQL dont la version est postérieure à 8.0.14.\n\n%DETAIL%.\n\nAu premier lancement, Rufus proposera de mettre à jour le serveur. Cette mise à jour efface les données et nécessite donc une sauvegarde :\n  •  base patients Rufus → Rufus pourra la sauvegarder puis la restaurer automatiquement ;\n  •  autres données → sauvegardez-les vous-même, sinon elles seront définitivement perdues.\n\nVoulez-vous continuer à installer Rufus ?"
     MSG_ACT_RUN="Exécuter Rufus maintenant"
     MSG_REPL_TITLE="Remplacer la version installée ?"
     MSG_REPL_BODY="Rufus est déjà installé sur ce poste, dans une autre version.\n\nVoulez-vous remplacer l'installation du poste par celle-ci ?\n\nSi vous refusez, cette copie s'exécutera sans rien changer à l'installation en place."
@@ -343,6 +327,11 @@ definir_textes() {
         MSG_DONE_TITLE="Rufus is installed"
         MSG_DONE_TEXT="Rufus has been correctly installed on this computer and in the menus,\nand the system has been configured so that it can run.\n\nWhat would you like to do?"
         MSG_ACT_DESKTOP="Create a desktop shortcut"
+        MSG_MYSQL_TITLE="MySQL server needs updating"
+        MSG_MYSQL_MARIA="This computer hosts a MariaDB server, which is not compatible with this version of Rufus"
+        MSG_MYSQL_OLD="This computer does host a MySQL server, but its version is %VER%, too old to run this version of Rufus"
+        MSG_MYSQL_OK="Continue"
+        MSG_MYSQL_BODY="<b>IMPORTANT</b>\n\nRufus stores your patient data in a database managed by the MySQL server, which Rufus installs itself on first launch.\n\n<b>If you do not intend to host the patient database on this computer, ignore this message.</b>\n\nThis version of Rufus requires a MySQL server later than 8.0.14.\n\n%DETAIL%.\n\nOn first launch, Rufus will offer to update the server. This update erases the data and therefore requires a backup:\n  •  Rufus patient database → Rufus can back it up and restore it automatically;\n  •  other data → back it up yourself, otherwise it will be lost for good.\n\nDo you want to continue installing Rufus?"
         MSG_ACT_RUN="Run Rufus now"
         MSG_REPL_TITLE="Replace the installed version?"
         MSG_REPL_BODY="Rufus is already installed on this computer, in another version.\n\nDo you want to replace the installed version with this one?\n\nIf you decline, this copy will simply run, leaving the existing installation untouched."
@@ -381,6 +370,11 @@ definir_textes() {
         MSG_DONE_TITLE="Rufus está instalado"
         MSG_DONE_TEXT="Rufus se ha instalado correctamente en este equipo y en los menús,\ny el sistema se ha configurado para que pueda funcionar.\n\n¿Qué desea hacer?"
         MSG_ACT_DESKTOP="Crear un acceso directo en el escritorio"
+        MSG_MYSQL_TITLE="Servidor MySQL que actualizar"
+        MSG_MYSQL_MARIA="Este equipo aloja un servidor MariaDB incompatible con esta versión de Rufus"
+        MSG_MYSQL_OLD="Este equipo sí aloja un servidor MySQL, pero su versión es %VER%, demasiado antigua para ejecutar esta versión de Rufus"
+        MSG_MYSQL_OK="Continuar"
+        MSG_MYSQL_BODY="<b>IMPORTANTE</b>\n\nRufus almacena los datos de sus pacientes en una base de datos gestionada por el servidor MySQL, que Rufus instala por sí mismo en el primer inicio.\n\n<b>Si no piensa alojar la base de pacientes en este equipo, ignore este mensaje.</b>\n\nEsta versión de Rufus necesita un servidor MySQL posterior a 8.0.14.\n\n%DETAIL%.\n\nEn el primer inicio, Rufus propondrá actualizar el servidor. Esta actualización borra los datos y exige por tanto una copia de seguridad:\n  •  base de pacientes Rufus → Rufus podrá guardarla y restaurarla automáticamente;\n  •  otros datos → guárdelos usted mismo, de lo contrario se perderán definitivamente.\n\n¿Desea continuar con la instalación de Rufus?"
         MSG_ACT_RUN="Ejecutar Rufus ahora"
         MSG_REPL_TITLE="¿Reemplazar la versión instalada?"
         MSG_REPL_BODY="Rufus ya está instalado en este equipo, en otra versión.\n\n¿Desea reemplazar la instalación del equipo por esta?\n\nSi no acepta, esta copia se ejecutará sin modificar la instalación existente."
@@ -419,6 +413,11 @@ definir_textes() {
         MSG_DONE_TITLE="O Rufus está instalado"
         MSG_DONE_TEXT="O Rufus foi corretamente instalado neste computador e nos menus,\ne o sistema foi configurado para que possa funcionar.\n\nO que deseja fazer?"
         MSG_ACT_DESKTOP="Criar um atalho no ambiente de trabalho"
+        MSG_MYSQL_TITLE="Servidor MySQL a atualizar"
+        MSG_MYSQL_MARIA="Este computador aloja um servidor MariaDB incompatível com esta versão do Rufus"
+        MSG_MYSQL_OLD="Este computador aloja de facto um servidor MySQL, mas a sua versão é %VER%, demasiado antiga para executar esta versão do Rufus"
+        MSG_MYSQL_OK="Continuar"
+        MSG_MYSQL_BODY="<b>IMPORTANTE</b>\n\nO Rufus guarda os dados dos seus doentes numa base de dados gerida pelo servidor MySQL, que o Rufus instala por si próprio no primeiro arranque.\n\n<b>Se não tenciona alojar a base de doentes neste computador, ignore esta mensagem.</b>\n\nEsta versão do Rufus necessita de um servidor MySQL posterior a 8.0.14.\n\n%DETAIL%.\n\nNo primeiro arranque, o Rufus proporá atualizar o servidor. Esta atualização apaga os dados e exige portanto uma cópia de segurança:\n  •  base de doentes Rufus → o Rufus poderá guardá-la e restaurá-la automaticamente;\n  •  outros dados → guarde-os você mesmo, caso contrário serão definitivamente perdidos.\n\nDeseja continuar a instalação do Rufus?"
         MSG_ACT_RUN="Executar o Rufus agora"
         MSG_REPL_TITLE="Substituir a versão instalada?"
         MSG_REPL_BODY="O Rufus já está instalado neste computador, noutra versão.\n\nDeseja substituir a instalação do computador por esta?\n\nSe recusar, esta cópia será executada sem alterar a instalação existente."
@@ -457,6 +456,11 @@ definir_textes() {
         MSG_DONE_TITLE="Rufus è installato"
         MSG_DONE_TEXT="Rufus è stato installato correttamente su questo computer e nei menu,\ne il sistema è stato configurato perché possa funzionare.\n\nChe cosa desiderate fare?"
         MSG_ACT_DESKTOP="Creare un collegamento sul desktop"
+        MSG_MYSQL_TITLE="Server MySQL da aggiornare"
+        MSG_MYSQL_MARIA="Questo computer ospita un server MariaDB incompatibile con questa versione di Rufus"
+        MSG_MYSQL_OLD="Questo computer ospita effettivamente un server MySQL, ma la sua versione è %VER%, troppo vecchia per eseguire questa versione di Rufus"
+        MSG_MYSQL_OK="Continuare"
+        MSG_MYSQL_BODY="<b>IMPORTANTE</b>\n\nRufus memorizza i dati dei vostri pazienti in una banca dati gestita dal server MySQL, che Rufus installa da sé al primo avvio.\n\n<b>Se non intendete ospitare la banca dati dei pazienti su questo computer, ignorate questo messaggio.</b>\n\nQuesta versione di Rufus richiede un server MySQL successivo alla 8.0.14.\n\n%DETAIL%.\n\nAl primo avvio, Rufus proporrà di aggiornare il server. Questo aggiornamento cancella i dati e richiede quindi un backup:\n  •  banca dati pazienti Rufus → Rufus potrà salvarla e ripristinarla automaticamente;\n  •  altri dati → salvateli voi stessi, altrimenti andranno perduti definitivamente.\n\nVolete continuare a installare Rufus?"
         MSG_ACT_RUN="Eseguire Rufus ora"
         MSG_REPL_TITLE="Sostituire la versione installata?"
         MSG_REPL_BODY="Rufus è già installato su questo computer, in un'altra versione.\n\nVolete sostituire l'installazione del computer con questa?\n\nSe rifiutate, questa copia verrà eseguita senza modificare l'installazione esistente."
@@ -495,6 +499,11 @@ definir_textes() {
         MSG_DONE_TITLE="Rufus este instalat"
         MSG_DONE_TEXT="Rufus a fost instalat corect pe acest calculator și în meniuri,\niar sistemul a fost configurat pentru ca el să poată funcționa.\n\nCe doriți să faceți?"
         MSG_ACT_DESKTOP="Creează o scurtătură pe birou"
+        MSG_MYSQL_TITLE="Server MySQL de actualizat"
+        MSG_MYSQL_MARIA="Acest calculator găzduiește un server MariaDB incompatibil cu această versiune de Rufus"
+        MSG_MYSQL_OLD="Acest calculator găzduiește într-adevăr un server MySQL, dar versiunea lui este %VER%, prea veche pentru a rula această versiune de Rufus"
+        MSG_MYSQL_OK="Continuă"
+        MSG_MYSQL_BODY="<b>IMPORTANT</b>\n\nRufus stochează datele pacienților dumneavoastră într-o bază de date gestionată de serverul MySQL, pe care Rufus îl instalează el însuși la prima pornire.\n\n<b>Dacă nu intenționați să găzduiți baza de pacienți pe acest calculator, ignorați acest mesaj.</b>\n\nAceastă versiune de Rufus necesită un server MySQL ulterior versiunii 8.0.14.\n\n%DETAIL%.\n\nLa prima pornire, Rufus va propune actualizarea serverului. Această actualizare șterge datele și necesită deci o copie de siguranță:\n  •  baza de pacienți Rufus → Rufus o va putea salva și restaura automat;\n  •  alte date → salvați-le dumneavoastră, altfel vor fi pierdute definitiv.\n\nDoriți să continuați instalarea Rufus?"
         MSG_ACT_RUN="Execută Rufus acum"
         MSG_REPL_TITLE="Înlocuiți versiunea instalată?"
         MSG_REPL_BODY="Rufus este deja instalat pe acest calculator, într-o altă versiune.\n\nDoriți să înlocuiți instalarea calculatorului cu aceasta?\n\nDacă refuzați, această copie se va executa fără a modifica instalarea existentă."
@@ -755,6 +764,8 @@ if integration_proposee; then
     # 0 bis. 1re fenêtre : choix de la langue, puis chargement des textes correspondants.
     choisir_langue_install
     definir_textes
+    # 0 ter. MySQL local trop ancien / MariaDB : avertir et demander l'accord avant d'installer.
+    socle_mysql_ok || { restaurer_centrage_fenetres; exit 1; }
     # 1. Configurer le système. Si ça échoue réellement, on s'arrête là (rien d'inscrit).
     configurer_systeme || { restaurer_centrage_fenetres; exit 1; }
     # 2. Inscrire Rufus dans les menus (sous animation, pour ne pas laisser l'écran vide).
@@ -785,6 +796,7 @@ fi
 if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ] && command -v zenity >/dev/null 2>&1; then
     definir_textes
     activer_centrage_fenetres
+    socle_mysql_ok || { restaurer_centrage_fenetres; exit 1; }
     if zenity --question --no-wrap --title="${MSG_REPL_TITLE}" --text="${MSG_REPL_BODY}" \
               --ok-label="${MSG_REPL_OK}" --cancel-label="${MSG_REPL_CANCEL}" 2>/dev/null; then
         inscrire_dans_menus_avec_animation
