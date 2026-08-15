@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QAbstractSpinBox>
+#include <QImageReader>
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     #include "singleapplication.h"
@@ -102,6 +103,8 @@ int main(int argc, char *argv[])
 #else
     QApplication app(argc, argv);
 #endif
+
+    qDebug() << "formats image lisibles" << QImageReader::supportedImageFormats();   /*! trace temporaire */
 
     //! Pavé numérique : la touche décimale envoie le séparateur décimal local (cf. classe ci-dessus).
     app.installEventFilter(new FiltreSeparateurDecimal(&app));
