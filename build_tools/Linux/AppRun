@@ -531,7 +531,7 @@ Name=${APPNAME}
 Exec=${cible}
 Icon=rufus
 Comment=Logiciel de gestion de cabinet d'Ophtalmologie
-Categories=Office;MedicalSoftware;
+Categories=Office;
 Terminal=false
 EOF
     chmod +x "${DESKTOP}"
