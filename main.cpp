@@ -23,6 +23,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QAbstractSpinBox>
+#include <QTimer>
+#include <QElapsedTimer>
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     #include "singleapplication.h"
@@ -130,6 +132,17 @@ int main(int argc, char *argv[])
     Utils::Pause(3000);
     splash->close();
     delete splash;
+
+    /*! trace temporaire : signale les blocages de la boucle d'événements */
+    QTimer chiendegarde;
+    QElapsedTimer depuisdernierbattement;
+    depuisdernierbattement.start();
+    QObject::connect(&chiendegarde, &QTimer::timeout, [&depuisdernierbattement]{
+        const qint64 ecart = depuisdernierbattement.restart();
+        if (ecart > 1000)
+            qDebug() << "BOUCLE BLOQUEE" << ecart << "ms";
+    });
+    chiendegarde.start(200);
 
      Rufus w;
     w.setApp(&app, &translator); // For dynamic translations
