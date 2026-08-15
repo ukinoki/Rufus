@@ -815,16 +815,16 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase, QString loginSQL, Q
     QString host = "";
     if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal)
         host = " -h " + DataBase::I()->dbase().hostName();
-    scriptbackup += executabledump + host + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_RUFUS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_RUFUS ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --hex-blob --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_RUFUS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_RUFUS ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + host + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --hex-blob --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + host + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --hex-blob --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + host + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --hex-blob --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
     scriptbackup += CRLF;
     // Sauvegarde de la table des utilisateurs
-    scriptbackup += executabledump + " --force --opt --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
+    scriptbackup += executabledump + " --force --opt --hex-blob --user=\"" + loginSQL + "\" -p\"" + mdpSQL + "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
     scriptbackup += CRLF;
 
     if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
