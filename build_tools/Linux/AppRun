@@ -242,30 +242,35 @@ choisir_langue_install() {
             EN)    pref=en ;;
             ES)    pref=es ;;
             PT|BR) pref=pt ;;   # br -> pt (comme les preinstallers macOS/Windows)
+            IT)    pref=it ;;
+            RO)    pref=ro ;;
             FR)    pref=fr ;;
         esac
     fi
     # 2) à défaut, la locale du système.
     [ -z "${pref}" ] && case "${LANG%%_*}" in
-        en) pref=en ;; es) pref=es ;; pt) pref=pt ;; *) pref=fr ;;
+        en) pref=en ;; es) pref=es ;; pt) pref=pt ;; it) pref=it ;; ro) pref=ro ;; *) pref=fr ;;
     esac
 
-    local fr=FALSE en=FALSE es=FALSE pt=FALSE
+    local fr=FALSE en=FALSE es=FALSE pt=FALSE it=FALSE ro=FALSE
     case "${pref}" in
-        en) en=TRUE ;; es) es=TRUE ;; pt) pt=TRUE ;; *) fr=TRUE ;;
+        en) en=TRUE ;; es) es=TRUE ;; pt) pt=TRUE ;; it) it=TRUE ;; ro) ro=TRUE ;; *) fr=TRUE ;;
     esac
     local choix
-    # Hauteur imposée : sous 24.04 la liste n'affiche que 2 langues sur 4, sans rien qui le signale.
+    # Hauteur imposée : sous 24.04 la liste tronque les langues sans rien qui le signale.
     choix="$(zenity --list --radiolist --hide-header --title="Rufus — langue / language" \
-        --height=300 \
+        --height=380 \
         --text="Choisissez la langue de l'installation / Choose the installation language:" \
         --column="" --column="Langue" \
         "${fr}" "Français" "${en}" "English" "${es}" "Español" "${pt}" "Português" \
+        "${it}" "Italiano" "${ro}" "Română" \
         2>/dev/null)"
     case "${choix}" in
         English)    LANG_INSTALL="en" ;;
         Español)    LANG_INSTALL="es" ;;
         Português)  LANG_INSTALL="pt" ;;
+        Italiano)   LANG_INSTALL="it" ;;
+        Română)     LANG_INSTALL="ro" ;;
         *)          LANG_INSTALL="fr" ;;   # Français, ou fenêtre fermée
     esac
 }
@@ -424,6 +429,82 @@ definir_textes() {
         MSG_REPL_LATER="Mais tarde"
         MSG_FONTS_TITLE="Um tipo de letra vai terminar de instalar"
         MSG_FONTS_BODY="Está tudo pronto. Um último pacote de tipos de letra (tipos de letra da Microsoft, usados por alguns documentos) não conseguiu descarregar por completo neste momento. Irá terminar a instalação sozinho, em segundo plano, assim que a ligação o permitir (normalmente dentro de alguns minutos).\n\nNão é grave: o seu primeiro arranque do Rufus pode mostrar temporariamente tipos de letra de substituição. Tudo se resolverá automaticamente, sem nada que tenha de fazer."
+        ;;
+    it)
+        MSG_CFG_TITLE="Configurare Rufus su questo computer"
+        MSG_CFG_BODY="Rufus installerà alcuni componenti di sistema necessari:\n  •  caratteri (visualizzazione e stampa dei documenti)\n  •  riproduzione dei video (GStreamer)\n  •  client MySQL (backup / ripristino)\n  •  accesso agli apparecchi di misura su porta seriale\n\nVi verrà chiesta la password di amministratore."
+        MSG_CFG_OK="Installa ora"
+        MSG_CFG_CANCEL="Annulla"
+        MSG_MAJ_TITLE="Aggiornamento di Rufus"
+        MSG_MAJ_BODY="Manca un componente di sistema e verrà installato.\n\nVi verrà chiesta la password di amministratore."
+        MSG_CANCEL_TITLE="Installazione interrotta"
+        MSG_CANCEL_BODY="La configurazione del sistema è stata annullata.\n\nRufus ha bisogno di questi componenti per funzionare:\nriavviate l'installazione quando sarete pronti."
+        MSG_PKEXEC_TITLE="Installazione manuale necessaria"
+        MSG_PKEXEC_LEAD="pkexec non è disponibile. Aprite un terminale ed eseguite:"
+        MSG_PKEXEC_TAIL="Poi riavviate Rufus."
+        MSG_PROG_TITLE="Installazione dei componenti di Rufus"
+        MSG_PROG_TEXT="Installazione dei componenti in corso…\nOccorre circa un minuto.\nÈ normale: attendete e non chiudete questa finestra."
+        MSG_ERR_TITLE="Configurazione del sistema impossibile"
+        MSG_ERR_LEAD="Non è stato possibile configurare il sistema; Rufus non è stato installato."
+        MSG_ERR_DETAILS="Dettagli tecnici:"
+        MSG_REASON_126="Autenticazione annullata (password di amministratore non fornita)."
+        MSG_REASON_127="Autenticazione rifiutata: questo account non è autorizzato a installare software (sono richiesti i diritti di amministratore/sudo)."
+        MSG_REASON_10="Impossibile accedere ai repository dei pacchetti. Verificate la connessione di rete, poi riprovate."
+        MSG_REASON_DEF="Si è verificato un errore durante l'installazione dei componenti."
+        MSG_FINAL_PROG_TITLE="Installazione di Rufus"
+        MSG_FINAL_PROG_TEXT="Completamento: registrazione di Rufus nei menu…"
+        MSG_FINAL_PROG_TEXT2="Aggiornamento dei menu e delle icone…"
+        MSG_DONE_TITLE="Rufus è installato"
+        MSG_DONE_TEXT="Rufus è stato installato correttamente su questo computer e nei menu,\ne il sistema è stato configurato perché possa funzionare.\n\nChe cosa desiderate fare?"
+        MSG_ACT_DESKTOP="Creare un collegamento sul desktop"
+        MSG_ACT_RUN="Eseguire Rufus ora"
+        MSG_REPL_TITLE="Sostituire la versione installata?"
+        MSG_REPL_BODY="Rufus è già installato su questo computer, in un'altra versione.\n\nVolete sostituire l'installazione del computer con questa?\n\nSe rifiutate, questa copia verrà eseguita senza modificare l'installazione esistente."
+        MSG_REPL_OK="Sostituire"
+        MSG_REPL_CANCEL="Non sostituire"
+        MSG_REPL_DONE_TITLE="Rufus è aggiornato"
+        MSG_REPL_DONE_BODY="L'installazione del computer è stata sostituita con questa versione.\nIl collegamento del menu avvia ora questa versione.\n\nVolete eseguire Rufus ora?"
+        MSG_REPL_LATER="Più tardi"
+        MSG_FONTS_TITLE="Un carattere finirà di installarsi"
+        MSG_FONTS_BODY="Tutto è pronto. Un ultimo pacchetto di caratteri (caratteri Microsoft, usati da alcuni documenti) non è riuscito a scaricarsi completamente in questo momento. Finirà di installarsi da solo, in secondo piano, non appena la connessione lo permetterà (di solito entro pochi minuti).\n\nNon è grave: il vostro primo avvio di Rufus può mostrare temporaneamente caratteri sostitutivi. Tutto si sistemerà automaticamente, senza alcuna azione da parte vostra."
+        ;;
+    ro)
+        MSG_CFG_TITLE="Configurarea Rufus pe acest calculator"
+        MSG_CFG_BODY="Rufus va instala câteva componente de sistem necesare:\n  •  fonturi (afișarea și tipărirea documentelor)\n  •  redarea videoclipurilor (GStreamer)\n  •  client MySQL (copie de siguranță / restaurare)\n  •  acces la aparatele de măsură pe port serial\n\nVi se va cere parola de administrator."
+        MSG_CFG_OK="Instalează acum"
+        MSG_CFG_CANCEL="Anulează"
+        MSG_MAJ_TITLE="Actualizarea Rufus"
+        MSG_MAJ_BODY="Lipsește o componentă de sistem și va fi instalată.\n\nVi se va cere parola de administrator."
+        MSG_CANCEL_TITLE="Instalare întreruptă"
+        MSG_CANCEL_BODY="Configurarea sistemului a fost anulată.\n\nRufus are nevoie de aceste componente pentru a funcționa:\nreluați instalarea când sunteți pregătit."
+        MSG_PKEXEC_TITLE="Instalare manuală necesară"
+        MSG_PKEXEC_LEAD="pkexec lipsește. Deschideți un terminal și executați:"
+        MSG_PKEXEC_TAIL="Apoi porniți din nou Rufus."
+        MSG_PROG_TITLE="Instalarea componentelor Rufus"
+        MSG_PROG_TEXT="Se instalează componentele…\nDurează aproximativ un minut.\nEste normal: așteptați și nu închideți această fereastră."
+        MSG_ERR_TITLE="Configurarea sistemului imposibilă"
+        MSG_ERR_LEAD="Sistemul nu a putut fi configurat; Rufus nu a fost instalat."
+        MSG_ERR_DETAILS="Detalii tehnice:"
+        MSG_REASON_126="Autentificare anulată (parola de administrator nu a fost furnizată)."
+        MSG_REASON_127="Autentificare refuzată: acest cont nu are dreptul să instaleze programe (sunt necesare drepturi de administrator/sudo)."
+        MSG_REASON_10="Nu s-a putut accesa depozitele de pachete. Verificați conexiunea la rețea, apoi reîncercați."
+        MSG_REASON_DEF="A apărut o eroare în timpul instalării componentelor."
+        MSG_FINAL_PROG_TITLE="Instalarea Rufus"
+        MSG_FINAL_PROG_TEXT="Finalizare: înscrierea Rufus în meniuri…"
+        MSG_FINAL_PROG_TEXT2="Actualizarea meniurilor și a pictogramelor…"
+        MSG_DONE_TITLE="Rufus este instalat"
+        MSG_DONE_TEXT="Rufus a fost instalat corect pe acest calculator și în meniuri,\niar sistemul a fost configurat pentru ca el să poată funcționa.\n\nCe doriți să faceți?"
+        MSG_ACT_DESKTOP="Creează o scurtătură pe birou"
+        MSG_ACT_RUN="Execută Rufus acum"
+        MSG_REPL_TITLE="Înlocuiți versiunea instalată?"
+        MSG_REPL_BODY="Rufus este deja instalat pe acest calculator, într-o altă versiune.\n\nDoriți să înlocuiți instalarea calculatorului cu aceasta?\n\nDacă refuzați, această copie se va executa fără a modifica instalarea existentă."
+        MSG_REPL_OK="Înlocuiește"
+        MSG_REPL_CANCEL="Nu înlocui"
+        MSG_REPL_DONE_TITLE="Rufus este la zi"
+        MSG_REPL_DONE_BODY="Instalarea calculatorului a fost înlocuită cu această versiune.\nScurtătura din meniu pornește de acum aceasta.\n\nDoriți să executați Rufus acum?"
+        MSG_REPL_LATER="Mai târziu"
+        MSG_FONTS_TITLE="Un font își va termina instalarea"
+        MSG_FONTS_BODY="Totul este pregătit. Un ultim pachet de fonturi (fonturi Microsoft, folosite de unele documente) nu s-a putut descărca complet acum. Își va termina instalarea singur, în fundal, de îndată ce conexiunea o va permite (de obicei în câteva minute).\n\nNu este grav: prima pornire a Rufus poate afișa temporar fonturi de înlocuire. Totul se va rezolva automat, fără nicio acțiune din partea dumneavoastră."
         ;;
     esac
 }
