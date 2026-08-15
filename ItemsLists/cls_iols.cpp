@@ -366,6 +366,12 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                     //! Vivity Toric AutonoMe d'Alcon fait 49 caractères).
                     iol.setmodele(Lensnode.text().left(100));
                 }
+                else if (Lensnode.tagName() == "Image")
+                {
+                    QImage img;
+                    if (img.loadFromData(QByteArray::fromBase64(Lensnode.text().toLatin1())))
+                        iol.setimage(img);
+                }
                 else if (Lensnode.tagName() == "Specifications")
                 {
                     for (int k=0; k<Lensnode.childNodes().size(); k++)
@@ -786,6 +792,17 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                     ItemsList::update(ioloflist, CP_HOFFERQO_IOLS,        iol.hofferQ_optimized());
 
                     ItemsList::update(ioloflist, CP_TYP_IOLS,             iol.type());
+
+                    //! l'image du XML remplace celle en base, par bind : ItemsList::update casserait le blob
+                    if (iol.arrayimgiol().size())
+                    {
+                        ioloflist->setimage(iol.image());
+                        QHash<QString, QVariant> binds;
+                        binds[CP_ARRAYIMG_IOLS] = iol.arrayimgiol();
+                        binds[CP_TYPIMG_IOLS]   = iol.imageformat();
+                        DataBase::I()->UpdateTablebyBinds(TBL_IOLS, binds, CP_ID_IOLS, ioloflist->id(),
+                                                          tr("Impossible de mettre à jour l'image de l'implant"));
+                    }
                     ++ updateiols;
                 }
             }
@@ -846,6 +863,11 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                 m_listbinds[CP_HOLL1O_IOLS]         = (iol.holladay1_optimized()>0.0?   iol.holladay1_optimized()   : QVariant());
                 m_listbinds[CP_HOFFERQO_IOLS]       = (iol.hofferQ_optimized()>0.0?     iol.hofferQ_optimized()     : QVariant());
                 m_listbinds[CP_TYP_IOLS]            = (iol.type()>0?                    iol.type()                  : QVariant());
+                if (iol.arrayimgiol().size())
+                {
+                    m_listbinds[CP_ARRAYIMG_IOLS]   = iol.arrayimgiol();
+                    m_listbinds[CP_TYPIMG_IOLS]     = iol.imageformat();
+                }
                 Datas::I()->iols->CreationIOL(m_listbinds, parent);
                 ++newiols;
             }
