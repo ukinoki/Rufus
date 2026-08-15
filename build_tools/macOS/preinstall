@@ -65,7 +65,7 @@ langue_depuis_ini() {
         }
     ' "${RUFUS_INI}" 2>/dev/null)"
     case "$v" in
-        fr|en|es|pt) echo "$v" ;;
+        fr|en|es|pt|it|ro) echo "$v" ;;
         br)          echo "pt" ;;
         *)           echo "fr" ;;
     esac
@@ -125,6 +125,40 @@ No primeiro arranque, o Rufus proporá atualizar o servidor. Esta atualização 
 Deseja continuar a instalação do Rufus?"
         C_CANCEL="Cancelar, farei isto mais tarde"
         C_OK="OK, continuar" ;;
+      it)
+        C_TITLE="Server MySQL da aggiornare"
+        C_TEXT="IMPORTANTE
+
+Rufus memorizza i dati dei vostri pazienti in una banca dati — su questo computer, su un altro computer della vostra rete o su un server remoto. Questa banca dati è gestita dal server MySQL, indispensabile a Rufus, che Rufus installa da sé al primo avvio.
+
+Se non intendete ospitare la banca dati dei pazienti su questo computer, ignorate questo messaggio.
+
+Questa versione di Rufus rafforza notevolmente la sicurezza delle password e richiede un server MySQL >= 8.0.14 (MariaDB non supportato). Ora, questo computer ospita già un server MySQL/MariaDB troppo vecchio o incompatibile.
+
+Al primo avvio, Rufus proporrà di aggiornare il server. Questo aggiornamento cancella i dati e richiede quindi un backup:
+• se la banca dati di questo computer è una banca dati pazienti Rufus, Rufus potrà salvarla e poi ripristinarla automaticamente;
+• se contiene altri dati, salvateli voi stessi, altrimenti andranno perduti definitivamente.
+
+Volete continuare a installare Rufus?"
+        C_CANCEL="Annulla, lo farò più tardi"
+        C_OK="OK, continuare" ;;
+      ro)
+        C_TITLE="Server MySQL de actualizat"
+        C_TEXT="IMPORTANT
+
+Rufus stochează datele pacienților dumneavoastră într-o bază de date — pe acest calculator, pe un alt calculator din rețeaua dumneavoastră sau pe un server la distanță. Această bază este gestionată de serverul MySQL, indispensabil pentru Rufus, pe care Rufus îl instalează el însuși la prima pornire.
+
+Dacă nu intenționați să găzduiți baza de pacienți pe acest calculator, ignorați acest mesaj.
+
+Această versiune de Rufus întărește considerabil securitatea parolelor și necesită un server MySQL >= 8.0.14 (MariaDB nu este acceptat). Or, acest calculator găzduiește deja un server MySQL/MariaDB prea vechi sau incompatibil.
+
+La prima pornire, Rufus va propune actualizarea serverului. Această actualizare șterge datele și necesită deci o copie de siguranță:
+• dacă baza acestui calculator este o bază de pacienți Rufus, Rufus o va putea salva și apoi restaura automat;
+• dacă ea conține alte date, salvați-le dumneavoastră, altfel vor fi pierdute definitiv.
+
+Doriți să continuați instalarea Rufus?"
+        C_CANCEL="Anulează, voi face asta mai târziu"
+        C_OK="OK, continuă" ;;
       *)
         C_TITLE="Serveur MySQL à mettre à jour"
         C_TEXT="IMPORTANT

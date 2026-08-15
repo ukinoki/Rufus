@@ -44,9 +44,11 @@ ArchitecturesInstallIn64BitMode=x64compatible
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "catalan"; MessagesFile: "compiler:Languages\Catalan.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
+Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
+Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
+Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
 
 [Tasks]
 ; Raccourci bureau PRÉCOCHÉ (pas de flag « unchecked ») — aligné sur la démarche d'installation.
@@ -250,7 +252,7 @@ begin
   ini := ExpandConstant('{%USERPROFILE}\Documents\Rufus\Rufus.ini');
   if not FileExists(ini) then Exit;
   v := Lowercase(Trim(GetIniString('Param_Poste', 'Version', '', ini)));
-  if (v = 'fr') or (v = 'en') or (v = 'es') or (v = 'pt') then Result := v
+  if (v = 'fr') or (v = 'en') or (v = 'es') or (v = 'pt') or (v = 'it') or (v = 'ro') then Result := v
   else if v = 'br' then Result := 'pt';
 end;
 
@@ -312,6 +314,39 @@ begin
       + 'restaurá-la automaticamente;' + #13#10
       + '  - se contiver outros dados, faça você mesmo uma cópia, caso contrário serão definitivamente perdidos.' + #13#10#13#10
       + 'Deseja continuar a instalação do Rufus?  (Sim = continuar,  Não = cancelar)';
+  end else if lang = 'it' then begin
+    titre := 'Server MySQL da aggiornare';
+    texte := 'IMPORTANTE' + #13#10#13#10
+      + 'Rufus memorizza i dati dei vostri pazienti in una banca dati - su questo computer, su un '
+      + 'altro computer della vostra rete o su un server remoto. Questa banca dati è gestita dal '
+      + 'server MySQL, indispensabile a Rufus, che Rufus installa da sé al primo avvio.' + #13#10#13#10
+      + 'Se non intendete ospitare la banca dati dei pazienti su questo computer, ignorate questo messaggio.' + #13#10#13#10
+      + 'Questa versione di Rufus rafforza notevolmente la sicurezza delle password e richiede un '
+      + 'server MySQL >= 8.0.14 (MariaDB non supportato). Ora, questo computer ospita già un server '
+      + 'MySQL/MariaDB troppo vecchio o incompatibile.' + #13#10#13#10
+      + 'Al primo avvio, Rufus proporrà di aggiornare il server. Questo aggiornamento cancella i dati '
+      + 'e richiede quindi un backup:' + #13#10
+      + '  - se la banca dati di questo computer è una banca dati pazienti Rufus, Rufus potrà salvarla '
+      + 'e poi ripristinarla automaticamente;' + #13#10
+      + '  - se contiene altri dati, salvateli voi stessi, altrimenti andranno perduti definitivamente.' + #13#10#13#10
+      + 'Volete continuare a installare Rufus?  (Sì = continuare,  No = annullare)';
+  end else if lang = 'ro' then begin
+    titre := 'Server MySQL de actualizat';
+    texte := 'IMPORTANT' + #13#10#13#10
+      + 'Rufus stochează datele pacienților dumneavoastră într-o bază de date - pe acest calculator, '
+      + 'pe un alt calculator din rețeaua dumneavoastră sau pe un server la distanță. Această bază '
+      + 'este gestionată de serverul MySQL, indispensabil pentru Rufus, pe care Rufus îl instalează '
+      + 'el însuși la prima pornire.' + #13#10#13#10
+      + 'Dacă nu intenționați să găzduiți baza de pacienți pe acest calculator, ignorați acest mesaj.' + #13#10#13#10
+      + 'Această versiune de Rufus întărește considerabil securitatea parolelor și necesită un server '
+      + 'MySQL >= 8.0.14 (MariaDB nu este acceptat). Or, acest calculator găzduiește deja un server '
+      + 'MySQL/MariaDB prea vechi sau incompatibil.' + #13#10#13#10
+      + 'La prima pornire, Rufus va propune actualizarea serverului. Această actualizare șterge '
+      + 'datele și necesită deci o copie de siguranță:' + #13#10
+      + '  - dacă baza acestui calculator este o bază de pacienți Rufus, Rufus o va putea salva și '
+      + 'apoi restaura automat;' + #13#10
+      + '  - dacă ea conține alte date, salvați-le dumneavoastră, altfel vor fi pierdute definitiv.' + #13#10#13#10
+      + 'Doriți să continuați instalarea Rufus?  (Da = continuare,  Nu = anulare)';
   end else begin
     titre := 'Serveur MySQL à mettre à jour';
     texte := 'IMPORTANT' + #13#10#13#10
