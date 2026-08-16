@@ -47,8 +47,34 @@ QT_LIBDIR="$(qmake -query QT_INSTALL_LIBS 2>/dev/null)"
 QSQLMYSQL="${QT_PLUGINS}/sqldrivers/libqsqlmysql.dylib"
 [ -f "${QSQLMYSQL}" ] || echo "   ⚠ libqsqlmysql.dylib introuvable dans Qt (${QT_PLUGINS}/sqldrivers) — pilote non compilé ?"
 
+# ── Clients mysql / mysqldump embarqués (Contents/Applications) ───────────────
+# Sauvegarde et restauration passent par ces deux binaires ; un poste client n'a pas forcément de
+# MySQL installé. Copiés AVANT macdeployqt, qui embarquera leurs dylibs : ceux de Homebrew pointent
+# vers /opt/homebrew, absent chez l'utilisateur, et le binaire mourait au lancement.
+CLIENTS_DIR="${APP_PATH}/Contents/Applications"
+MYSQL_SRC=""
+for d in /usr/local/mysql/bin /opt/homebrew/opt/mysql-client/bin /opt/homebrew/opt/mysql/bin \
+         /usr/local/opt/mysql-client/bin /usr/local/opt/mysql/bin; do
+    [ -x "${d}/mysql" ] && [ -x "${d}/mysqldump" ] && { MYSQL_SRC="${d}"; break; }
+done
+[ -n "${MYSQL_SRC}" ] || { echo "   ✗ mysql / mysqldump introuvables : sauvegarde et restauration impossibles"; exit 1; }
+
+mkdir -p "${CLIENTS_DIR}"
+cp -f "${MYSQL_SRC}/mysql" "${MYSQL_SRC}/mysqldump" "${CLIENTS_DIR}/"
+chmod u+w "${CLIENTS_DIR}/mysql" "${CLIENTS_DIR}/mysqldump"
+echo "==> clients SQL embarqués depuis ${MYSQL_SRC}"
+
 echo "==> macdeployqt sur ${APP_PATH}"
-macdeployqt "${APP_PATH}" -verbose=1
+macdeployqt "${APP_PATH}" -verbose=1 \
+    -executable="${CLIENTS_DIR}/mysql" -executable="${CLIENTS_DIR}/mysqldump"
+
+# ── Filet de sécurité : les clients ne dépendent plus de rien d'extérieur ──────
+# Une dépendance /opt/homebrew ou /usr/local restante = binaire mort sur le poste de l'utilisateur.
+for c in mysql mysqldump; do
+    reste="$(otool -L "${CLIENTS_DIR}/${c}" | awk '/\/opt\/homebrew|\/usr\/local/ {print $1}')"
+    [ -z "${reste}" ] || { echo "   ✗ ${c} dépend encore de : ${reste}"; exit 1; }
+done
+echo "   clients SQL autonomes (aucune dépendance externe)"
 
 # ── Filet de sécurité : pilote MySQL + libmariadb bien embarqués et reliés ─────
 # On ne dépend pas du bon vouloir de macdeployqt : on garantit que (1) le pilote est dans le
@@ -93,22 +119,6 @@ if [ -d "${SQLDRV_DIR}" ]; then
     find "${SQLDRV_DIR}" -name 'libqsql*.dylib' ! -name 'libqsqlmysql.dylib' -delete
     echo "==> pilotes SQL conservés : $(ls "${SQLDRV_DIR}" 2>/dev/null | tr '\n' ' ')"
 fi
-
-# ── Clients mysql / mysqldump embarqués (Contents/Applications) ───────────────
-# Sauvegarde et restauration passent par ces deux binaires ; sur un poste sans serveur MySQL local
-# ils n'existent nulle part ailleurs. Emplacement lu par Procedures::setDirSQLExecutable.
-CLIENTS_DIR="${APP_PATH}/Contents/Applications"
-MYSQL_SRC=""
-for d in /usr/local/mysql/bin /opt/homebrew/opt/mysql-client/bin /opt/homebrew/opt/mysql/bin \
-         /usr/local/opt/mysql-client/bin /usr/local/opt/mysql/bin; do
-    [ -x "${d}/mysql" ] && [ -x "${d}/mysqldump" ] && { MYSQL_SRC="${d}"; break; }
-done
-[ -n "${MYSQL_SRC}" ] || { echo "   ✗ mysql / mysqldump introuvables : sauvegarde et restauration impossibles"; exit 1; }
-
-mkdir -p "${CLIENTS_DIR}"
-cp -f "${MYSQL_SRC}/mysql" "${MYSQL_SRC}/mysqldump" "${CLIENTS_DIR}/"
-chmod u+w "${CLIENTS_DIR}/mysql" "${CLIENTS_DIR}/mysqldump"
-echo "==> clients SQL embarqués depuis ${MYSQL_SRC}"
 
 # ── Filet de sécurité : nom du bundle = « Rufus.app » → /Applications/Rufus.app ─
 # Le .pro fixe désormais TARGET = Rufus (bundle « Rufus.app »). Ce renommage ne sert donc plus
