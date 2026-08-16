@@ -737,61 +737,58 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                 if (ioloflist != nullptr)
                 {
                     //! update existant iol
-                    ItemsList::update(ioloflist, CP_MODELNAME_IOLS,       iol.modele());
-                    ItemsList::update(ioloflist, CP_IDMANUFACTURER_IOLS,  man->id());
-                    ItemsList::update(ioloflist, CP_CSTEAECHO_IOLS,       iol.csteAEcho_nominal());
-
-                    ItemsList::update(ioloflist, CP_CSTEAOPT_IOLS,        iol.csteAopt_nominal());
-                    ItemsList::update(ioloflist, CP_HAIGISA0_IOLS,        iol.haigisa0_nominal());
-                    ItemsList::update(ioloflist, CP_HAIGISA1_IOLS,        iol.haigisa1_nominal());
-                    ItemsList::update(ioloflist, CP_HAIGISA2_IOLS,        iol.haigisa2_nominal());
-                    ItemsList::update(ioloflist, CP_HOLL1_IOLS,           iol.holladay1_nominal());
-                    ItemsList::update(ioloflist, CP_HOFFERQ_IOLS,         iol.hofferQ_nominal());
-                    ItemsList::update(ioloflist, CP_BARRETTDF_IOLS,       iol.barrettDF_nominal());
-                    ItemsList::update(ioloflist, CP_BARRETTLF_IOLS,       iol.barrettLF_nominal());
-                    ItemsList::update(ioloflist, CP_OLSEN_IOLS,           iol.olsen_nominal());
-
-                    ItemsList::update(ioloflist, CP_ACD_IOLS,             iol.acd());
-                    ItemsList::update(ioloflist, CP_OPTICMATERIAU_IOLS,   iol.opticalmaterial());
-                    ItemsList::update(ioloflist, CP_HYDROFILY_IOLS,       iol.hydrofily());
-                    ItemsList::update(ioloflist, CP_HAPTICMATERIAU_IOLS,  iol.hapticalmaterial());
-                    ItemsList::update(ioloflist, CP_DIAALL_IOLS,          iol.diaall());
-                    ItemsList::update(ioloflist, CP_DIAOPT_IOLS,          iol.opticdiameter());
-                    ItemsList::update(ioloflist, CP_DIAINJECTEUR_IOLS,    iol.diainjecteur());
-                    ItemsList::update(ioloflist, CP_PRECHARGE_IOLS,       iol.ispreloaded());
-                    ItemsList::update(ioloflist, CP_MAXPWR_IOLS,          iol.pwrmax());
-                    ItemsList::update(ioloflist, CP_MINPWR_IOLS,          iol.pwrmin());
-                    ItemsList::update(ioloflist, CP_MAXCYL_IOLS,          iol.cylmax());
-                    ItemsList::update(ioloflist, CP_MINCYL_IOLS,          iol.cylmin());
-                    ItemsList::update(ioloflist, CP_ADDINTERMEDIATE_IOLS, iol.addintermediate());
-                    ItemsList::update(ioloflist, CP_ADDNEAR_IOLS,         iol.addnear());
-                    ItemsList::update(ioloflist, CP_JAUNE_IOLS,           iol.isyellow());
-                    ItemsList::update(ioloflist, CP_MULTIFOCAL_IOLS,      iol.ismultifocal());
-                    ItemsList::update(ioloflist, CP_EDOF_IOLS,            iol.isedof());
-                    ItemsList::update(ioloflist, CP_TORIC_IOLS,           iol.istoric());
-                    ItemsList::update(ioloflist, CP_SINGLEPIECE_IOLS,     iol.issinglepiece());
-
-                    ItemsList::update(ioloflist, CP_RESULTSU_IOLS,        iol.results_ulib());
-                    ItemsList::update(ioloflist, CP_CSTEAECHOU_IOLS,      iol.csteAEcho_ulib());
-                    ItemsList::update(ioloflist, CP_CSTEAOPTU_IOLS,       iol.csteAopt_ulib());
-                    ItemsList::update(ioloflist, CP_HAIGISA0U_IOLS,       iol.haigisa0_ulib());
-                    ItemsList::update(ioloflist, CP_HAIGISA1U_IOLS,       iol.haigisa1_ulib());
-                    ItemsList::update(ioloflist, CP_HAIGISA2U_IOLS,       iol.haigisa2_ulib());
-                    ItemsList::update(ioloflist, CP_HOLL1U_IOLS,          iol.holladay1_ulib());
-                    ItemsList::update(ioloflist, CP_HOFFERQU_IOLS,        iol.hofferQ_ulib());
-                    ItemsList::update(ioloflist, CP_BARRETTDFU_IOLS,      iol.barrettDF_ulib());
-                    ItemsList::update(ioloflist, CP_BARRETTLFU_IOLS,      iol.barrettLF_ulib());
-                    ItemsList::update(ioloflist, CP_OLSENU_IOLS,          iol.olsen_ulib());
-
-                    ItemsList::update(ioloflist, CP_RESULTSO_IOLS,        iol.results_optimized());
-                    ItemsList::update(ioloflist, CP_CSTEAOPTO_IOLS,       iol.csteAopt_optimized());
-                    ItemsList::update(ioloflist, CP_HAIGISA0O_IOLS,       iol.haigisa0_optimized());
-                    ItemsList::update(ioloflist, CP_HAIGISA1O_IOLS,       iol.haigisa1_optimized());
-                    ItemsList::update(ioloflist, CP_HAIGISA2O_IOLS,       iol.haigisa2_optimized());
-                    ItemsList::update(ioloflist, CP_HOLL1O_IOLS,          iol.holladay1_optimized());
-                    ItemsList::update(ioloflist, CP_HOFFERQO_IOLS,        iol.hofferQ_optimized());
-
-                    ItemsList::update(ioloflist, CP_TYP_IOLS,             iol.type());
+                    QHash<QString, QVariant> champs;
+                    champs[CP_MODELNAME_IOLS]       = iol.modele();
+                    champs[CP_IDMANUFACTURER_IOLS]  = man->id();
+                    champs[CP_CSTEAECHO_IOLS]       = iol.csteAEcho_nominal();
+                    champs[CP_CSTEAOPT_IOLS]        = iol.csteAopt_nominal();
+                    champs[CP_HAIGISA0_IOLS]        = iol.haigisa0_nominal();
+                    champs[CP_HAIGISA1_IOLS]        = iol.haigisa1_nominal();
+                    champs[CP_HAIGISA2_IOLS]        = iol.haigisa2_nominal();
+                    champs[CP_HOLL1_IOLS]           = iol.holladay1_nominal();
+                    champs[CP_HOFFERQ_IOLS]         = iol.hofferQ_nominal();
+                    champs[CP_BARRETTDF_IOLS]       = iol.barrettDF_nominal();
+                    champs[CP_BARRETTLF_IOLS]       = iol.barrettLF_nominal();
+                    champs[CP_OLSEN_IOLS]           = iol.olsen_nominal();
+                    champs[CP_ACD_IOLS]             = iol.acd();
+                    champs[CP_OPTICMATERIAU_IOLS]   = iol.opticalmaterial();
+                    champs[CP_HYDROFILY_IOLS]       = iol.hydrofily();
+                    champs[CP_HAPTICMATERIAU_IOLS]  = iol.hapticalmaterial();
+                    champs[CP_DIAALL_IOLS]          = iol.diaall();
+                    champs[CP_DIAOPT_IOLS]          = iol.opticdiameter();
+                    champs[CP_DIAINJECTEUR_IOLS]    = iol.diainjecteur();
+                    champs[CP_PRECHARGE_IOLS]       = iol.ispreloaded();
+                    champs[CP_MAXPWR_IOLS]          = iol.pwrmax();
+                    champs[CP_MINPWR_IOLS]          = iol.pwrmin();
+                    champs[CP_MAXCYL_IOLS]          = iol.cylmax();
+                    champs[CP_MINCYL_IOLS]          = iol.cylmin();
+                    champs[CP_ADDINTERMEDIATE_IOLS] = iol.addintermediate();
+                    champs[CP_ADDNEAR_IOLS]         = iol.addnear();
+                    champs[CP_JAUNE_IOLS]           = iol.isyellow();
+                    champs[CP_MULTIFOCAL_IOLS]      = iol.ismultifocal();
+                    champs[CP_EDOF_IOLS]            = iol.isedof();
+                    champs[CP_TORIC_IOLS]           = iol.istoric();
+                    champs[CP_SINGLEPIECE_IOLS]     = iol.issinglepiece();
+                    champs[CP_RESULTSU_IOLS]        = iol.results_ulib();
+                    champs[CP_CSTEAECHOU_IOLS]      = iol.csteAEcho_ulib();
+                    champs[CP_CSTEAOPTU_IOLS]       = iol.csteAopt_ulib();
+                    champs[CP_HAIGISA0U_IOLS]       = iol.haigisa0_ulib();
+                    champs[CP_HAIGISA1U_IOLS]       = iol.haigisa1_ulib();
+                    champs[CP_HAIGISA2U_IOLS]       = iol.haigisa2_ulib();
+                    champs[CP_HOLL1U_IOLS]          = iol.holladay1_ulib();
+                    champs[CP_HOFFERQU_IOLS]        = iol.hofferQ_ulib();
+                    champs[CP_BARRETTDFU_IOLS]      = iol.barrettDF_ulib();
+                    champs[CP_BARRETTLFU_IOLS]      = iol.barrettLF_ulib();
+                    champs[CP_OLSENU_IOLS]          = iol.olsen_ulib();
+                    champs[CP_RESULTSO_IOLS]        = iol.results_optimized();
+                    champs[CP_CSTEAOPTO_IOLS]       = iol.csteAopt_optimized();
+                    champs[CP_HAIGISA0O_IOLS]       = iol.haigisa0_optimized();
+                    champs[CP_HAIGISA1O_IOLS]       = iol.haigisa1_optimized();
+                    champs[CP_HAIGISA2O_IOLS]       = iol.haigisa2_optimized();
+                    champs[CP_HOLL1O_IOLS]          = iol.holladay1_optimized();
+                    champs[CP_HOFFERQO_IOLS]        = iol.hofferQ_optimized();
+                    champs[CP_TYP_IOLS]             = iol.type();
+                    ItemsList::updateFields(ioloflist, champs);
 
                     //! l'image du XML remplace celle en base, par bind : ItemsList::update casserait le blob
                     if (iol.arrayimgiol().size())
