@@ -491,6 +491,9 @@ private:
     QAction         *actionSpanish                  = nullptr;
     QAction         *actionBrazil                   = nullptr;
     QAction         *actionPortugal                 = nullptr;
+    QAction         *actionItaly                    = nullptr;
+    QAction         *actionRomania                  = nullptr;
+    QAction         *actionCatalonia                = nullptr;
     QMenu           *m_trayIconMenu                 = new QMenu();
     QSystemTrayIcon *ict_messageIcon                = new QSystemTrayIcon(this);};
 

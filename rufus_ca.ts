@@ -1327,213 +1327,213 @@ Comproveu que el compte «%2» té el privilegi FILE i que els permisos de la ca
         <translation>Privilegi(s) que falta(en) per a «%1»: %2</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2194"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2191"/>
         <source>Mise à jour du partage réseau</source>
         <translation>Actualització del recurs compartit de xarxa</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2195"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2192"/>
         <source>Cette version de Rufus doit mettre à jour le partage réseau du dossier d&apos;imagerie.</source>
         <translation>Aquesta versió de Rufus ha d&apos;actualitzar el recurs compartit de xarxa de la carpeta d&apos;imatges.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2196"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2193"/>
         <source>Vos images et vos partages actuels ne sont pas modifiés.</source>
         <translation>Les vostres imatges i els vostres recursos compartits actuals no es modifiquen.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2197"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2194"/>
         <source>Saisissez le mot de passe administrateur de l&apos;ordinateur dans la fenêtre qui suit.</source>
         <translation>Introduïu la contrasenya d&apos;administrador de l&apos;ordinador a la finestra següent.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2198"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2195"/>
         <source>Selon la taille du dossier d&apos;imagerie, l&apos;opération peut durer une à deux minutes, pendant lesquelles l&apos;écran peut sembler figé.</source>
         <translation>Segons la mida de la carpeta d&apos;imatges, l&apos;operació pot durar entre un i dos minuts, durant els quals la pantalla pot semblar bloquejada.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2206"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2203"/>
         <source>Correction de la configuration MySQL</source>
         <translation>Correcció de la configuració de MySQL</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2207"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2204"/>
         <source>Vérification et correction de la configuration en cours…</source>
         <translation>Verificació i correcció de la configuració en curs…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2222"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2214"/>
         <source>Configuration corrigée</source>
         <translation>Configuració corregida</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2223"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2215"/>
         <source>La configuration du serveur MySQL a été corrigée.</source>
         <translation>La configuració del servidor MySQL s&apos;ha corregit.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2225"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2217"/>
         <source>Correction incomplète</source>
         <translation>Correcció incompleta</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2226"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2218"/>
         <source>Certaines anomalies de configuration n&apos;ont pas pu être corrigées.</source>
         <translation>Algunes anomalies de configuració no s&apos;han pogut corregir.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2227"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2219"/>
         <source>Rufus continue ; certaines fonctions (imagerie, sauvegarde) peuvent être affectées.</source>
         <translation>Rufus continua; algunes funcions (imatges, còpia de seguretat) es poden veure afectades.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2611"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2603"/>
         <source>Mot de passe générique bientôt désactivé</source>
         <translation>Contrasenya genèrica que aviat es desactivarà</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2612"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2604"/>
         <source>Ce poste utilise un mot de passe sécurisé pour accèder au serveur de base de données.</source>
         <translation>Aquest equip utilitza una contrasenya segura per accedir al servidor de base de dades.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2613"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2605"/>
         <source>Un mot de passe générique est par ailleurs maintenu</source>
         <translation>A més, es manté una contrasenya genèrica</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2614"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2606"/>
         <source>pour des raisons de compatibilité avec les versions antérieures de Rufus</source>
         <translation>per motius de compatibilitat amb versions anteriors de Rufus</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2615"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2607"/>
         <source>Ce mot de passe générique sera automatiquement désactivé</source>
         <translation>Aquesta contrasenya genèrica es desactivarà automàticament</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2616"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2608"/>
         <source>le %1 dans %2 jours</source>
         <translation>el %1, d&apos;aquí a %2 dies</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2616"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2608"/>
         <source>dd MMMM yyyy</source>
         <translation>dd MMMM yyyy</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2617"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2609"/>
         <source>Assurez-vous d&apos;ici là que les autres postes qui ont accès à ce serveur ont bien récupéré le mot de passe sécurisé.</source>
         <translation>Mentrestant, assegureu-vos que els altres equips que accedeixen a aquest servidor hagin recuperat la contrasenya segura.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2619"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2611"/>
         <source>Ne plus afficher ce message</source>
         <translation>No tornis a mostrar aquest missatge</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2619"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2611"/>
         <source>J&apos;ai compris</source>
         <translation>Entesos</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2637"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2629"/>
         <source>prochainement</source>
         <translation>properament</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2640"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2632"/>
         <source>Ce poste utilise encore le mot de passe générique (de mise en route),</source>
         <translation>Aquest equip encara utilitza la contrasenya genèrica (de posada en marxa),</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2642"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2634"/>
         <source>qui sera désactivé le %1 (dans %2 jours).</source>
         <translation>que es desactivarà el %1 (d&apos;aquí a %2 dies).</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2644"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2636"/>
         <source>qui sera prochainement désactivé.</source>
         <translation>que es desactivarà properament.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2652"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2644"/>
         <source>Le mot de passe sécurisé du cabinet a été mis en place depuis le poste « %1 ».</source>
         <translation>La contrasenya segura de la consulta es va establir des de l&apos;equip «%1».</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2653"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2645"/>
         <source>Récupérez-le sur ce poste (copié sur une clé USB, ou via le menu Édition / Paramètres) et enregistrez-le ici : sans lui, cet accès cessera de fonctionner.</source>
         <translation>Recupereu-la en aquest equip (copiada en una memòria USB, o mitjançant el menú Edició / Paràmetres) i deseu-la aquí: sense ella, aquest accés deixarà de funcionar.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2656"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2648"/>
         <source>Le poste qui a mis en place ce mot de passe n&apos;est pas identifié (sécurisation faite par une version antérieure de Rufus).</source>
         <translation>L&apos;equip que va establir aquesta contrasenya no està identificat (protecció feta per una versió anterior de Rufus).</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2658"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2650"/>
         <source>Récupérez-le depuis n&apos;importe quel poste à jour du cabinet (copié sur une clé USB, ou via le menu Édition / Paramètres) et enregistrez-le ici : sans lui, cet accès cessera de fonctionner.</source>
         <translation>Recupereu-la des de qualsevol equip actualitzat de la consulta (copiada en una memòria USB, o mitjançant el menú Edició / Paràmetres) i deseu-la aquí: sense ella, aquest accés deixarà de funcionar.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2668"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2660"/>
         <source>Mot de passe du cabinet à récupérer</source>
         <translation>Contrasenya de la consulta per recuperar</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2671"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2663"/>
         <source>Continuer avec le
 mot de passe temporaire</source>
         <translation>Continua amb la
 contrasenya temporal</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2672"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2664"/>
         <source>Renseigner le nouveau
 mot de passe</source>
         <translation>Introdueix la nova
 contrasenya</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2674"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2666"/>
         <source>Le mot de passe est égaré,
 en créer un nouveau</source>
         <translation>La contrasenya s&apos;ha perdut,
 crea&apos;n una de nova</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2692"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2684"/>
         <source>Récupérer le mot de passe du cabinet</source>
         <translation>Recupera la contrasenya de la consulta</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2693"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2685"/>
         <source>Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur laquelle il a été copié depuis un poste à jour.</source>
         <translation>Introduïu la contrasenya segura de la consulta, o importeu-la des de la memòria USB on es va copiar des d&apos;un equip actualitzat.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2701"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2693"/>
         <source>Mot de passe non récupéré</source>
         <translation>Contrasenya no recuperada</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2702"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2694"/>
         <source>Ce poste continue avec le mot de passe générique, qui sera désactivé.</source>
         <translation>Aquest equip continua amb la contrasenya genèrica, que es desactivarà.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2703"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2695"/>
         <source>Connectez-vous depuis un poste du réseau local ou depuis le serveur pour récupérer ou recréer le mot de passe sécurisé du cabinet.</source>
         <translation>Connecteu-vos des d&apos;un equip de la xarxa local o des del servidor per recuperar o recrear la contrasenya segura de la consulta.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2725"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2717"/>
         <source>Base de données sécurisée</source>
         <translation>Base de dades protegida</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2727"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2719"/>
         <source>Aucun mot de passe connu ne permet de se connecter à cette base : elle a été sécurisée sur un autre poste.
 
 Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne, ou le saisir si vous le connaissez.</source>
@@ -1542,159 +1542,159 @@ Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB depui
 Podeu recuperar la contrasenya de la consulta copiada en una memòria USB des d&apos;un equip que funcioni, o introduir-la si la coneixeu.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2731"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2723"/>
         <source>Annuler</source>
         <translation>Cancel·la</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2732"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2724"/>
         <source>Saisir le mot de passe</source>
         <translation>Introdueix la contrasenya</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2733"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2725"/>
         <source>Importer depuis une clé USB</source>
         <translation>Importa des d&apos;una memòria USB</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2739"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2731"/>
         <source>Je n&apos;ai aucun mot de passe</source>
         <translation>No tinc cap contrasenya</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2740"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2732"/>
         <source>Réinitialiser le programme</source>
         <translation>Reinicialitza el programa</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2757"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2749"/>
         <source>Sélectionnez le fichier du mot de passe sur la clé USB</source>
         <translation>Seleccioneu el fitxer de la contrasenya a la memòria USB</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2775"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2767"/>
         <source>Fichier illisible</source>
         <translation>Fitxer illegible</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2776"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2768"/>
         <source>Ce fichier ne contient pas un mot de passe valide.</source>
         <translation>Aquest fitxer no conté cap contrasenya vàlida.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2782"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2774"/>
         <source>Entrez le mot de passe MySQL du cabinet :</source>
         <translation>Introduïu la contrasenya MySQL de la consulta:</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2791"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2783"/>
         <source>Mot de passe incorrect</source>
         <translation>Contrasenya incorrecta</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2792"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2784"/>
         <source>Ce mot de passe ne permet pas de se connecter à la base de données.</source>
         <translation>Aquesta contrasenya no permet connectar-se a la base de dades.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2810"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2802"/>
         <source>Impossible depuis un poste distant</source>
         <translation>Impossible des d&apos;un equip remot</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2811"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2803"/>
         <source>La recréation du mot de passe doit se faire depuis un poste du réseau local ou le serveur.</source>
         <translation>La contrasenya s&apos;ha de recrear des d&apos;un equip de la xarxa local o des del servidor.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2816"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2808"/>
         <source>Impossible</source>
         <translation>Impossible</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2817"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2809"/>
         <source>Le serveur MySQL ne prend pas en charge cette opération (version trop ancienne).</source>
         <translation>El servidor MySQL no admet aquesta operació (versió massa antiga).</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2823"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2815"/>
         <source>Saisissez le mot de passe Administrateur</source>
         <translation>Introduïu la contrasenya d&apos;Administrador</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2855"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2847"/>
         <source>Base de données non sécurisée</source>
         <translation>Base de dades no protegida</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2856"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2848"/>
         <source>Ce poste se connecte au serveur avec le mot de passe générique de mise en route.</source>
         <translation>Aquest equip es connecta al servidor amb la contrasenya genèrica de posada en marxa.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2857"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2849"/>
         <source>Pour sécuriser cet accès, connectez-vous depuis un poste du réseau local ou depuis le serveur :</source>
         <translation>Per protegir aquest accés, connecteu-vos des d&apos;un equip de la xarxa local o des del servidor:</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2858"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2850"/>
         <source>la création du mot de passe sécurisé s&apos;y fera automatiquement.</source>
         <translation>la contrasenya segura s&apos;hi crearà automàticament.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2859"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2851"/>
         <source>Cette sécurisation ne peut pas se faire depuis un poste distant.</source>
         <translation>Aquesta protecció no es pot fer des d&apos;un equip remot.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2950"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2942"/>
         <source>Mot de passe générique à désactiver</source>
         <translation>Contrasenya genèrica per desactivar</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2951"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2943"/>
         <source>Ce poste utilise un mot de passe sécurisé pour accéder à la base de données.</source>
         <translation>Aquest equip utilitza una contrasenya segura per accedir a la base de dades.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2952"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2944"/>
         <source>Un mot de passe générique de compatibilité est cependant toujours actif, alors que sa date d&apos;échéance est dépassée depuis %1 jours.</source>
         <translation>Tanmateix, una contrasenya genèrica de compatibilitat continua activa, tot i que la seva data de venciment fa %1 dies que s&apos;ha superat.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2954"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2946"/>
         <source>Sa désactivation ne peut pas se faire depuis un poste distant : connectez-vous depuis un poste du réseau local ou depuis le serveur pour la déclencher.</source>
         <translation>No es pot desactivar des d&apos;un equip remot: connecteu-vos des d&apos;un equip de la xarxa local o des del servidor per activar-ne la desactivació.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3014"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3006"/>
         <source>Téléchargement de MySQL %1 (Oracle)…</source>
         <translation>Baixant MySQL %1 (Oracle)…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3075"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3067"/>
         <source>Installation et configuration de MySQL…
 (Autorisez l&apos;opération dans la fenêtre qui s&apos;affiche)</source>
         <translation>Instal·lant i configurant MySQL…
 (Autoritzeu l&apos;operació a la finestra que apareix)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3213"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3205"/>
         <source>Téléchargement de MySQL %1…</source>
         <translation>Baixant MySQL %1…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3267"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3259"/>
         <source>Extraction des fichiers MySQL…</source>
         <translation>Extraient els fitxers de MySQL…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3276"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3268"/>
         <source>Extraction échouée</source>
         <translation>Extracció fallida</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3277"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3269"/>
         <source>L&apos;archive MySQL n&apos;a pas pu être extraite (mysqld.exe introuvable).
 
 Détail : %1</source>
@@ -1703,34 +1703,34 @@ Détail : %1</source>
 Detall: %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3278"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3270"/>
         <source>(aucun détail)</source>
         <translation>(cap detall)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3288"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3280"/>
         <source>Configuration échouée</source>
         <translation>Configuració fallida</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3289"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3281"/>
         <source>Impossible d&apos;écrire %1.</source>
         <translation>No es pot escriure %1.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3306"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3298"/>
         <source>Initialisation de la base de données,
 cela peut prendre quelques instants…</source>
         <translation>Inicialitzant la base de dades,
 això pot trigar uns instants…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3309"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3301"/>
         <source>Initialisation échouée</source>
         <translation>Inicialització fallida</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3310"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3302"/>
         <source>L&apos;initialisation du datadir MySQL a échoué.
 
 %1</source>
@@ -1739,22 +1739,22 @@ això pot trigar uns instants…</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3321"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3313"/>
         <source>Installation incomplète</source>
         <translation>Instal·lació incompleta</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3322"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3314"/>
         <source>Les fichiers MySQL sont en place mais l&apos;installation n&apos;est pas détectée correctement.</source>
         <translation>Els fitxers de MySQL són al seu lloc però la instal·lació no es detecta correctament.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3327"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3319"/>
         <source>Démarrage du service échoué</source>
         <translation>Ha fallat l&apos;inici del servei</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3328"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3320"/>
         <source>MySQL est installé mais le service n&apos;a pas démarré.
 
 %1</source>
@@ -1763,17 +1763,17 @@ això pot trigar uns instants…</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3354"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3346"/>
         <source>Installation de MySQL via apt-get…</source>
         <translation>Instal·lant MySQL mitjançant apt-get…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3370"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3362"/>
         <source>Initialisation impossible</source>
         <translation>Inicialització impossible</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3371"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3363"/>
         <source>MySQL est installé mais la base de données n&apos;a pas pu être initialisée (%1/data).
 
 Le serveur ne peut pas démarrer.
@@ -1788,151 +1788,151 @@ Detall (%2):
 %3</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3375"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3367"/>
         <source>(journal indisponible)</source>
         <translation>(registre no disponible)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3434"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3426"/>
         <source>Redémarrage de MySQL…</source>
         <translation>Reiniciant MySQL…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3482"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3474"/>
         <source>Étape : %1</source>
         <translation>Pas: %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3483"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3475"/>
         <source>Serveur renvoie : « %1 »</source>
         <translation>El servidor retorna: «%1»</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3484"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3476"/>
         <source>(aucune réponse / connexion impossible)</source>
         <translation>(cap resposta / connexió impossible)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3485"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3477"/>
         <source>Attendu : « %1 »</source>
         <translation>Esperat: «%1»</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3486"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3478"/>
         <source>Fichier %1</source>
         <translation>Fitxer %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3487"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3479"/>
         <source>contient : « %1 »</source>
         <translation>conté: «%1»</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3500"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3492"/>
         <source>Écriture du my.ini temporaire impossible.</source>
         <translation>No es pot escriure el my.ini temporal.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3526"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3518"/>
         <source>copie du my.ini / redémarrage du serveur (commande élevée en échec)</source>
         <translation>còpia del my.ini / reinici del servidor (ordre amb privilegis fallida)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3533"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3525"/>
         <source>vérification de la variable serveur après redémarrage</source>
         <translation>verificació de la variable del servidor després del reinici</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3970"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3962"/>
         <source>Compte de secours non créé</source>
         <translation>Compte d&apos;emergència no creat</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3971"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3963"/>
         <source>Rufus n&apos;a pas pu créer le compte de secours sur le serveur MySQL.</source>
         <translation>Rufus no ha pogut crear el compte d&apos;emergència al servidor MySQL.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3972"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3964"/>
         <source>Rien n&apos;a été modifié ; Rufus réessaiera au prochain démarrage.</source>
         <translation>No s&apos;ha modificat res; Rufus ho tornarà a intentar en el proper inici.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3981"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3986"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3973"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3978"/>
         <source>Mot de passe de secours enregistré</source>
         <translation>Contrasenya d&apos;emergència desada</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3982"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3974"/>
         <source>Votre mot de passe de secours est en place.</source>
         <translation>La vostra contrasenya d&apos;emergència és activa.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3983"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3975"/>
         <source>En revanche, Rufus n&apos;a pas pu supprimer le compte « root » de MySQL</source>
         <translation>En canvi, Rufus no ha pogut eliminar el compte «root» de MySQL</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3987"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3979"/>
         <source>Votre mot de passe de secours est en place</source>
         <translation>La vostra contrasenya d&apos;emergència és activa</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3988"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3980"/>
         <source>Ne l&apos;oubliez pas : il n&apos;est écrit nulle part, et c&apos;est lui qui vous permettra de récupérer l&apos;accès à votre base si tous les autres mots de passe sont perdus.</source>
         <translation>No l&apos;oblideu: no està escrita enlloc i és la que us permetrà recuperar l&apos;accés a la vostra base si es perden totes les altres contrasenyes.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4021"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4013"/>
         <source>Mot de passe de secours refusé</source>
         <translation>Contrasenya d&apos;emergència rebutjada</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4022"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4014"/>
         <source>Ce mot de passe n&apos;ouvre pas de session sur le serveur MySQL du cabinet.</source>
         <translation>Aquesta contrasenya no obre sessió al servidor MySQL de la consulta.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4023"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4015"/>
         <source>Vérifiez qu&apos;il s&apos;agit bien du mot de passe de secours choisi à l&apos;installation de la base.</source>
         <translation>Comproveu que es tracta de la contrasenya d&apos;emergència triada en instal·lar la base.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4033"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4025"/>
         <source>Rétablissement impossible</source>
         <translation>Restabliment impossible</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4034"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4026"/>
         <source>La connexion de secours fonctionne, mais Rufus n&apos;a pas pu réécrire les comptes d&apos;accès à la base.</source>
         <translation>La connexió d&apos;emergència funciona, però Rufus no ha pogut reescriure els comptes d&apos;accés a la base.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4110"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4252"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4102"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4244"/>
         <source>Préparation du serveur…
 Cela peut durer plusieurs minutes.</source>
         <translation>Preparant el servidor…
 Això pot durar diversos minuts.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4554"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4563"/>
         <source>Non</source>
         <translation>No</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4554"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4563"/>
         <source>Oui</source>
         <translation>Sí</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4874"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4884"/>
         <source>Pas d&apos;accès réseau</source>
         <translation>Sense accés a la xarxa</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4875"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4885"/>
         <source>Absence d&apos;accès réseau. Le programme ne peut pas télécharger le fichier d&apos;installation de MySQL.
 
 Fermeture du programme.</source>
@@ -1941,12 +1941,12 @@ Fermeture du programme.</source>
 Tancant el programa.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4884"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4894"/>
         <source>Lien de téléchargement introuvable</source>
         <translation>Enllaç de baixada no trobat</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4885"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4895"/>
         <source>Impossible de résoudre le lien de téléchargement. Le programme ne peut pas télécharger le fichier d&apos;installation de MySQL.
 
 Fermeture du programme.</source>
@@ -1955,42 +1955,42 @@ Fermeture du programme.</source>
 Tancant el programa.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4901"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4911"/>
         <source>Téléchargement de MySQL impossible</source>
         <translation>Baixada de MySQL impossible</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4902"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4912"/>
         <source>Rufus n&apos;a pas réussi à télécharger MySQL : le site n&apos;est pas accessible.</source>
         <translation>Rufus no ha aconseguit baixar MySQL: el lloc no és accessible.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4903"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4913"/>
         <source>Vous pouvez installer MySQL vous-même : téléchargez-le et installez-le sans rien configurer.</source>
         <translation>Podeu instal·lar MySQL vosaltres mateixos: baixeu-lo i instal·leu-lo sense configurar res.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4904"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4914"/>
         <source>Notez simplement le login et le mot de passe de l&apos;utilisateur que vous avez créé.</source>
         <translation>Només cal que anoteu l&apos;usuari i la contrasenya de l&apos;usuari que heu creat.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4905"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4915"/>
         <source>Relancez ensuite Rufus : il détectera la présence du serveur</source>
         <translation>A continuació, reinicieu Rufus: detectarà la presència del servidor</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4906"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4916"/>
         <source>et vous demandera ce login et ce mot de passe.</source>
         <translation>i us demanarà aquest usuari i aquesta contrasenya.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4907"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4917"/>
         <source>Avec ces renseignements, il se connectera au serveur</source>
         <translation>Amb aquesta informació, es connectarà al servidor</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4908"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4918"/>
         <source>et le configurera automatiquement pour son usage.</source>
         <translation>i el configurarà automàticament per al seu ús.</translation>
     </message>
@@ -4948,13 +4948,13 @@ de pacients Rufus</translation>
     </message>
     <message>
         <location filename="utils.cpp" line="1123"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3893"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3885"/>
         <source>Confirmez le mot de passe</source>
         <translation>Confirmeu la contrasenya</translation>
     </message>
     <message>
         <location filename="utils.cpp" line="1149"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3917"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3909"/>
         <source>Saisie incomplète</source>
         <translation>Dades incompletes</translation>
     </message>
@@ -4965,13 +4965,13 @@ de pacients Rufus</translation>
     </message>
     <message>
         <location filename="utils.cpp" line="1154"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3922"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3914"/>
         <source>Mots de passe différents</source>
         <translation>Contrasenyes diferents</translation>
     </message>
     <message>
         <location filename="utils.cpp" line="1155"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3923"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3915"/>
         <source>Le mot de passe et sa confirmation ne correspondent pas.</source>
         <translation>La contrasenya i la seva confirmació no coincideixen.</translation>
     </message>
@@ -5123,7 +5123,7 @@ Guardeu-la en un lloc segur (en paper o en una memòria USB): és necessària pe
         <translation>IMPORTANT: la contrasenya genèrica d&apos;accés a la base de dades acaba d&apos;eliminar-se.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3883"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3875"/>
         <source>Choisissez un mot de passe de SECOURS pour votre base de données.
 
 Il ne servira qu&apos;à reprendre la main sur votre base si tous les autres
@@ -5146,14 +5146,14 @@ Trieu alguna cosa que recordeu d&apos;aquí a deu anys
 - sense caràcters especials ni accentuats -</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3891"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3883"/>
         <source>Saisissez le mot de passe de SECOURS choisi lors de l&apos;installation
 de votre base de données.</source>
         <translation>Introduïu la contrasenya d&apos;EMERGÈNCIA triada durant la instal·lació
 de la vostra base de dades.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3918"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3910"/>
         <source>Veuillez renseigner un mot de passe.</source>
         <translation>Introduïu una contrasenya.</translation>
     </message>
@@ -5276,7 +5276,7 @@ es copiaran automàticament</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="316"/>
-        <location filename="rufus.cpp" line="10969"/>
+        <location filename="rufus.cpp" line="10972"/>
         <source>Recopier</source>
         <translation>Copia</translation>
     </message>
@@ -5300,13 +5300,13 @@ pacients - F5</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="516"/>
-        <location filename="rufus.cpp" line="9427"/>
+        <location filename="rufus.cpp" line="9430"/>
         <source>Nom</source>
         <translation>Cognoms</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="541"/>
-        <location filename="rufus.cpp" line="9431"/>
+        <location filename="rufus.cpp" line="9434"/>
         <source>Date de naissance</source>
         <translation>Data de naixement</translation>
     </message>
@@ -5317,7 +5317,7 @@ pacients - F5</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="635"/>
-        <location filename="rufus.cpp" line="8991"/>
+        <location filename="rufus.cpp" line="8994"/>
         <source>Créer
 le dossier</source>
         <translation>Crea
@@ -5325,7 +5325,7 @@ l&apos;expedient</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="665"/>
-        <location filename="rufus.cpp" line="8940"/>
+        <location filename="rufus.cpp" line="8943"/>
         <source>Chercher avec la
 date de naissance</source>
         <translation>Cerca amb la
@@ -5544,7 +5544,7 @@ acte</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3626"/>
-        <location filename="rufus.cpp" line="8511"/>
+        <location filename="rufus.cpp" line="8514"/>
         <source>Cotation</source>
         <translation>Codificació</translation>
     </message>
@@ -5552,7 +5552,7 @@ acte</translation>
         <location filename="rufus.ui" line="3639"/>
         <location filename="rufus.cpp" line="6651"/>
         <location filename="rufus.cpp" line="6655"/>
-        <location filename="rufus.cpp" line="8512"/>
+        <location filename="rufus.cpp" line="8515"/>
         <source>Montant</source>
         <translation>Import</translation>
     </message>
@@ -5630,7 +5630,7 @@ acte</translation>
     <message>
         <location filename="rufus.ui" line="4136"/>
         <location filename="rufus.cpp" line="3018"/>
-        <location filename="rufus.cpp" line="11030"/>
+        <location filename="rufus.cpp" line="11039"/>
         <source>Acte</source>
         <translation>Acte</translation>
     </message>
@@ -5641,8 +5641,8 @@ acte</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4198"/>
-        <location filename="rufus.cpp" line="8898"/>
-        <location filename="rufus.cpp" line="11033"/>
+        <location filename="rufus.cpp" line="8901"/>
+        <location filename="rufus.cpp" line="11042"/>
         <source>Documents</source>
         <translation>Documents</translation>
     </message>
@@ -5725,7 +5725,7 @@ Sortida del programa</translation>
         <location filename="rufus.cpp" line="5423"/>
         <location filename="rufus.cpp" line="5616"/>
         <location filename="rufus.cpp" line="5895"/>
-        <location filename="rufus.cpp" line="10847"/>
+        <location filename="rufus.cpp" line="10850"/>
         <source>Messages</source>
         <translation>Missatges</translation>
     </message>
@@ -5819,7 +5819,7 @@ ja s&apos;estan registrant!</translation>
         <location filename="rufus.cpp" line="7064"/>
         <location filename="rufus.cpp" line="7083"/>
         <location filename="rufus.cpp" line="7097"/>
-        <location filename="rufus.cpp" line="10071"/>
+        <location filename="rufus.cpp" line="10074"/>
         <source>Il manque la cotation!</source>
         <translation>Falta la codificació!</translation>
     </message>
@@ -5829,7 +5829,7 @@ ja s&apos;estan registrant!</translation>
         <location filename="rufus.cpp" line="7085"/>
         <location filename="rufus.cpp" line="7102"/>
         <location filename="rufus.cpp" line="7164"/>
-        <location filename="rufus.cpp" line="10071"/>
+        <location filename="rufus.cpp" line="10074"/>
         <source>Il manque le montant!</source>
         <translation>Falta l&apos;import!</translation>
     </message>
@@ -5851,14 +5851,14 @@ ja s&apos;estan registrant!</translation>
     <message>
         <location filename="rufus.cpp" line="1233"/>
         <location filename="rufus.cpp" line="7134"/>
-        <location filename="rufus.cpp" line="8037"/>
+        <location filename="rufus.cpp" line="8040"/>
         <source>Consultation gratuite</source>
         <translation>Consulta gratuïta</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="1234"/>
         <location filename="rufus.cpp" line="7131"/>
-        <location filename="rufus.cpp" line="8034"/>
+        <location filename="rufus.cpp" line="8037"/>
         <source>Vous avez entré un montant nul !</source>
         <translation>Heu introduït un import nul!</translation>
     </message>
@@ -5873,11 +5873,11 @@ ja s&apos;estan registrant!</translation>
         <location filename="rufus.cpp" line="6999"/>
         <location filename="rufus.cpp" line="7598"/>
         <location filename="rufus.cpp" line="7647"/>
-        <location filename="rufus.cpp" line="8140"/>
-        <location filename="rufus.cpp" line="8745"/>
-        <location filename="rufus.cpp" line="10137"/>
-        <location filename="rufus.cpp" line="10291"/>
-        <location filename="rufus.cpp" line="10490"/>
+        <location filename="rufus.cpp" line="8143"/>
+        <location filename="rufus.cpp" line="8748"/>
+        <location filename="rufus.cpp" line="10140"/>
+        <location filename="rufus.cpp" line="10294"/>
+        <location filename="rufus.cpp" line="10493"/>
         <source>Annuler</source>
         <translation>Cancel·la</translation>
     </message>
@@ -5888,7 +5888,7 @@ ja s&apos;estan registrant!</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="1353"/>
-        <location filename="rufus.cpp" line="10988"/>
+        <location filename="rufus.cpp" line="10991"/>
         <source>Gestion des tiers payants</source>
         <translation>Gestió dels tercers pagadors</translation>
     </message>
@@ -5899,13 +5899,13 @@ ja s&apos;estan registrant!</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="1386"/>
-        <location filename="rufus.cpp" line="9129"/>
+        <location filename="rufus.cpp" line="9132"/>
         <source>Revenir au tarif conventionnel</source>
         <translation>Torna a la tarifa convencionada</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="1391"/>
-        <location filename="rufus.cpp" line="9128"/>
+        <location filename="rufus.cpp" line="9131"/>
         <source>Revenir au tarif habituellement pratiqué</source>
         <translation>Torna a la tarifa habitual</translation>
     </message>
@@ -6422,7 +6422,7 @@ sobre un expedient per obrir-lo</translation>
     <message>
         <location filename="rufus.cpp" line="3694"/>
         <location filename="rufus.cpp" line="3897"/>
-        <location filename="rufus.cpp" line="10969"/>
+        <location filename="rufus.cpp" line="10972"/>
         <source>Créer un dossier de la même famille</source>
         <translation>Crea un expedient de la mateixa família</translation>
     </message>
@@ -6456,7 +6456,7 @@ sobre un expedient per obrir-lo</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="3726"/>
-        <location filename="rufus.cpp" line="10981"/>
+        <location filename="rufus.cpp" line="10984"/>
         <source>Enregistrer une video</source>
         <translation>Desa un vídeo</translation>
     </message>
@@ -6488,7 +6488,7 @@ sobre un expedient per obrir-lo</translation>
     <message>
         <location filename="rufus.cpp" line="3901"/>
         <location filename="rufus.cpp" line="7684"/>
-        <location filename="rufus.cpp" line="10788"/>
+        <location filename="rufus.cpp" line="10791"/>
         <source>Ouvrir le dossier</source>
         <translation>Obre l&apos;expedient</translation>
     </message>
@@ -6564,7 +6564,7 @@ sobre un expedient per obrir-lo</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4413"/>
-        <location filename="rufus.cpp" line="10973"/>
+        <location filename="rufus.cpp" line="10976"/>
         <source>Paramètres</source>
         <translation>Paràmetres</translation>
     </message>
@@ -6587,7 +6587,7 @@ sobre un expedient per obrir-lo</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4580"/>
-        <location filename="rufus.cpp" line="8412"/>
+        <location filename="rufus.cpp" line="8415"/>
         <source>dd/MM/yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
@@ -6603,7 +6603,7 @@ sobre un expedient per obrir-lo</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4624"/>
-        <location filename="rufus.cpp" line="9693"/>
+        <location filename="rufus.cpp" line="9696"/>
         <source>Tout le monde</source>
         <translation>Tothom</translation>
     </message>
@@ -6764,21 +6764,21 @@ sobre un expedient per obrir-lo</translation>
         <location filename="rufus.cpp" line="5591"/>
         <location filename="rufus.cpp" line="5599"/>
         <location filename="rufus.cpp" line="5610"/>
-        <location filename="rufus.cpp" line="10841"/>
+        <location filename="rufus.cpp" line="10844"/>
         <source>Vous avez </source>
         <translation>Teniu </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5591"/>
         <location filename="rufus.cpp" line="5610"/>
-        <location filename="rufus.cpp" line="10841"/>
+        <location filename="rufus.cpp" line="10844"/>
         <source> nouveaux messages</source>
         <translation> missatges nous</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5593"/>
         <location filename="rufus.cpp" line="5612"/>
-        <location filename="rufus.cpp" line="10843"/>
+        <location filename="rufus.cpp" line="10846"/>
         <source>Vous avez 1 nouveau message</source>
         <translation>Teniu 1 missatge nou</translation>
     </message>
@@ -6804,8 +6804,8 @@ sobre un expedient per obrir-lo</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5868"/>
-        <location filename="rufus.cpp" line="9998"/>
-        <location filename="rufus.cpp" line="10011"/>
+        <location filename="rufus.cpp" line="10001"/>
+        <location filename="rufus.cpp" line="10014"/>
         <source>inconnu</source>
         <translation>desconegut</translation>
     </message>
@@ -6902,19 +6902,19 @@ sobre un expedient per obrir-lo</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7132"/>
-        <location filename="rufus.cpp" line="8035"/>
+        <location filename="rufus.cpp" line="8038"/>
         <source>Enregistrer cet acte comme gratuit?</source>
         <translation>Voleu desar aquest acte com a gratuït?</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7135"/>
-        <location filename="rufus.cpp" line="8038"/>
+        <location filename="rufus.cpp" line="8041"/>
         <source>Non</source>
         <translation>No</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7151"/>
-        <location filename="rufus.cpp" line="10073"/>
+        <location filename="rufus.cpp" line="10076"/>
         <source>il manque les informations de paiement</source>
         <translation>falta la informació de pagament</translation>
     </message>
@@ -6992,7 +6992,7 @@ cognoms i nom</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7615"/>
-        <location filename="rufus.cpp" line="10748"/>
+        <location filename="rufus.cpp" line="10751"/>
         <source>Ce patient est déjà venu!</source>
         <translation>Aquest pacient ja ha vingut!</translation>
     </message>
@@ -7039,28 +7039,28 @@ El voleu crear igualment?</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7680"/>
-        <location filename="rufus.cpp" line="8288"/>
-        <location filename="rufus.cpp" line="10784"/>
+        <location filename="rufus.cpp" line="8291"/>
+        <location filename="rufus.cpp" line="10787"/>
         <source>Dossier </source>
         <translation>Expedient </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7680"/>
-        <location filename="rufus.cpp" line="10784"/>
+        <location filename="rufus.cpp" line="10787"/>
         <source> créé</source>
         <translation> creat</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7681"/>
-        <location filename="rufus.cpp" line="8289"/>
-        <location filename="rufus.cpp" line="10785"/>
+        <location filename="rufus.cpp" line="8292"/>
+        <location filename="rufus.cpp" line="10788"/>
         <source>Ouvrir le dossier ou inscrire le dossier en salle d&apos;attente?</source>
         <translation>Voleu obrir l&apos;expedient o inscriure&apos;l a la sala d&apos;espera?</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7683"/>
-        <location filename="rufus.cpp" line="8292"/>
-        <location filename="rufus.cpp" line="10787"/>
+        <location filename="rufus.cpp" line="8295"/>
+        <location filename="rufus.cpp" line="10790"/>
         <source>Inscrire le dossier
 en salle d&apos;attente</source>
         <translation>Inscriu l&apos;expedient
@@ -7068,283 +7068,283 @@ a la sala d&apos;espera</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7685"/>
-        <location filename="rufus.cpp" line="8294"/>
-        <location filename="rufus.cpp" line="10789"/>
+        <location filename="rufus.cpp" line="8297"/>
+        <location filename="rufus.cpp" line="10792"/>
         <source>Ne rien faire</source>
         <translation>No facis res</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7742"/>
-        <location filename="rufus.cpp" line="10905"/>
+        <location filename="rufus.cpp" line="10908"/>
         <source>Information statut</source>
         <translation>Informació d&apos;estat</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7799"/>
+        <location filename="rufus.cpp" line="7802"/>
         <source>Copier</source>
         <translation>Copia</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7800"/>
+        <location filename="rufus.cpp" line="7803"/>
         <source>Couper</source>
         <translation>Retalla</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7801"/>
+        <location filename="rufus.cpp" line="7804"/>
         <source>Coller</source>
         <translation>Enganxa</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7937"/>
+        <location filename="rufus.cpp" line="7940"/>
         <source>Impossible d&apos;accéder à la table </source>
         <translation>Impossible accedir a la taula </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7974"/>
+        <location filename="rufus.cpp" line="7977"/>
         <source>Ce dossier contient le contenu de l&apos;acte en cours et un document d&apos;imagerie</source>
         <translation>Aquesta carpeta conté el contingut de l&apos;acte en curs i un document d&apos;imatge</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7976"/>
+        <location filename="rufus.cpp" line="7979"/>
         <source>Ce dossier contient le contenu de l&apos;acte en cours et </source>
         <translation>Aquesta carpeta conté el contingut de l&apos;acte en curs i </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7976"/>
+        <location filename="rufus.cpp" line="7979"/>
         <source> documents d&apos;imagerie</source>
         <translation> documents d&apos;imatge</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7978"/>
+        <location filename="rufus.cpp" line="7981"/>
         <source>Export d&apos;acte effectué</source>
         <translation>Exportació de l&apos;acte feta</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7979"/>
+        <location filename="rufus.cpp" line="7982"/>
         <source>Le dossier </source>
         <translation>La carpeta </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7980"/>
+        <location filename="rufus.cpp" line="7983"/>
         <source> a été créé sur le bureau</source>
         <translation> s&apos;ha creat a l&apos;escriptori</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8059"/>
+        <location filename="rufus.cpp" line="8062"/>
         <source>Impossible d&apos;enregistrer la recette de cet acte</source>
         <translation>Impossible desar l&apos;ingrés d&apos;aquest acte</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8069"/>
+        <location filename="rufus.cpp" line="8072"/>
         <source>Impossible d&apos;enregistrer le paiement de cet acte</source>
         <translation>Impossible desar el pagament d&apos;aquest acte</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8117"/>
+        <location filename="rufus.cpp" line="8120"/>
         <source>Consultations sans contenu supprimées</source>
         <translation>Consultes sense contingut eliminades</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8118"/>
+        <location filename="rufus.cpp" line="8121"/>
         <source>Ce dossier comportait %1 consultation(s) sans motif, ni texte, ni conclusion, ni cotation.</source>
         <translation>Aquest expedient tenia %1 consulta/es sense motiu, ni text, ni conclusió, ni codificació.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8119"/>
+        <location filename="rufus.cpp" line="8122"/>
         <source>Elles ont été supprimées.</source>
         <translation>S&apos;han eliminat.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8134"/>
+        <location filename="rufus.cpp" line="8137"/>
         <source>Garder le dossier en salle d&apos;attente?</source>
         <translation>Voleu mantenir l&apos;expedient a la sala d&apos;espera?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8135"/>
+        <location filename="rufus.cpp" line="8138"/>
         <source>Fermeture du dossier de </source>
         <translation>Tancament de l&apos;expedient de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8139"/>
+        <location filename="rufus.cpp" line="8142"/>
         <source>Garder le dossier
 en salle d&apos;attente</source>
         <translation>Mantén l&apos;expedient
 a la sala d&apos;espera</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8141"/>
+        <location filename="rufus.cpp" line="8144"/>
         <source>Fermer
 le dossier</source>
         <translation>Tanca
 l&apos;expedient</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8248"/>
-        <location filename="rufus.cpp" line="9420"/>
-        <location filename="rufus.cpp" line="10874"/>
+        <location filename="rufus.cpp" line="8251"/>
+        <location filename="rufus.cpp" line="9423"/>
+        <location filename="rufus.cpp" line="10877"/>
         <source>dd-MM-yyyy</source>
         <translation>dd-MM-yyyy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8250"/>
+        <location filename="rufus.cpp" line="8253"/>
         <source>yyyyMMdd</source>
         <translation>yyyyMMdd</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8293"/>
+        <location filename="rufus.cpp" line="8296"/>
         <source>Ouvrir
  le dossier</source>
         <translation>Obre
  l&apos;expedient</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8410"/>
+        <location filename="rufus.cpp" line="8413"/>
         <source>Liste des patients</source>
         <translation>Llista de pacients</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8438"/>
+        <location filename="rufus.cpp" line="8441"/>
         <source>Voir les messages</source>
         <translation>Mostra els missatges</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8508"/>
+        <location filename="rufus.cpp" line="8511"/>
         <source>Heure</source>
         <translation>Hora</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8509"/>
+        <location filename="rufus.cpp" line="8512"/>
         <source>Nom Prénom</source>
         <translation>Cognoms Nom</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8510"/>
+        <location filename="rufus.cpp" line="8513"/>
         <source>Soignant</source>
         <translation>Professional</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8550"/>
+        <location filename="rufus.cpp" line="8553"/>
         <source>Paiement</source>
         <translation>Pagament</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8693"/>
-        <location filename="rufus.cpp" line="8951"/>
+        <location filename="rufus.cpp" line="8696"/>
+        <location filename="rufus.cpp" line="8954"/>
         <source>Ouvrir
 le dossier</source>
         <translation>Obre
 l&apos;expedient</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8742"/>
+        <location filename="rufus.cpp" line="8745"/>
         <source>Correspondant inconnu! Souhaitez-vous l&apos;enregistrer?</source>
         <translation>Corresponsal desconegut! Voleu registrar-lo?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8744"/>
+        <location filename="rufus.cpp" line="8747"/>
         <source>Enregistrer</source>
         <translation>Desa</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8888"/>
+        <location filename="rufus.cpp" line="8891"/>
         <source>Impossible d&apos;imprimer</source>
         <translation>Impossible imprimir</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8888"/>
+        <location filename="rufus.cpp" line="8891"/>
         <source>Aucun émetteur n&apos;est précisé pour l&apos;impression</source>
         <translation>No s&apos;ha especificat cap emissor per a la impressió</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9040"/>
+        <location filename="rufus.cpp" line="9043"/>
         <source>Aucun dossier sélectionné!</source>
         <translation>Cap expedient seleccionat!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9040"/>
+        <location filename="rufus.cpp" line="9043"/>
         <source>Sélectionnez d&apos;abord un dossier à recopier.</source>
         <translation>Seleccioneu primer un expedient per copiar.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9989"/>
+        <location filename="rufus.cpp" line="9992"/>
         <source>ServeurTCP</source>
         <translation>ServidorTCP</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9999"/>
-        <location filename="rufus.cpp" line="10017"/>
+        <location filename="rufus.cpp" line="10002"/>
+        <location filename="rufus.cpp" line="10020"/>
         <source>Postes connectés</source>
         <translation>Equips connectats</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10035"/>
+        <location filename="rufus.cpp" line="10038"/>
         <source>Poste importateur des documents</source>
         <translation>Equip que importa els documents</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10038"/>
+        <location filename="rufus.cpp" line="10041"/>
         <source>Pas de poste paramétré</source>
         <translation>Cap equip configurat</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10043"/>
+        <location filename="rufus.cpp" line="10046"/>
         <source>Administrateur</source>
         <translation>Administrador</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10045"/>
+        <location filename="rufus.cpp" line="10048"/>
         <source>prioritaire</source>
         <translation>prioritari</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10045"/>
+        <location filename="rufus.cpp" line="10048"/>
         <source>non prioritaire</source>
         <translation>no prioritari</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10052"/>
+        <location filename="rufus.cpp" line="10055"/>
         <source>Version de Rufus </source>
         <translation>Versió de Rufus </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10053"/>
+        <location filename="rufus.cpp" line="10056"/>
         <source>Version de la base </source>
         <translation>Versió de la base </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10055"/>
+        <location filename="rufus.cpp" line="10058"/>
         <source>inconnue</source>
         <translation>desconeguda</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10069"/>
+        <location filename="rufus.cpp" line="10072"/>
         <source>Consultation incomplète!</source>
         <translation>Consulta incompleta!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10115"/>
+        <location filename="rufus.cpp" line="10118"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des versements enregistrés.</source>
         <translation>Em temo que no puc eliminar aquest acte
 Hi ha pagaments registrats.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10116"/>
+        <location filename="rufus.cpp" line="10119"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des paiements par carte de crédit enregistrés.</source>
         <translation>Em temo que no puc eliminar aquest acte
 Hi ha pagaments amb targeta de crèdit registrats.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10117"/>
-        <location filename="rufus.cpp" line="10273"/>
+        <location filename="rufus.cpp" line="10120"/>
+        <location filename="rufus.cpp" line="10276"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des paiements par chèque enregistrés.</source>
         <translation>Em temo que no puc eliminar aquest acte
 Hi ha pagaments amb xec registrats.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10118"/>
+        <location filename="rufus.cpp" line="10121"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des paiements par chèque enregistrés.
 Ce ou ces chèques ne sont pas encaissés.
@@ -7355,39 +7355,39 @@ Aquest xec o aquests xecs no s&apos;han cobrat.
 Heu de modificar l&apos;assentament corresponent per poder eliminar l&apos;acte.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10134"/>
+        <location filename="rufus.cpp" line="10137"/>
         <source>Etes vous sûr de vouloir supprimer cet acte?</source>
         <translation>Segur que voleu eliminar aquest acte?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10136"/>
-        <location filename="rufus.cpp" line="10290"/>
-        <location filename="rufus.cpp" line="10970"/>
-        <location filename="rufus.cpp" line="10976"/>
+        <location filename="rufus.cpp" line="10139"/>
+        <location filename="rufus.cpp" line="10293"/>
+        <location filename="rufus.cpp" line="10973"/>
+        <location filename="rufus.cpp" line="10979"/>
         <source>Supprimer</source>
         <translation>Elimina</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10148"/>
+        <location filename="rufus.cpp" line="10151"/>
         <source>Impossible de retrouver les données de l&apos;acte</source>
         <translation>Impossible trobar les dades de l&apos;acte</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10269"/>
+        <location filename="rufus.cpp" line="10272"/>
         <source>Je crains de ne pas pouvoir supprimer ce dossier
 Il y a des versements enregistrés.</source>
         <translation>Em temo que no puc eliminar aquest expedient
 Hi ha pagaments registrats.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10271"/>
+        <location filename="rufus.cpp" line="10274"/>
         <source>Je crains de ne pas pouvoir supprimer ce dossier
 Il y a des paiements par carte de crédit enregistrés.</source>
         <translation>Em temo que no puc eliminar aquest expedient
 Hi ha pagaments amb targeta de crèdit registrats.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10275"/>
+        <location filename="rufus.cpp" line="10278"/>
         <source>Je crains de ne pas pouvoir supprimer ce dossier
 Il y a des paiements par chèque enregistrés.
 Ce ou ces chèques ne sont pas encaissés.
@@ -7398,282 +7398,297 @@ Aquest xec o aquests xecs no s&apos;han cobrat.
 Heu de modificar l&apos;assentament corresponent per poder eliminar l&apos;acte.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10288"/>
+        <location filename="rufus.cpp" line="10291"/>
         <source>Etes vous sûr de vouloir supprimer le dossier de </source>
         <translation>Segur que voleu eliminar l&apos;expedient de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10376"/>
+        <location filename="rufus.cpp" line="10379"/>
         <source>Pachymétrie - </source>
         <translation>Paquimetria - </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10422"/>
+        <location filename="rufus.cpp" line="10425"/>
         <source>Tonométrie - </source>
         <translation>Tonometria - </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10451"/>
+        <location filename="rufus.cpp" line="10454"/>
         <source>Saisie de montant refusée !</source>
         <translation>Introducció d&apos;import rebutjada!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10452"/>
+        <location filename="rufus.cpp" line="10455"/>
         <source>Le montant que vous souhaitez enregistrer</source>
         <translation>L&apos;import que voleu registrar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10452"/>
-        <location filename="rufus.cpp" line="10453"/>
+        <location filename="rufus.cpp" line="10455"/>
+        <location filename="rufus.cpp" line="10456"/>
         <source>€</source>
         <translation>€</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10453"/>
+        <location filename="rufus.cpp" line="10456"/>
         <source>est inférieur à la somme des paiements</source>
         <translation>és inferior a la suma dels pagaments</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10453"/>
+        <location filename="rufus.cpp" line="10456"/>
         <source>déjà enregistrés pour cet acte</source>
         <translation>ja registrats per a aquest acte</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10486"/>
+        <location filename="rufus.cpp" line="10489"/>
         <source>Cet acte a déjà été enregistré comme acte gratuit !</source>
         <translation>Aquest acte ja s&apos;ha registrat com a acte gratuït!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10487"/>
+        <location filename="rufus.cpp" line="10490"/>
         <source>Annuler et considérer comme acte payant?</source>
         <translation>Voleu cancel·lar-ho i considerar-lo acte de pagament?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10489"/>
+        <location filename="rufus.cpp" line="10492"/>
         <source>Considérer comme payant</source>
         <translation>Considera&apos;l de pagament</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10568"/>
         <location filename="rufus.cpp" line="10571"/>
+        <location filename="rufus.cpp" line="10574"/>
         <source>Carte Vitale</source>
         <translation>Targeta Vitale</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10585"/>
+        <location filename="rufus.cpp" line="10588"/>
         <source>Carte Vitale (simulation)</source>
         <translation>Targeta Vitale (simulació)</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10691"/>
+        <location filename="rufus.cpp" line="10694"/>
         <source>Nom : </source>
         <translation>Cognoms: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10693"/>
+        <location filename="rufus.cpp" line="10696"/>
         <source>Prénom : </source>
         <translation>Nom: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10695"/>
+        <location filename="rufus.cpp" line="10698"/>
         <source>Naissance : </source>
         <translation>Naixement: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10697"/>
+        <location filename="rufus.cpp" line="10700"/>
         <source>Sexe : </source>
         <translation>Sexe: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10705"/>
+        <location filename="rufus.cpp" line="10708"/>
         <source>Mise à jour depuis la carte Vitale</source>
         <translation>Actualització des de la targeta Vitale</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10708"/>
+        <location filename="rufus.cpp" line="10711"/>
         <source>Ces renseignements diffèrent de la carte.
 Cochez ceux à remplacer :</source>
         <translation>Aquestes dades difereixen de la targeta.
 Marqueu les que voleu substituir:</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10743"/>
+        <location filename="rufus.cpp" line="10746"/>
         <source>Impossible de rechercher le dossier</source>
         <translation>Impossible cercar l&apos;expedient</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10967"/>
-        <location filename="rufus.cpp" line="10975"/>
+        <location filename="rufus.cpp" line="10970"/>
+        <location filename="rufus.cpp" line="10978"/>
         <source>Créer</source>
         <translation>Crea</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10967"/>
+        <location filename="rufus.cpp" line="10970"/>
         <source>Créer un nouveau dossier</source>
         <translation>Crea un expedient nou</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10968"/>
+        <location filename="rufus.cpp" line="10971"/>
         <source>Ouvrir</source>
         <translation>Obre</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10968"/>
+        <location filename="rufus.cpp" line="10971"/>
         <source>Ouvrir un dossier existant</source>
         <translation>Obre un expedient existent</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10970"/>
+        <location filename="rufus.cpp" line="10973"/>
         <source>Supprimer un dossier</source>
         <translation>Elimina un expedient</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10971"/>
+        <location filename="rufus.cpp" line="10974"/>
         <source>Recherche par mot clé</source>
         <translation>Cerca per paraula clau</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10972"/>
+        <location filename="rufus.cpp" line="10975"/>
         <source>Recherche par ID patient</source>
         <translation>Cerca per ID de pacient</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10974"/>
+        <location filename="rufus.cpp" line="10977"/>
         <source>Voir le statut</source>
         <translation>Mostra l&apos;estat</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10977"/>
+        <location filename="rufus.cpp" line="10980"/>
         <source>Document simple</source>
         <translation>Document simple</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10978"/>
+        <location filename="rufus.cpp" line="10981"/>
         <source>Dossier patient</source>
         <translation>Expedient de pacient</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10979"/>
+        <location filename="rufus.cpp" line="10982"/>
         <source>Exporter l&apos;acte en cours</source>
         <translation>Exporta l&apos;acte en curs</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10980"/>
+        <location filename="rufus.cpp" line="10983"/>
         <source>Enregistrer un document</source>
         <translation>Desa un document</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10982"/>
+        <location filename="rufus.cpp" line="10985"/>
         <source>Afficher les courriers en attente</source>
         <translation>Mostra les cartes pendents</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10983"/>
+        <location filename="rufus.cpp" line="10986"/>
         <source>Liste des correspondants</source>
         <translation>Llista dels corresponsals</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10984"/>
+        <location filename="rufus.cpp" line="10987"/>
         <source>Liste des fabricants</source>
         <translation>Llista dels fabricants</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10985"/>
+        <location filename="rufus.cpp" line="10988"/>
         <source>Liste des implants</source>
         <translation>Llista dels implants</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10986"/>
+        <location filename="rufus.cpp" line="10989"/>
         <source>Liste des tiers payants</source>
         <translation>Llista dels tercers pagadors</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10987"/>
+        <location filename="rufus.cpp" line="10990"/>
         <source>Gestion des paiements directs</source>
         <translation>Gestió dels pagaments directes</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10989"/>
+        <location filename="rufus.cpp" line="10992"/>
         <source>Bilan des recettes</source>
         <translation>Balanç dels ingressos</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10990"/>
+        <location filename="rufus.cpp" line="10993"/>
         <source>Enregistrement des recettes spéciales</source>
         <translation>Registre dels ingressos especials</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10991"/>
+        <location filename="rufus.cpp" line="10994"/>
         <source>Journal des dépenses</source>
         <translation>Diari de despeses</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10992"/>
+        <location filename="rufus.cpp" line="10995"/>
         <source>Gestion des comptes bancaires</source>
         <translation>Gestió dels comptes bancaris</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10993"/>
+        <location filename="rufus.cpp" line="10996"/>
         <source>Effectuer une remise de chèques</source>
         <translation>Fer una remesa de xecs</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10994"/>
+        <location filename="rufus.cpp" line="10997"/>
         <source>A propos</source>
         <translation>Quant a</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10996"/>
+        <location filename="rufus.cpp" line="10999"/>
         <source>Français</source>
         <translation>Français</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10997"/>
+        <location filename="rufus.cpp" line="11000"/>
         <source>English</source>
         <translation>English</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10998"/>
+        <location filename="rufus.cpp" line="11001"/>
         <source>Español</source>
         <translation>Español</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10999"/>
+        <location filename="rufus.cpp" line="11002"/>
         <source>Brasileiro</source>
         <translation>Brasileiro</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11000"/>
+        <location filename="rufus.cpp" line="11003"/>
         <source>Português</source>
         <translation>Português</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11007"/>
+        <location filename="rufus.cpp" line="11004"/>
+        <source>Italiano</source>
+        <translation>Italiano</translation>
+    </message>
+    <message>
+        <location filename="rufus.cpp" line="11005"/>
+        <source>Română</source>
+        <translation>Română</translation>
+    </message>
+    <message>
+        <location filename="rufus.cpp" line="11006"/>
+        <source>Català</source>
+        <translation>Català</translation>
+    </message>
+    <message>
+        <location filename="rufus.cpp" line="11016"/>
         <source>Quitter</source>
         <translation>Surt</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11027"/>
+        <location filename="rufus.cpp" line="11036"/>
         <source>Dossier</source>
         <translation>Expedient</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11028"/>
+        <location filename="rufus.cpp" line="11037"/>
         <source>Edition</source>
         <translation>Edició</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11034"/>
+        <location filename="rufus.cpp" line="11043"/>
         <source>Comptabilité</source>
         <translation>Comptabilitat</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11037"/>
+        <location filename="rufus.cpp" line="11046"/>
         <source>Aide</source>
         <translation>Ajuda</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11039"/>
+        <location filename="rufus.cpp" line="11048"/>
         <source>Emettre</source>
         <translation>Emet</translation>
     </message>

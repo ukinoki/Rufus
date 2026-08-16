@@ -1318,7 +1318,7 @@ Vérifiez que le compte « %2 » possède le privilège FILE et que les droits d
 Check that the &quot;%2&quot; account has the FILE privilege and that the folder permissions allow writing.</translation>
     </message>
     <message>
-        <location line="+217"/>
+        <location line="+214"/>
         <source>Mise à jour du partage réseau</source>
         <translation>Updating the network share</translation>
     </message>
@@ -1344,7 +1344,7 @@ Check that the &quot;%2&quot; account has the FILE privilege and that the folder
         <translation>Depending on the size of the imaging folder, the operation may take one to two minutes, during which the screen may appear frozen.</translation>
     </message>
     <message>
-        <location line="+414"/>
+        <location line="+409"/>
         <source>Ce poste utilise un mot de passe sécurisé pour accèder au serveur de base de données.</source>
         <translation>This computer uses a secure password to access the database server.</translation>
     </message>
@@ -1653,7 +1653,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>The emergency connection works, but Rufus could not rewrite the database access accounts.</translation>
     </message>
     <message>
-        <location line="+867"/>
+        <location line="+885"/>
         <source>Téléchargement de MySQL impossible</source>
         <translation>MySQL download failed</translation>
     </message>
@@ -1693,7 +1693,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>and will configure it automatically for its use.</translation>
     </message>
     <message>
-        <location line="-2920"/>
+        <location line="-2930"/>
         <source>Privilèges manquants</source>
         <translation>Missing privileges</translation>
     </message>
@@ -1703,7 +1703,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>Missing privilege(s) for &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <location line="+217"/>
+        <location line="+214"/>
         <source>Correction de la configuration MySQL</source>
         <translation>Correcting the MySQL configuration</translation>
     </message>
@@ -1713,7 +1713,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>Checking and correcting the configuration…</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+10"/>
         <source>Configuration corrigée</source>
         <translation>Configuration corrected</translation>
     </message>
@@ -1959,7 +1959,7 @@ Cela peut durer plusieurs minutes.</source>
 This may take several minutes.</translation>
     </message>
     <message>
-        <location line="+302"/>
+        <location line="+319"/>
         <source>Non</source>
         <translation>No</translation>
     </message>
@@ -1969,7 +1969,7 @@ This may take several minutes.</translation>
         <translation>Yes</translation>
     </message>
     <message>
-        <location line="+320"/>
+        <location line="+321"/>
         <source>Pas d&apos;accès réseau</source>
         <translation>No network access</translation>
     </message>
@@ -2000,7 +2000,7 @@ Closing the program.</translation>
 <context>
     <name>MySQLInstallerDialog</name>
     <message>
-        <location line="-4733"/>
+        <location line="-4743"/>
         <location line="+5"/>
         <source>Préparation de MySQL pour Rufus</source>
         <translation>Preparing MySQL for Rufus</translation>
@@ -4493,7 +4493,9 @@ d&apos;une sauvegarde ou recréer une base patients vierge?
 </source>
         <translation>The database is damaged.
 Do you want to rebuild it from
-a backup, or create a blank patient database?</translation>
+a backup, or create a blank patient database?
+
+</translation>
     </message>
     <message>
         <location line="+639"/>
@@ -5092,7 +5094,7 @@ Keep it in a safe place (on paper or on a USB drive): it is required to connect 
         <translation>IMPORTANT: the generic password for accessing the database has just been deleted.</translation>
     </message>
     <message>
-        <location line="+2537"/>
+        <location line="+2529"/>
         <source>Choisissez un mot de passe de SECOURS pour votre base de données.
 
 Il ne servira qu&apos;à reprendre la main sur votre base si tous les autres
@@ -5288,7 +5290,7 @@ will be copied automatically</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location filename="rufus.cpp" line="+5035"/>
+        <location filename="rufus.cpp" line="+5038"/>
         <source>Recopier</source>
         <translation>Recopy</translation>
     </message>
@@ -5301,7 +5303,8 @@ will be copied automatically</translation>
         <location line="+3"/>
         <source>Liste des
 patients - F5</source>
-        <translation>Patient list- F5</translation>
+        <translation>Patient
+list - F5</translation>
     </message>
     <message>
         <location line="+70"/>
@@ -5331,7 +5334,8 @@ patients - F5</source>
         <location filename="rufus.cpp" line="-440"/>
         <source>Créer
 le dossier</source>
-        <translation>Create file</translation>
+        <translation>Create
+the file</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -5344,7 +5348,7 @@ birth date</translation>
     <message>
         <location line="+128"/>
         <location line="+2059"/>
-        <location filename="rufus.cpp" line="-5211"/>
+        <location filename="rufus.cpp" line="-5214"/>
         <location line="+1004"/>
         <source>Envoyer un message</source>
         <translation>Send a message</translation>
@@ -5487,25 +5491,29 @@ correspondents</translation>
         <location line="+75"/>
         <source>Consultation
 suivante</source>
-        <translation>Next act</translation>
+        <translation>Next
+act</translation>
     </message>
     <message>
         <location line="+33"/>
         <source>Consultation
 précédente</source>
-        <translation>Prior act</translation>
+        <translation>Previous
+act</translation>
     </message>
     <message>
         <location line="+96"/>
         <source>Premier
 acte</source>
-        <translation>First act</translation>
+        <translation>First
+act</translation>
     </message>
     <message>
         <location line="+33"/>
         <source>Dernier
 acte</source>
-        <translation>Last act</translation>
+        <translation>Last
+act</translation>
     </message>
     <message>
         <location line="+33"/>
@@ -5550,15 +5558,15 @@ acte</source>
     </message>
     <message>
         <location line="+54"/>
-        <location filename="rufus.cpp" line="+3778"/>
+        <location filename="rufus.cpp" line="+3781"/>
         <source>Cotation</source>
         <translation>Quotation</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location filename="rufus.cpp" line="-1860"/>
+        <location filename="rufus.cpp" line="-1863"/>
         <location line="+4"/>
-        <location line="+1857"/>
+        <location line="+1860"/>
         <source>Montant</source>
         <translation>Amount</translation>
     </message>
@@ -5614,7 +5622,7 @@ acte</source>
     </message>
     <message>
         <location line="+39"/>
-        <location filename="rufus.cpp" line="-4554"/>
+        <location filename="rufus.cpp" line="-4557"/>
         <source>Enregistrer le paiement</source>
         <translation>Save payment</translation>
     </message>
@@ -5636,7 +5644,7 @@ acte</source>
     <message>
         <location line="+44"/>
         <location filename="rufus.cpp" line="-940"/>
-        <location line="+8012"/>
+        <location line="+8021"/>
         <source>Acte</source>
         <translation>Act</translation>
     </message>
@@ -5647,8 +5655,8 @@ acte</source>
     </message>
     <message>
         <location line="+26"/>
-        <location filename="rufus.cpp" line="-2132"/>
-        <location line="+2135"/>
+        <location filename="rufus.cpp" line="-2138"/>
+        <location line="+2141"/>
         <source>Documents</source>
         <translation>Documents</translation>
     </message>
@@ -5678,7 +5686,7 @@ acte</source>
         <translation>Treatments in progress</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="-10963"/>
+        <location filename="rufus.cpp" line="-10972"/>
         <source>Erreur fichier Rufus.ini</source>
         <translation>Error file Rufus.ini</translation>
     </message>
@@ -5731,12 +5739,12 @@ Program exit</translation>
         <location line="+22"/>
         <location line="+193"/>
         <location line="+279"/>
-        <location line="+4952"/>
+        <location line="+4955"/>
         <source>Messages</source>
         <translation>Messages</translation>
     </message>
     <message>
-        <location line="-10676"/>
+        <location line="-10679"/>
         <source>Connexion TCP OK</source>
         <translation>TCP Connexion OK</translation>
     </message>
@@ -5786,7 +5794,8 @@ Program exit</translation>
         <location line="+137"/>
         <source>Le ou les actes que vous avez sélectionnés
 sont déjà en cours d&apos;enregistrement!</source>
-        <translation>The act(s) you have selected are already being recorded!</translation>
+        <translation>The act(s) you have selected
+are already being recorded!</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -5794,22 +5803,22 @@ sont déjà en cours d&apos;enregistrement!</source>
         <location line="+6"/>
         <location line="+19"/>
         <location line="+14"/>
-        <location line="+2974"/>
+        <location line="+2977"/>
         <source>Il manque la cotation!</source>
         <translation>The quotation is missing!</translation>
     </message>
     <message>
-        <location line="-8861"/>
+        <location line="-8864"/>
         <location line="+5850"/>
         <location line="+25"/>
         <location line="+17"/>
         <location line="+62"/>
-        <location line="+2907"/>
+        <location line="+2910"/>
         <source>Il manque le montant!</source>
         <translation>The amount is missing!</translation>
     </message>
     <message>
-        <location line="-8858"/>
+        <location line="-8861"/>
         <source>Vous ne pouvez pas enregistrer le paiement de cet acte !</source>
         <translation>You cannot record payment for this act!</translation>
     </message>
@@ -5826,19 +5835,19 @@ sont déjà en cours d&apos;enregistrement!</source>
     <message>
         <location line="+7"/>
         <location line="+5901"/>
-        <location line="+903"/>
+        <location line="+906"/>
         <source>Consultation gratuite</source>
         <translation>Free consultation</translation>
     </message>
     <message>
-        <location line="-6803"/>
+        <location line="-6806"/>
         <location line="+5897"/>
-        <location line="+903"/>
+        <location line="+906"/>
         <source>Vous avez entré un montant nul !</source>
         <translation>You&apos;ve entered a zero amount!</translation>
     </message>
     <message>
-        <location line="-6799"/>
+        <location line="-6802"/>
         <source>Enregistrer cette consultation comme gratuite?</source>
         <translation>Save this consultation as free?</translation>
     </message>
@@ -5848,7 +5857,7 @@ sont déjà en cours d&apos;enregistrement!</source>
         <location line="+5445"/>
         <location line="+599"/>
         <location line="+49"/>
-        <location line="+493"/>
+        <location line="+496"/>
         <location line="+605"/>
         <location line="+1392"/>
         <location line="+154"/>
@@ -5857,35 +5866,35 @@ sont déjà en cours d&apos;enregistrement!</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location line="-9245"/>
+        <location line="-9248"/>
         <source>Impossible d&apos;enregister cet acte comme gratuit</source>
         <translation>Impossible to save this act as a free act</translation>
     </message>
     <message>
         <location line="+108"/>
-        <location line="+9635"/>
+        <location line="+9638"/>
         <source>Gestion des tiers payants</source>
         <translation>Third-party payment management</translation>
     </message>
     <message>
-        <location line="-9616"/>
+        <location line="-9619"/>
         <source>Autre Dossier</source>
         <translation>Other file</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+7743"/>
+        <location line="+7746"/>
         <source>Revenir au tarif conventionnel</source>
         <translation>Returning to the conventional rate</translation>
     </message>
     <message>
-        <location line="-7738"/>
-        <location line="+7737"/>
+        <location line="-7741"/>
+        <location line="+7740"/>
         <source>Revenir au tarif habituellement pratiqué</source>
         <translation>Return to the usual rate</translation>
     </message>
     <message>
-        <location line="-7576"/>
+        <location line="-7579"/>
         <source>Reprendre</source>
         <translation>Resume</translation>
     </message>
@@ -5900,7 +5909,8 @@ orthoptic chekup</translation>
         <location line="+3"/>
         <source>Voulez-vous reprendre le bilan affiché
 ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
-        <translation>Would you like to take over the checkup displayed or create a new heckup for today&apos;s date?</translation>
+        <translation>Would you like to take over the checkup displayed
+or create a new checkup with today&apos;s date?</translation>
     </message>
     <message>
         <location line="+311"/>
@@ -6428,12 +6438,12 @@ on a folder to open it</translation>
     <message>
         <location line="+5"/>
         <location line="+203"/>
-        <location line="+7072"/>
+        <location line="+7075"/>
         <source>Créer un dossier de la même famille</source>
         <translation>Create a file of same family</translation>
     </message>
     <message>
-        <location line="-7264"/>
+        <location line="-7267"/>
         <location line="+247"/>
         <source>Programmer une intervention</source>
         <translation>Schedule surgery</translation>
@@ -6462,12 +6472,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+7255"/>
+        <location line="+7258"/>
         <source>Enregistrer une video</source>
         <translation>Save a video</translation>
     </message>
     <message>
-        <location line="-7230"/>
+        <location line="-7233"/>
         <source>Pas de consultation enregistrée pour </source>
         <translation>No act registered for </translation>
     </message>
@@ -6494,12 +6504,12 @@ on a folder to open it</translation>
     <message>
         <location line="+8"/>
         <location line="+3783"/>
-        <location line="+3104"/>
+        <location line="+3107"/>
         <source>Ouvrir le dossier</source>
         <translation>Open the file</translation>
     </message>
     <message>
-        <location line="-6842"/>
+        <location line="-6845"/>
         <source>Reprendre le dossier</source>
         <translation>Resume file</translation>
     </message>
@@ -6570,12 +6580,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+91"/>
-        <location line="+6560"/>
+        <location line="+6563"/>
         <source>Paramètres</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location line="-6485"/>
+        <location line="-6488"/>
         <location line="+913"/>
         <source>Vous avez oublié de rédiger le texte de votre message!</source>
         <translation>You forgot to write the text of your message!</translation>
@@ -6593,12 +6603,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="-843"/>
-        <location line="+3832"/>
+        <location line="+3835"/>
         <source>dd/MM/yyyy</source>
         <translation>MM/dd/yyyy</translation>
     </message>
     <message>
-        <location line="-3809"/>
+        <location line="-3812"/>
         <source>A propos de </source>
         <translation>About </translation>
     </message>
@@ -6609,12 +6619,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+5069"/>
+        <location line="+5072"/>
         <source>Tout le monde</source>
         <translation>Everybody</translation>
     </message>
     <message>
-        <location line="-4983"/>
+        <location line="-4986"/>
         <source>Tâche à accomplir avant le </source>
         <translation>Task to be completed before </translation>
     </message>
@@ -6770,26 +6780,26 @@ on a folder to open it</translation>
         <location line="+129"/>
         <location line="+8"/>
         <location line="+11"/>
-        <location line="+5231"/>
+        <location line="+5234"/>
         <source>Vous avez </source>
         <translation>You have </translation>
     </message>
     <message>
-        <location line="-5250"/>
+        <location line="-5253"/>
         <location line="+19"/>
-        <location line="+5231"/>
+        <location line="+5234"/>
         <source> nouveaux messages</source>
         <translation> new messages</translation>
     </message>
     <message>
-        <location line="-5248"/>
+        <location line="-5251"/>
         <location line="+19"/>
-        <location line="+5231"/>
+        <location line="+5234"/>
         <source>Vous avez 1 nouveau message</source>
         <translation>You have 1 new message</translation>
     </message>
     <message>
-        <location line="-5244"/>
+        <location line="-5247"/>
         <source> messages</source>
         <translation> messages</translation>
     </message>
@@ -6810,13 +6820,13 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+262"/>
-        <location line="+4130"/>
+        <location line="+4133"/>
         <location line="+13"/>
         <source>inconnu</source>
         <translation>unknown</translation>
     </message>
     <message>
-        <location line="-4133"/>
+        <location line="-4136"/>
         <source>administrateur</source>
         <translation>administrator</translation>
     </message>
@@ -6908,24 +6918,24 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+903"/>
+        <location line="+906"/>
         <source>Enregistrer cet acte comme gratuit?</source>
         <translation>Save this act as free of charge?</translation>
     </message>
     <message>
-        <location line="-900"/>
-        <location line="+903"/>
+        <location line="-903"/>
+        <location line="+906"/>
         <source>Non</source>
         <translation>No</translation>
     </message>
     <message>
-        <location line="-887"/>
-        <location line="+2922"/>
+        <location line="-890"/>
+        <location line="+2925"/>
         <source>il manque les informations de paiement</source>
         <translation>missing payment information</translation>
     </message>
     <message>
-        <location line="-2831"/>
+        <location line="-2834"/>
         <source>Fermer quand même</source>
         <translation>Close anyway</translation>
     </message>
@@ -6998,12 +7008,12 @@ name and first name</translation>
     </message>
     <message>
         <location line="+15"/>
-        <location line="+3133"/>
+        <location line="+3136"/>
         <source>Ce patient est déjà venu!</source>
         <translation>This patient has been here before!</translation>
     </message>
     <message>
-        <location line="-3127"/>
+        <location line="-3130"/>
         <source>Ouverture du dossier de </source>
         <translation>Openig file from </translation>
     </message>
@@ -7034,7 +7044,9 @@ in waiting room</translation>
         <source>Il existe des dossiers similaires
 à celui que vous essayez d&apos;enregistrer!
 Le créer quand meme?</source>
-        <translation>There are similar folders to the one you&apos;re trying to save! Create it anyway?</translation>
+        <translation>There are files similar to the one
+you are trying to save!
+Create it anyway?</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -7043,27 +7055,27 @@ Le créer quand meme?</source>
     </message>
     <message>
         <location line="+34"/>
-        <location line="+608"/>
+        <location line="+611"/>
         <location line="+2496"/>
         <source>Dossier </source>
         <translation>File </translation>
     </message>
     <message>
-        <location line="-3104"/>
-        <location line="+3104"/>
+        <location line="-3107"/>
+        <location line="+3107"/>
         <source> créé</source>
         <translation> created</translation>
     </message>
     <message>
-        <location line="-3103"/>
-        <location line="+608"/>
+        <location line="-3106"/>
+        <location line="+611"/>
         <location line="+2496"/>
         <source>Ouvrir le dossier ou inscrire le dossier en salle d&apos;attente?</source>
         <translation>Open the file or put it in the waiting room?</translation>
     </message>
     <message>
-        <location line="-3102"/>
-        <location line="+609"/>
+        <location line="-3105"/>
+        <location line="+612"/>
         <location line="+2495"/>
         <source>Inscrire le dossier
 en salle d&apos;attente</source>
@@ -7071,8 +7083,8 @@ en salle d&apos;attente</source>
 in waiting room</translation>
     </message>
     <message>
-        <location line="-3102"/>
-        <location line="+609"/>
+        <location line="-3105"/>
+        <location line="+612"/>
         <location line="+2495"/>
         <source>Ne rien faire</source>
         <translation>Do nothing</translation>
@@ -7302,13 +7314,28 @@ Check those to replace:</translation>
         <translation>Português</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+1"/>
+        <source>Italiano</source>
+        <translation>Italiano</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Română</source>
+        <translation>Română</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Català</source>
+        <translation>Català</translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>Quitter</source>
         <translation>Quit</translation>
     </message>
     <message>
-        <location line="-3265"/>
-        <location line="+3163"/>
+        <location line="-3274"/>
+        <location line="+3166"/>
         <source>Information statut</source>
         <translation>Status information</translation>
     </message>
@@ -7318,7 +7345,7 @@ Check those to replace:</translation>
         <translation>Show pending letters</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+51"/>
         <source>Dossier</source>
         <translation>File</translation>
     </message>
@@ -7343,7 +7370,7 @@ Check those to replace:</translation>
         <translation>Help</translation>
     </message>
     <message>
-        <location line="-3238"/>
+        <location line="-3244"/>
         <source>Copier</source>
         <translation>Copy</translation>
     </message>
@@ -7413,7 +7440,8 @@ waiting room</translation>
         <location line="+2"/>
         <source>Fermer
 le dossier</source>
-        <translation>Close file</translation>
+        <translation>Close
+the file</translation>
     </message>
     <message>
         <location line="+107"/>
@@ -7737,7 +7765,8 @@ You need to modify the corresponding entry to be able to delete the act.</transl
         <location filename="TextPrinter/textprinter.cpp" line="+103"/>
         <source>Aucune imprimante n&apos;est
 configurée sur cet ordinateur!</source>
-        <translation>No printer is configured on this computer!</translation>
+        <translation>No printer is
+configured on this computer!</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -8264,25 +8293,29 @@ Le nom de dossier ne doit pas contenir d&apos;espace</oldsource>
         <location line="+135"/>
         <source>Dernier
 acte</source>
-        <translation>Last act</translation>
+        <translation>Last
+act</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Consultation
 suivante</source>
-        <translation>Next act</translation>
+        <translation>Next
+act</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Premier
 acte</source>
-        <translation>First act</translation>
+        <translation>First
+act</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Consultation
 précédente</source>
-        <translation>Prior act</translation>
+        <translation>Previous
+act</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_actesprecedents.cpp" line="+62"/>
@@ -9224,13 +9257,15 @@ occlusion</translation>
         <location line="+107"/>
         <source>Divers et
 autres recettes</source>
-        <translation></translation>
+        <translation>Miscellaneous and
+other income</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apports
 praticiens</source>
-        <translation></translation>
+        <translation>Practitioners&apos;
+contributions</translation>
     </message>
 </context>
 <context>
@@ -9698,7 +9733,8 @@ schedule</translation>
         <location line="+40"/>
         <source>Nouvelle
 dépense</source>
-        <translation>New expense</translation>
+        <translation>New
+expense</translation>
     </message>
     <message>
         <location line="+52"/>
@@ -10816,7 +10852,8 @@ date de naissance</source>
         <location line="+19"/>
         <source>Abréviation
 (10 caractères maxi)</source>
-        <translation></translation>
+        <translation>Abbreviation
+(10 characters max)</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionbanques.cpp" line="+32"/>
@@ -11536,7 +11573,8 @@ right-click to modify</translation>
         <location line="+69"/>
         <source>Fonction indisponible
 pour le moment</source>
-        <translation>Function currently unavailable</translation>
+        <translation>Function currently
+unavailable</translation>
     </message>
     <message>
         <location line="+109"/>
@@ -13675,7 +13713,8 @@ the patient&apos;s name will appear in the header</translation>
         <location line="+62"/>
         <source>Revenir au mode
 sélection de document</source>
-        <translation>Return to document selection mode</translation>
+        <translation>Return to document
+selection mode</translation>
     </message>
     <message>
         <location line="-186"/>
@@ -14202,7 +14241,8 @@ You must first make this folder private!</translation>
         <location line="+19"/>
         <source>Afficher les commentaires publics
 des autres utilisateurs</source>
-        <translation>View other users&apos; public comments</translation>
+        <translation>View other users&apos;
+public comments</translation>
     </message>
     <message>
         <location line="+121"/>
@@ -14677,7 +14717,8 @@ selection mode</translation>
         <location line="+11"/>
         <source>Enregistrer
 le mot clé</source>
-        <translation>Save keyword</translation>
+        <translation>Save
+the keyword</translation>
     </message>
     <message>
         <location line="+107"/>
@@ -15148,7 +15189,8 @@ for</translation>
         <location line="+35"/>
         <source>Enregistrer
 un paiement</source>
-        <translation>Save a payment</translation>
+        <translation>Save
+a payment</translation>
     </message>
     <message>
         <location line="+33"/>
@@ -15345,7 +15387,7 @@ for this act</translation>
         <source>Annuler et
 rétablir l&apos;écriture</source>
         <translation>Undo and
-restore entry</translation>
+restore the entry</translation>
     </message>
     <message>
         <location line="+48"/>
@@ -15361,7 +15403,8 @@ restore entry</translation>
         <location line="+1"/>
         <source>Valider
 et fermer</source>
-        <translation>Validate and close</translation>
+        <translation>Validate
+and close</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -15467,7 +15510,8 @@ et fermer</source>
         <location line="+136"/>
         <source>Vous ne pouvez pas modifier cet acte!
 Son montant est nul.</source>
-        <translation>You cannot modify this act! Its amount is zero.</translation>
+        <translation>You cannot modify this act!
+Its amount is zero.</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -15667,8 +15711,8 @@ Would you like to save it?</translation>
 pour cette recette!
 Confirmez vous la saisie?</source>
         <translation>You have not recorded any act
-for this recipe!
-Do you confirm your entry?</translation>
+for this income!
+Do you confirm the entry?</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -16103,7 +16147,8 @@ and close</translation>
         <location line="+251"/>
         <source>Annuler et
 rétablir l&apos;écriture</source>
-        <translation>Undo and restore entry</translation>
+        <translation>Undo and
+restore the entry</translation>
     </message>
     <message>
         <location line="+438"/>
@@ -16218,7 +16263,9 @@ Would you like to save it?</translation>
         <source>Vous n&apos;avez enregistré aucun acte
 pour cette recette!
 Confirmez vous la saisie?</source>
-        <translation>You haven&apos;t recorded any deeds for this registration!</translation>
+        <translation>You have not recorded any act
+for this income!
+Do you confirm the entry?</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -16641,25 +16688,29 @@ of image files imported from this workstation</translation>
         <location line="+25"/>
         <source>Effectuer une sauvegarde
 immédiatement</source>
-        <translation>Back up immediately</translation>
+        <translation>Back up
+immediately</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Effacer la programmation
 des sauvegardes</source>
-        <translation>Delete backup programming</translation>
+        <translation>Delete the backup
+scheduling</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Restaurer
 la base</source>
-        <translation>Restore database</translation>
+        <translation>Restore
+the database</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Réinitialiser
 les données</source>
-        <translation>Reset datas</translation>
+        <translation>Reset
+the data</translation>
     </message>
     <message>
         <location line="+100"/>
@@ -16682,7 +16733,8 @@ les données</source>
         <location line="+29"/>
         <source>Modifier la
 liste des villes</source>
-        <translation>Modify city list</translation>
+        <translation>Modify the
+city list</translation>
     </message>
     <message>
         <location line="+48"/>
@@ -17578,7 +17630,8 @@ Do you want to save it?</translation>
         <location line="+51"/>
         <source>Revenir aux réglages
 par défaut pour cet appareil</source>
-        <translation>Return to default settings for this device</translation>
+        <translation>Return to the default
+settings for this device</translation>
     </message>
     <message>
         <location line="+120"/>

@@ -7768,6 +7768,9 @@ void Rufus::CreerMenu()
         connect (actionSpanish,                     &QAction::triggered,        this,                   [=, this] {switchTranslator("es");});
         connect (actionBrazil,                      &QAction::triggered,        this,                   [=, this] {switchTranslator("br");});
         connect (actionPortugal,                    &QAction::triggered,        this,                   [=, this] {switchTranslator("pt");});
+        connect (actionItaly,                       &QAction::triggered,        this,                   [=, this] {switchTranslator("it");});
+        connect (actionRomania,                     &QAction::triggered,        this,                   [=, this] {switchTranslator("ro");});
+        connect (actionCatalonia,                   &QAction::triggered,        this,                   [=, this] {switchTranslator("ca");});
 
 
     // 2. DEFINITION DES MENUS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -10998,11 +11001,17 @@ void Rufus::retranslateActions() {
     actionSpanish   = retranslateAction(actionSpanish, tr("Español"));
     actionBrazil    = retranslateAction(actionBrazil, tr("Brasileiro"));
     actionPortugal  = retranslateAction(actionPortugal, tr("Português"));
+    actionItaly     = retranslateAction(actionItaly, tr("Italiano"));
+    actionRomania   = retranslateAction(actionRomania, tr("Română"));
+    actionCatalonia = retranslateAction(actionCatalonia, tr("Català"));
     actionFrench    ->setIcon( QPixmap("://France.ico") );
     actionEnglish   ->setIcon( QPixmap("://United-kingdom.ico") );
     actionSpanish   ->setIcon( QPixmap("://Spain.ico") );
     actionBrazil    ->setIcon( QPixmap("://Brazil.ico") );
     actionPortugal  ->setIcon( QPixmap("://Portugal.ico") );
+    actionItaly     ->setIcon( QPixmap("://Italy.ico") );
+    actionRomania   ->setIcon( QPixmap("://Romania.ico") );
+    actionCatalonia ->setIcon( QPixmap("://Catalonia.ico") );
 
     actionQuit = retranslateAction(actionQuit, tr("Quitter"));
     actionQuit->setMenuRole(QAction::PreferencesRole);
