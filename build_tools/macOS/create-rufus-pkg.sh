@@ -116,7 +116,9 @@ echo "==> clients SQL embarqués depuis ${MYSQL_HOME}"
 
 # Filet : une dépendance hors bundle = binaire mort chez l'utilisateur.
 for c in mysql mysqldump; do
-    reste="$(otool -L "${CLIENTS_DIR}/${c}" | awk 'NR>1 && $1 !~ /^@|^\/usr\/lib\/|^\/System\// {print $1}')"
+    # Seules les lignes indentées sont des dépendances : sur un binaire universel, otool répète
+    # la ligne d'en-tête à chaque architecture.
+    reste="$(otool -L "${CLIENTS_DIR}/${c}" | awk '/^\t/ && $1 !~ /^@|^\/usr\/lib\/|^\/System\// {print $1}')"
     [ -z "${reste}" ] || { echo "   ✗ ${c} dépend encore de : ${reste}"; exit 1; }
 done
 
