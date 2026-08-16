@@ -155,6 +155,17 @@ if (-not $InstallerOnly) {
     & "$QtRoot\bin\windeployqt.exe" --release --compiler-runtime --sql "$Deploy\Rufus.exe"
     if ($LASTEXITCODE -ne 0) { throw "windeployqt a échoué." }
     Copy-Item -Recurse -Force assets "$Deploy\assets"
+    # Traductions et clients SQL : mêmes emplacements que la CI (release.yml), lus par
+    # cheminQmLangue et Procedures::setDirSQLExecutable.
+    New-Item -ItemType Directory -Force -Path "$Deploy\Locale" | Out-Null
+    Copy-Item "$RepoRoot\rufus_*.qm" "$Deploy\Locale\" -Force
+    $mysqlSrc = Get-ChildItem -Path 'C:\tools\mysql','C:\Program Files\MySQL' -Recurse `
+                  -Filter mysqldump.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $mysqlSrc) { throw "mysql.exe / mysqldump.exe introuvables : l'installeur ne pourrait ni sauvegarder ni restaurer." }
+    New-Item -ItemType Directory -Force -Path "$Deploy\Applications" | Out-Null
+    Copy-Item "$($mysqlSrc.DirectoryName)\mysql.exe","$($mysqlSrc.DirectoryName)\mysqldump.exe" `
+              "$Deploy\Applications\" -Force
+    Write-Host "Traductions -> Deploy\Locale ; clients SQL -> Deploy\Applications ($($mysqlSrc.DirectoryName))"
     # Lib client SQL dont DÉPEND réellement le pilote (libmariadb.dll de notre build, ou libmysql.dll
     # du client Oracle) : on détecte la dépendance exacte, on la localise, et on la copie à côté de
     # Rufus.exe. Sans elle, qsqlmysql.dll ne se charge pas et Rufus ne voit pas MySQL.
