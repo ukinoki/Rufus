@@ -101,26 +101,17 @@ fi
 # exigeraient /opt/homebrew, absent chez l'utilisateur.)
 CLIENTS_DIR="${APP_PATH}/Contents/Applications"
 LIB_DIR="${APP_PATH}/Contents/lib"
-MYSQL_HOME="/usr/local/mysql"
-
-if [ ! -x "${MYSQL_HOME}/bin/mysql" ]; then
-    # Runner GitHub : pas de MySQL Oracle installé.
-    ARCHTAG="macos14-$(uname -m)"
-    [ "$(uname -m)" = "x86_64" ] && ARCHTAG="macos14-x86_64"
-    PKGNAME="mysql-${MYSQL_VERSION_CLIENTS:-8.4.2}-${ARCHTAG}"
-    TMPMYSQL="$(mktemp -d)"
-    echo "==> téléchargement des clients Oracle (${PKGNAME})"
-    curl -fL --retry 3 -o "${TMPMYSQL}/mysql.tar.gz" \
-        "https://cdn.mysql.com/Downloads/MySQL-8.4/${PKGNAME}.tar.gz"
-    tar xzf "${TMPMYSQL}/mysql.tar.gz" -C "${TMPMYSQL}"
-    MYSQL_HOME="${TMPMYSQL}/${PKGNAME}"
-fi
+# Livrés dans le dépôt (mysql-clients) pour que CI et fabrication locale donnent le même paquet ;
+# à défaut, le MySQL Oracle du poste.
+MYSQL_HOME="${HERE}/mysql-clients"
+[ -x "${MYSQL_HOME}/bin/mysql" ] || MYSQL_HOME="/usr/local/mysql"
 [ -x "${MYSQL_HOME}/bin/mysql" ] || { echo "   ✗ clients MySQL Oracle introuvables : sauvegarde et restauration impossibles"; exit 1; }
 
 mkdir -p "${CLIENTS_DIR}" "${LIB_DIR}"
 cp -f "${MYSQL_HOME}/bin/mysql" "${MYSQL_HOME}/bin/mysqldump"        "${CLIENTS_DIR}/"
 cp -f "${MYSQL_HOME}/lib/libssl.3.dylib" "${MYSQL_HOME}/lib/libcrypto.3.dylib" "${LIB_DIR}/"
-chmod u+w "${CLIENTS_DIR}/mysql" "${CLIENTS_DIR}/mysqldump" "${LIB_DIR}"/lib*.dylib
+chmod u+wx "${CLIENTS_DIR}/mysql" "${CLIENTS_DIR}/mysqldump"
+chmod u+w  "${LIB_DIR}"/lib*.dylib
 echo "==> clients SQL embarqués depuis ${MYSQL_HOME}"
 
 # Filet : une dépendance hors bundle = binaire mort chez l'utilisateur.
