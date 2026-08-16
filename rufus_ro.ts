@@ -587,7 +587,7 @@ consulta = </translation>
         <translation>Integrarea noii liste de implanturi…</translation>
     </message>
     <message>
-        <location line="+518"/>
+        <location line="+532"/>
         <source>Optimisation des images des implants…</source>
         <translation>Optimizarea imaginilor implanturilor…</translation>
     </message>
@@ -844,20 +844,22 @@ consulta = </translation>
 <context>
     <name>ItemsList</name>
     <message>
-        <location filename="ItemsLists/cls_itemslist.cpp" line="+1579"/>
+        <location filename="ItemsLists/cls_itemslist.cpp" line="+1591"/>
+        <location line="+35"/>
         <location line="+43"/>
         <location line="+6"/>
         <source>Enregistrement impossible</source>
         <translation>Salvare imposibilă</translation>
     </message>
     <message>
-        <location line="-48"/>
+        <location line="-83"/>
+        <location line="+35"/>
         <location line="+49"/>
         <source>La modification n&apos;a pas pu être enregistrée dans la base de données (le serveur est peut-être momentanément indisponible).</source>
         <translation>Modificarea nu a putut fi salvată în baza de date (serverul este poate momentan indisponibil).</translation>
     </message>
     <message>
-        <location filename="ItemsLists/cls_itemslist.h" line="+401"/>
+        <location filename="ItemsLists/cls_itemslist.h" line="+412"/>
         <source>Suppression impossible - l&apos;item n&apos;est pas reconnu</source>
         <translation>Ștergere imposibilă - elementul nu este recunoscut</translation>
     </message>
@@ -1325,7 +1327,7 @@ Verificați că respectivul cont « %2 » deține privilegiul FILE și că drept
         <translation>Privilegiu (privilegii) lipsă pentru « %1 »: %2</translation>
     </message>
     <message>
-        <location line="+202"/>
+        <location line="+205"/>
         <source>Mise à jour du partage réseau</source>
         <translation>Actualizarea partajării în rețea</translation>
     </message>
@@ -1361,7 +1363,7 @@ Verificați că respectivul cont « %2 » deține privilegiul FILE și că drept
         <translation>Verificarea și corectarea configurației în curs…</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+15"/>
         <source>Configuration corrigée</source>
         <translation>Configurație corectată</translation>
     </message>
@@ -1997,7 +1999,7 @@ Fermeture du programme.</source>
 <context>
     <name>MySQLInstallerDialog</name>
     <message>
-        <location line="-4748"/>
+        <location line="-4756"/>
         <location line="+5"/>
         <source>Préparation de MySQL pour Rufus</source>
         <translation>Pregătirea MySQL pentru Rufus</translation>
@@ -2170,7 +2172,6 @@ Fermeture du programme.</source>
     <message>
         <location line="-5"/>
         <location line="+6"/>
-        <location line="+0"/>
         <source>En attente de nouvel examen par </source>
         <translation>În așteptarea unui nou examen de către </translation>
     </message>
@@ -2183,7 +2184,6 @@ Fermeture du programme.</source>
     <message>
         <location line="-5"/>
         <location line="+6"/>
-        <location line="+0"/>
         <source>En cours de consultation avec </source>
         <translation>În curs de consultație cu </translation>
     </message>
@@ -2263,7 +2263,7 @@ Fermeture du programme.</source>
 <context>
     <name>Procedures</name>
     <message>
-        <location filename="procedures.cpp" line="+268"/>
+        <location filename="procedures.cpp" line="+274"/>
         <source>Choisir une période</source>
         <translation>Alegeți o perioadă</translation>
     </message>
@@ -2478,14 +2478,14 @@ Fermeture du programme.</source>
         <location line="+51"/>
         <location line="+65"/>
         <location line="+19"/>
-        <location line="+747"/>
+        <location line="+756"/>
         <location line="+689"/>
         <location line="+674"/>
         <source>Annuler</source>
         <translation>Anulează</translation>
     </message>
     <message>
-        <location line="-4727"/>
+        <location line="-4736"/>
         <location line="+54"/>
         <source>Reprendre</source>
         <translation>Reia</translation>
@@ -2528,12 +2528,12 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+3233"/>
+        <location line="+3242"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation>Cine înregistrează onorariile pentru </translation>
     </message>
     <message>
-        <location line="-3171"/>
+        <location line="-3180"/>
         <source>remplacé par</source>
         <translation>înlocuit de</translation>
     </message>
@@ -3491,12 +3491,12 @@ cheile corecte</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1830"/>
+        <location line="+1839"/>
         <source>Le serveur du cabinet répond, mais il refuse la liaison chiffrée.</source>
         <translation>Serverul cabinetului răspunde, dar refuză legătura criptată.</translation>
     </message>
     <message>
-        <location line="-1829"/>
+        <location line="-1838"/>
         <source>Les clés SSL de ce poste sont invalides ou périmées.</source>
         <translation>Cheile SSL ale acestei stații sunt invalide sau expirate.</translation>
     </message>
@@ -3589,14 +3589,14 @@ bază de pacienți</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1364"/>
+        <location line="+1373"/>
         <source>Annuler, je vais
 sauvegarder les données</source>
         <translation>Anulează, voi
 salva datele</translation>
     </message>
     <message>
-        <location line="-1363"/>
+        <location line="-1372"/>
         <source>Installer un
 serveur neuf</source>
         <translation>Instalează un
@@ -3620,12 +3620,12 @@ server nou</translation>
     <message>
         <location line="+2"/>
         <location line="+3"/>
-        <location line="+1727"/>
+        <location line="+1736"/>
         <source>Connexion à la base impossible</source>
         <translation>Conectare la bază imposibilă</translation>
     </message>
     <message>
-        <location line="-1726"/>
+        <location line="-1735"/>
         <source>Le mot de passe vient pourtant d&apos;ouvrir la base.</source>
         <translation>Parola tocmai a deschis totuși baza.</translation>
     </message>
@@ -3684,18 +3684,18 @@ server nou</translation>
     <message>
         <location line="+24"/>
         <location line="+1"/>
-        <location line="+1340"/>
+        <location line="+1349"/>
         <source>Impossible de trouver l&apos;exécutable MySQL</source>
         <translation>Imposibil de găsit executabilul MySQL</translation>
     </message>
     <message>
-        <location line="-1340"/>
-        <location line="+1339"/>
+        <location line="-1349"/>
+        <location line="+1348"/>
         <source>Erreur de connexion</source>
         <translation>Eroare de conectare</translation>
     </message>
     <message>
-        <location line="-1339"/>
+        <location line="-1348"/>
         <source>Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base</source>
         <translation>Programul nu va putea efectua nicio operațiune de salvare, restaurare sau actualizare a bazei</translation>
     </message>
@@ -3792,90 +3792,14 @@ server nou</translation>
         <translation>Eroare la crearea utilizatorului</translation>
     </message>
     <message>
-        <location line="+346"/>
+        <location line="+355"/>
         <location line="+11"/>
         <location line="+745"/>
         <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
         <translation>Programul va reporni pentru ca modificările bazei Rufus să poată fi luate în considerare.</translation>
     </message>
     <message>
-        <source>Un compte utilisateur a été créé</source>
-        <translation type="vanished">Un cont de utilizator a fost creat</translation>
-    </message>
-    <message>
-        <source>Un compte utilisateur factice a été créé
-</source>
-        <translation type="vanished">Un cont de utilizator fictiv a fost creat
-</translation>
-    </message>
-    <message>
-        <source>avec le login </source>
-        <translation type="vanished">cu loginul </translation>
-    </message>
-    <message>
-        <source>et le mot de passe que vous avez fourni</source>
-        <translation type="vanished">și parola pe care ați furnizat-o</translation>
-    </message>
-    <message>
-        <source>Voulez-vous conserver ces données pour le moment ou les modifier?</source>
-        <translation type="vanished">Doriți să păstrați aceste date deocamdată sau să le modificați?</translation>
-    </message>
-    <message>
-        <source>Vous pourrez les modifier par la suite</source>
-        <translation type="vanished">Le veți putea modifica ulterior</translation>
-    </message>
-    <message>
-        <source>Une liste arbitraires de cotations a été créée</source>
-        <translation type="vanished">A fost creată o listă arbitrară de codificări</translation>
-    </message>
-    <message>
-        <source>Vous pourrez la modifier par la suite dans le menu Edition/Paramètres
-</source>
-        <translation type="vanished">O veți putea modifica ulterior în meniul Editare/Parametri
-</translation>
-    </message>
-    <message>
-        <source>Modifier les données</source>
-        <translation type="vanished">Modifică datele</translation>
-    </message>
-    <message>
-        <source>Conserver les données</source>
-        <translation type="vanished">Păstrează datele</translation>
-    </message>
-    <message>
-        <source>Enregistrement de l&apos;utilisateur </source>
-        <translation type="vanished">Înregistrarea utilizatorului </translation>
-    </message>
-    <message>
-        <source>Base de données des villes et codes postaux</source>
-        <translation type="vanished">Baza de date a localităților și codurilor poștale</translation>
-    </message>
-    <message>
-        <source>Voulez-vous utiliser la base de données des villes françaises?</source>
-        <translation type="vanished">Doriți să utilizați baza de date a localităților franceze?</translation>
-    </message>
-    <message>
-        <source>Non</source>
-        <translation type="vanished">Nu</translation>
-    </message>
-    <message>
-        <source>Utiliser les codes postaux français</source>
-        <translation type="vanished">Utilizează codurile poștale franceze</translation>
-    </message>
-    <message>
-        <source>Cotations françaises</source>
-        <translation type="vanished">Codificări franceze</translation>
-    </message>
-    <message>
-        <source>Voulez-vous utiliser le système français de cotation des actes médicaux?</source>
-        <translation type="vanished">Doriți să utilizați sistemul francez de codificare a actelor medicale?</translation>
-    </message>
-    <message>
-        <source>Utiliser les cotations françaises</source>
-        <translation type="vanished">Utilizează codificările franceze</translation>
-    </message>
-    <message>
-        <location line="-1008"/>
+        <location line="-1017"/>
         <source>Docteur</source>
         <translation>Doctor</translation>
     </message>
@@ -3885,7 +3809,7 @@ server nou</translation>
         <translation>Medic</translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+201"/>
         <source>La base de cotations Rufus a été mise à jour.</source>
         <translation>Baza de codificări Rufus a fost actualizată.</translation>
     </message>
@@ -3916,10 +3840,6 @@ Doriți să o reconstruiți dintr-o
 copie de siguranță sau să recreați o bază de pacienți goală?
 
 </translation>
-    </message>
-    <message>
-        <source>Le programme va redémarrer pour que certaines données puissent être prises en compte</source>
-        <translation type="vanished">Programul va reporni pentru ca anumite date să poată fi luate în considerare</translation>
     </message>
     <message>
         <location line="+76"/>
@@ -4166,14 +4086,7 @@ salvează baza</translation>
         <translation>Repornire necesară</translation>
     </message>
     <message>
-        <location line="-755"/>
-        <location line="+11"/>
-        <location line="+745"/>
-        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
-        <translation>Programul va reporni pentru ca modificările bazei Rufus să poată fi luate în considerare.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>IMPORTANT — un mot de passe de connexion à votre base de données a été créé</source>
         <translation>IMPORTANT — o parolă de conectare la baza dumneavoastră de date a fost creată</translation>
     </message>
@@ -4795,7 +4708,7 @@ Din păcate, niciuna dintre aceste conexiuni nu pare să funcționeze.</translat
 <context>
     <name>QObject</name>
     <message>
-        <location line="-6210"/>
+        <location line="-6219"/>
         <source>Vous utilisez sur ce poste une version de Rufus prévue pour la version</source>
         <translation>Utilizați pe această stație o versiune de Rufus prevăzută pentru versiunea</translation>
     </message>
@@ -4825,7 +4738,7 @@ Din păcate, niciuna dintre aceste conexiuni nu pare să funcționeze.</translat
         <translation>Puteți descărca ultima versiune de pe pagina Descărcări a site-ului</translation>
     </message>
     <message>
-        <location line="+2108"/>
+        <location line="+2117"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation>Renunță și
@@ -4856,12 +4769,6 @@ a fișierului Rufus.ini</translation>
 patients Rufus</source>
         <translation>Instalarea unei baze
 de pacienți Rufus</translation>
-    </message>
-    <message>
-        <source>Restaurer la copie
-de sauvegarde</source>
-        <translation type="vanished">Restaurează copia
-de siguranță</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5005,7 +4912,7 @@ de siguranță</translation>
         <translation>O nouă versiune de Rufus este disponibilă</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="+608"/>
+        <location filename="utils.cpp" line="+610"/>
         <source>Dossier de sauvegarde des erreurs </source>
         <translation>Folder de salvare a erorilor </translation>
     </message>
@@ -5033,36 +4940,36 @@ de siguranță</translation>
 - fără caractere speciale sau cu diacritice -</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+3759"/>
-        <location filename="utils.cpp" line="+1"/>
+        <location line="+1"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+3767"/>
         <source>Confirmez le mot de passe</source>
         <translation>Confirmați parola</translation>
     </message>
     <message>
-        <location line="+24"/>
-        <location filename="utils.cpp" line="+26"/>
+        <location line="+26"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+24"/>
         <source>Saisie incomplète</source>
         <translation>Completare incompletă</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="+1"/>
+        <location line="+1"/>
         <source>Veuillez renseigner un identifiant et un mot de passe.</source>
         <translation>Vă rugăm să indicați un identificator și o parolă.</translation>
     </message>
     <message>
+        <location line="+4"/>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+5"/>
-        <location filename="utils.cpp" line="+4"/>
         <source>Mots de passe différents</source>
         <translation>Parole diferite</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location filename="utils.cpp" line="+1"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+1"/>
         <source>Le mot de passe et sa confirmation ne correspondent pas.</source>
         <translation>Parola și confirmarea ei nu corespund.</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="+36"/>
+        <location line="+36"/>
         <location line="+30"/>
         <source>Mot de passe invalide!</source>
         <translation>Parolă invalidă!</translation>
@@ -5131,7 +5038,7 @@ de siguranță</translation>
         <translation>Imposibil de găsit localitatea corespunzătoare numelui </translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="-2658"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="-2666"/>
         <source>Notez le mot de passe de la base de données</source>
         <translation>Notați parola bazei de date</translation>
     </message>
@@ -5209,7 +5116,7 @@ Păstrați-o într-un loc sigur (pe hârtie sau pe un stick USB): este necesară
         <translation>IMPORTANT: parola generică de acces la baza de date tocmai a fost ștearsă.</translation>
     </message>
     <message>
-        <location line="+2529"/>
+        <location line="+2537"/>
         <source>Choisissez un mot de passe de SECOURS pour votre base de données.
 
 Il ne servira qu&apos;à reprendre la main sur votre base si tous les autres
@@ -5368,7 +5275,7 @@ vor fi recopiate automat</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location filename="rufus.cpp" line="+4872"/>
+        <location filename="rufus.cpp" line="+5035"/>
         <source>Recopier</source>
         <translation>Recopiază</translation>
     </message>
@@ -5426,7 +5333,7 @@ data nașterii</translation>
     <message>
         <location line="+128"/>
         <location line="+2059"/>
-        <location filename="rufus.cpp" line="-5048"/>
+        <location filename="rufus.cpp" line="-5211"/>
         <location line="+1004"/>
         <source>Envoyer un message</source>
         <translation>Trimite un mesaj</translation>
@@ -5636,15 +5543,15 @@ act</translation>
     </message>
     <message>
         <location line="+54"/>
-        <location filename="rufus.cpp" line="+3617"/>
+        <location filename="rufus.cpp" line="+3778"/>
         <source>Cotation</source>
         <translation>Codificare</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location filename="rufus.cpp" line="-1699"/>
+        <location filename="rufus.cpp" line="-1860"/>
         <location line="+4"/>
-        <location line="+1696"/>
+        <location line="+1857"/>
         <source>Montant</source>
         <translation>Sumă</translation>
     </message>
@@ -5700,7 +5607,7 @@ act</translation>
     </message>
     <message>
         <location line="+39"/>
-        <location filename="rufus.cpp" line="-4393"/>
+        <location filename="rufus.cpp" line="-4554"/>
         <source>Enregistrer le paiement</source>
         <translation>Înregistrează plata</translation>
     </message>
@@ -5722,7 +5629,7 @@ act</translation>
     <message>
         <location line="+44"/>
         <location filename="rufus.cpp" line="-940"/>
-        <location line="+7849"/>
+        <location line="+8012"/>
         <source>Acte</source>
         <translation>Act</translation>
     </message>
@@ -5764,7 +5671,7 @@ act</translation>
         <translation>Tratamente în curs</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="-10800"/>
+        <location filename="rufus.cpp" line="-10963"/>
         <source>Erreur fichier Rufus.ini</source>
         <translation>Eroare fișier Rufus.ini</translation>
     </message>
@@ -5817,12 +5724,12 @@ Ieșire din program</translation>
         <location line="+22"/>
         <location line="+193"/>
         <location line="+279"/>
-        <location line="+4789"/>
+        <location line="+4952"/>
         <source>Messages</source>
         <translation>Mesaje</translation>
     </message>
     <message>
-        <location line="-10513"/>
+        <location line="-10676"/>
         <source>Connexion TCP OK</source>
         <translation>Conexiune TCP OK</translation>
     </message>
@@ -5907,23 +5814,26 @@ sunt deja în curs de înregistrare!</translation>
     </message>
     <message>
         <location line="+10"/>
-        <location line="+5838"/>
+        <location line="+5850"/>
+        <location line="+6"/>
+        <location line="+19"/>
         <location line="+14"/>
-        <location line="+2848"/>
+        <location line="+2974"/>
         <source>Il manque la cotation!</source>
         <translation>Lipsește codificarea!</translation>
     </message>
     <message>
-        <location line="-8698"/>
-        <location line="+5838"/>
+        <location line="-8861"/>
+        <location line="+5850"/>
+        <location line="+25"/>
         <location line="+17"/>
-        <location line="+56"/>
-        <location line="+2787"/>
+        <location line="+62"/>
+        <location line="+2907"/>
         <source>Il manque le montant!</source>
         <translation>Lipsește suma!</translation>
     </message>
     <message>
-        <location line="-8695"/>
+        <location line="-8858"/>
         <source>Vous ne pouvez pas enregistrer le paiement de cet acte !</source>
         <translation>Nu puteți înregistra plata acestui act!</translation>
     </message>
@@ -5939,18 +5849,20 @@ sunt deja în curs de înregistrare!</translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+5860"/>
+        <location line="+5901"/>
+        <location line="+903"/>
         <source>Consultation gratuite</source>
         <translation>Consultație gratuită</translation>
     </message>
     <message>
-        <location line="-5859"/>
-        <location line="+5856"/>
+        <location line="-6803"/>
+        <location line="+5897"/>
+        <location line="+903"/>
         <source>Vous avez entré un montant nul !</source>
         <translation>Ați introdus o sumă nulă!</translation>
     </message>
     <message>
-        <location line="-5855"/>
+        <location line="-6799"/>
         <source>Enregistrer cette consultation comme gratuite?</source>
         <translation>Înregistrați această consultație ca gratuită?</translation>
     </message>
@@ -5958,10 +5870,10 @@ sunt deja în curs de înregistrare!</translation>
         <location line="+1"/>
         <location line="+318"/>
         <location line="+5445"/>
-        <location line="+554"/>
+        <location line="+599"/>
         <location line="+49"/>
-        <location line="+378"/>
-        <location line="+602"/>
+        <location line="+493"/>
+        <location line="+605"/>
         <location line="+1392"/>
         <location line="+154"/>
         <location line="+199"/>
@@ -5969,35 +5881,35 @@ sunt deja în curs de înregistrare!</translation>
         <translation>Anulează</translation>
     </message>
     <message>
-        <location line="-9082"/>
+        <location line="-9245"/>
         <source>Impossible d&apos;enregister cet acte comme gratuit</source>
         <translation>Imposibil de înregistrat acest act ca gratuit</translation>
     </message>
     <message>
         <location line="+108"/>
-        <location line="+9472"/>
+        <location line="+9635"/>
         <source>Gestion des tiers payants</source>
         <translation>Gestiunea terților plătitori</translation>
     </message>
     <message>
-        <location line="-9453"/>
+        <location line="-9616"/>
         <source>Autre Dossier</source>
         <translation>Alt dosar</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+7580"/>
+        <location line="+7743"/>
         <source>Revenir au tarif conventionnel</source>
         <translation>Revino la tariful convențional</translation>
     </message>
     <message>
-        <location line="-7575"/>
-        <location line="+7574"/>
+        <location line="-7738"/>
+        <location line="+7737"/>
         <source>Revenir au tarif habituellement pratiqué</source>
         <translation>Revino la tariful practicat de obicei</translation>
     </message>
     <message>
-        <location line="-7413"/>
+        <location line="-7576"/>
         <source>Reprendre</source>
         <translation>Reia</translation>
     </message>
@@ -6214,36 +6126,36 @@ sau să creați un bilanț nou la data de astăzi?</translation>
         <location line="+76"/>
         <location line="+2"/>
         <location line="+127"/>
-        <location line="+4307"/>
+        <location line="+4350"/>
         <source>d MMM yyyy</source>
         <translation>d MMM yyyy</translation>
     </message>
     <message>
-        <location line="-4497"/>
-        <location line="+4513"/>
+        <location line="-4540"/>
+        <location line="+4556"/>
         <source>Tél.</source>
         <translation>Tel.</translation>
     </message>
     <message>
-        <location line="-4511"/>
-        <location line="+4513"/>
+        <location line="-4554"/>
+        <location line="+4556"/>
         <source>Portable</source>
         <translation>Mobil</translation>
     </message>
     <message>
-        <location line="-4511"/>
-        <location line="+4513"/>
+        <location line="-4554"/>
+        <location line="+4556"/>
         <source>Mail</source>
         <translation>E-mail</translation>
     </message>
     <message>
-        <location line="-4511"/>
-        <location line="+4513"/>
+        <location line="-4554"/>
+        <location line="+4556"/>
         <source>NNI</source>
         <translation>CNP</translation>
     </message>
     <message>
-        <location line="-4502"/>
+        <location line="-4545"/>
         <source>Antécédents ophtalmologiques: </source>
         <translation>Antecedente oftalmologice: </translation>
     </message>
@@ -6484,12 +6396,12 @@ pe un dosar pentru a-l deschide</translation>
     </message>
     <message>
         <location line="+31"/>
-        <location line="+3788"/>
+        <location line="+3831"/>
         <source>dossiers</source>
         <translation>dosare</translation>
     </message>
     <message>
-        <location line="-3739"/>
+        <location line="-3782"/>
         <location line="+53"/>
         <source>Visualiser le dossier</source>
         <translation>Vizualizează dosarul</translation>
@@ -6509,12 +6421,12 @@ pe un dosar pentru a-l deschide</translation>
     <message>
         <location line="+5"/>
         <location line="+203"/>
-        <location line="+6909"/>
+        <location line="+7072"/>
         <source>Créer un dossier de la même famille</source>
         <translation>Creează un dosar din aceeași familie</translation>
     </message>
     <message>
-        <location line="-7101"/>
+        <location line="-7264"/>
         <location line="+247"/>
         <source>Programmer une intervention</source>
         <translation>Programează o intervenție</translation>
@@ -6543,12 +6455,12 @@ pe un dosar pentru a-l deschide</translation>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+7092"/>
+        <location line="+7255"/>
         <source>Enregistrer une video</source>
         <translation>Salvează un videoclip</translation>
     </message>
     <message>
-        <location line="-7067"/>
+        <location line="-7230"/>
         <source>Pas de consultation enregistrée pour </source>
         <translation>Nicio consultație înregistrată pentru </translation>
     </message>
@@ -6574,13 +6486,13 @@ pe un dosar pentru a-l deschide</translation>
     </message>
     <message>
         <location line="+8"/>
-        <location line="+3738"/>
-        <location line="+2986"/>
+        <location line="+3783"/>
+        <location line="+3104"/>
         <source>Ouvrir le dossier</source>
         <translation>Deschide dosarul</translation>
     </message>
     <message>
-        <location line="-6679"/>
+        <location line="-6842"/>
         <source>Reprendre le dossier</source>
         <translation>Reia dosarul</translation>
     </message>
@@ -6651,12 +6563,12 @@ pe un dosar pentru a-l deschide</translation>
     </message>
     <message>
         <location line="+91"/>
-        <location line="+6397"/>
+        <location line="+6560"/>
         <source>Paramètres</source>
         <translation>Parametri</translation>
     </message>
     <message>
-        <location line="-6322"/>
+        <location line="-6485"/>
         <location line="+913"/>
         <source>Vous avez oublié de rédiger le texte de votre message!</source>
         <translation>Ați uitat să redactați textul mesajului dumneavoastră!</translation>
@@ -6674,12 +6586,12 @@ pe un dosar pentru a-l deschide</translation>
     </message>
     <message>
         <location line="-843"/>
-        <location line="+3671"/>
+        <location line="+3832"/>
         <source>dd/MM/yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
     <message>
-        <location line="-3648"/>
+        <location line="-3809"/>
         <source>A propos de </source>
         <translation>Despre </translation>
     </message>
@@ -6690,12 +6602,12 @@ pe un dosar pentru a-l deschide</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+4906"/>
+        <location line="+5069"/>
         <source>Tout le monde</source>
         <translation>Toată lumea</translation>
     </message>
     <message>
-        <location line="-4820"/>
+        <location line="-4983"/>
         <source>Tâche à accomplir avant le </source>
         <translation>Sarcină de îndeplinit înainte de </translation>
     </message>
@@ -6851,26 +6763,26 @@ pe un dosar pentru a-l deschide</translation>
         <location line="+129"/>
         <location line="+8"/>
         <location line="+11"/>
-        <location line="+5068"/>
+        <location line="+5231"/>
         <source>Vous avez </source>
         <translation>Aveți </translation>
     </message>
     <message>
-        <location line="-5087"/>
+        <location line="-5250"/>
         <location line="+19"/>
-        <location line="+5068"/>
+        <location line="+5231"/>
         <source> nouveaux messages</source>
         <translation> mesaje noi</translation>
     </message>
     <message>
-        <location line="-5085"/>
+        <location line="-5248"/>
         <location line="+19"/>
-        <location line="+5068"/>
+        <location line="+5231"/>
         <source>Vous avez 1 nouveau message</source>
         <translation>Aveți 1 mesaj nou</translation>
     </message>
     <message>
-        <location line="-5081"/>
+        <location line="-5244"/>
         <source> messages</source>
         <translation> mesaje</translation>
     </message>
@@ -6891,13 +6803,13 @@ pe un dosar pentru a-l deschide</translation>
     </message>
     <message>
         <location line="+262"/>
-        <location line="+3967"/>
+        <location line="+4130"/>
         <location line="+13"/>
         <source>inconnu</source>
         <translation>necunoscut</translation>
     </message>
     <message>
-        <location line="-3970"/>
+        <location line="-4133"/>
         <source>administrateur</source>
         <translation>administrator</translation>
     </message>
@@ -6977,7 +6889,8 @@ pe un dosar pentru a-l deschide</translation>
         <translation> dosare pentru care sexul nu este precizat</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+48"/>
+        <location line="+33"/>
         <source>Consultation incomplète</source>
         <translation>Consultație incompletă</translation>
     </message>
@@ -6987,23 +6900,25 @@ pe un dosar pentru a-l deschide</translation>
         <translation>Imposibil de regăsit ultimul act al pacientului pentru a-l verifica!</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+13"/>
+        <location line="+903"/>
         <source>Enregistrer cet acte comme gratuit?</source>
         <translation>Înregistrați acest act ca gratuit?</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-900"/>
+        <location line="+903"/>
         <source>Non</source>
         <translation>Nu</translation>
     </message>
     <message>
-        <location line="+15"/>
-        <location line="+2801"/>
+        <location line="-887"/>
+        <location line="+2922"/>
         <source>il manque les informations de paiement</source>
         <translation>lipsesc informațiile de plată</translation>
     </message>
     <message>
-        <location line="-2711"/>
+        <location line="-2831"/>
         <source>Fermer quand même</source>
         <translation>Închide totuși</translation>
     </message>
@@ -7028,7 +6943,7 @@ pe un dosar pentru a-l deschide</translation>
         <translation>1 dosar</translation>
     </message>
     <message>
-        <location line="+60"/>
+        <location line="+62"/>
         <source>Impossible d&apos;ouvrir ce dossier!</source>
         <translation>Imposibil de deschis acest dosar!</translation>
     </message>
@@ -7076,12 +6991,12 @@ nume și prenume</translation>
     </message>
     <message>
         <location line="+15"/>
-        <location line="+3015"/>
+        <location line="+3133"/>
         <source>Ce patient est déjà venu!</source>
         <translation>Acest pacient a mai fost aici!</translation>
     </message>
     <message>
-        <location line="-3009"/>
+        <location line="-3127"/>
         <source>Ouverture du dossier de </source>
         <translation>Deschiderea dosarului lui </translation>
     </message>
@@ -7123,48 +7038,48 @@ cu cel pe care încercați să îl înregistrați!
     </message>
     <message>
         <location line="+34"/>
-        <location line="+492"/>
-        <location line="+2494"/>
+        <location line="+608"/>
+        <location line="+2496"/>
         <source>Dossier </source>
         <translation>Dosar </translation>
     </message>
     <message>
-        <location line="-2986"/>
-        <location line="+2986"/>
+        <location line="-3104"/>
+        <location line="+3104"/>
         <source> créé</source>
         <translation> creat</translation>
     </message>
     <message>
-        <location line="-2985"/>
-        <location line="+492"/>
-        <location line="+2494"/>
+        <location line="-3103"/>
+        <location line="+608"/>
+        <location line="+2496"/>
         <source>Ouvrir le dossier ou inscrire le dossier en salle d&apos;attente?</source>
         <translation>Deschideți dosarul sau îl înscrieți în sala de așteptare?</translation>
     </message>
     <message>
-        <location line="-2984"/>
-        <location line="+493"/>
-        <location line="+2493"/>
+        <location line="-3102"/>
+        <location line="+609"/>
+        <location line="+2495"/>
         <source>Inscrire le dossier
 en salle d&apos;attente</source>
         <translation>Înscrie dosarul
 în sala de așteptare</translation>
     </message>
     <message>
-        <location line="-2984"/>
-        <location line="+493"/>
-        <location line="+2493"/>
+        <location line="-3102"/>
+        <location line="+609"/>
+        <location line="+2495"/>
         <source>Ne rien faire</source>
         <translation>Nu face nimic</translation>
     </message>
     <message>
-        <location line="-2929"/>
-        <location line="+3045"/>
+        <location line="-3047"/>
+        <location line="+3163"/>
         <source>Information statut</source>
         <translation>Informație despre stare</translation>
     </message>
     <message>
-        <location line="-2988"/>
+        <location line="-3106"/>
         <source>Copier</source>
         <translation>Copiază</translation>
     </message>
@@ -7214,7 +7129,32 @@ en salle d&apos;attente</source>
         <translation> a fost creat pe desktop</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+79"/>
+        <source>Impossible d&apos;enregistrer la recette de cet acte</source>
+        <translation>Imposibil de salvat încasarea acestui act</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Impossible d&apos;enregistrer le paiement de cet acte</source>
+        <translation>Imposibil de salvat plata acestui act</translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <source>Consultations sans contenu supprimées</source>
+        <translation>Consultații fără conținut șterse</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce dossier comportait %1 consultation(s) sans motif, ni texte, ni conclusion, ni cotation.</source>
+        <translation>Acest dosar conținea %1 consultație/consultații fără motiv, text, concluzie sau codificare.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Elles ont été supprimées.</source>
+        <translation>Au fost șterse.</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>Garder le dossier en salle d&apos;attente?</source>
         <translation>Păstrați dosarul în sala de așteptare?</translation>
     </message>
@@ -7238,14 +7178,14 @@ le dossier</source>
 dosarul</translation>
     </message>
     <message>
-        <location line="+106"/>
-        <location line="+1170"/>
+        <location line="+107"/>
+        <location line="+1172"/>
         <location line="+1454"/>
         <source>dd-MM-yyyy</source>
         <translation>dd-MM-yyyy</translation>
     </message>
     <message>
-        <location line="-2622"/>
+        <location line="-2624"/>
         <source>yyyyMMdd</source>
         <translation>yyyyMMdd</translation>
     </message>
@@ -7287,7 +7227,7 @@ dosarul</translation>
         <translation>Plată</translation>
     </message>
     <message>
-        <location line="+141"/>
+        <location line="+143"/>
         <location line="+258"/>
         <source>Ouvrir
 le dossier</source>
@@ -7623,8 +7563,8 @@ Bifați-le pe cele de înlocuit:</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Afficher les courriers à faire</source>
-        <translation>Afișează scrisorile de făcut</translation>
+        <source>Afficher les courriers en attente</source>
+        <translation>Afișează scrisorile în așteptare</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7994,7 +7934,12 @@ cea mai apropiată valoare conformă!</translation>
         <translation>ani</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+103"/>
+        <source>À quoi sert cette fiche ?</source>
+        <translation>La ce servește această fișă?</translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Le code qui suit n&apos;est pas achevé et entraînera
 assez rapidement un plantage du programme
 avec un risque élevé de corruption des données</source>
@@ -8499,16 +8444,13 @@ alternantă</translation>
         <location line="+71"/>
         <location line="+24"/>
         <location line="+40"/>
-        <location line="+0"/>
         <location line="+47"/>
         <location line="+10"/>
         <location line="+12"/>
-        <location line="+0"/>
         <location line="+53"/>
         <location line="+10"/>
         <location line="+10"/>
         <location line="+2"/>
-        <location line="+0"/>
         <location line="+52"/>
         <location line="+7"/>
         <location line="+21"/>
@@ -8988,16 +8930,12 @@ alternantă</translation>
     <message>
         <location line="-441"/>
         <location line="+2"/>
-        <location line="+0"/>
         <location line="+439"/>
         <location line="+2"/>
-        <location line="+0"/>
         <location line="+7"/>
         <location line="+2"/>
-        <location line="+0"/>
         <location line="+68"/>
         <location line="+2"/>
-        <location line="+0"/>
         <source>d MMMM yyyy</source>
         <translation>d MMMM yyyy</translation>
     </message>
@@ -11857,7 +11795,7 @@ deocamdată</translation>
         <translation>Parola utilizatorului</translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="+47"/>
         <source>Vous ne pouvez pas déclarer cet utilisateur en tant qu&apos;employé
 parce qu&apos;il n&apos;y a aucun utilisateur susceptible d&apos;être employeur
 enregistré dans la base.</source>
@@ -14055,7 +13993,7 @@ Trebuie mai întâi să faceți privat acest dosar!</translation>
 <context>
     <name>dlg_initbase</name>
     <message>
-        <location filename="Dialogs/dlg_initbase.cpp" line="+42"/>
+        <location filename="Dialogs/dlg_initbase.cpp" line="+43"/>
         <source>Premier paramétrage de Rufus</source>
         <translation>Prima configurare a Rufus</translation>
     </message>
@@ -14065,7 +14003,12 @@ Trebuie mai întâi să faceți privat acest dosar!</translation>
         <translation>Baza de pacienți a fost creată. Aceste setări sunt valabile pentru tot cabinetul; le veți putea schimba în Editare/Parametri.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+9"/>
+        <source>Que règle cette fiche ?</source>
+        <translation>Ce configurează această fișă?</translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Enregistrer une comptabilité</source>
         <translation>Ține o contabilitate</translation>
     </message>
@@ -14163,6 +14106,76 @@ Trebuie mai întâi să faceți privat acest dosar!</translation>
         <location line="+0"/>
         <source>Docteur</source>
         <translation>Doctor</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>&lt;b&gt;Premier paramétrage de Rufus&lt;/b&gt;&lt;br&gt;Ces réglages valent pour tout le cabinet et sont modifiables à tout moment dans Edition/Paramètres. Rien n&apos;est définitif ici.&lt;br&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Prima configurare a Rufus&lt;/b&gt;&lt;br&gt;Aceste reglaje sunt valabile pentru tot cabinetul și pot fi modificate oricând din Editare/Parametri. Nimic nu este definitiv aici.&lt;br&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;b&gt;Comptabilité&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Contabilitate&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;i&gt;Enregistrer une comptabilité&lt;/i&gt; : la comptabilité complète — recettes, dépenses, comptes bancaires, remises de chèques. Le mode de paiement est demandé à chaque acte.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Ține o contabilitate&lt;/i&gt;: contabilitatea completă — încasări, cheltuieli, conturi bancare, remise de cecuri. Modul de plată este cerut la fiecare act.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;i&gt;Enregistrer une comptabilité simplifiée&lt;/i&gt; : seuls la cotation et le montant de l&apos;acte sont enregistrés, au fil des consultations et sans rien vous demander. Vous consultez le journal des recettes, mais il n&apos;y a ni dépenses, ni comptes bancaires.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Ține o contabilitate simplificată&lt;/i&gt;: se înregistrează doar codificarea și suma actului, pe parcursul consultațiilor și fără să vi se ceară nimic. Consultați jurnalul încasărilor, dar nu există nici cheltuieli, nici conturi bancare.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&lt;i&gt;Ne pas enregistrer de comptabilité&lt;/i&gt; : aucune écriture comptable, le menu Comptabilité disparaît. Les actes sont enregistrés comme gratuits, ce qui vous laisse libre de passer à une comptabilité plus tard sans aucune alerte sur les actes déjà saisis.&lt;br&gt;&lt;br&gt;</source>
+        <translation>&lt;i&gt;Nu ține contabilitate&lt;/i&gt;: nicio înregistrare contabilă, meniul Contabilitate dispare. Actele sunt înregistrate ca gratuite, ceea ce vă lasă liberi să treceți la o contabilitate mai târziu fără nicio alertă privind actele deja introduse.&lt;br&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;b&gt;Cotation des actes&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Codificarea actelor&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;i&gt;Cotations françaises&lt;/i&gt; : CCAM, NGAP, ALD, secteur conventionnel et OPTAM. À réserver à un exercice en France ou dans les DOM-TOM.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Codificări franceze&lt;/i&gt;: CCAM, NGAP, ALD, sector convențional și OPTAM. De rezervat unui exercițiu în Franța sau în teritoriile de peste mări.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;i&gt;Cotations génériques&lt;/i&gt; : vous composez vos propres libellés et montants, sans nomenclature imposée. C&apos;est le choix des versions internationales.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Codificări generice&lt;/i&gt;: compuneți propriile denumiri și sume, fără nomenclatură impusă. Este alegerea versiunilor internaționale.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ce groupe se grise si vous ne tenez aucune comptabilité, et suit automatiquement le territoire choisi plus bas — vous pouvez toujours le corriger à la main.&lt;br&gt;&lt;br&gt;</source>
+        <translation>Acest grup se dezactivează dacă nu țineți nicio contabilitate și urmează automat teritoriul ales mai jos — îl puteți corecta oricând manual.&lt;br&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&lt;b&gt;Langue et territoire&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Limbă și teritoriu&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;i&gt;Langue&lt;/i&gt; : la langue de l&apos;interface, propre à ce poste. Un autre poste du cabinet peut travailler dans une autre langue.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Limbă&lt;/i&gt;: limba interfeței, proprie acestei stații. O altă stație a cabinetului poate lucra în altă limbă.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;i&gt;Territoire&lt;/i&gt; : le pays d&apos;exercice. Il détermine les villes et les codes postaux proposés dans les fiches patients. Il est distinct de la langue : un cabinet mexicain et un cabinet espagnol travaillent tous deux en espagnol.&lt;br&gt;&lt;br&gt;</source>
+        <translation>&lt;i&gt;Teritoriu&lt;/i&gt;: țara de exercitare. Determină localitățile și codurile poștale propuse în fișele pacienților. Este distinct de limbă: un cabinet mexican și un cabinet spaniol lucrează amândouă în spaniolă.&lt;br&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;b&gt;Utilisateur&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Utilizator&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Un utilisateur factice, &lt;i&gt;Docteur Snow&lt;/i&gt;, est systématiquement créé : Rufus ne peut pas démarrer sans au moins un soignant enregistré. C&apos;est pourquoi la case est cochée et verrouillée. Dès la première ouverture, vous pourrez modifier ou supprimer cet utilisateur. Allez dans Edition/Paramètres pour le renommer à votre nom, ou créez votre propre compte et supprimez celui-ci.</source>
+        <translation>Un utilizator fictiv, &lt;i&gt;Doctor Snow&lt;/i&gt;, este creat sistematic: Rufus nu poate porni fără cel puțin un practician înregistrat. De aceea căsuța este bifată și blocată. De la prima deschidere, veți putea modifica sau șterge acest utilizator. Mergeți în Editare/Parametri pentru a-l redenumi cu numele dumneavoastră, sau creați-vă propriul cont și ștergeți-l pe acesta.</translation>
     </message>
 </context>
 <context>
@@ -16331,7 +16344,7 @@ Confirmați introducerea?</translation>
     </message>
     <message>
         <location line="+61"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3727"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3712"/>
         <source>Monoposte</source>
         <translation>Monopost</translation>
     </message>
@@ -16339,7 +16352,7 @@ Confirmați introducerea?</translation>
         <location line="+37"/>
         <location line="+253"/>
         <location line="+280"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3061"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3064"/>
         <source>Port</source>
         <translation>Port</translation>
     </message>
@@ -16423,7 +16436,7 @@ către folderul de stocare a videoclipurilor</translation>
     </message>
     <message>
         <location line="-602"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3062"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3065"/>
         <source>Réseau local</source>
         <translation>Rețea locală</translation>
     </message>
@@ -16644,8 +16657,8 @@ datele</translation>
     </message>
     <message>
         <location line="+100"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3090"/>
-        <location line="+1021"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3093"/>
+        <location line="+1024"/>
         <source>Appareils connectés au réseau</source>
         <translation>Aparate conectate la rețea</translation>
     </message>
@@ -16760,7 +16773,7 @@ instituțiilor bancare</translation>
         <translation>Versiune</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="-1564"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-1561"/>
         <source>&lt;b&gt;Table des cotations référencées par Rufus&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Tabelul codificărilor referențiate de Rufus&lt;/b&gt;&lt;br&gt;</translation>
     </message>
@@ -16780,12 +16793,7 @@ instituțiilor bancare</translation>
         <translation>creează o codificare nouă.&lt;br&gt;</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>modifier une cotation de type « autre ».&lt;br&gt;</source>
-        <translation>modifică o codificare de tip « altă ».&lt;br&gt;</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>supprimer la cotation sélectionnée, si personne d&apos;autre ne l&apos;utilise.&lt;br&gt;</source>
         <translation>șterge codificarea selectată, dacă nimeni altcineva nu o utilizează.&lt;br&gt;</translation>
     </message>
@@ -16795,17 +16803,12 @@ instituțiilor bancare</translation>
         <translation>Pagină blocată: faceți clic pe lacăt pentru a o debloca și a o putea modifica.</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+2"/>
         <source>Que puis-je faire dans cette table ?</source>
         <translation>Ce pot face în acest tabel?</translation>
     </message>
     <message>
-        <location line="+28"/>
-        <source>Cotations référencées dans la base - Clic sur ? pour obtenir de l&apos;aide</source>
-        <translation>Codificări referențiate în bază - Clic pe ? pentru a obține ajutor</translation>
-    </message>
-    <message>
-        <location line="+59"/>
+        <location line="+83"/>
         <source>Emplacement du dossier de stockage des documents d&apos;imagerie &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;SUR CE POSTE SERVEUR&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Cet emplacement n&apos;est pas modifiable et correspond à la variable secure_file_priv de MySQL</source>
         <translation>Amplasarea folderului de stocare a documentelor de imagistică &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;PE ACEASTĂ STAȚIE SERVER&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Această amplasare nu este modificabilă și corespunde variabilei secure_file_priv a MySQL</translation>
     </message>
@@ -16869,7 +16872,7 @@ Doriți să îl salvați?</translation>
     <message>
         <location line="+3"/>
         <location line="+66"/>
-        <location line="+352"/>
+        <location line="+355"/>
         <location line="+775"/>
         <location line="+112"/>
         <location line="+725"/>
@@ -16877,13 +16880,13 @@ Doriți să îl salvați?</translation>
         <translation>Anulează</translation>
     </message>
     <message>
-        <location line="-2029"/>
-        <location line="+418"/>
+        <location line="-2032"/>
+        <location line="+421"/>
         <source>Enregistrer</source>
         <translation>Salvează</translation>
     </message>
     <message>
-        <location line="-379"/>
+        <location line="-382"/>
         <source>Code postal par défaut</source>
         <translation>Cod poștal implicit</translation>
     </message>
@@ -16975,7 +16978,7 @@ Doriți să o salvați?</translation>
         <translation>Server</translation>
     </message>
     <message>
-        <location line="+42"/>
+        <location line="+45"/>
         <source>Le changement de version ne prendra effet qu&apos;après redémarrage du logiciel</source>
         <translation>Schimbarea versiunii nu va avea efect decât după repornirea programului</translation>
     </message>
@@ -17421,13 +17424,28 @@ pentru a putea lua în considerare modificările aduse!</translation>
         <translation>Baza dumneavoastră de pacienți a fost restaurată. Rufus va reporni.</translation>
     </message>
     <message>
-        <location line="-2068"/>
-        <location line="+1978"/>
+        <location line="-2071"/>
+        <location line="+1981"/>
         <source>Redémarrage du programme en cours…</source>
         <translation>Repornirea programului în curs…</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-2274"/>
+        <source>modifier une cotation.&lt;br&gt;</source>
+        <translation>modifică o codificare.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Cotations référencées dans la base</source>
+        <translation>Codificări referențiate în bază</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Clic sur ? pour obtenir de l&apos;aide</source>
+        <translation>Clic pe ? pentru a obține ajutor</translation>
+    </message>
+    <message>
+        <location line="+2249"/>
         <source>Génération impossible</source>
         <translation>Generare imposibilă</translation>
     </message>
@@ -17441,10 +17459,6 @@ pentru a putea lua în considerare modificările aduse!</translation>
         <location line="+28"/>
         <source>Vous n&apos;avez pas spécifié de dossier de stockage valide pour les documents d&apos;imagerie !</source>
         <translation>Nu ați specificat un folder de stocare valid pentru documentele de imagistică!</translation>
-    </message>
-    <message>
-        <source>Le programme va se fermer pour que certaines données puissent être prises en compte</source>
-        <translation type="vanished">Programul se va închide pentru ca anumite date să poată fi luate în considerare</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -19034,7 +19048,6 @@ predefinit</translation>
         <location line="+630"/>
         <location line="+5"/>
         <location line="+91"/>
-        <location line="+0"/>
         <location line="+2"/>
         <location line="+2"/>
         <location line="+10"/>

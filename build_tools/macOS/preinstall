@@ -65,7 +65,7 @@ langue_depuis_ini() {
         }
     ' "${RUFUS_INI}" 2>/dev/null)"
     case "$v" in
-        fr|en|es|pt|it|ro) echo "$v" ;;
+        fr|en|es|pt|it|ro|ca) echo "$v" ;;
         br)          echo "pt" ;;
         *)           echo "fr" ;;
     esac
@@ -159,6 +159,23 @@ La prima pornire, Rufus va propune actualizarea serverului. Această actualizare
 Doriți să continuați instalarea Rufus?"
         C_CANCEL="Anulează, voi face asta mai târziu"
         C_OK="OK, continuă" ;;
+      ca)
+        C_TITLE="Servidor MySQL per actualitzar"
+        C_TEXT="IMPORTANT
+
+Rufus desa les dades dels vostres pacients en una base de dades — en aquest equip, en un altre equip de la vostra xarxa o en un servidor remot. Aquesta base la gestiona el servidor MySQL, indispensable per a Rufus, que Rufus mateix instal·la en el primer inici.
+
+Si no penseu allotjar la base de pacients en aquest equip, ignoreu aquest missatge.
+
+Aquesta versió de Rufus reforça considerablement la seguretat de les contrasenyes i necessita un servidor MySQL >= 8.0.14 (MariaDB no s'admet). Ara bé, aquest equip ja allotja un servidor MySQL/MariaDB massa antic o incompatible.
+
+En el primer inici, Rufus proposarà actualitzar el servidor. Aquesta actualització esborra les dades i requereix, doncs, una còpia de seguretat:
+• si la base d'aquest equip és una base de pacients Rufus, Rufus la podrà desar i després restaurar automàticament;
+• si conté altres dades, deseu-les vosaltres mateixos, altrament es perdran definitivament.
+
+Voleu continuar la instal·lació de Rufus?"
+        C_CANCEL="Cancel·la, ho faré més tard"
+        C_OK="D'acord, continua" ;;
       *)
         C_TITLE="Serveur MySQL à mettre à jour"
         C_TEXT="IMPORTANT

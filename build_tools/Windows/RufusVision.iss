@@ -252,7 +252,7 @@ begin
   ini := ExpandConstant('{%USERPROFILE}\Documents\Rufus\Rufus.ini');
   if not FileExists(ini) then Exit;
   v := Lowercase(Trim(GetIniString('Param_Poste', 'Version', '', ini)));
-  if (v = 'fr') or (v = 'en') or (v = 'es') or (v = 'pt') or (v = 'it') or (v = 'ro') then Result := v
+  if (v = 'fr') or (v = 'en') or (v = 'es') or (v = 'pt') or (v = 'it') or (v = 'ro') or (v = 'ca') then Result := v
   else if v = 'br' then Result := 'pt';
 end;
 
@@ -347,6 +347,24 @@ begin
       + 'apoi restaura automat;' + #13#10
       + '  - dacă ea conține alte date, salvați-le dumneavoastră, altfel vor fi pierdute definitiv.' + #13#10#13#10
       + 'Doriți să continuați instalarea Rufus?  (Da = continuare,  Nu = anulare)';
+  end else if lang = 'ca' then begin
+    titre := 'Servidor MySQL per actualitzar';
+    texte := 'IMPORTANT' + #13#10#13#10
+      + 'Rufus desa les dades dels vostres pacients en una base de dades - en aquest equip, '
+      + 'en un altre equip de la vostra xarxa o en un servidor remot. Aquesta base la gestiona '
+      + 'el servidor MySQL, indispensable per a Rufus, que Rufus mateix instal·la en el primer '
+      + 'inici.' + #13#10#13#10
+      + 'Si no penseu allotjar la base de pacients en aquest equip, ignoreu aquest missatge.' + #13#10#13#10
+      + 'Aquesta versió de Rufus reforça considerablement la seguretat de les contrasenyes i '
+      + 'necessita un servidor MySQL >= 8.0.14 (MariaDB no s''admet). Ara bé, aquest equip ja '
+      + 'allotja un servidor MySQL/MariaDB massa antic o incompatible.' + #13#10#13#10
+      + 'En el primer inici, Rufus proposarà actualitzar el servidor. Aquesta actualització '
+      + 'esborra les dades i requereix, doncs, una còpia de seguretat:' + #13#10
+      + '  - si la base d''aquest equip és una base de pacients Rufus, Rufus la podrà desar i '
+      + 'després restaurar automàticament;' + #13#10
+      + '  - si conté altres dades, deseu-les vosaltres mateixos, altrament es perdran '
+      + 'definitivament.' + #13#10#13#10
+      + 'Voleu continuar la instal·lació de Rufus?  (Sí = continuar,  No = cancel·lar)';
   end else begin
     titre := 'Serveur MySQL à mettre à jour';
     texte := 'IMPORTANT' + #13#10#13#10

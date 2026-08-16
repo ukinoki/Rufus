@@ -223,17 +223,18 @@ choisir_langue_install() {
             PT|BR) pref=pt ;;   # br -> pt (comme les preinstallers macOS/Windows)
             IT)    pref=it ;;
             RO)    pref=ro ;;
+            CA)    pref=ca ;;
             FR)    pref=fr ;;
         esac
     fi
     # 2) à défaut, la locale du système.
     [ -z "${pref}" ] && case "${LANG%%_*}" in
-        en) pref=en ;; es) pref=es ;; pt) pref=pt ;; it) pref=it ;; ro) pref=ro ;; *) pref=fr ;;
+        en) pref=en ;; es) pref=es ;; pt) pref=pt ;; it) pref=it ;; ro) pref=ro ;; ca) pref=ca ;; *) pref=fr ;;
     esac
 
-    local fr=FALSE en=FALSE es=FALSE pt=FALSE it=FALSE ro=FALSE
+    local fr=FALSE en=FALSE es=FALSE pt=FALSE it=FALSE ro=FALSE ca=FALSE
     case "${pref}" in
-        en) en=TRUE ;; es) es=TRUE ;; pt) pt=TRUE ;; it) it=TRUE ;; ro) ro=TRUE ;; *) fr=TRUE ;;
+        en) en=TRUE ;; es) es=TRUE ;; pt) pt=TRUE ;; it) it=TRUE ;; ro) ro=TRUE ;; ca) ca=TRUE ;; *) fr=TRUE ;;
     esac
     local choix
     # Hauteur imposée : sous 24.04 la liste tronque les langues sans rien qui le signale.
@@ -242,7 +243,7 @@ choisir_langue_install() {
         --text="Choisissez la langue de l'installation / Choose the installation language:" \
         --column="" --column="Langue" \
         "${fr}" "Français" "${en}" "English" "${es}" "Español" "${pt}" "Português" \
-        "${it}" "Italiano" "${ro}" "Română" \
+        "${it}" "Italiano" "${ro}" "Română" "${ca}" "Català" \
         2>/dev/null)"
     case "${choix}" in
         English)    LANG_INSTALL="en" ;;
@@ -250,6 +251,7 @@ choisir_langue_install() {
         Português)  LANG_INSTALL="pt" ;;
         Italiano)   LANG_INSTALL="it" ;;
         Română)     LANG_INSTALL="ro" ;;
+        Català)     LANG_INSTALL="ca" ;;
         *)          LANG_INSTALL="fr" ;;   # Français, ou fenêtre fermée
     esac
 }
@@ -514,6 +516,49 @@ definir_textes() {
         MSG_REPL_LATER="Mai târziu"
         MSG_FONTS_TITLE="Un font își va termina instalarea"
         MSG_FONTS_BODY="Totul este pregătit. Un ultim pachet de fonturi (fonturi Microsoft, folosite de unele documente) nu s-a putut descărca complet acum. Își va termina instalarea singur, în fundal, de îndată ce conexiunea o va permite (de obicei în câteva minute).\n\nNu este grav: prima pornire a Rufus poate afișa temporar fonturi de înlocuire. Totul se va rezolva automat, fără nicio acțiune din partea dumneavoastră."
+        ;;
+    ca)
+        MSG_CFG_TITLE="Configurar Rufus en aquest equip"
+        MSG_CFG_BODY="Rufus instal·larà alguns components de sistema necessaris:\n  •  tipus de lletra (visualització i impressió dels documents)\n  •  lectura dels vídeos (GStreamer)\n  •  client MySQL (còpia de seguretat / restauració)\n  •  accés als aparells de mesura per port sèrie\n\nSe us demanarà la contrasenya d'administrador."
+        MSG_CFG_OK="Instal·la ara"
+        MSG_CFG_CANCEL="Cancel·la"
+        MSG_MAJ_TITLE="Actualització de Rufus"
+        MSG_MAJ_BODY="Falta un component de sistema i s'instal·larà.\n\nSe us demanarà la contrasenya d'administrador."
+        MSG_CANCEL_TITLE="Instal·lació interrompuda"
+        MSG_CANCEL_BODY="La configuració del sistema s'ha cancel·lat.\n\nRufus necessita aquests components per funcionar:\nreprengueu la instal·lació quan estigueu a punt."
+        MSG_PKEXEC_TITLE="Cal una instal·lació manual"
+        MSG_PKEXEC_LEAD="pkexec no hi és. Obriu un terminal i executeu:"
+        MSG_PKEXEC_TAIL="Després torneu a iniciar Rufus."
+        MSG_PROG_TITLE="Instal·lació dels components de Rufus"
+        MSG_PROG_TEXT="S'estan instal·lant els components…\nCompteu aproximadament un minut.\nÉs normal: espereu i no tanqueu aquesta finestra."
+        MSG_ERR_TITLE="Configuració del sistema impossible"
+        MSG_ERR_LEAD="La configuració del sistema no s'ha pogut dur a terme; Rufus no s'ha instal·lat."
+        MSG_ERR_DETAILS="Detalls tècnics:"
+        MSG_REASON_126="Autenticació cancel·lada (no s'ha proporcionat la contrasenya d'administrador)."
+        MSG_REASON_127="Autenticació denegada: aquest compte no té dret a instal·lar programes (calen drets d'administrador/sudo)."
+        MSG_REASON_10="No s'ha pogut accedir als dipòsits de paquets. Comproveu la connexió a la xarxa i torneu-ho a provar."
+        MSG_REASON_DEF="S'ha produït un error durant la instal·lació dels components."
+        MSG_FINAL_PROG_TITLE="Instal·lació de Rufus"
+        MSG_FINAL_PROG_TEXT="Finalització: inscripció de Rufus als menús…"
+        MSG_FINAL_PROG_TEXT2="Actualització dels menús i de les icones…"
+        MSG_DONE_TITLE="Rufus està instal·lat"
+        MSG_DONE_TEXT="Rufus s'ha instal·lat correctament en aquest equip i als menús,\ni el sistema s'ha configurat perquè pugui funcionar.\n\nQuè voleu fer?"
+        MSG_ACT_DESKTOP="Crea una drecera a l'escriptori"
+        MSG_MYSQL_TITLE="Servidor MySQL per actualitzar"
+        MSG_MYSQL_MARIA="Aquest equip allotja un servidor MariaDB incompatible amb aquesta versió de Rufus"
+        MSG_MYSQL_OLD="Aquest equip allotja efectivament un servidor MySQL, però la seva versió és %VER%, massa antiga per executar aquesta versió de Rufus"
+        MSG_MYSQL_OK="Continua"
+        MSG_MYSQL_BODY="<b>IMPORTANT</b>\n\nRufus desa les dades dels vostres pacients en una base de dades gestionada pel servidor MySQL, que Rufus mateix instal·la en el primer inici.\n\n<b>Si no penseu allotjar la base de pacients en aquest equip, ignoreu aquest missatge.</b>\n\nAquesta versió de Rufus necessita un servidor MySQL posterior a la versió 8.0.14.\n\n%DETAIL%.\n\nEn el primer inici, Rufus proposarà actualitzar el servidor. Aquesta actualització esborra les dades i requereix, doncs, una còpia de seguretat:\n  •  la base de pacients Rufus → Rufus la podrà desar i restaurar automàticament;\n  •  altres dades → deseu-les vosaltres mateixos, altrament es perdran definitivament.\n\nVoleu continuar la instal·lació de Rufus?"
+        MSG_ACT_RUN="Executa Rufus ara"
+        MSG_REPL_TITLE="Voleu substituir la versió instal·lada?"
+        MSG_REPL_BODY="Rufus ja està instal·lat en aquest equip, en una altra versió.\n\nVoleu substituir la instal·lació de l'equip per aquesta?\n\nSi no ho accepteu, aquesta còpia s'executarà sense modificar la instal·lació existent."
+        MSG_REPL_OK="Substitueix"
+        MSG_REPL_CANCEL="No substitueixis"
+        MSG_REPL_DONE_TITLE="Rufus està al dia"
+        MSG_REPL_DONE_BODY="La instal·lació de l'equip s'ha substituït per aquesta versió.\nLa drecera del menú inicia a partir d'ara aquesta.\n\nVoleu executar Rufus ara?"
+        MSG_REPL_LATER="Més tard"
+        MSG_FONTS_TITLE="Un tipus de lletra acabarà la seva instal·lació"
+        MSG_FONTS_BODY="Tot està a punt. Un darrer paquet de tipus de lletra (tipus de lletra de Microsoft, utilitzats per alguns documents) no s'ha pogut baixar del tot ara. Acabarà la seva instal·lació tot sol, en segon pla, tan bon punt la connexió ho permeti (normalment en pocs minuts).\n\nNo és greu: el primer inici de Rufus pot mostrar temporalment tipus de lletra de substitució. Tot es resoldrà automàticament, sense cap acció per part vostra."
         ;;
     esac
 }

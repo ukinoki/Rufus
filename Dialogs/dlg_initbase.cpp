@@ -224,7 +224,7 @@ QWidget* dlg_initbase::LigneCombo(QString texte, QComboBox *combo)
 
 /*!
  * \brief dlg_initbase::RemplitComboLangues
- * Remplit une liste déroulante des 7 langues traduites, à la présentation du sélecteur de dlg_param.
+ * Remplit une liste déroulante des 8 langues traduites, à la présentation du sélecteur de dlg_param.
  * \param combo   la liste à remplir
  * \param langue  la langue à présenter, repli sur le premier item si elle est inconnue
  */
@@ -237,6 +237,7 @@ void dlg_initbase::RemplitComboLangues(QComboBox *combo, QString langue)
     combo   ->addItem(QIcon(QPixmap("://Portugal.ico")),        "Português",    QStringLiteral("PT"));
     combo   ->addItem(QIcon(QPixmap("://Italy.ico")),           "Italiano",     QStringLiteral("IT"));
     combo   ->addItem(QIcon(QPixmap("://Romania.ico")),         "Română",       QStringLiteral("RO"));
+    combo   ->addItem(QIcon(QPixmap("://Catalonia.ico")),       "Català",       QStringLiteral("CA"));
     combo   ->setCurrentIndex(qMax(0, combo->findData(langue)));
 }
 

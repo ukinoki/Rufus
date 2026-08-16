@@ -587,7 +587,7 @@ requete = </translation>
         <translation>Integrazione del nuovo elenco di impianti…</translation>
     </message>
     <message>
-        <location line="+518"/>
+        <location line="+532"/>
         <source>Optimisation des images des implants…</source>
         <translation>Ottimizzazione delle immagini degli impianti…</translation>
     </message>
@@ -844,19 +844,21 @@ requete = </translation>
 <context>
     <name>ItemsList</name>
     <message>
-        <location filename="ItemsLists/cls_itemslist.h" line="+401"/>
+        <location filename="ItemsLists/cls_itemslist.h" line="+412"/>
         <source>Suppression impossible - l&apos;item n&apos;est pas reconnu</source>
         <translation>Eliminazione impossibile - l&apos;elemento non è riconosciuto</translation>
     </message>
     <message>
-        <location filename="ItemsLists/cls_itemslist.cpp" line="+1579"/>
+        <location filename="ItemsLists/cls_itemslist.cpp" line="+1591"/>
+        <location line="+35"/>
         <location line="+43"/>
         <location line="+6"/>
         <source>Enregistrement impossible</source>
         <translation>Salvataggio impossibile</translation>
     </message>
     <message>
-        <location line="-48"/>
+        <location line="-83"/>
+        <location line="+35"/>
         <location line="+49"/>
         <source>La modification n&apos;a pas pu être enregistrée dans la base de données (le serveur est peut-être momentanément indisponible).</source>
         <translation>La modifica non è stata salvata nel database (il server potrebbe essere momentaneamente non disponibile).</translation>
@@ -1315,7 +1317,7 @@ Vérifiez que le compte « %2 » possède le privilège FILE et que les droits d
 Verifichi che l&apos;account «%2» possieda il privilegio FILE e che i permessi della cartella consentano la scrittura.</translation>
     </message>
     <message>
-        <location line="+214"/>
+        <location line="+217"/>
         <source>Mise à jour du partage réseau</source>
         <translation>Aggiornamento della condivisione di rete</translation>
     </message>
@@ -1341,7 +1343,7 @@ Verifichi che l&apos;account «%2» possieda il privilegio FILE e che i permessi
         <translation>A seconda della dimensione della cartella delle immagini, l&apos;operazione può durare uno o due minuti, durante i quali lo schermo può sembrare bloccato.</translation>
     </message>
     <message>
-        <location line="+409"/>
+        <location line="+414"/>
         <source>Ce poste utilise un mot de passe sécurisé pour accèder au serveur de base de données.</source>
         <translation>Questa postazione utilizza una password sicura per accedere al server del database.</translation>
     </message>
@@ -1690,7 +1692,7 @@ Puoi recuperare la password dello studio copiata su una chiavetta USB da una pos
         <translation>e lo configurerà automaticamente per il proprio uso.</translation>
     </message>
     <message>
-        <location line="-2912"/>
+        <location line="-2920"/>
         <source>Privilèges manquants</source>
         <translation>Privilegi mancanti</translation>
     </message>
@@ -1700,7 +1702,7 @@ Puoi recuperare la password dello studio copiata su una chiavetta USB da una pos
         <translation>Privilegi mancanti per «%1»: %2</translation>
     </message>
     <message>
-        <location line="+214"/>
+        <location line="+217"/>
         <source>Correction de la configuration MySQL</source>
         <translation>Correzione della configurazione di MySQL</translation>
     </message>
@@ -1710,7 +1712,7 @@ Puoi recuperare la password dello studio copiata su una chiavetta USB da una pos
         <translation>Verifica e correzione della configurazione in corso…</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+15"/>
         <source>Configuration corrigée</source>
         <translation>Configurazione corretta</translation>
     </message>
@@ -1997,7 +1999,7 @@ Chiusura del programma.</translation>
 <context>
     <name>MySQLInstallerDialog</name>
     <message>
-        <location line="-4725"/>
+        <location line="-4733"/>
         <location line="+5"/>
         <source>Préparation de MySQL pour Rufus</source>
         <translation>Preparazione di MySQL per Rufus</translation>
@@ -2170,7 +2172,6 @@ Chiusura del programma.</translation>
     <message>
         <location line="-5"/>
         <location line="+6"/>
-        <location line="+0"/>
         <source>En attente de nouvel examen par </source>
         <translation>In attesa di un nuovo esame da parte di </translation>
     </message>
@@ -2183,7 +2184,6 @@ Chiusura del programma.</translation>
     <message>
         <location line="-5"/>
         <location line="+6"/>
-        <location line="+0"/>
         <source>En cours de consultation avec </source>
         <translation>In corso di visita con </translation>
     </message>
@@ -2263,7 +2263,7 @@ Chiusura del programma.</translation>
 <context>
     <name>Procedures</name>
     <message>
-        <location filename="procedures.cpp" line="+268"/>
+        <location filename="procedures.cpp" line="+274"/>
         <source>Choisir une période</source>
         <translation>Scegliere un periodo</translation>
     </message>
@@ -2473,14 +2473,14 @@ Chiusura del programma.</translation>
         <location line="+51"/>
         <location line="+65"/>
         <location line="+19"/>
-        <location line="+747"/>
+        <location line="+756"/>
         <location line="+689"/>
         <location line="+674"/>
         <source>Annuler</source>
         <translation>Annulla</translation>
     </message>
     <message>
-        <location line="-4727"/>
+        <location line="-4736"/>
         <location line="+54"/>
         <source>Reprendre</source>
         <translation>Riprovare</translation>
@@ -2523,12 +2523,12 @@ Chiusura del programma.</translation>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+3233"/>
+        <location line="+3242"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation>Chi registra gli onorari per </translation>
     </message>
     <message>
-        <location line="-3171"/>
+        <location line="-3180"/>
         <source>remplacé par</source>
         <translation>sostituito da</translation>
     </message>
@@ -2822,7 +2822,7 @@ Chiusura del programma.</translation>
         <translation>Può ripristinarlo da un backup, creare un nuovo database pazienti o uscire.</translation>
     </message>
     <message>
-        <location line="+662"/>
+        <location line="+671"/>
         <source>Nouvelle base patients</source>
         <translation>Nuovo database pazienti</translation>
     </message>
@@ -2836,10 +2836,6 @@ d&apos;une sauvegarde ou recréer une base patients vierge?
         <translation>Il database è danneggiato.
 Vuole ricostruirlo a partire
 da un backup o ricreare un database pazienti vuoto?</translation>
-    </message>
-    <message>
-        <source>Le programme va redémarrer pour que certaines données puissent être prises en compte</source>
-        <translation type="vanished">Il programma si riavvierà affinché alcuni dati possano essere presi in considerazione</translation>
     </message>
     <message>
         <location line="+639"/>
@@ -2876,7 +2872,7 @@ pazienti</translation>
         <translation>Il tuo database pazienti è stato ripristinato. Rufus si riavvierà.</translation>
     </message>
     <message>
-        <location line="-2758"/>
+        <location line="-2767"/>
         <source>Arrêt du programme!</source>
         <translation>Arresto del programma!</translation>
     </message>
@@ -3506,12 +3502,12 @@ le chiavi giuste</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1830"/>
+        <location line="+1839"/>
         <source>Le serveur du cabinet répond, mais il refuse la liaison chiffrée.</source>
         <translation>Il server dello studio risponde, ma rifiuta il collegamento cifrato.</translation>
     </message>
     <message>
-        <location line="-1829"/>
+        <location line="-1838"/>
         <source>Les clés SSL de ce poste sont invalides ou périmées.</source>
         <translation>Le chiavi SSL di questa postazione non sono valide o sono scadute.</translation>
     </message>
@@ -3604,14 +3600,14 @@ database pazienti</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1364"/>
+        <location line="+1373"/>
         <source>Annuler, je vais
 sauvegarder les données</source>
         <translation>Annulla, vado a
 salvare i dati</translation>
     </message>
     <message>
-        <location line="-1363"/>
+        <location line="-1372"/>
         <source>Installer un
 serveur neuf</source>
         <translation>Installare un
@@ -3668,7 +3664,7 @@ nuovo server</translation>
         <translation>Rufus si avvia comunque, ma le immagini non saranno né lette né salvate.</translation>
     </message>
     <message>
-        <location line="+635"/>
+        <location line="+644"/>
         <source>La base de cotations Rufus a été mise à jour.</source>
         <translation>Il database delle codifiche di Rufus è stato aggiornato.</translation>
     </message>
@@ -3865,7 +3861,7 @@ salvare il database</translation>
         <translation>Indichi la cartella delle chiavi SSL (client-key.pem e client-cert.pem)</translation>
     </message>
     <message>
-        <location line="-2113"/>
+        <location line="-2122"/>
         <source>L&apos;accès distant nécessite les clés SSL du cabinet (client-key.pem, client-cert.pem), à copier depuis le poste serveur sur une clé USB.</source>
         <translation>L&apos;accesso remoto richiede le chiavi SSL dello studio (client-key.pem, client-cert.pem), da copiare dalla postazione server su una chiavetta USB.</translation>
     </message>
@@ -3928,18 +3924,18 @@ dispongo di un backup</translation>
     <message>
         <location line="+24"/>
         <location line="+1"/>
-        <location line="+1340"/>
+        <location line="+1349"/>
         <source>Impossible de trouver l&apos;exécutable MySQL</source>
         <translation>Impossibile trovare l&apos;eseguibile MySQL</translation>
     </message>
     <message>
-        <location line="-1340"/>
-        <location line="+1339"/>
+        <location line="-1349"/>
+        <location line="+1348"/>
         <source>Erreur de connexion</source>
         <translation>Errore di connessione</translation>
     </message>
     <message>
-        <location line="-1339"/>
+        <location line="-1348"/>
         <source>Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base</source>
         <translation>Il programma non potrà effettuare alcuna operazione di backup, ripristino o aggiornamento del database</translation>
     </message>
@@ -4036,82 +4032,6 @@ dispongo di un backup</translation>
         <translation>Errore nella creazione dell&apos;utente</translation>
     </message>
     <message>
-        <source>Un compte utilisateur a été créé</source>
-        <translation type="vanished">È stato creato un account utente</translation>
-    </message>
-    <message>
-        <source>Un compte utilisateur factice a été créé
-</source>
-        <translation type="vanished">È stato creato un account utente fittizio
-</translation>
-    </message>
-    <message>
-        <source>avec le login </source>
-        <translation type="vanished">con il login </translation>
-    </message>
-    <message>
-        <source>et le mot de passe que vous avez fourni</source>
-        <translation type="vanished">e la password che ha fornito</translation>
-    </message>
-    <message>
-        <source>Voulez-vous conserver ces données pour le moment ou les modifier?</source>
-        <translation type="vanished">Desidera conservare questi dati per il momento o modificarli?</translation>
-    </message>
-    <message>
-        <source>Vous pourrez les modifier par la suite</source>
-        <translation type="vanished">Potrà modificarli in seguito</translation>
-    </message>
-    <message>
-        <source>Une liste arbitraires de cotations a été créée</source>
-        <translation type="vanished">È stata creata una lista arbitraria di tariffe</translation>
-    </message>
-    <message>
-        <source>Vous pourrez la modifier par la suite dans le menu Edition/Paramètres
-</source>
-        <translation type="vanished">Potrà modificarla in seguito nel menu Modifica/Impostazioni
-</translation>
-    </message>
-    <message>
-        <source>Modifier les données</source>
-        <translation type="vanished">Modifica i dati</translation>
-    </message>
-    <message>
-        <source>Conserver les données</source>
-        <translation type="vanished">Conserva i dati</translation>
-    </message>
-    <message>
-        <source>Enregistrement de l&apos;utilisateur </source>
-        <translation type="vanished">Registrazione dell&apos;utente </translation>
-    </message>
-    <message>
-        <source>Base de données des villes et codes postaux</source>
-        <translation type="vanished">Database delle città e dei codici postali</translation>
-    </message>
-    <message>
-        <source>Voulez-vous utiliser la base de données des villes françaises?</source>
-        <translation type="vanished">Desidera utilizzare il database delle città francesi?</translation>
-    </message>
-    <message>
-        <source>Non</source>
-        <translation type="vanished">No</translation>
-    </message>
-    <message>
-        <source>Utiliser les codes postaux français</source>
-        <translation type="vanished">Utilizza i codici postali francesi</translation>
-    </message>
-    <message>
-        <source>Cotations françaises</source>
-        <translation type="vanished">Tariffe francesi</translation>
-    </message>
-    <message>
-        <source>Voulez-vous utiliser le système français de cotation des actes médicaux?</source>
-        <translation type="vanished">Desidera utilizzare il sistema francese di tariffazione delle prestazioni mediche?</translation>
-    </message>
-    <message>
-        <source>Utiliser les cotations françaises</source>
-        <translation type="vanished">Utilizza le tariffe francesi</translation>
-    </message>
-    <message>
         <location line="+94"/>
         <source>Docteur</source>
         <translation>Dottore</translation>
@@ -4124,7 +4044,7 @@ dispongo di un backup</translation>
     <message>
         <location line="-479"/>
         <location line="+3"/>
-        <location line="+1727"/>
+        <location line="+1736"/>
         <source>Connexion à la base impossible</source>
         <translation>Connessione al database impossibile</translation>
     </message>
@@ -4279,14 +4199,7 @@ esci da Rufus</translation>
         <translation>La connessione a MySQL non è riuscita dopo l&apos;installazione.</translation>
     </message>
     <message>
-        <location line="-705"/>
-        <location line="+11"/>
-        <location line="+745"/>
-        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
-        <translation>Il programma si riavvierà affinché le modifiche al database Rufus possano essere prese in considerazione.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+52"/>
         <source>IMPORTANT — un mot de passe de connexion à votre base de données a été créé</source>
         <translation>IMPORTANTE — è stata creata una password di connessione al suo database</translation>
     </message>
@@ -4840,7 +4753,7 @@ Purtroppo, nessuna di queste connessioni sembra funzionare.</translation>
         <translation>Se è così, scelga l&apos;opzione &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="-2126"/>
+        <location line="-2135"/>
         <source>Vous utilisez sur ce poste une version de Rufus prévue pour la version</source>
         <translation>Su questa postazione sta utilizzando una versione di Rufus prevista per la versione</translation>
     </message>
@@ -4870,7 +4783,7 @@ Purtroppo, nessuna di queste connessioni sembra funzionare.</translation>
         <translation>Può scaricare l&apos;ultima versione dalla pagina Download del sito</translation>
     </message>
     <message>
-        <location line="+2108"/>
+        <location line="+2117"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation>Rinunciare e
@@ -4901,12 +4814,6 @@ del file Rufus.ini</translation>
 patients Rufus</source>
         <translation>Installazione di un database
 pazienti Rufus</translation>
-    </message>
-    <message>
-        <source>Restaurer la copie
-de sauvegarde</source>
-        <translation type="vanished">Ripristinare la copia
-di backup</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5030,7 +4937,7 @@ di backup</translation>
         <translation>Una nuova versione di Rufus è online</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="+608"/>
+        <location filename="utils.cpp" line="+610"/>
         <source>Dossier de sauvegarde des erreurs </source>
         <translation>Cartella di salvataggio degli errori </translation>
     </message>
@@ -5172,7 +5079,7 @@ La conservi in un luogo sicuro (su carta o su una chiavetta USB): è necessaria 
         <translation>IMPORTANTE: la password generica di accesso al database è appena stata eliminata.</translation>
     </message>
     <message>
-        <location line="+2529"/>
+        <location line="+2537"/>
         <source>Choisissez un mot de passe de SECOURS pour votre base de données.
 
 Il ne servira qu&apos;à reprendre la main sur votre base si tous les autres
@@ -5225,31 +5132,31 @@ del tuo database.</translation>
 - senza caratteri speciali o accentati -</translation>
     </message>
     <message>
+        <location line="+1"/>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="-25"/>
-        <location filename="utils.cpp" line="+1"/>
         <source>Confirmez le mot de passe</source>
         <translation>Confermi la password</translation>
     </message>
     <message>
-        <location line="+24"/>
-        <location filename="utils.cpp" line="+26"/>
+        <location line="+26"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+24"/>
         <source>Saisie incomplète</source>
         <translation>Dati incompleti</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="+1"/>
+        <location line="+1"/>
         <source>Veuillez renseigner un identifiant et un mot de passe.</source>
         <translation>Inserisca un identificativo e una password.</translation>
     </message>
     <message>
+        <location line="+4"/>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+5"/>
-        <location filename="utils.cpp" line="+4"/>
         <source>Mots de passe différents</source>
         <translation>Password diverse</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location filename="utils.cpp" line="+1"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+1"/>
         <source>Le mot de passe et sa confirmation ne correspondent pas.</source>
         <translation>La password e la sua conferma non corrispondono.</translation>
     </message>
@@ -5368,7 +5275,7 @@ saranno copiati automaticamente</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location filename="rufus.cpp" line="+4872"/>
+        <location filename="rufus.cpp" line="+5035"/>
         <source>Recopier</source>
         <translation>Copia</translation>
     </message>
@@ -5426,7 +5333,7 @@ data di nascita</translation>
     <message>
         <location line="+128"/>
         <location line="+2059"/>
-        <location filename="rufus.cpp" line="-5048"/>
+        <location filename="rufus.cpp" line="-5211"/>
         <location line="+1004"/>
         <source>Envoyer un message</source>
         <translation>Invia un messaggio</translation>
@@ -5636,15 +5543,15 @@ prestazione</translation>
     </message>
     <message>
         <location line="+54"/>
-        <location filename="rufus.cpp" line="+3617"/>
+        <location filename="rufus.cpp" line="+3778"/>
         <source>Cotation</source>
         <translation>Codifica</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location filename="rufus.cpp" line="-1699"/>
+        <location filename="rufus.cpp" line="-1860"/>
         <location line="+4"/>
-        <location line="+1696"/>
+        <location line="+1857"/>
         <source>Montant</source>
         <translation>Importo</translation>
     </message>
@@ -5700,7 +5607,7 @@ prestazione</translation>
     </message>
     <message>
         <location line="+39"/>
-        <location filename="rufus.cpp" line="-4393"/>
+        <location filename="rufus.cpp" line="-4554"/>
         <source>Enregistrer le paiement</source>
         <translation>Registra il pagamento</translation>
     </message>
@@ -5722,7 +5629,7 @@ prestazione</translation>
     <message>
         <location line="+44"/>
         <location filename="rufus.cpp" line="-940"/>
-        <location line="+7849"/>
+        <location line="+8012"/>
         <source>Acte</source>
         <translation>Prestazione</translation>
     </message>
@@ -5764,7 +5671,7 @@ prestazione</translation>
         <translation>Terapie in corso</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="-10800"/>
+        <location filename="rufus.cpp" line="-10963"/>
         <source>Erreur fichier Rufus.ini</source>
         <translation>Errore file Rufus.ini</translation>
     </message>
@@ -5817,12 +5724,12 @@ Uscita dal programma</translation>
         <location line="+22"/>
         <location line="+193"/>
         <location line="+279"/>
-        <location line="+4789"/>
+        <location line="+4952"/>
         <source>Messages</source>
         <translation>Messaggi</translation>
     </message>
     <message>
-        <location line="-10513"/>
+        <location line="-10676"/>
         <source>Connexion TCP OK</source>
         <translation>Connessione TCP OK</translation>
     </message>
@@ -5907,23 +5814,26 @@ sono già in corso di registrazione!</translation>
     </message>
     <message>
         <location line="+10"/>
-        <location line="+5838"/>
+        <location line="+5850"/>
+        <location line="+6"/>
+        <location line="+19"/>
         <location line="+14"/>
-        <location line="+2848"/>
+        <location line="+2974"/>
         <source>Il manque la cotation!</source>
         <translation>Manca la codifica!</translation>
     </message>
     <message>
-        <location line="-8698"/>
-        <location line="+5838"/>
+        <location line="-8861"/>
+        <location line="+5850"/>
+        <location line="+25"/>
         <location line="+17"/>
-        <location line="+56"/>
-        <location line="+2787"/>
+        <location line="+62"/>
+        <location line="+2907"/>
         <source>Il manque le montant!</source>
         <translation>Manca l&apos;importo!</translation>
     </message>
     <message>
-        <location line="-8695"/>
+        <location line="-8858"/>
         <source>Vous ne pouvez pas enregistrer le paiement de cet acte !</source>
         <translation>Non può registrare il pagamento di questa prestazione!</translation>
     </message>
@@ -5939,18 +5849,20 @@ sono già in corso di registrazione!</translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+5860"/>
+        <location line="+5901"/>
+        <location line="+903"/>
         <source>Consultation gratuite</source>
         <translation>Visita gratuita</translation>
     </message>
     <message>
-        <location line="-5859"/>
-        <location line="+5856"/>
+        <location line="-6803"/>
+        <location line="+5897"/>
+        <location line="+903"/>
         <source>Vous avez entré un montant nul !</source>
         <translation>Ha inserito un importo nullo!</translation>
     </message>
     <message>
-        <location line="-5855"/>
+        <location line="-6799"/>
         <source>Enregistrer cette consultation comme gratuite?</source>
         <translation>Registrare questa visita come gratuita?</translation>
     </message>
@@ -5958,10 +5870,10 @@ sono già in corso di registrazione!</translation>
         <location line="+1"/>
         <location line="+318"/>
         <location line="+5445"/>
-        <location line="+554"/>
+        <location line="+599"/>
         <location line="+49"/>
-        <location line="+378"/>
-        <location line="+602"/>
+        <location line="+493"/>
+        <location line="+605"/>
         <location line="+1392"/>
         <location line="+154"/>
         <location line="+199"/>
@@ -5969,35 +5881,35 @@ sono già in corso di registrazione!</translation>
         <translation>Annulla</translation>
     </message>
     <message>
-        <location line="-9082"/>
+        <location line="-9245"/>
         <source>Impossible d&apos;enregister cet acte comme gratuit</source>
         <translation>Impossibile registrare questa prestazione come gratuita</translation>
     </message>
     <message>
         <location line="+108"/>
-        <location line="+9472"/>
+        <location line="+9635"/>
         <source>Gestion des tiers payants</source>
         <translation>Gestione dei terzi paganti</translation>
     </message>
     <message>
-        <location line="-9453"/>
+        <location line="-9616"/>
         <source>Autre Dossier</source>
         <translation>Altra Cartella</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+7580"/>
+        <location line="+7743"/>
         <source>Revenir au tarif conventionnel</source>
         <translation>Torna alla tariffa convenzionale</translation>
     </message>
     <message>
-        <location line="-7575"/>
-        <location line="+7574"/>
+        <location line="-7738"/>
+        <location line="+7737"/>
         <source>Revenir au tarif habituellement pratiqué</source>
         <translation>Torna alla tariffa abituale</translation>
     </message>
     <message>
-        <location line="-7413"/>
+        <location line="-7576"/>
         <source>Reprendre</source>
         <translation>Riprendi</translation>
     </message>
@@ -6214,36 +6126,36 @@ o creare una nuova valutazione con la data di oggi?</translation>
         <location line="+76"/>
         <location line="+2"/>
         <location line="+127"/>
-        <location line="+4307"/>
+        <location line="+4350"/>
         <source>d MMM yyyy</source>
         <translation>d MMM yyyy</translation>
     </message>
     <message>
-        <location line="-4497"/>
-        <location line="+4513"/>
+        <location line="-4540"/>
+        <location line="+4556"/>
         <source>Tél.</source>
         <translation>Tel.</translation>
     </message>
     <message>
-        <location line="-4511"/>
-        <location line="+4513"/>
+        <location line="-4554"/>
+        <location line="+4556"/>
         <source>Portable</source>
         <translation>Cellulare</translation>
     </message>
     <message>
-        <location line="-4511"/>
-        <location line="+4513"/>
+        <location line="-4554"/>
+        <location line="+4556"/>
         <source>Mail</source>
         <translation>Mail</translation>
     </message>
     <message>
-        <location line="-4511"/>
-        <location line="+4513"/>
+        <location line="-4554"/>
+        <location line="+4556"/>
         <source>NNI</source>
         <translation>NNI</translation>
     </message>
     <message>
-        <location line="-4502"/>
+        <location line="-4545"/>
         <source>Antécédents ophtalmologiques: </source>
         <translation>Anamnesi oftalmologica: </translation>
     </message>
@@ -6484,12 +6396,12 @@ su una cartella per aprirla</translation>
     </message>
     <message>
         <location line="+31"/>
-        <location line="+3788"/>
+        <location line="+3831"/>
         <source>dossiers</source>
         <translation>cartelle</translation>
     </message>
     <message>
-        <location line="-3739"/>
+        <location line="-3782"/>
         <location line="+53"/>
         <source>Visualiser le dossier</source>
         <translation>Visualizzare la cartella</translation>
@@ -6509,12 +6421,12 @@ su una cartella per aprirla</translation>
     <message>
         <location line="+5"/>
         <location line="+203"/>
-        <location line="+6909"/>
+        <location line="+7072"/>
         <source>Créer un dossier de la même famille</source>
         <translation>Creare una cartella della stessa famiglia</translation>
     </message>
     <message>
-        <location line="-7101"/>
+        <location line="-7264"/>
         <location line="+247"/>
         <source>Programmer une intervention</source>
         <translation>Programmare un intervento</translation>
@@ -6543,12 +6455,12 @@ su una cartella per aprirla</translation>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+7092"/>
+        <location line="+7255"/>
         <source>Enregistrer une video</source>
         <translation>Salvare un video</translation>
     </message>
     <message>
-        <location line="-7067"/>
+        <location line="-7230"/>
         <source>Pas de consultation enregistrée pour </source>
         <translation>Nessuna visita registrata per </translation>
     </message>
@@ -6574,13 +6486,13 @@ su una cartella per aprirla</translation>
     </message>
     <message>
         <location line="+8"/>
-        <location line="+3738"/>
-        <location line="+2986"/>
+        <location line="+3783"/>
+        <location line="+3104"/>
         <source>Ouvrir le dossier</source>
         <translation>Aprire la cartella</translation>
     </message>
     <message>
-        <location line="-6679"/>
+        <location line="-6842"/>
         <source>Reprendre le dossier</source>
         <translation>Riprendere la cartella</translation>
     </message>
@@ -6651,12 +6563,12 @@ su una cartella per aprirla</translation>
     </message>
     <message>
         <location line="+91"/>
-        <location line="+6397"/>
+        <location line="+6560"/>
         <source>Paramètres</source>
         <translation>Parametri</translation>
     </message>
     <message>
-        <location line="-6322"/>
+        <location line="-6485"/>
         <location line="+913"/>
         <source>Vous avez oublié de rédiger le texte de votre message!</source>
         <translation>Ha dimenticato di scrivere il testo del suo messaggio!</translation>
@@ -6674,12 +6586,12 @@ su una cartella per aprirla</translation>
     </message>
     <message>
         <location line="-843"/>
-        <location line="+3671"/>
+        <location line="+3832"/>
         <source>dd/MM/yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
     <message>
-        <location line="-3648"/>
+        <location line="-3809"/>
         <source>A propos de </source>
         <translation>A proposito di </translation>
     </message>
@@ -6690,12 +6602,12 @@ su una cartella per aprirla</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+4906"/>
+        <location line="+5069"/>
         <source>Tout le monde</source>
         <translation>Tutti</translation>
     </message>
     <message>
-        <location line="-4820"/>
+        <location line="-4983"/>
         <source>Tâche à accomplir avant le </source>
         <translation>Compito da svolgere entro il </translation>
     </message>
@@ -6851,26 +6763,26 @@ su una cartella per aprirla</translation>
         <location line="+129"/>
         <location line="+8"/>
         <location line="+11"/>
-        <location line="+5068"/>
+        <location line="+5231"/>
         <source>Vous avez </source>
         <translation>Ha </translation>
     </message>
     <message>
-        <location line="-5087"/>
+        <location line="-5250"/>
         <location line="+19"/>
-        <location line="+5068"/>
+        <location line="+5231"/>
         <source> nouveaux messages</source>
         <translation> nuovi messaggi</translation>
     </message>
     <message>
-        <location line="-5085"/>
+        <location line="-5248"/>
         <location line="+19"/>
-        <location line="+5068"/>
+        <location line="+5231"/>
         <source>Vous avez 1 nouveau message</source>
         <translation>Ha 1 nuovo messaggio</translation>
     </message>
     <message>
-        <location line="-5081"/>
+        <location line="-5244"/>
         <source> messages</source>
         <translation> messaggi</translation>
     </message>
@@ -6891,13 +6803,13 @@ su una cartella per aprirla</translation>
     </message>
     <message>
         <location line="+262"/>
-        <location line="+3967"/>
+        <location line="+4130"/>
         <location line="+13"/>
         <source>inconnu</source>
         <translation>sconosciuto</translation>
     </message>
     <message>
-        <location line="-3970"/>
+        <location line="-4133"/>
         <source>administrateur</source>
         <translation>amministratore</translation>
     </message>
@@ -6977,7 +6889,8 @@ su una cartella per aprirla</translation>
         <translation> cartelle per le quali il sesso non è specificato</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+48"/>
+        <location line="+33"/>
         <source>Consultation incomplète</source>
         <translation>Visita incompleta</translation>
     </message>
@@ -6987,23 +6900,25 @@ su una cartella per aprirla</translation>
         <translation>Impossibile trovare l&apos;ultima prestazione del paziente per controllarla!</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+13"/>
+        <location line="+903"/>
         <source>Enregistrer cet acte comme gratuit?</source>
         <translation>Registrare questa prestazione come gratuita?</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-900"/>
+        <location line="+903"/>
         <source>Non</source>
         <translation>No</translation>
     </message>
     <message>
-        <location line="+15"/>
-        <location line="+2801"/>
+        <location line="-887"/>
+        <location line="+2922"/>
         <source>il manque les informations de paiement</source>
         <translation>mancano le informazioni di pagamento</translation>
     </message>
     <message>
-        <location line="-2711"/>
+        <location line="-2831"/>
         <source>Fermer quand même</source>
         <translation>Chiudere comunque</translation>
     </message>
@@ -7028,7 +6943,7 @@ su una cartella per aprirla</translation>
         <translation>1 cartella</translation>
     </message>
     <message>
-        <location line="+60"/>
+        <location line="+62"/>
         <source>Impossible d&apos;ouvrir ce dossier!</source>
         <translation>Impossibile aprire questa cartella!</translation>
     </message>
@@ -7076,12 +6991,12 @@ cognome e nome</translation>
     </message>
     <message>
         <location line="+15"/>
-        <location line="+3015"/>
+        <location line="+3133"/>
         <source>Ce patient est déjà venu!</source>
         <translation>Questo paziente è già venuto!</translation>
     </message>
     <message>
-        <location line="-3009"/>
+        <location line="-3127"/>
         <source>Ouverture du dossier de </source>
         <translation>Apertura della cartella di </translation>
     </message>
@@ -7123,48 +7038,48 @@ Crearla comunque?</translation>
     </message>
     <message>
         <location line="+34"/>
-        <location line="+492"/>
-        <location line="+2494"/>
+        <location line="+608"/>
+        <location line="+2496"/>
         <source>Dossier </source>
         <translation>Cartella </translation>
     </message>
     <message>
-        <location line="-2986"/>
-        <location line="+2986"/>
+        <location line="-3104"/>
+        <location line="+3104"/>
         <source> créé</source>
         <translation> creata</translation>
     </message>
     <message>
-        <location line="-2985"/>
-        <location line="+492"/>
-        <location line="+2494"/>
+        <location line="-3103"/>
+        <location line="+608"/>
+        <location line="+2496"/>
         <source>Ouvrir le dossier ou inscrire le dossier en salle d&apos;attente?</source>
         <translation>Aprire la cartella o inserire la cartella in sala d&apos;attesa?</translation>
     </message>
     <message>
-        <location line="-2984"/>
-        <location line="+493"/>
-        <location line="+2493"/>
+        <location line="-3102"/>
+        <location line="+609"/>
+        <location line="+2495"/>
         <source>Inscrire le dossier
 en salle d&apos;attente</source>
         <translation>Inserire la cartella
 in sala d&apos;attesa</translation>
     </message>
     <message>
-        <location line="-2984"/>
-        <location line="+493"/>
-        <location line="+2493"/>
+        <location line="-3102"/>
+        <location line="+609"/>
+        <location line="+2495"/>
         <source>Ne rien faire</source>
         <translation>Non fare nulla</translation>
     </message>
     <message>
-        <location line="-2929"/>
-        <location line="+3045"/>
+        <location line="-3047"/>
+        <location line="+3163"/>
         <source>Information statut</source>
         <translation>Informazioni sullo stato</translation>
     </message>
     <message>
-        <location line="-2988"/>
+        <location line="-3106"/>
         <source>Copier</source>
         <translation>Copia</translation>
     </message>
@@ -7214,7 +7129,32 @@ in sala d&apos;attesa</translation>
         <translation> è stata creata sul desktop</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+79"/>
+        <source>Impossible d&apos;enregistrer la recette de cet acte</source>
+        <translation>Impossibile salvare l&apos;incasso di questa prestazione</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Impossible d&apos;enregistrer le paiement de cet acte</source>
+        <translation>Impossibile salvare il pagamento di questa prestazione</translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <source>Consultations sans contenu supprimées</source>
+        <translation>Consultazioni senza contenuto eliminate</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce dossier comportait %1 consultation(s) sans motif, ni texte, ni conclusion, ni cotation.</source>
+        <translation>Questa cartella conteneva %1 consultazione/i senza motivo, né testo, né conclusione, né codifica.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Elles ont été supprimées.</source>
+        <translation>Sono state eliminate.</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>Garder le dossier en salle d&apos;attente?</source>
         <translation>Mantenere la cartella in sala d&apos;attesa?</translation>
     </message>
@@ -7238,14 +7178,14 @@ le dossier</source>
 la cartella</translation>
     </message>
     <message>
-        <location line="+106"/>
-        <location line="+1170"/>
+        <location line="+107"/>
+        <location line="+1172"/>
         <location line="+1454"/>
         <source>dd-MM-yyyy</source>
         <translation>dd-MM-yyyy</translation>
     </message>
     <message>
-        <location line="-2622"/>
+        <location line="-2624"/>
         <source>yyyyMMdd</source>
         <translation>yyyyMMdd</translation>
     </message>
@@ -7287,7 +7227,7 @@ la cartella</translation>
         <translation>Pagamento</translation>
     </message>
     <message>
-        <location line="+141"/>
+        <location line="+143"/>
         <location line="+258"/>
         <source>Ouvrir
 le dossier</source>
@@ -7373,7 +7313,12 @@ Seleziona quelli da sostituire:</translation>
         <translation>Impossibile cercare la cartella</translation>
     </message>
     <message>
-        <location line="-754"/>
+        <location line="+239"/>
+        <source>Afficher les courriers en attente</source>
+        <translation>Mostra le lettere in attesa</translation>
+    </message>
+    <message>
+        <location line="-993"/>
         <source>ServeurTCP</source>
         <translation>Server TCP</translation>
     </message>
@@ -7622,12 +7567,7 @@ Deve modificare la registrazione corrispondente per poter eliminare la prestazio
         <translation>Registrare un documento</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Afficher les courriers à faire</source>
-        <translation>Mostrare le lettere da fare</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Liste des correspondants</source>
         <translation>Elenco dei corrispondenti</translation>
     </message>
@@ -7994,7 +7934,12 @@ valore conforme più vicino!</translation>
         <translation>anni</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+103"/>
+        <source>À quoi sert cette fiche ?</source>
+        <translation>A cosa serve questa scheda?</translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Le code qui suit n&apos;est pas achevé et entraînera
 assez rapidement un plantage du programme
 avec un risque élevé de corruption des données</source>
@@ -8501,16 +8446,13 @@ alternata</translation>
         <location line="+71"/>
         <location line="+24"/>
         <location line="+40"/>
-        <location line="+0"/>
         <location line="+47"/>
         <location line="+10"/>
         <location line="+12"/>
-        <location line="+0"/>
         <location line="+53"/>
         <location line="+10"/>
         <location line="+10"/>
         <location line="+2"/>
-        <location line="+0"/>
         <location line="+52"/>
         <location line="+7"/>
         <location line="+21"/>
@@ -8990,16 +8932,12 @@ alternata</translation>
     <message>
         <location line="-441"/>
         <location line="+2"/>
-        <location line="+0"/>
         <location line="+439"/>
         <location line="+2"/>
-        <location line="+0"/>
         <location line="+7"/>
         <location line="+2"/>
-        <location line="+0"/>
         <location line="+68"/>
         <location line="+2"/>
-        <location line="+0"/>
         <source>d MMMM yyyy</source>
         <translation>d MMMM yyyy</translation>
     </message>
@@ -11858,7 +11796,7 @@ al momento</translation>
         <translation>Password utente</translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="+47"/>
         <source>Vous ne pouvez pas déclarer cet utilisateur en tant qu&apos;employé
 parce qu&apos;il n&apos;y a aucun utilisateur susceptible d&apos;être employeur
 enregistré dans la base.</source>
@@ -14056,7 +13994,7 @@ Deve prima rendere privata questa cartella!</translation>
 <context>
     <name>dlg_initbase</name>
     <message>
-        <location filename="Dialogs/dlg_initbase.cpp" line="+42"/>
+        <location filename="Dialogs/dlg_initbase.cpp" line="+43"/>
         <source>Premier paramétrage de Rufus</source>
         <translation>Prima configurazione di Rufus</translation>
     </message>
@@ -14066,7 +14004,12 @@ Deve prima rendere privata questa cartella!</translation>
         <translation>Il suo archivio pazienti è stato creato. Queste impostazioni valgono per tutto lo studio; potrà modificarle in Modifica/Impostazioni.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+9"/>
+        <source>Que règle cette fiche ?</source>
+        <translation>Cosa imposta questa scheda?</translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Enregistrer une comptabilité</source>
         <translation>Registrare una contabilità</translation>
     </message>
@@ -14164,6 +14107,76 @@ Deve prima rendere privata questa cartella!</translation>
         <location line="+0"/>
         <source>Docteur</source>
         <translation>Dottore</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>&lt;b&gt;Premier paramétrage de Rufus&lt;/b&gt;&lt;br&gt;Ces réglages valent pour tout le cabinet et sont modifiables à tout moment dans Edition/Paramètres. Rien n&apos;est définitif ici.&lt;br&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Prima configurazione di Rufus&lt;/b&gt;&lt;br&gt;Queste impostazioni valgono per tutto lo studio e sono modificabili in qualsiasi momento in Modifica/Parametri. Nulla è definitivo qui.&lt;br&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;b&gt;Comptabilité&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Contabilità&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;i&gt;Enregistrer une comptabilité&lt;/i&gt; : la comptabilité complète — recettes, dépenses, comptes bancaires, remises de chèques. Le mode de paiement est demandé à chaque acte.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Tenere una contabilità&lt;/i&gt;: la contabilità completa — incassi, spese, conti bancari, distinte di assegni. Il metodo di pagamento è richiesto a ogni prestazione.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;i&gt;Enregistrer une comptabilité simplifiée&lt;/i&gt; : seuls la cotation et le montant de l&apos;acte sont enregistrés, au fil des consultations et sans rien vous demander. Vous consultez le journal des recettes, mais il n&apos;y a ni dépenses, ni comptes bancaires.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Tenere una contabilità semplificata&lt;/i&gt;: si registrano solo la codifica e l&apos;importo della prestazione, nel corso delle consultazioni e senza chiederti nulla. Consulti il giornale degli incassi, ma non ci sono né spese né conti bancari.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&lt;i&gt;Ne pas enregistrer de comptabilité&lt;/i&gt; : aucune écriture comptable, le menu Comptabilité disparaît. Les actes sont enregistrés comme gratuits, ce qui vous laisse libre de passer à une comptabilité plus tard sans aucune alerte sur les actes déjà saisis.&lt;br&gt;&lt;br&gt;</source>
+        <translation>&lt;i&gt;Non tenere contabilità&lt;/i&gt;: nessuna scrittura contabile, il menu Contabilità scompare. Le prestazioni sono registrate come gratuite, il che ti lascia libero di passare a una contabilità più tardi senza alcun avviso sulle prestazioni già inserite.&lt;br&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;b&gt;Cotation des actes&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Codifica delle prestazioni&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;i&gt;Cotations françaises&lt;/i&gt; : CCAM, NGAP, ALD, secteur conventionnel et OPTAM. À réserver à un exercice en France ou dans les DOM-TOM.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Codifiche francesi&lt;/i&gt;: CCAM, NGAP, ALD, settore convenzionato e OPTAM. Da riservare a un esercizio in Francia o nei territori d&apos;oltremare.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;i&gt;Cotations génériques&lt;/i&gt; : vous composez vos propres libellés et montants, sans nomenclature imposée. C&apos;est le choix des versions internationales.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Codifiche generiche&lt;/i&gt;: componi le tue descrizioni e i tuoi importi, senza nomenclatura imposta. È la scelta delle versioni internazionali.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ce groupe se grise si vous ne tenez aucune comptabilité, et suit automatiquement le territoire choisi plus bas — vous pouvez toujours le corriger à la main.&lt;br&gt;&lt;br&gt;</source>
+        <translation>Questo gruppo si disattiva se non tieni alcuna contabilità e segue automaticamente il territorio scelto più sotto — puoi sempre correggerlo a mano.&lt;br&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&lt;b&gt;Langue et territoire&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Lingua e territorio&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;i&gt;Langue&lt;/i&gt; : la langue de l&apos;interface, propre à ce poste. Un autre poste du cabinet peut travailler dans une autre langue.&lt;br&gt;</source>
+        <translation>&lt;i&gt;Lingua&lt;/i&gt;: la lingua dell&apos;interfaccia, propria di questa postazione. Un&apos;altra postazione dello studio può lavorare in un&apos;altra lingua.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;i&gt;Territoire&lt;/i&gt; : le pays d&apos;exercice. Il détermine les villes et les codes postaux proposés dans les fiches patients. Il est distinct de la langue : un cabinet mexicain et un cabinet espagnol travaillent tous deux en espagnol.&lt;br&gt;&lt;br&gt;</source>
+        <translation>&lt;i&gt;Territorio&lt;/i&gt;: il paese di esercizio. Determina le città e i codici postali proposti nelle schede dei pazienti. È distinto dalla lingua: uno studio messicano e uno studio spagnolo lavorano entrambi in spagnolo.&lt;br&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;b&gt;Utilisateur&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Utente&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Un utilisateur factice, &lt;i&gt;Docteur Snow&lt;/i&gt;, est systématiquement créé : Rufus ne peut pas démarrer sans au moins un soignant enregistré. C&apos;est pourquoi la case est cochée et verrouillée. Dès la première ouverture, vous pourrez modifier ou supprimer cet utilisateur. Allez dans Edition/Paramètres pour le renommer à votre nom, ou créez votre propre compte et supprimez celui-ci.</source>
+        <translation>Un utente fittizio, &lt;i&gt;Dottor Snow&lt;/i&gt;, viene sempre creato: Rufus non può avviarsi senza almeno un professionista registrato. Per questo la casella è spuntata e bloccata. Fin dalla prima apertura, potrai modificare o eliminare questo utente. Vai in Modifica/Parametri per rinominarlo col tuo nome, oppure crea il tuo account ed elimina questo.</translation>
     </message>
 </context>
 <context>
@@ -16331,7 +16344,7 @@ Conferma l&apos;inserimento?</translation>
     </message>
     <message>
         <location line="+61"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3727"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3712"/>
         <source>Monoposte</source>
         <translation>Postazione singola</translation>
     </message>
@@ -16339,7 +16352,7 @@ Conferma l&apos;inserimento?</translation>
         <location line="+37"/>
         <location line="+253"/>
         <location line="+280"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3061"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3064"/>
         <source>Port</source>
         <translation>Porta</translation>
     </message>
@@ -16423,7 +16436,7 @@ della cartella di archiviazione dei video</translation>
     </message>
     <message>
         <location line="-602"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3062"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3065"/>
         <source>Réseau local</source>
         <translation>Rete locale</translation>
     </message>
@@ -16644,8 +16657,8 @@ i dati</translation>
     </message>
     <message>
         <location line="+100"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3090"/>
-        <location line="+1021"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3093"/>
+        <location line="+1024"/>
         <source>Appareils connectés au réseau</source>
         <translation>Dispositivi
 connessi alla rete</translation>
@@ -16762,7 +16775,7 @@ luoghi di attività</translation>
         <translation>Versione</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="-1462"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-1465"/>
         <source>Emplacement du dossier de stockage des documents d&apos;imagerie &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;SUR CE POSTE SERVEUR&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Cet emplacement n&apos;est pas modifiable et correspond à la variable secure_file_priv de MySQL</source>
         <translation>Posizione della cartella di archiviazione dei documenti di imaging &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;SU QUESTA POSTAZIONE SERVER&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Questa posizione non è modificabile e corrisponde alla variabile secure_file_priv di MySQL</translation>
     </message>
@@ -16862,7 +16875,7 @@ luoghi di attività</translation>
         <translation>Server</translation>
     </message>
     <message>
-        <location line="+42"/>
+        <location line="+45"/>
         <source>Le changement de version ne prendra effet qu&apos;après redémarrage du logiciel</source>
         <translation>Il cambio di versione avrà effetto solo dopo il riavvio del software</translation>
     </message>
@@ -16877,9 +16890,9 @@ luoghi di attività</translation>
         <translation>Ha modificato alcuni elementi. Vuole salvare queste modifiche?</translation>
     </message>
     <message>
-        <location line="-416"/>
+        <location line="-419"/>
         <location line="+66"/>
-        <location line="+352"/>
+        <location line="+355"/>
         <location line="+775"/>
         <location line="+112"/>
         <location line="+725"/>
@@ -16887,8 +16900,23 @@ luoghi di attività</translation>
         <translation>Annulla</translation>
     </message>
     <message>
-        <location line="-2029"/>
-        <location line="+418"/>
+        <location line="-2249"/>
+        <source>modifier une cotation.&lt;br&gt;</source>
+        <translation>modificare una codifica.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Cotations référencées dans la base</source>
+        <translation>Codifiche referenziate nel database</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Clic sur ? pour obtenir de l&apos;aide</source>
+        <translation>Clic su ? per ottenere aiuto</translation>
+    </message>
+    <message>
+        <location line="+186"/>
+        <location line="+421"/>
         <source>Enregistrer</source>
         <translation>Salva</translation>
     </message>
@@ -17142,7 +17170,7 @@ perché le modifiche apportate siano prese in considerazione!</translation>
         <translation>Chiavi client SSL esportate</translation>
     </message>
     <message>
-        <location line="-2230"/>
+        <location line="-2227"/>
         <source>&lt;b&gt;Table des cotations référencées par Rufus&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Tabella delle codifiche referenziate da Rufus&lt;/b&gt;&lt;br&gt;</translation>
     </message>
@@ -17162,12 +17190,7 @@ perché le modifiche apportate siano prese in considerazione!</translation>
         <translation>creare una nuova codifica.&lt;br&gt;</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>modifier une cotation de type « autre ».&lt;br&gt;</source>
-        <translation>modificare una codifica di tipo «altra».&lt;br&gt;</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>supprimer la cotation sélectionnée, si personne d&apos;autre ne l&apos;utilise.&lt;br&gt;</source>
         <translation>eliminare la codifica selezionata, se nessun altro la utilizza.&lt;br&gt;</translation>
     </message>
@@ -17177,17 +17200,12 @@ perché le modifiche apportate siano prese in considerazione!</translation>
         <translation>Pagina bloccata: clicca sul lucchetto per sbloccarla e poterla modificare.</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+2"/>
         <source>Que puis-je faire dans cette table ?</source>
         <translation>Cosa posso fare in questa tabella?</translation>
     </message>
     <message>
-        <location line="+28"/>
-        <source>Cotations référencées dans la base - Clic sur ? pour obtenir de l&apos;aide</source>
-        <translation>Codifiche referenziate nel database - Clic su ? per ottenere aiuto</translation>
-    </message>
-    <message>
-        <location line="+169"/>
+        <location line="+193"/>
         <source>cette fonction n&apos;est encore implémentée</source>
         <translation>questa funzione non è ancora implementata</translation>
     </message>
@@ -17241,7 +17259,7 @@ Vuole salvarla?</translation>
         <translation>Ha scelto di non registrare alcuna contabilità.</translation>
     </message>
     <message>
-        <location line="+998"/>
+        <location line="+1001"/>
         <location line="+528"/>
         <source>Choisissez le dossier dans lequel vous voulez sauvegarder la base</source>
         <translation>Scegli la cartella in cui vuoi salvare il database</translation>
@@ -17413,8 +17431,8 @@ Vuole salvarla?</translation>
         <translation>Rufus si riavvierà.</translation>
     </message>
     <message>
-        <location line="-1977"/>
-        <location line="+1978"/>
+        <location line="-1980"/>
+        <location line="+1981"/>
         <source>Redémarrage du programme en cours…</source>
         <translation>Riavvio del programma in corso…</translation>
     </message>
@@ -17433,10 +17451,6 @@ Vuole salvarla?</translation>
         <location line="+28"/>
         <source>Vous n&apos;avez pas spécifié de dossier de stockage valide pour les documents d&apos;imagerie !</source>
         <translation>Non ha specificato una cartella di archiviazione valida per i documenti di imaging!</translation>
-    </message>
-    <message>
-        <source>Le programme va se fermer pour que certaines données puissent être prises en compte</source>
-        <translation type="vanished">Il programma si chiuderà affinché alcuni dati possano essere presi in considerazione</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -19036,7 +19050,6 @@ predefinito</translation>
         <location line="+630"/>
         <location line="+5"/>
         <location line="+91"/>
-        <location line="+0"/>
         <location line="+2"/>
         <location line="+2"/>
         <location line="+10"/>
