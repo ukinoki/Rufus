@@ -4307,6 +4307,14 @@ bool MySQLInstaller::droitsDossierPartageConformes()
 QString MySQLInstaller::windowsPartageImagerieScript(const QString& path) const
 {
     const QString ps = QString(
+        /*! Rufus ne tourne pas en administrateur : sans cette ré-élévation, New-SmbShare rend « Accès refusé ». */
+        "$id = [Security.Principal.WindowsIdentity]::GetCurrent()\r\n"
+        "$pr = New-Object Security.Principal.WindowsPrincipal($id)\r\n"
+        "if (-not $pr.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {\r\n"
+        "    Start-Process powershell -Verb RunAs -Wait -ArgumentList "
+            "\"-NoProfile -ExecutionPolicy Bypass -File `\"$PSCommandPath`\"\"\r\n"
+        "    exit\r\n"
+        "}\r\n"
         "$c='%1'; New-Item -ItemType Directory -Force -Path $c | Out-Null\r\n"
         "$t=(New-Object System.Security.Principal.SecurityIdentifier('S-1-1-0'))"
         ".Translate([System.Security.Principal.NTAccount]).Value\r\n"
@@ -4612,7 +4620,8 @@ QStringList MySQLInstaller::lignesResultat(const QString& sortie)
 bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData)
 {
 #if defined(Q_OS_WIN)
-    /*! L'application Windows tourne déjà en tant qu'administrateur. */
+    /*! Rufus n'est PAS élevé sous Windows (aucun manifeste) : n'élève rien ici, un script qui exige
+     *  l'administrateur doit se ré-élever lui-même (cf. windowsPartageImagerieScript). */
     Q_UNUSED(stdinData);
     const QString out = runCmdFull(cmd);
     return !out.contains("Access is denied", Qt::CaseInsensitive)
