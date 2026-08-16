@@ -788,18 +788,13 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                     champs[CP_HOLL1O_IOLS]          = iol.holladay1_optimized();
                     champs[CP_HOFFERQO_IOLS]        = iol.hofferQ_optimized();
                     champs[CP_TYP_IOLS]             = iol.type();
-                    ItemsList::updateFields(ioloflist, champs);
-
-                    //! l'image du XML remplace celle en base, par bind : ItemsList::update casserait le blob
-                    if (iol.arrayimgiol().size())
+                    if (iol.arrayimgiol().size())               //! l'image du XML remplace celle en base
                     {
-                        ioloflist->setimage(iol.image());
-                        QHash<QString, QVariant> binds;
-                        binds[CP_ARRAYIMG_IOLS] = iol.arrayimgiol();
-                        binds[CP_TYPIMG_IOLS]   = iol.imageformat();
-                        DataBase::I()->UpdateTablebyBinds(TBL_IOLS, binds, CP_ID_IOLS, ioloflist->id(),
-                                                          tr("Impossible de mettre à jour l'image de l'implant"));
+                        ioloflist->setimage(iol.image());       //! rafraîchit l'image affichée, qu'updateFields ne touche pas
+                        champs[CP_ARRAYIMG_IOLS]    = iol.arrayimgiol();
+                        champs[CP_TYPIMG_IOLS]      = iol.imageformat();
                     }
+                    ItemsList::updateFields(ioloflist, champs);
                     ++ updateiols;
                 }
             }
