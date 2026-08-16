@@ -87,7 +87,7 @@ dlg_param::dlg_param(QWidget *parent) :
       + tr("<b>Clic droit</b> sur une ligne : menu pour modifier le montant pratiqué, modifier la "
            "cotation (type « autre ») ou la supprimer.<br>")
       + imgPlus  + " " + tr("créer une nouvelle cotation.<br>")
-      + imgModif + " " + tr("modifier une cotation de type « autre ».<br>")
+      + imgModif + " " + tr("modifier une cotation.<br>")
       + imgMoins + " " + tr("supprimer la cotation sélectionnée, si personne d'autre ne l'utilise.<br>"));
     //! message affiché au clic sur la table/les boutons quand la page est verrouillée (cf.
     //! enableCotations + eventFilter) : invite à déverrouiller, avec l'image du cadenas.
@@ -118,7 +118,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
 
 
-    ui->Cotationslabel  ->setText("\n" + tr("Cotations référencées dans la base - Clic sur ? pour obtenir de l'aide")
+    ui->Cotationslabel  ->setText("\n" + tr("Cotations référencées dans la base") + "\n" + tr("Clic sur ? pour obtenir de l'aide")
                                   + "\n");
     ui->Cotationswidget ->setLayout(Margelay);
 

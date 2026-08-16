@@ -361,14 +361,14 @@ private:
     void                AfficheActeCompta(Acte *acte);
     void                AfficheDossier(Patient *pat, int idacte = 0);
     void                AfficheMessageImport(QStringList listmsg, int pause);
-    bool                AutorDepartConsult(bool ChgtDossier);
+    bool                AutorDepartConsult(bool ChgtDossier, QWidget *parent = nullptr);
     QString             CalcHtmlIdentificationPatient(Patient *pat);
     QIcon               CalcIconPatient(Patient *pat);                              //!> renvoie l'icone qui représente le patient dans le html et sur le tab
     void                CalcMotsCles(Patient *pat);
     void                CalcNbDossiers();
     QString             CalcToolTipCorrespondant(int);
     void                FiltreTable(QString nom = "", QString prenom = "");         //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
-    void                OuvrirDossier(Patient *pat, int idacte = 0);
+    void                OuvrirDossier(Patient *pat, int idacte = 0, QWidget *parent = nullptr);
     void                CreerActe(Patient *pat = nullptr);
     void                ChercherDepuisListe();
     void                CreerDossier();
@@ -378,7 +378,7 @@ private:
     int                 EnregistreNouveauCorresp(QString Cor, QString Nom);
     void                ExporteActe(Acte *act);
     void                FermeDlgActesPrecedentsEtDocsExternes();
-    bool                FermeDossier(Patient *pat);
+    bool                FermeDossier(Patient *pat, QWidget *parent = nullptr);
     void                SupprimeActesVides(Patient *pat);       /*!< supprime les actes gratuits sans aucun contenu à la fermeture du dossier */
     bool                EnregistreRecetteReduite(Acte *act);    /*!< en compta réduite, encaisse l'acte du jour en espèces ou le passe en gratuit si son montant est nul */
     Patient*            getPatientFromRow(int row);                         //!> retrouve le patient correspondant à la rangée row

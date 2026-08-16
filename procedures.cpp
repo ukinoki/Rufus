@@ -2125,7 +2125,7 @@ QString Procedures::SessionStatus()
             {
                 txtliberal +=  "\n" + tr("Honoraires encaissés sur le compte :") + "\t" + cptencaissement->nomabrege();
                 if (Datas::I()->users->getById(currentuser()->idcomptableactes()) != Q_NULLPTR)
-                    txtliberal += tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptableactes())->login();
+                    txtliberal += " " + tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptableactes())->login();
             }
             txtstatut += txtliberal;
         }

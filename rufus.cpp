@@ -1123,13 +1123,13 @@ void Rufus::AfficheMenu(QMenu *menu)
     actionRemiseCheques->setEnabled(a);
     actionRecettesSpeciales->setEnabled(a);
     actionParametres->setEnabled(a);
-    actionRechercheCourrier->setVisible(currentuser()->isSoignant() && a);
+    actionRechercheCourrier->setVisible(currentuser()->isSoignant() );
     if (currentuser()->isSoignant())
     {
         bool c = false;
         QList<int> listcourriers = Datas::I()->actes->listCourriersByUser(currentuser()->id());
         c = (listcourriers.size()>0);
-        actionRechercheCourrier     ->setEnabled(a && c);
+        actionRechercheCourrier     ->setEnabled(c);
     }
 
     if (menu == menuDossier)
@@ -3510,20 +3510,20 @@ void Rufus::AfficheCourriersAFaire()
     tabCourriers->setFixedWidth(tabCourriers->columnWidth(0)+tabCourriers->columnWidth(1)+tabCourriers->columnWidth(2)+2);
     dlg_listPatients->setFixedWidth(tabCourriers->width()
                         + dlg_listPatients->dlglayout()->contentsMargins().left()*2);
-    connect(tabCourriers, &QWidget::customContextMenuRequested, dlg_listPatients, [=, this]
+    connect(tabCourriers, &QWidget::customContextMenuRequested, dlg_listPatients, [&]
     {
         QPoint tbpos    = tabCourriers->mapFromGlobal(cursor().pos());
         QModelIndex idx = tabCourriers->indexAt(tbpos);
         QString patient = modele->item(modele->itemFromIndex(idx)->row(),0)->text();
         if (m_menuContextuel != nullptr)
             delete m_menuContextuel;
-        m_menuContextuel = new QMenu(this);
+        m_menuContextuel = new QMenu(dlg_listPatients);
         QAction *pAction_OuvrirDossier = m_menuContextuel->addAction("Ouvrir le dossier " + patient) ;
-        connect (pAction_OuvrirDossier, &QAction::triggered, this, [=, this]
+        connect (pAction_OuvrirDossier, &QAction::triggered, dlg_listPatients, [&]
         {
             int idacte      = modele->itemFromIndex(idx)->data().toInt();
             int idPat       = modele->item(modele->itemFromIndex(idx)->row(),2)->text().toInt();
-            OuvrirDossier(Datas::I()->patients->getById(idPat), idacte);
+            OuvrirDossier(Datas::I()->patients->getById(idPat), idacte, dlg_listPatients);
             dlg_listPatients->close();
         });
         m_menuContextuel->exec(cursor().pos());
@@ -3531,7 +3531,7 @@ void Rufus::AfficheCourriersAFaire()
         m_menuContextuel = nullptr;
     });
 
-    connect(tabCourriers, &QAbstractItemView::doubleClicked, dlg_listPatients, [=, this]
+    connect(tabCourriers, &QAbstractItemView::doubleClicked, dlg_listPatients, [&]
     {
         QModelIndexList mdlist = tabCourriers->selectionModel()->selectedIndexes();
         if(mdlist.size()>0)
@@ -3539,7 +3539,7 @@ void Rufus::AfficheCourriersAFaire()
             QModelIndex idx = mdlist.at(0);
             int idacte      = modele->itemFromIndex(idx)->data().toInt();
             int idPat       = modele->item(modele->itemFromIndex(idx)->row(),2)->text().toInt();
-            OuvrirDossier(Datas::I()->patients->getById(idPat), idacte);
+            OuvrirDossier(Datas::I()->patients->getById(idPat), idacte, dlg_listPatients);
             dlg_listPatients->close();
         }
     });
@@ -7025,8 +7025,10 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
 /*! * \param ChgtDossier - indique si on quitte l'acte pour changer de patient ou si on reste dans le dossier du patient en cours
 /*! * \return
 */
-bool Rufus::AutorDepartConsult(bool ChgtDossier)
+bool Rufus::AutorDepartConsult(bool ChgtDossier, QWidget *parent)
 {
+    if (parent == nullptr)
+        parent = this;
     QString         Titre = "";
     UpMessageBox    msgbox;
     bool            AutorDepart = true;
@@ -7035,7 +7037,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
         return true;
     ui->tabWidget->setCurrentWidget(ui->tabDossier);
     if (!ui->Acteframe->isVisible())
-        return FermeDossier(currentpatient());
+        return FermeDossier(currentpatient(), parent);
     if (focusWidget() != nullptr)
         focusWidget()->clearFocus();      //!> Valide les changements dans les champs du dossier en cours d'affichage
 
@@ -7046,7 +7048,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
                           " VALUES (" + QString::number(currentacte()->id()) + ",'G')";
         db->StandardSQL(requete);
         if (ChgtDossier)
-            return FermeDossier(currentpatient());
+            return FermeDossier(currentpatient(), parent);
         else
             return true;
     }
@@ -7058,7 +7060,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             Titre = tr("Il manque le montant!");
         if (Titre != "")
         {
-            UpMessageBox::Watch(this, tr("Consultation incomplète"), Titre);
+            UpMessageBox::Watch(parent, tr("Consultation incomplète"), Titre);
             if (Titre == tr("Il manque la cotation!"))
             {
                 ui->ActeCotationcomboBox->setFocus();
@@ -7071,7 +7073,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
         if (!EnregistreRecetteReduite(currentacte()))
             return false;
         if (ChgtDossier)
-            return FermeDossier(currentpatient());
+            return FermeDossier(currentpatient(), parent);
         else
             return true;
     }
@@ -7091,7 +7093,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             if (AutorDepart) return true;
             else
             {
-                UpMessageBox::Watch(this, tr("Consultation incomplète"), Titre);
+                UpMessageBox::Watch(parent, tr("Consultation incomplète"), Titre);
                 if (Titre == tr("Il manque la cotation!"))
                 {
                     ui->ActeCotationcomboBox->setFocus();
@@ -7153,7 +7155,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             }
 
             if (AutorDepart)
-                return FermeDossier(currentpatient());
+                return FermeDossier(currentpatient(), parent);
             else
             {
                 bool a = (Titre == ""? true : RetourSalleDattente(Titre));
@@ -7447,11 +7449,13 @@ void Rufus::FiltreTable(QString nom, QString prenom)
 /*-----------------------------------------------------------------------------------------------------------------
 -- Vérifie les verrous d'un dossier avant de l'afficher -----------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tablist ou la salle d'attente - vérifie qu'un dossier n'est pas verrouillé avant de l'afficher
+void Rufus::OuvrirDossier(Patient *pat, int idacte,  QWidget *parent)  // appelée depuis la tablist ou la salle d'attente - vérifie qu'un dossier n'est pas verrouillé avant de l'afficher
 {
     //qDebug() << "Rufus::OuvrirDossier" << pat->nomcomplet() << pat->id();
     if (pat == nullptr)
         return;
+    if (parent == nullptr)
+        parent = this;
     RecalcCurrentDateTime();
     if (currentuser()->isSecretaire())    // si l'utilisateur est une secrétaire, on propose de mettre le patient en salle d'attente
         InscritEnSalDat(pat);
@@ -7466,7 +7470,7 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
             }
             else
             {
-                if (!AutorDepartConsult(true))
+                if (!AutorDepartConsult(true, parent))
                     return;
             }
         }
@@ -7480,7 +7484,7 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
             if (patcrs->id() == pat->id() && patcrs->statut().left(length) == ENCOURSEXAMEN
                     && (patcrs->iduserencoursexam() != currentuser()->id() || (patcrs->iduserencoursexam() == currentuser()->id() && patcrs->posteexamen() != Utils::hostName().left(60))))
             {
-                UpMessageBox::Watch(this,tr("Impossible d'ouvrir ce dossier!"),
+                UpMessageBox::Watch(parent,tr("Impossible d'ouvrir ce dossier!"),
                                     tr("Ce patient est") + "\n" + patcrs->statuttotr().toLower() + "\n" + tr("sur ") + patcrs->posteexamen());
                 return;
             }
@@ -8118,13 +8122,15 @@ void Rufus::SupprimeActesVides(Patient *patient)
 /*-----------------------------------------------------------------------------------------------------------------
 -- Fermeture du dossier en cours ----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Rufus::FermeDossier(Patient *patient)
+bool Rufus::FermeDossier(Patient *patient, QWidget *parent)
 {
     if (patient == nullptr)
         return false;
+    if (parent == nullptr)
+        parent = this;
     //qDebug() << "FermeDossier() " << patient << patient->nom()  << patient->prenom() << patient->id();
     bool a = true;
-    UpMessageBox msgbox(this);
+    UpMessageBox msgbox(parent);
     msgbox.setInformativeText(tr("Garder le dossier en salle d'attente?"));
     msgbox.setText(tr("Fermeture du dossier de ") + patient->nom() + " " + patient->prenom());
 
@@ -10973,7 +10979,7 @@ void Rufus::retranslateActions() {
     actionExportActe = retranslateAction(actionExportActe, tr("Exporter l'acte en cours"));
     actionEnregistrerDocument = retranslateAction(actionEnregistrerDocument, tr("Enregistrer un document"));
     actionEnregistrerVideo = retranslateAction(actionEnregistrerVideo, tr("Enregistrer une video"));
-    actionRechercheCourrier = retranslateAction(actionRechercheCourrier, tr("Afficher les courriers à faire"));
+    actionRechercheCourrier = retranslateAction(actionRechercheCourrier, tr("Afficher les courriers en attente"));
     actionCorrespondants = retranslateAction(actionCorrespondants, tr("Liste des correspondants"));
     actionFabricants = retranslateAction(actionFabricants, tr("Liste des fabricants"));
     actionIOLs = retranslateAction(actionIOLs, tr("Liste des implants"));
