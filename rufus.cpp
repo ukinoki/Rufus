@@ -5995,7 +5995,7 @@ void Rufus::VerifLastVersion()
                     else if (child.tagName() == "Comment")
                     {
                         //! Le <Comment> peut contenir une sous-section par langue : <FR>, <EN>,
-                        //! <ES>, <PT>, <BR>, <IT>, <RO>. On affiche celle qui correspond à la langue du poste
+                        //! <ES>, <PT>, <BR>, <IT>, <RO>, <CA>. On affiche celle qui correspond à la langue du poste
                         //! (m_parametres->version(), déjà connue puisqu'elle a chargé le .qm),
                         //! avec repli sur EN puis FR si elle est absente. Si <Comment> ne contient
                         //! aucune de ces sous-sections (ancien format), on prend son texte brut.
@@ -6008,7 +6008,7 @@ void Rufus::VerifLastVersion()
                             if (langchild.isNull())
                                 continue;
                             const QString tag = langchild.tagName().toUpper();
-                            if (tag=="FR" || tag=="EN" || tag=="ES" || tag=="PT" || tag=="BR" || tag=="IT" || tag=="RO")
+                            if (tag=="FR" || tag=="EN" || tag=="ES" || tag=="PT" || tag=="BR" || tag=="IT" || tag=="RO" || tag=="CA")
                             {
                                 hassections = true;
                                 if (tag == langue) commentLangue = langchild.text();
