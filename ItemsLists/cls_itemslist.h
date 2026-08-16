@@ -9,12 +9,14 @@
 #include "database.h"
 #include "upmessagebox.h"
 
-/*! Assignations accumulées par update() en mode groupé, pour n'émettre qu'un seul UPDATE. */
+/*! Assignations accumulées par update() en mode groupé, les binaires à part : un blob ne se
+    concatène pas dans une requête, il passe par un bind. */
 struct LotUpdate
 {
-    QString     table;
-    QString     clause;
-    QStringList sets;
+    QString                     table;
+    QString                     clause;
+    QStringList                 sets;
+    QHash<QString, QVariant>    binds;
 };
 
 class ItemsList : public QObject
