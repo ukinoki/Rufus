@@ -4372,8 +4372,11 @@ bool MySQLInstaller::setupSharedFolder()
     /*! C:\Users\Public est déjà ouvert en lecture/écriture à tous les comptes du poste : seul le partage
      *  réseau du dossier d'imagerie manque. */
     QDir().mkpath(path + "/Rufus/Imagerie");
-    if (!partageImageriePresent())
-        runCmdElevated(windowsPartageImagerieScript(path));
+    if (!partageImageriePresent()) {
+        const bool ok = runCmdElevated(windowsPartageImagerieScript(path));
+        qDebug() << "TRACE partage - script:" << windowsPartageImagerieScript(path);
+        qDebug() << "TRACE partage - runCmdElevated:" << ok << "| present apres:" << partageImageriePresent();
+    }
     return QDir(path).exists();
 #elif defined(Q_OS_LINUX)
     /*! Déjà configuré ? Vérifications NON privilégiées (aucune invite pkexec). */
