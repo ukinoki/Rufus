@@ -9,6 +9,14 @@
 #include "database.h"
 #include "upmessagebox.h"
 
+/*! Assignations accumulées par update() en mode groupé, pour n'émettre qu'un seul UPDATE. */
+struct LotUpdate
+{
+    QString     table;
+    QString     clause;
+    QStringList sets;
+};
+
 class ItemsList : public QObject
 {
     Q_OBJECT
@@ -17,7 +25,8 @@ public:
     enum ADDTOLIST {AddToList, NoAddToList};    Q_ENUM(ADDTOLIST)
     enum POSITION {Debut, Prec, Suiv, Fin};     Q_ENUM(POSITION)
 
-    static bool update(Item*item, QString field, QVariant newvalue = QVariant());
+    static bool update(Item*item, QString field, QVariant newvalue = QVariant(), LotUpdate *lot = Q_NULLPTR);
+    static bool updateFields(Item*item, const QHash<QString, QVariant> &champs);        /*!< tous les champs d'un item en UNE requête, au lieu d'un update() par champ */
     static bool updateBlob(Item*item, QString field, QByteArray blob = QByteArray());   /*!< jumelle de update() pour les champs blob (QByteArray) : passe par bindvalue (UpdateTablebyBinds) car un binaire ne peut pas être concaténé dans une requête SQL. Met à jour la base ET l'attribut de l'objet. Blob vide -> NULL en base. */
 
 /*!

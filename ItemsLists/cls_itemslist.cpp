@@ -5,7 +5,7 @@ ItemsList::ItemsList(QObject *parent) : QObject(parent)
 
 }
 
-bool ItemsList::update(Item* item, QString field, QVariant newvalue)
+bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *lot)
 {
     if (item == Q_NULLPTR)
         return false;
@@ -1565,6 +1565,14 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         return false;
     }
 
+    if (ok && lot)
+    {
+        /*! mode groupé : l'attribut est déjà posé, on empile l'assignation et updateFields écrira */
+        lot->table  = table;
+        lot->clause = clause;
+        lot->sets  << field + " = " + newvalue.toString();
+        return true;
+    }
     if (ok)
     {
         QString req = "update " + table + " set " + field + " = " + newvalue.toString() + " where " + clause;
@@ -1580,6 +1588,34 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                             tr("La modification n'a pas pu être enregistrée dans la base de données "
                                "(le serveur est peut-être momentanément indisponible)."));
     return ok;
+}
+
+/*!
+ * \brief ItemsList::updateFields
+ * met à jour plusieurs champs d'un item en une seule requête, là où update() en émet une par champ
+ * \param item      l'item concerné
+ * \param champs    les champs à modifier et leur nouvelle valeur
+ */
+bool ItemsList::updateFields(Item* item, const QHash<QString, QVariant> &champs)
+{
+    if (item == Q_NULLPTR || champs.isEmpty())
+        return false;
+    QJsonObject saved = item->datas();
+    LotUpdate lot;
+    for (auto it = champs.cbegin(); it != champs.cend(); ++it)
+        if (!update(item, it.key(), it.value(), &lot))
+        {
+            item->setData(saved);
+            return false;
+        }
+    QString req = "update " + lot.table + " set " + lot.sets.join(", ") + " where " + lot.clause;
+    if (DataBase::I()->StandardSQL(req, QString("update ") + item->metaObject()->className()))
+        return true;
+    item->setData(saved);
+    UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
+                        tr("La modification n'a pas pu être enregistrée dans la base de données "
+                           "(le serveur est peut-être momentanément indisponible)."));
+    return false;
 }
 
 /*!
