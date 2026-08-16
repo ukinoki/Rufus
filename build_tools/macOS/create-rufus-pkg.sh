@@ -119,7 +119,16 @@ for c in mysql mysqldump; do
     reste="$(otool -L "${CLIENTS_DIR}/${c}" | awk 'NR>1 && $1 !~ /^@|^\/usr\/lib\/|^\/System\// {print $1}')"
     [ -z "${reste}" ] || { echo "   ✗ ${c} dépend encore de : ${reste}"; exit 1; }
 done
-echo "   clients SQL autonomes (Contents/lib)"
+
+# Filet : l'app est universelle, un client mono-architecture serait inutilisable sur Mac Intel.
+for f in "${CLIENTS_DIR}/mysql" "${CLIENTS_DIR}/mysqldump" "${LIB_DIR}"/lib*.dylib; do
+    archs="$(lipo -archs "${f}" 2>/dev/null)"
+    case "${archs}" in
+        *x86_64*arm64*|*arm64*x86_64*) ;;
+        *) echo "   ✗ $(basename "${f}") n'est pas universel (${archs:-inconnu}) — cf. lipo -create"; exit 1 ;;
+    esac
+done
+echo "   clients SQL autonomes et universels (Contents/lib)"
 
 # ── Filet de sécurité : nom du bundle = « Rufus.app » → /Applications/Rufus.app ─
 # Le .pro fixe désormais TARGET = Rufus (bundle « Rufus.app »). Ce renommage ne sert donc plus
