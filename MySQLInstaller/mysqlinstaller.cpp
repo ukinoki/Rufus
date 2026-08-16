@@ -2179,10 +2179,13 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
 
     /*! Signaux sûrs, pour rien coûter à un démarrage normal. Le PATH n'est pas testé ici (faux positifs)
      *  et les contrôles lourds sont refaits par executerEtapesConfig() pendant la réparation. */
-    const bool conforme = QDir(sharedFolderPath()).exists()
-                          && droitsDossierPartageConformes()
-                          && partageImageriePresent()
-                          && DataBase::I()->dirsecure_file_priv();
+    const bool dossier = QDir(sharedFolderPath()).exists();
+    const bool droits  = droitsDossierPartageConformes();
+    const bool partage = partageImageriePresent();
+    const bool secure  = DataBase::I()->dirsecure_file_priv();
+    qDebug() << "TRACE reparConfig -" << sharedFolderPath() << "| dossier:" << dossier
+             << "| droits:" << droits << "| partage:" << partage << "| secure_file_priv:" << secure;
+    const bool conforme = dossier && droits && partage && secure;
     if (conforme)
         return;                                   /*!< cas courant : tout est conforme, RIEN (silencieux) */
 
@@ -2209,6 +2212,11 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     m_freshInstall = false;
     const bool repare = executerEtapesConfig();
     cleanupDialog();
+    qDebug() << "TRACE apresRepar - repare:" << repare
+             << "| dossier:" << QDir(sharedFolderPath()).exists()
+             << "| droits:" << droitsDossierPartageConformes()
+             << "| partage:" << partageImageriePresent()
+             << "| secure_file_priv:" << DataBase::I()->dirsecure_file_priv();
 
     if (repare)
         UpMessageBox::Watch(m_parent, tr("Configuration corrigée"),
