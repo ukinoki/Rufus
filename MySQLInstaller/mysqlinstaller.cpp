@@ -4617,6 +4617,7 @@ bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData
     /*! L'application Windows tourne déjà en tant qu'administrateur. */
     Q_UNUSED(stdinData);
     const QString out = runCmdFull(cmd);
+    qDebug() << "TRACE elevated - sortie:" << out.left(2000);
     return !out.contains("Access is denied", Qt::CaseInsensitive)
         && !out.contains("denied",           Qt::CaseInsensitive);
 #elif defined(Q_OS_LINUX)
