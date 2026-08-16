@@ -8,8 +8,8 @@ build
 build/
 bin/
 obj/
-# Exception : les clients MySQL d'Oracle livrés avec le paquet macOS.
-!build_tools/macOS/mysql-clients/bin/
+# Exception : les clients MySQL d'Oracle livrés avec les paquets macOS et Windows.
+!build_tools/*/mysql-clients/bin/
 # Fabrication locale de l'AppImage (creer-appimage-installeur.sh)
 build-appimage/
 Rufus-*-x86_64.AppImage
