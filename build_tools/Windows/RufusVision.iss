@@ -49,6 +49,7 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
 Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
+Name: "catalan"; MessagesFile: "compiler:Languages\Catalan.isl"
 
 [Tasks]
 ; Raccourci bureau PRÉCOCHÉ (pas de flag « unchecked ») — aligné sur la démarche d'installation.
