@@ -2179,13 +2179,10 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
 
     /*! Signaux sûrs, pour rien coûter à un démarrage normal. Le PATH n'est pas testé ici (faux positifs)
      *  et les contrôles lourds sont refaits par executerEtapesConfig() pendant la réparation. */
-    const bool dossier = QDir(sharedFolderPath()).exists();
-    const bool droits  = droitsDossierPartageConformes();
-    const bool partage = partageImageriePresent();
-    const bool secure  = DataBase::I()->dirsecure_file_priv();
-    qDebug() << "TRACE reparConfig -" << sharedFolderPath() << "| dossier:" << dossier
-             << "| droits:" << droits << "| partage:" << partage << "| secure_file_priv:" << secure;
-    const bool conforme = dossier && droits && partage && secure;
+    const bool conforme = QDir(sharedFolderPath()).exists()
+                          && droitsDossierPartageConformes()
+                          && partageImageriePresent()
+                          && DataBase::I()->dirsecure_file_priv();
     if (conforme)
         return;                                   /*!< cas courant : tout est conforme, RIEN (silencieux) */
 
@@ -2212,11 +2209,6 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     m_freshInstall = false;
     const bool repare = executerEtapesConfig();
     cleanupDialog();
-    qDebug() << "TRACE apresRepar - repare:" << repare
-             << "| dossier:" << QDir(sharedFolderPath()).exists()
-             << "| droits:" << droitsDossierPartageConformes()
-             << "| partage:" << partageImageriePresent()
-             << "| secure_file_priv:" << DataBase::I()->dirsecure_file_priv();
 
     if (repare)
         UpMessageBox::Watch(m_parent, tr("Configuration corrigée"),
@@ -4314,18 +4306,27 @@ bool MySQLInstaller::droitsDossierPartageConformes()
  */
 QString MySQLInstaller::windowsPartageImagerieScript(const QString& path) const
 {
-    return QString(
-        "powershell -NoProfile -Command \""
-        "$c='%1'; New-Item -ItemType Directory -Force -Path $c | Out-Null; "
+    const QString ps = QString(
+        "$c='%1'; New-Item -ItemType Directory -Force -Path $c | Out-Null\r\n"
         "$t=(New-Object System.Security.Principal.SecurityIdentifier('S-1-1-0'))"
-        ".Translate([System.Security.Principal.NTAccount]).Value; "
+        ".Translate([System.Security.Principal.NTAccount]).Value\r\n"
         /*! Exécution refusée sur les FICHIERS seuls : sur un dossier ce bit est la traversée, la refuser fermerait tout. */
         "$a=Get-Acl $c; $a.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("
         "$t,[System.Security.AccessControl.FileSystemRights]::ExecuteFile,"
-        "'ObjectInherit,ContainerInherit','InheritOnly','Deny'))); Set-Acl $c $a; "
-        "if (Get-SmbShare -Name '%2' -ErrorAction SilentlyContinue) { Remove-SmbShare -Name '%2' -Force }; "
-        "New-SmbShare -Name '%2' -Path $c -FullAccess $t | Out-Null\"")
+        "'ObjectInherit,ContainerInherit','InheritOnly','Deny'))); Set-Acl $c $a\r\n"
+        "if (Get-SmbShare -Name '%2' -ErrorAction SilentlyContinue) { Remove-SmbShare -Name '%2' -Force }\r\n"
+        "New-SmbShare -Name '%2' -Path $c -FullAccess $t | Out-Null\r\n")
         .arg(QDir::toNativeSeparators(path + "/Rufus/Imagerie"), NOM_PARTAGE_IMAGERIE);
+
+    /*! Par FICHIER (-File) et non en ligne : cmd.exe mange les guillemets internes et prend les | pour
+     *  les siens, d'où un « 'Out-Null' n'est pas reconnu » et un partage jamais créé. */
+    const QString script = QDir::toNativeSeparators(QDir::tempPath() + "/rufus_partage_imagerie.ps1");
+    {
+        QFile f(script);
+        if (f.open(QIODevice::WriteOnly | QIODevice::Text))
+            f.write(ps.toUtf8());
+    }
+    return "powershell -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"";
 }
 #endif
 
@@ -4372,12 +4373,9 @@ bool MySQLInstaller::setupSharedFolder()
     /*! C:\Users\Public est déjà ouvert en lecture/écriture à tous les comptes du poste : seul le partage
      *  réseau du dossier d'imagerie manque. */
     QDir().mkpath(path + "/Rufus/Imagerie");
-    if (!partageImageriePresent()) {
-        const bool ok = runCmdElevated(windowsPartageImagerieScript(path));
-        qDebug() << "TRACE partage - script:" << windowsPartageImagerieScript(path);
-        qDebug() << "TRACE partage - runCmdElevated:" << ok << "| present apres:" << partageImageriePresent();
-    }
-    return QDir(path).exists();
+    if (!partageImageriePresent())
+        runCmdElevated(windowsPartageImagerieScript(path));
+    return partageImageriePresent();          /*!< et non l'existence du dossier : le partage seul compte */
 #elif defined(Q_OS_LINUX)
     /*! Déjà configuré ? Vérifications NON privilégiées (aucune invite pkexec). */
     auto alreadyConfigured = [&]() -> bool {
@@ -4617,7 +4615,6 @@ bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData
     /*! L'application Windows tourne déjà en tant qu'administrateur. */
     Q_UNUSED(stdinData);
     const QString out = runCmdFull(cmd);
-    qDebug() << "TRACE elevated - sortie:" << out.left(2000);
     return !out.contains("Access is denied", Qt::CaseInsensitive)
         && !out.contains("denied",           Qt::CaseInsensitive);
 #elif defined(Q_OS_LINUX)
