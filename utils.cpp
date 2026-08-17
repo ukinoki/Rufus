@@ -1164,8 +1164,8 @@ bool Utils::SaisirNouvelUtilisateur(QString &login, QString &mdp, QWidget *paren
 bool Utils::VerifMDPAdmin(QString MDP, bool mdpverified, QWidget *parent)
 {
     QString mdpval;
-    QString msg = QObject::tr("Saisissez le mot de passe Administrateur") + "\n" +
-                  "\"bob\"" + " "+ QObject::tr("si vous ne l'avez pas modifié");
+    QString msg = QObject::tr("Saisissez le mot de passe Administrateur Rufus") + "\n" + "- "
+                  "bob" + " -"+ "\n" + QObject::tr("si vous ne l'avez pas modifié");
     return VerifMDP(MDP, msg, mdpval, mdpverified, parent);
 }
 
