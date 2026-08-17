@@ -137,7 +137,9 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->EffacePrgSauvupPushButton   ->setIcon(Icons::icErase());
     ui->EffacePrgSauvupPushButton   ->setIconSize(QSize(35,35));
     ui->RestaurBaseupPushButton     ->setIcon(Icons::icCopy());
+    ui->RestaurBaseupPushButton     ->setImmediateToolTip(tr("Restauration de la base patients et des dossiers d'imagerie à partir d'une sauvegarde"));
     ui->ImmediatBackupupPushButton  ->setIcon(Icons::icBackup());
+    ui->ReinitBaseupPushButton      ->setImmediateToolTip(tr("Effacement complet de la base patients et des dossiers d'imagerie"));
     ui->ReinitBaseupPushButton      ->setIcon(Icons::icReinit());
     ui->ChoixFontupPushButton       ->setIconSize(QSize(35,35));
     ui->ChercheCotationlabel        ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
@@ -3054,6 +3056,7 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
                                                    && m_parametres->dirbkup() != ""
                                                    && m_parametres->heurebkup() != QTime()
                                                    && a);
+        ui->ReinitBaseupPushButton->setEnabled(db->ModeAccesDataBase() == Utils::Poste && a);
     }
 }
 
