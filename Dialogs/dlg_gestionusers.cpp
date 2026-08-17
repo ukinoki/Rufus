@@ -1066,7 +1066,7 @@ void dlg_gestionusers::ModifUser()
 void dlg_gestionusers::GestLieux()
 {
     QString mdp("");
-    m_MDPverified = Utils::VerifMDP(DataBase::I()->getMDPAdmin(), tr("Saisissez le mot de passe Administrateur"), mdp, m_MDPverified, this);
+    m_MDPverified = Utils::VerifMDPAdmin(DataBase::I()->getMDPAdmin(), m_MDPverified, this);
     if (!m_MDPverified)
             return;
     dlg_listelieux *gestLieux = new dlg_listelieux(this);

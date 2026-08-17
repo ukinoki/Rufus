@@ -982,7 +982,7 @@ void dlg_param::EnableModif(QWidget *obj)
         if (ui->LockParamPosteupLabel->pixmap().toImage() == Icons::pxVerrouiller().toImage())
         {
             QString mdp("");
-            m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),"Saisissez le mot de passe Administrateur", mdp, m_MDPadminverifie, this);
+            m_MDPadminverifie = Utils::VerifMDPAdmin(proc->MDPAdmin(), m_MDPadminverifie, this);
             if (m_MDPadminverifie)
             {
                 ui->Posteframe->setEnabled(ui->PosteServcheckBox->isChecked());
@@ -1042,7 +1042,7 @@ void dlg_param::EnableModif(QWidget *obj)
         if (ui->LockParamGeneralupLabel->pixmap().toImage() == Icons::pxVerrouiller().toImage())
         {
             QString mdp("");
-            m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), mdp, m_MDPadminverifie, this);
+            m_MDPadminverifie = Utils::VerifMDPAdmin(proc->MDPAdmin(), m_MDPadminverifie, this);
             if (m_MDPadminverifie)
             {
                 ui->LockParamGeneralupLabel ->setPixmap(Icons::pxDeverouiller());
@@ -2346,7 +2346,7 @@ void dlg_param::CreerClesSSL()
 
     //! Confirmation par le mot de passe administrateur Rufus (geste irréversible pour l'accès distant).
     QString mdp;
-    if (!Utils::VerifMDP(proc->MDPAdmin(), tr("Saisissez le mot de passe Administrateur"), mdp, false, this))
+    if (!Utils::VerifMDPAdmin(proc->MDPAdmin(), false, this))
         return;
 
     //! La régénération REDÉMARRE le serveur MySQL → la connexion Qt est coupée. On ARRÊTE d'abord

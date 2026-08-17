@@ -1161,7 +1161,25 @@ bool Utils::SaisirNouvelUtilisateur(QString &login, QString &mdp, QWidget *paren
     }
 }
 
- bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified, QWidget *parent)
+bool Utils::VerifMDPAdmin(QString MDP, bool mdpverified, QWidget *parent)
+{
+    QString mdpval;
+    QString msg = QObject::tr("Saisissez le mot de passe Administrateur") + "\n" +
+                  "\"bob\"" + " "+ QObject::tr("si vous ne l'avez pas modifié");
+    return VerifMDP(MDP, msg, mdpval, mdpverified, parent);
+}
+
+
+/*!
+*! \brief Utils::VerifMDP
+*! \param MDP           le mdp à retrouver
+*! \param Msg           le message affiché
+*! \param mdpval        la valeur du entrée par l'utilisateur dans la ligne mdp
+*! \param mdpverified   le mdp a déjà été vérifié -> permet de shunter la fonction si le mdp a déjà été vérifié
+*! \param parent
+*! \return              true = le mdp est conforme
+*/
+bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified, QWidget *parent)
 {
     if (mdpverified)
         return true;

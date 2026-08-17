@@ -2811,8 +2811,7 @@ bool MySQLInstaller::recreerMotDePasseApresVerifAdmin(QWidget *parent)
     }
     /*! Verrou : on exige le mot de passe Administrateur de Rufus avant de rebattre le mot de passe de la
      *  base (opération sensible : elle invalide l'ancien aléatoire pour TOUS les postes). */
-    QString saisi;
-    if (!Utils::VerifMDP(DataBase::I()->getMDPAdmin(), tr("Saisissez le mot de passe Administrateur"), saisi, false, parent))
+    if (!Utils::VerifMDPAdmin(DataBase::I()->getMDPAdmin(), false, parent))
         return false;   /*!< mauvais mot de passe / annulation */
     return poserEtSauvegarderAleatoire();   /*!< nouvel aléatoire sur tous les hosts + sauvegarde + message */
 }

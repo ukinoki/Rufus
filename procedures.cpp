@@ -541,11 +541,8 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     QString msg ("");
     qintptr handledlg = 0;
     if (verifmdp)
-    {
-        QString mdp("");
-        if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
+        if (!Utils::VerifMDPAdmin(MDPAdmin(), false, parent))
             return false;
-    }
     emit ConnectTimers(false);
 
     //On vide les champs blob de la table factures et la table EchangeImages
@@ -2501,8 +2498,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         if (msgbox.clickedButton() != &OKBouton)
             return "";
 
-        QString mdp("");
-        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
+        if (!Utils::VerifMDPAdmin((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()), false, parent))
             return "";
 
         QDir dir(PATH_DIR_RESSOURCES);
@@ -2653,8 +2649,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
                                 tr("Le dossier choisi ne contient pas une sauvegarde Rufus complète.") + msg);
             return "";
         }
-        QString mdp("");
-        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
+        if (!Utils::VerifMDPAdmin((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()), false, parent))
             return "";
 
 
