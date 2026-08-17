@@ -1496,12 +1496,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>O servidor MySQL não suporta esta operação (versão demasiado antiga).</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Saisissez le mot de passe Administrateur</source>
-        <translation>Introduza a palavra-passe de Administrador</translation>
-    </message>
-    <message>
-        <location line="+32"/>
+        <location line="+37"/>
         <source>Base de données non sécurisée</source>
         <translation>Base de dados não protegida</translation>
     </message>
@@ -1697,7 +1692,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>e configurá-lo-á automaticamente para a sua utilização.</translation>
     </message>
     <message>
-        <location line="-2930"/>
+        <location line="-2929"/>
         <source>Privilèges manquants</source>
         <translation>Privilégios ausentes</translation>
     </message>
@@ -1819,7 +1814,7 @@ palavra-passe</translation>
         <translation>Introduza a palavra-passe segura do consultório, ou importe-a da pen USB para a qual foi copiada a partir de um posto atualizado.</translation>
     </message>
     <message>
-        <location line="+321"/>
+        <location line="+320"/>
         <source>Téléchargement de MySQL %1 (Oracle)…</source>
         <translation>Baixando o MySQL %1 (Oracle)…</translation>
     </message>
@@ -1999,7 +1994,7 @@ Fechando o programa.</translation>
 <context>
     <name>MySQLInstallerDialog</name>
     <message>
-        <location line="-4743"/>
+        <location line="-4742"/>
         <location line="+5"/>
         <source>Préparation de MySQL pour Rufus</source>
         <translation>Preparando o MySQL para o Rufus</translation>
@@ -2328,27 +2323,20 @@ Fechando o programa.</translation>
         <translation>Incidente durante o backup</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <location line="+1959"/>
-        <location line="+152"/>
-        <source>Saisissez le mot de passe Administrateur</source>
-        <translation>Introduza a palavra-passe do Administrador</translation>
-    </message>
-    <message>
-        <location line="-2097"/>
-        <location line="+2456"/>
+        <location line="+17"/>
+        <location line="+2454"/>
         <source>Choisissez un dossier de sauvegarde</source>
         <translation>Escolha uma pasta de backup</translation>
     </message>
     <message>
-        <location line="-2449"/>
-        <location line="+2429"/>
+        <location line="-2447"/>
+        <location line="+2427"/>
         <location line="+30"/>
         <source>Sauvegarde impossible</source>
         <translation>Backup impossível</translation>
     </message>
     <message>
-        <location line="-2458"/>
+        <location line="-2456"/>
         <source>Impossible de créer le dossier de sauvegarde.</source>
         <translation>Não é possível criar a pasta de backup.</translation>
     </message>
@@ -2367,15 +2355,15 @@ Fechando o programa.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+2174"/>
+        <location line="+2172"/>
         <source>table </source>
         <translation>tabela </translation>
     </message>
     <message>
-        <location line="-2158"/>
-        <location line="+1902"/>
+        <location line="-2156"/>
+        <location line="+1901"/>
         <location line="+33"/>
-        <location line="+187"/>
+        <location line="+186"/>
         <location line="+49"/>
         <location line="+23"/>
         <location line="+16"/>
@@ -2385,7 +2373,7 @@ Fechando o programa.</translation>
         <translation>Mensagens</translation>
     </message>
     <message>
-        <location line="-2237"/>
+        <location line="-2235"/>
         <source>Fichier de paramétrage Rufus.ini sauvegardé
 </source>
         <translation>Ficheiro de configuração Rufus.ini salvo
@@ -2467,7 +2455,7 @@ Fechando o programa.</translation>
         <location line="+676"/>
         <location line="+668"/>
         <location line="+154"/>
-        <location line="+238"/>
+        <location line="+236"/>
         <location line="+555"/>
         <location line="+137"/>
         <location line="+51"/>
@@ -2480,7 +2468,7 @@ Fechando o programa.</translation>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location line="-4736"/>
+        <location line="-4734"/>
         <location line="+54"/>
         <source>Reprendre</source>
         <translation>Continuar</translation>
@@ -2523,12 +2511,12 @@ Fechando o programa.</translation>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+3242"/>
+        <location line="+3240"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation>Quem registra os honorários para </translation>
     </message>
     <message>
-        <location line="-3180"/>
+        <location line="-3178"/>
         <source>remplacé par</source>
         <translation>substituído por</translation>
     </message>
@@ -2645,12 +2633,12 @@ Fechando o programa.</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1998"/>
+        <location line="+1996"/>
         <source>Ophtalmologiste</source>
         <translation>Oftalmologista</translation>
     </message>
     <message>
-        <location line="-1996"/>
+        <location line="-1994"/>
         <source>Orthoptiste</source>
         <translation>Ortoptista</translation>
     </message>
@@ -2842,72 +2830,72 @@ Você confirma a exclusão dos dados antigos?
     </message>
     <message>
         <location line="+4"/>
-        <location line="+238"/>
+        <location line="+236"/>
         <source>J&apos;ai compris
 Je confirme</source>
         <translation>Entendi
 Confirmo</translation>
     </message>
     <message>
-        <location line="-198"/>
+        <location line="-197"/>
         <location line="+2"/>
-        <location line="+224"/>
+        <location line="+223"/>
         <location line="+2"/>
         <source>Echec de la restauration</source>
         <translation>Falha na restauração</translation>
     </message>
     <message>
-        <location line="-228"/>
+        <location line="-227"/>
         <location line="+2"/>
-        <location line="+224"/>
+        <location line="+223"/>
         <location line="+2"/>
         <source>Le fichier </source>
         <translation>O ficheiro </translation>
     </message>
     <message>
-        <location line="-228"/>
-        <location line="+226"/>
+        <location line="-227"/>
+        <location line="+225"/>
         <source> n&apos;a pas été trouvé!</source>
         <translation> não foi encontrado!</translation>
     </message>
     <message>
-        <location line="-224"/>
-        <location line="+226"/>
+        <location line="-223"/>
+        <location line="+225"/>
         <source> est vide!</source>
         <translation> está vazio!</translation>
     </message>
     <message>
-        <location line="-222"/>
-        <location line="+206"/>
+        <location line="-221"/>
+        <location line="+205"/>
         <location line="+20"/>
         <location line="+345"/>
         <source>Base non restaurée</source>
         <translation>Base não restaurada</translation>
     </message>
     <message>
-        <location line="-565"/>
+        <location line="-564"/>
         <source>Impossible d&apos;éxécuter la restauration!</source>
         <translation>Impossível executar a restauração!</translation>
     </message>
     <message>
         <location line="+8"/>
-        <location line="+220"/>
+        <location line="+219"/>
         <source>Suppression de l&apos;ancienne base Rufus en cours</source>
         <translation>Exclusão da antiga base Rufus em andamento</translation>
     </message>
     <message>
-        <location line="-197"/>
+        <location line="-196"/>
         <source>Création de la base en cours…</source>
         <translation>A criar a base de dados…</translation>
     </message>
     <message>
         <location line="+11"/>
-        <location line="+236"/>
+        <location line="+235"/>
         <source>Incident pendant la restauration</source>
         <translation>Incidente durante a restauração</translation>
     </message>
     <message>
-        <location line="-230"/>
+        <location line="-229"/>
         <source>Base vierge créée</source>
         <translation>Base vazia criada</translation>
     </message>
@@ -2988,12 +2976,12 @@ Confirmo</translation>
         <translation>Ficheiro(s) em falta:</translation>
     </message>
     <message>
-        <location line="-1722"/>
+        <location line="-1721"/>
         <source>Le chemin des programmes mysql et mysqldump (%1) n&apos;est pas valide</source>
         <translation>O caminho dos programas mysql e mysqldump (%1) não é válido</translation>
     </message>
     <message>
-        <location line="+1809"/>
+        <location line="+1807"/>
         <source>Attention</source>
         <translation>Atenção</translation>
     </message>
@@ -4124,7 +4112,7 @@ sair do Rufus</translation>
         <translation>O programa não poderá ser inicializado</translation>
     </message>
     <message>
-        <location line="-2727"/>
+        <location line="-2725"/>
         <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée puis le programme sera arrêté.
 Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.
 Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage à partir de la sauvegarde (fichier RufusBackup.ini).</source>
@@ -4133,7 +4121,7 @@ No reinício, uma janela de recuperação permitir-lhe-á recomeçar com uma bas
 Ainda pode cancelar a reposição restaurando o ficheiro de configuração a partir da cópia de segurança (ficheiro RufusBackup.ini).</translation>
     </message>
     <message>
-        <location line="+445"/>
+        <location line="+443"/>
         <location line="+20"/>
         <source>Restauration de la base en cours…</source>
         <translation>A restaurar a base de dados…</translation>
@@ -4949,7 +4937,17 @@ de doentes Rufus</translation>
         <translation> inválida</translation>
     </message>
     <message>
-        <location line="+581"/>
+        <location line="+557"/>
+        <source>Saisissez le mot de passe Administrateur Rufus</source>
+        <translation>Introduza a palavra-passe de Administrador do Rufus</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>si vous ne l&apos;avez pas modifié</source>
+        <translation>se não a tiver alterado</translation>
+    </message>
+    <message>
+        <location line="+41"/>
         <location line="+30"/>
         <source>Mot de passe invalide!</source>
         <translation>Palavra-passe inválida!</translation>
@@ -5081,7 +5079,7 @@ Guarde-a em local seguro (em papel ou numa pen USB) : é necessária para ligar 
         <translation>IMPORTANTE: a palavra-passe genérica de acesso à base de dados acabou de ser eliminada.</translation>
     </message>
     <message>
-        <location line="+2529"/>
+        <location line="+2528"/>
         <source>Choisissez un mot de passe de SECOURS pour votre base de données.
 
 Il ne servira qu&apos;à reprendre la main sur votre base si tous les autres
@@ -5116,7 +5114,7 @@ da sua base de dados.</translation>
         <translation>Indique uma palavra-passe.</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="-375"/>
+        <location filename="utils.cpp" line="-393"/>
         <source>Choisissez un login pour le nouvel utilisateur
 - mini 5 maxi 15 caractères -
 - pas de caractères spéciaux ou accentués -</source>
@@ -7905,7 +7903,7 @@ valor conforme mais próximo!</translation>
 <context>
     <name>Utils</name>
     <message>
-        <location filename="utils.cpp" line="+48"/>
+        <location filename="utils.cpp" line="+66"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
@@ -7915,12 +7913,12 @@ valor conforme mais próximo!</translation>
         <translation>Nome de pasta não conforme</translation>
     </message>
     <message>
-        <location line="-1340"/>
+        <location line="-1358"/>
         <source>Redémarrage du programme</source>
         <translation>Reinício do programa</translation>
     </message>
     <message>
-        <location line="+1340"/>
+        <location line="+1358"/>
         <source>Le dossier doit être différent</source>
         <translation>A pasta deve ser diferente</translation>
     </message>
@@ -11789,12 +11787,7 @@ no momento</translation>
         <translation>Deseja guardar estas modificações?</translation>
     </message>
     <message>
-        <location line="+69"/>
-        <source>Saisissez le mot de passe Administrateur</source>
-        <translation>Introduza a palavra-passe do Administrador</translation>
-    </message>
-    <message>
-        <location line="+37"/>
+        <location line="+106"/>
         <source>Confirmez le nouveau mot de passe</source>
         <translation>Confirme a nova palavra-passe</translation>
     </message>
@@ -16963,13 +16956,7 @@ dos organismos bancários</translation>
         <translation>Uma sessão do RufusAdmin está atualmente ativa no posto</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <location line="+1304"/>
-        <source>Saisissez le mot de passe Administrateur</source>
-        <translation>Introduza a palavra-passe do Administrador</translation>
-    </message>
-    <message>
-        <location line="-1238"/>
+        <location line="+73"/>
         <source>Configuration pour un accès distant</source>
         <translation>Configuração para acesso remoto</translation>
     </message>

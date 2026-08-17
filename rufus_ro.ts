@@ -1618,12 +1618,7 @@ Puteți recupera parola cabinetului copiată pe un stick USB de pe o stație car
         <translation>Serverul MySQL nu acceptă această operațiune (versiune prea veche).</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Saisissez le mot de passe Administrateur</source>
-        <translation>Introduceți parola de Administrator</translation>
-    </message>
-    <message>
-        <location line="+32"/>
+        <location line="+37"/>
         <source>Base de données non sécurisée</source>
         <translation>Bază de date nesecurizată</translation>
     </message>
@@ -1999,7 +1994,7 @@ Fermeture du programme.</source>
 <context>
     <name>MySQLInstallerDialog</name>
     <message>
-        <location line="-4766"/>
+        <location line="-4765"/>
         <location line="+5"/>
         <source>Préparation de MySQL pour Rufus</source>
         <translation>Pregătirea MySQL pentru Rufus</translation>
@@ -2328,27 +2323,20 @@ Fermeture du programme.</source>
         <translation>Incident în timpul copiei de siguranță</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <location line="+1959"/>
-        <location line="+152"/>
-        <source>Saisissez le mot de passe Administrateur</source>
-        <translation>Introduceți parola de Administrator</translation>
-    </message>
-    <message>
-        <location line="-2097"/>
-        <location line="+2456"/>
+        <location line="+17"/>
+        <location line="+2454"/>
         <source>Choisissez un dossier de sauvegarde</source>
         <translation>Alegeți un folder de copie de siguranță</translation>
     </message>
     <message>
-        <location line="-2449"/>
-        <location line="+2429"/>
+        <location line="-2447"/>
+        <location line="+2427"/>
         <location line="+30"/>
         <source>Sauvegarde impossible</source>
         <translation>Copie de siguranță imposibilă</translation>
     </message>
     <message>
-        <location line="-2458"/>
+        <location line="-2456"/>
         <source>Impossible de créer le dossier de sauvegarde.</source>
         <translation>Imposibil de creat folderul de copie de siguranță.</translation>
     </message>
@@ -2367,15 +2355,15 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+2174"/>
+        <location line="+2172"/>
         <source>table </source>
         <translation>tabel </translation>
     </message>
     <message>
-        <location line="-2158"/>
-        <location line="+1902"/>
+        <location line="-2156"/>
+        <location line="+1901"/>
         <location line="+33"/>
-        <location line="+187"/>
+        <location line="+186"/>
         <location line="+49"/>
         <location line="+23"/>
         <location line="+16"/>
@@ -2385,7 +2373,7 @@ Fermeture du programme.</source>
         <translation>Mesaje</translation>
     </message>
     <message>
-        <location line="-2237"/>
+        <location line="-2235"/>
         <source>Fichier de paramétrage Rufus.ini sauvegardé
 </source>
         <translation>Fișier de parametrare Rufus.ini salvat
@@ -2472,7 +2460,7 @@ Fermeture du programme.</source>
         <location line="+676"/>
         <location line="+668"/>
         <location line="+154"/>
-        <location line="+238"/>
+        <location line="+236"/>
         <location line="+555"/>
         <location line="+137"/>
         <location line="+51"/>
@@ -2485,7 +2473,7 @@ Fermeture du programme.</source>
         <translation>Anulează</translation>
     </message>
     <message>
-        <location line="-4736"/>
+        <location line="-4734"/>
         <location line="+54"/>
         <source>Reprendre</source>
         <translation>Reia</translation>
@@ -2528,12 +2516,12 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+3242"/>
+        <location line="+3240"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation>Cine înregistrează onorariile pentru </translation>
     </message>
     <message>
-        <location line="-3180"/>
+        <location line="-3178"/>
         <source>remplacé par</source>
         <translation>înlocuit de</translation>
     </message>
@@ -2650,12 +2638,12 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1998"/>
+        <location line="+1996"/>
         <source>Ophtalmologiste</source>
         <translation>Oftalmolog</translation>
     </message>
     <message>
-        <location line="-1996"/>
+        <location line="-1994"/>
         <source>Orthoptiste</source>
         <translation>Ortoptist</translation>
     </message>
@@ -2856,72 +2844,72 @@ Confirmați ștergerea vechilor date?
     </message>
     <message>
         <location line="+4"/>
-        <location line="+238"/>
+        <location line="+236"/>
         <source>J&apos;ai compris
 Je confirme</source>
         <translation>Am înțeles
 Confirm</translation>
     </message>
     <message>
-        <location line="-198"/>
+        <location line="-197"/>
         <location line="+2"/>
-        <location line="+224"/>
+        <location line="+223"/>
         <location line="+2"/>
         <source>Echec de la restauration</source>
         <translation>Eșec al restaurării</translation>
     </message>
     <message>
-        <location line="-228"/>
+        <location line="-227"/>
         <location line="+2"/>
-        <location line="+224"/>
+        <location line="+223"/>
         <location line="+2"/>
         <source>Le fichier </source>
         <translation>Fișierul </translation>
     </message>
     <message>
-        <location line="-228"/>
-        <location line="+226"/>
+        <location line="-227"/>
+        <location line="+225"/>
         <source> n&apos;a pas été trouvé!</source>
         <translation> nu a fost găsit!</translation>
     </message>
     <message>
-        <location line="-224"/>
-        <location line="+226"/>
+        <location line="-223"/>
+        <location line="+225"/>
         <source> est vide!</source>
         <translation> este gol!</translation>
     </message>
     <message>
-        <location line="-222"/>
-        <location line="+206"/>
+        <location line="-221"/>
+        <location line="+205"/>
         <location line="+20"/>
         <location line="+345"/>
         <source>Base non restaurée</source>
         <translation>Bază nerestaurată</translation>
     </message>
     <message>
-        <location line="-565"/>
+        <location line="-564"/>
         <source>Impossible d&apos;éxécuter la restauration!</source>
         <translation>Imposibil de executat restaurarea!</translation>
     </message>
     <message>
         <location line="+8"/>
-        <location line="+220"/>
+        <location line="+219"/>
         <source>Suppression de l&apos;ancienne base Rufus en cours</source>
         <translation>Ștergerea vechii baze Rufus în curs</translation>
     </message>
     <message>
-        <location line="-197"/>
+        <location line="-196"/>
         <source>Création de la base en cours…</source>
         <translation>Crearea bazei în curs…</translation>
     </message>
     <message>
         <location line="+11"/>
-        <location line="+236"/>
+        <location line="+235"/>
         <source>Incident pendant la restauration</source>
         <translation>Incident în timpul restaurării</translation>
     </message>
     <message>
-        <location line="-230"/>
+        <location line="-229"/>
         <source>Base vierge créée</source>
         <translation>Bază goală creată</translation>
     </message>
@@ -3002,7 +2990,7 @@ Confirm</translation>
         <translation>Folderul ales nu conține o copie de siguranță Rufus completă.</translation>
     </message>
     <message>
-        <location line="+85"/>
+        <location line="+84"/>
         <source>Attention</source>
         <translation>Atenție</translation>
     </message>
@@ -4941,7 +4929,7 @@ de pacienți Rufus</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+3759"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+3758"/>
         <source>Confirmez le mot de passe</source>
         <translation>Confirmați parola</translation>
     </message>
@@ -4969,7 +4957,17 @@ de pacienți Rufus</translation>
         <translation>Parola și confirmarea ei nu corespund.</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+12"/>
+        <source>Saisissez le mot de passe Administrateur Rufus</source>
+        <translation>Introduceți parola de Administrator Rufus</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>si vous ne l&apos;avez pas modifié</source>
+        <translation>dacă nu ați modificat-o</translation>
+    </message>
+    <message>
+        <location line="+41"/>
         <location line="+30"/>
         <source>Mot de passe invalide!</source>
         <translation>Parolă invalidă!</translation>
@@ -5038,7 +5036,7 @@ de pacienți Rufus</translation>
         <translation>Imposibil de găsit localitatea corespunzătoare numelui </translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="-2658"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="-2657"/>
         <source>Notez le mot de passe de la base de données</source>
         <translation>Notați parola bazei de date</translation>
     </message>
@@ -5116,7 +5114,7 @@ Păstrați-o într-un loc sigur (pe hârtie sau pe un stick USB): este necesară
         <translation>IMPORTANT: parola generică de acces la baza de date tocmai a fost ștearsă.</translation>
     </message>
     <message>
-        <location line="+2529"/>
+        <location line="+2528"/>
         <source>Choisissez un mot de passe de SECOURS pour votre base de données.
 
 Il ne servira qu&apos;à reprendre la main sur votre base si tous les autres
@@ -7903,12 +7901,12 @@ cea mai apropiată valoare conformă!</translation>
 <context>
     <name>Utils</name>
     <message>
-        <location filename="utils.cpp" line="-1400"/>
+        <location filename="utils.cpp" line="-1418"/>
         <source>Redémarrage du programme</source>
         <translation>Repornirea programului</translation>
     </message>
     <message>
-        <location line="+1107"/>
+        <location line="+1125"/>
         <source>Annuler</source>
         <translation>Anulează</translation>
     </message>
@@ -11785,12 +11783,7 @@ deocamdată</translation>
         <translation>Doriți să salvați aceste modificări?</translation>
     </message>
     <message>
-        <location line="+69"/>
-        <source>Saisissez le mot de passe Administrateur</source>
-        <translation>Introduceți parola de Administrator</translation>
-    </message>
-    <message>
-        <location line="+37"/>
+        <location line="+106"/>
         <source>Confirmez le nouveau mot de passe</source>
         <translation>Confirmați noua parolă</translation>
     </message>
@@ -17033,13 +17026,7 @@ Doriți să o salvați?</translation>
         <translation>O sesiune de RufusAdmin este în prezent activă pe stația</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <location line="+1304"/>
-        <source>Saisissez le mot de passe Administrateur</source>
-        <translation>Introduceți parola de Administrator</translation>
-    </message>
-    <message>
-        <location line="-1238"/>
+        <location line="+73"/>
         <source>Configuration pour un accès distant</source>
         <translation>Configurare pentru un acces la distanță</translation>
     </message>
