@@ -1,0 +1,1 @@
+Les fichiers binaires et les librairies présents dans ce dossier sont des binaires universels ARLM et x86
