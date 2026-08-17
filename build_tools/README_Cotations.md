@@ -95,9 +95,10 @@ Ce qu'il fait :
   existant — elle ne vient pas du `.xls` mais du PDF de la NGAP
   (`assets/CotationsFrance/NGAP-01012026.pdf`) et se modifie à la main.
 
-> Vérification faite : régénéré depuis `CCAM_V83_.xls`, le script reproduit
-> à l'octet près le `Cotations.xml` de la V83. Une revalidation de ce genre
-> après chaque évolution du script coûte une commande et évite les surprises.
+> Vérification faite au moment de l'écrire : régénéré depuis le `.xls` de la
+> V83, le script reproduisait à l'octet près le `Cotations.xml` de la V83.
+> Régénérer la version précédente et la comparer à ce que le dépôt contient
+> déjà est le contrôle à refaire après chaque évolution du script.
 
 ## 3. Relire le diff
 
