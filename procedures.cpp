@@ -2342,7 +2342,7 @@ bool Procedures::ReinitBase(QWidget *parent)
     //! libellé exact : cette fenêtre n'apparaît qu'au PROCHAIN démarrage (autre exécution), donc
     //! impossible de garantir ici le texte qu'ils porteront. Citer un libellé le condamnerait à
     //! devenir faux au moindre renommage (cf. l'ancien « Premier démarrage de Rufus »).
-    msgbox      .setInformativeText(tr("Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée"
+    msgbox      .setInformativeText(tr("Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers d'imagerie seront réalisés"
                                       " puis le programme sera arrêté.\n"
                                       "Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.\n"
                                       "Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage"
@@ -2357,13 +2357,15 @@ bool Procedures::ReinitBase(QWidget *parent)
             return false;
         QFile FichierIni(PATH_FILE_INI);
         if (FichierIni.exists())
-        {
-            QFile FichierBup(PATH_DIR_RUFUS + "/RufusBackup.ini");
-            if (FichierBup.exists())
-                Utils::removeWithoutPermissions(FichierBup);
-            Utils::copyWithPermissions(FichierIni,PATH_DIR_RUFUS + "/RufusBackup.ini");
             Utils::removeWithoutPermissions(FichierIni);
-        }
+        db->VideDatabases();
+        QDir dirimagerie(db->dirimagerie());
+        dirimagerie.cdUp();
+        dirimagerie.removeRecursively();
+        QDir dir (PATH_DIR_RUFUS);
+        dir.removeRecursively();
+        QDir dircache(QDir::homePath() + "/.rufus");
+        dircache.removeRecursively();
         UpMessageBox::Information(parent, tr("Arrêt du programme!"));
         exit(0);
     }
