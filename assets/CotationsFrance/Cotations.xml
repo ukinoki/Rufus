@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Cotations>
 	<CCAM>
-		<Version>83</Version>
+		<Version>84</Version>
 	</CCAM>
 	<NGAP>
 		<Version>2026-07-01</Version>
@@ -22315,6 +22315,20 @@ Son utilisation est limitée aux centres secondaires disposant d’une activité
 		<origin>ccam</origin>
 	</Acte>
 	<Acte>
+		<code>HBBD365</code>
+		<nom>Comblement [Scellement] thérapeutique d’une prémolaire ou molaire permanente ou molaire temporaire</nom>
+		<optam>0.00</optam>
+		<nonoptam>0.00</nonoptam>
+		<origin>ccam</origin>
+	</Acte>
+	<Acte>
+		<code>HBMD130</code>
+		<nom>Restauration d’une dent temporaire ou permanente sur 1 face ou plus par un ciment verre ionomère après éviction de la lésion carieuse par traitement restaurateur atraumatique [TRA]</nom>
+		<optam>0.00</optam>
+		<nonoptam>0.00</nonoptam>
+		<origin>ccam</origin>
+	</Acte>
+	<Acte>
 		<code>HBFD006</code>
 		<nom>Exérèse de la pulpe camérale [Biopulpotomie] d'une dent temporaire</nom>
 		<optam>36.00</optam>
@@ -22438,6 +22452,13 @@ Son utilisation est limitée aux centres secondaires disposant d’une activité
 		<nom>Exérèse du contenu canalaire non vivant d’une molaire permanente</nom>
 		<optam>114.40</optam>
 		<nonoptam>114.40</nonoptam>
+		<origin>ccam</origin>
+	</Acte>
+	<Acte>
+		<code>HBFD425</code>
+		<nom>Exérèse thérapeutique de la pulpe camérale [Biopulpotomie] d’une dent permanente mature</nom>
+		<optam>80.00</optam>
+		<nonoptam>80.00</nonoptam>
 		<origin>ccam</origin>
 	</Acte>
 	<Acte>
@@ -23702,6 +23723,13 @@ Avec ou sans recouvrement céramique</nom>
 		<origin>ccam</origin>
 	</Acte>
 	<Acte>
+		<code>HBLD757</code>
+		<nom>Pose d’une coiffe pédodontique préformée sur une molaire temporaire</nom>
+		<optam>150.00</optam>
+		<nonoptam>150.00</nonoptam>
+		<origin>ccam</origin>
+	</Acte>
+	<Acte>
 		<code>HBLD132</code>
 		<nom>Pose d’une prothèse amovible supra-implantaire à plaque résine comportant moins de 9 dents</nom>
 		<optam>102.13</optam>
@@ -24053,7 +24081,7 @@ Avec ou sans recouvrement céramique</nom>
 	</Acte>
 	<Acte>
 		<code>HBLD426</code>
-		<nom>Pose d'une prothèse plurale [bridge] comportant 2 piliers d'ancrage céramocéramiques ou céramiques monolithiques (hors zircone) et 1 élément intermédiaire céramocéramique ou céramique monolithique hors zircone</nom>
+		<nom>Pose d'une prothèse plurale [bridge] comportant 2 piliers d'ancrage céramocéramiques et/ou céramiques monolithiques et 1 élément intermédiaire céramocéramique ou céramique monolithique hors zircone</nom>
 		<optam>279.50</optam>
 		<nonoptam>279.50</nonoptam>
 		<origin>ccam</origin>
@@ -35101,8 +35129,8 @@ rétablissement de la continuité, par cœlioscopie</nom>
 	<Acte>
 		<code>JJCA003</code>
 		<nom>Anastomose tubotubaire unilatérale ou bilatérale, par laparotomie</nom>
-		<optam>358.41</optam>
-		<nonoptam>358.41</nonoptam>
+		<optam>358.42</optam>
+		<nonoptam>358.42</nonoptam>
 		<origin>ccam</origin>
 	</Acte>
 	<Acte>
