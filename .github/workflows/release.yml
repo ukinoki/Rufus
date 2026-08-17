@@ -248,20 +248,22 @@ jobs:
               Where-Object { $_.Name -ne 'qsqlmysql.dll' } | Remove-Item -Force
           }
           # Clients mysql / mysqldump dans {app}\Applications, emplacement lu par
-          # Procedures::setDirSQLExecutable : sans eux, un poste sans serveur MySQL local ne peut
-          # ni sauvegarder ni restaurer. Inno embarque le sous-dossier (recursesubdirs), comme Locale.
-          $src = Get-ChildItem -Path 'C:\tools\mysql','C:\Program Files\MySQL' -Recurse `
-                   -Filter mysqldump.exe -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $src) { throw "mysql.exe / mysqldump.exe introuvables sur le runner" }
+          # Procedures::setDirSQLExecutable ; Inno embarque le sous-dossier (recursesubdirs).
+          # Livrés dans le dépôt, comme sur macOS. Les DLL vont dans le MÊME dossier que les exe :
+          # Windows n'a pas d'équivalent de @loader_path, il ne cherche jamais dans le parent.
+          $mc = "$env:GITHUB_WORKSPACE\build_tools\Windows\mysql-clients"
+          if (-not (Test-Path "$mc\bin\mysql.exe")) { throw "clients MySQL absents du dépôt : $mc\bin" }
           New-Item -ItemType Directory -Force -Path "$deploy\Applications" | Out-Null
-          Copy-Item "$($src.DirectoryName)\mysql.exe","$($src.DirectoryName)\mysqldump.exe" `
+          Copy-Item "$mc\bin\mysql.exe","$mc\bin\mysqldump.exe" "$deploy\Applications\" -Force
+          Copy-Item "$mc\lib\*.dll" "$deploy\Applications\" -Force
+          # Runtime Visual C++ : windeployqt ne dépose pas ces DLL mais vc_redist.x64.exe, exclu
+          # par l'installeur. On les prend dans le kit MSVC.
+          $crt = Get-ChildItem -Path "$env:VCToolsRedistDir\x64",'C:\Program Files\Microsoft Visual Studio\2022' `
+                   -Recurse -Directory -Filter 'Microsoft.VC*.CRT' -ErrorAction SilentlyContinue |
+                 Where-Object { $_.FullName -like '*\x64\*' } | Select-Object -First 1
+          if (-not $crt) { throw "runtime Visual C++ introuvable sur le runner" }
+          Copy-Item "$($crt.FullName)\MSVCP140*.dll","$($crt.FullName)\VCRUNTIME140*.dll" `
                     "$deploy\Applications\" -Force
-          # DLL de chiffrement voisines des clients, et runtime Visual C++ déjà déposé par
-          # windeployqt à côté de Rufus.exe : Windows ne cherche que dans le dossier de l'exe
-          # lancé, jamais dans son parent — sans ces copies, mysql.exe ne démarre pas.
-          Copy-Item "$($src.DirectoryName)\*.dll" "$deploy\Applications\" -Force -ErrorAction SilentlyContinue
-          Copy-Item "$deploy\MSVCP140*.dll","$deploy\VCRUNTIME140*.dll" "$deploy\Applications\" `
-                    -Force -ErrorAction SilentlyContinue
           # Garde-fou : un client qui ne démarre pas rend sauvegarde et restauration impossibles.
           foreach ($d in 'libcrypto-3-x64.dll','libssl-3-x64.dll','MSVCP140.dll','VCRUNTIME140.dll','VCRUNTIME140_1.dll') {
             if (-not (Test-Path "$deploy\Applications\$d")) { throw "DLL manquante pour mysql.exe : $d" }
