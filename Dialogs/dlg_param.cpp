@@ -1026,14 +1026,6 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->VillesgroupBox                  ->setEnabled(a);
         ui->ComptagroupBox                  ->setEnabled(a);
         ui->ImportDocsgroupBox              ->setEnabled(a);
-        for (UpLineEdit *ch : {ui->LocalPathStockageupLineEdit, ui->LocalVideoDirupLineEdit, ui->PosteVideoDirupLineEdit})
-        {
-            QString chaine = ch->objectName() + QString(" enabled=%1 ro=%2 focus=%3 visible=%4")
-                    .arg(ch->isEnabled()).arg(ch->isReadOnly()).arg(ch->focusPolicy()).arg(ch->isVisible());
-            for (QWidget *p = ch->parentWidget(); p; p = p->parentWidget())
-                chaine += " | " + p->objectName() + (p->isEnabled()? "=on" : "=OFF");
-            qDebug() << chaine;
-        }
     }
     else if (obj == ui->LockParamUserupLabel)
     {

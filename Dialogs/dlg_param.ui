@@ -1055,7 +1055,7 @@
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::FocusPolicy::NoFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="contextMenuPolicy">
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
@@ -1271,7 +1271,7 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::FocusPolicy::NoFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="contextMenuPolicy">
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
@@ -1346,7 +1346,7 @@ du dossier de stockage des videos</string>
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::FocusPolicy::NoFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="contextMenuPolicy">
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
@@ -1512,7 +1512,7 @@ du dossier de stockage des videos</string>
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::FocusPolicy::NoFocus</enum>
+              <enum>Qt::FocusPolicy::StrongFocus</enum>
              </property>
              <property name="contextMenuPolicy">
               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
@@ -1680,7 +1680,7 @@ des fichiers image importés depuis ce poste</string>
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::FocusPolicy::NoFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="contextMenuPolicy">
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
@@ -1722,7 +1722,7 @@ du dossier de stockage des videos</string>
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::FocusPolicy::NoFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="contextMenuPolicy">
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
