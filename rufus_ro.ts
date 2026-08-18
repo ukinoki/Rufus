@@ -2324,19 +2324,19 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+17"/>
-        <location line="+2454"/>
+        <location line="+2456"/>
         <source>Choisissez un dossier de sauvegarde</source>
         <translation>Alegeți un folder de copie de siguranță</translation>
     </message>
     <message>
-        <location line="-2447"/>
-        <location line="+2427"/>
+        <location line="-2449"/>
+        <location line="+2429"/>
         <location line="+30"/>
         <source>Sauvegarde impossible</source>
         <translation>Copie de siguranță imposibilă</translation>
     </message>
     <message>
-        <location line="-2456"/>
+        <location line="-2458"/>
         <source>Impossible de créer le dossier de sauvegarde.</source>
         <translation>Imposibil de creat folderul de copie de siguranță.</translation>
     </message>
@@ -2355,13 +2355,13 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+2172"/>
+        <location line="+2174"/>
         <source>table </source>
         <translation>tabel </translation>
     </message>
     <message>
-        <location line="-2156"/>
-        <location line="+1901"/>
+        <location line="-2158"/>
+        <location line="+1903"/>
         <location line="+33"/>
         <location line="+186"/>
         <location line="+49"/>
@@ -2373,7 +2373,7 @@ Fermeture du programme.</source>
         <translation>Mesaje</translation>
     </message>
     <message>
-        <location line="-2235"/>
+        <location line="-2237"/>
         <source>Fichier de paramétrage Rufus.ini sauvegardé
 </source>
         <translation>Fișier de parametrare Rufus.ini salvat
@@ -2459,21 +2459,21 @@ Fermeture du programme.</source>
         <location line="+54"/>
         <location line="+676"/>
         <location line="+668"/>
-        <location line="+154"/>
+        <location line="+156"/>
         <location line="+236"/>
         <location line="+555"/>
-        <location line="+137"/>
+        <location line="+152"/>
         <location line="+51"/>
         <location line="+65"/>
         <location line="+19"/>
         <location line="+756"/>
         <location line="+689"/>
-        <location line="+674"/>
+        <location line="+662"/>
         <source>Annuler</source>
         <translation>Anulează</translation>
     </message>
     <message>
-        <location line="-4734"/>
+        <location line="-4739"/>
         <location line="+54"/>
         <source>Reprendre</source>
         <translation>Reia</translation>
@@ -2516,12 +2516,12 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+3240"/>
+        <location line="+3257"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation>Cine înregistrează onorariile pentru </translation>
     </message>
     <message>
-        <location line="-3178"/>
+        <location line="-3195"/>
         <source>remplacé par</source>
         <translation>înlocuit de</translation>
     </message>
@@ -2638,12 +2638,12 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1996"/>
+        <location line="+2013"/>
         <source>Ophtalmologiste</source>
         <translation>Oftalmolog</translation>
     </message>
     <message>
-        <location line="-1994"/>
+        <location line="-2011"/>
         <source>Orthoptiste</source>
         <translation>Ortoptist</translation>
     </message>
@@ -2770,15 +2770,18 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+5"/>
-        <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée puis le programme sera arrêté.
+        <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers d&apos;imagerie seront réalisés puis le programme sera arrêté.
 Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.
 Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage à partir de la sauvegarde (fichier RufusBackup.ini).</source>
-        <translation>Dacă confirmați reinițializarea, se va realiza o copie de siguranță a bazei de pacienți, a fișierului Rufus.ini și a fișierelor de resurse, apoi programul va fi oprit.
+        <oldsource>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée puis le programme sera arrêté.
+Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.
+Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage à partir de la sauvegarde (fichier RufusBackup.ini).</oldsource>
+        <translation>Dacă confirmați reinițializarea, se va face o copie de siguranță a bazei de pacienți, a fișierului Rufus.ini și a fișierelor de imagistică, apoi programul va fi oprit.
 La repornire, o fereastră de recuperare vă va permite să porniți de la o bază de pacienți nouă.
-Veți mai putea anula reinițializarea restaurând fișierul de parametrare din copia de siguranță (fișierul RufusBackup.ini).</translation>
+Veți mai putea anula reinițializarea restaurând fișierul de configurare din copia de siguranță (fișierul RufusBackup.ini).</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+24"/>
         <source>Arrêt du programme!</source>
         <translation>Oprirea programului!</translation>
     </message>
@@ -2955,12 +2958,7 @@ Confirm</translation>
         <translation>Utilizează copia de siguranță automată</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <source>Dans la fiche suivante, choisissez le dossier contenant la sauvegarde de la base.</source>
-        <translation>În fișa următoare, alegeți folderul care conține copia de siguranță a bazei.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+13"/>
         <source>Une fois le dossier sélectionné, la sauvegarde commencera automatiquement.</source>
         <translation>Odată folderul selectat, restaurarea va începe automat.</translation>
     </message>
@@ -3354,17 +3352,7 @@ Ieșire din program</translation>
         <translation>Niciun server de bază de date</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Aucun serveur MySQL n&apos;est installé sur ce poste.</source>
-        <translation>Niciun server MySQL nu este instalat pe această stație.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Pour utiliser Rufus en monoposte, créez une nouvelle base patients (le serveur sera installé automatiquement), ou quittez.</source>
-        <translation>Pentru a utiliza Rufus pe o singură stație, creați o nouă bază de pacienți (serverul va fi instalat automat) sau ieșiți.</translation>
-    </message>
-    <message>
-        <location line="+20"/>
+        <location line="+37"/>
         <source>Le serveur du cabinet ne fonctionne pas</source>
         <translation>Serverul cabinetului nu funcționează</translation>
     </message>
@@ -3792,7 +3780,52 @@ server nou</translation>
         <translation>Doctor</translation>
     </message>
     <message>
+        <location line="-1453"/>
+        <source>Dans la fiche suivante, choisissez le dossier (format &quot;YYYYMMDD-HHmm&quot;)</source>
+        <translation>În fișa următoare, alegeți folderul (format &quot;YYYYMMDD-HHmm&quot;)</translation>
+    </message>
+    <message>
         <location line="+1"/>
+        <source>contenant la sauvegarde de la base.</source>
+        <translation>care conține copia de siguranță a bazei.</translation>
+    </message>
+    <message>
+        <location line="+741"/>
+        <source>Un fichier de paramétrage de Rufus existe déjà sur ce poste</source>
+        <translation>Pe această stație există deja un fișier de configurare Rufus</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>et indique que ce poste héberge une base patients Rufus</source>
+        <translation>și indică faptul că această stație găzduiește o bază de pacienți Rufus</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cependant aucun serveur MySQL n&apos;est installé.</source>
+        <translation>Totuși, niciun server MySQL nu este instalat.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Voulez-vous installer un serveur MySQL et une base patients sur ce poste?</source>
+        <translation>Doriți să instalați un server MySQL și o bază de pacienți pe această stație?</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Installation impossible</source>
+        <translation>Instalare imposibilă</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>L&apos;installation d&apos;une base patients Rufus a échoué.</source>
+        <translation>Instalarea unei baze de pacienți Rufus a eșuat.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rufus ne peut pas démarrer sans base patients.</source>
+        <translation>Rufus nu poate porni fără o bază de pacienți.</translation>
+    </message>
+    <message>
+        <location line="+698"/>
         <source>Médecin</source>
         <translation>Medic</translation>
     </message>
@@ -4235,7 +4268,7 @@ dintr-o copie de siguranță</translation>
         <translation>Introduceți identificatorul și parola dumneavoastră de utilizator Rufus</translation>
     </message>
     <message>
-        <location line="+84"/>
+        <location line="+72"/>
         <source>Erreur connexion série</source>
         <translation>Eroare de conexiune serială</translation>
     </message>
@@ -4696,7 +4729,7 @@ Din păcate, niciuna dintre aceste conexiuni nu pare să funcționeze.</translat
 <context>
     <name>QObject</name>
     <message>
-        <location line="-6219"/>
+        <location line="-6222"/>
         <source>Vous utilisez sur ce poste une version de Rufus prévue pour la version</source>
         <translation>Utilizați pe această stație o versiune de Rufus prevăzută pentru versiunea</translation>
     </message>
@@ -4726,7 +4759,7 @@ Din păcate, niciuna dintre aceste conexiuni nu pare să funcționeze.</translat
         <translation>Puteți descărca ultima versiune de pe pagina Descărcări a site-ului</translation>
     </message>
     <message>
-        <location line="+2117"/>
+        <location line="+2132"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation>Renunță și
@@ -4799,7 +4832,7 @@ de pacienți Rufus</translation>
         <translation>Fișier de configurare Rufus.ini absent sau corupt</translation>
     </message>
     <message>
-        <location line="+872"/>
+        <location line="+860"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation>Reglaje implicite necunoscute pentru aparat</translation>
     </message>
@@ -4830,7 +4863,7 @@ de pacienți Rufus</translation>
         <translation>plan</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="+344"/>
+        <location filename="rufus.cpp" line="+350"/>
         <source>Problème Autoref Huvitz</source>
         <translation>Problemă Autoref Huvitz</translation>
     </message>
@@ -5159,7 +5192,7 @@ bazei dumneavoastră de date.</translation>
         <translation>HH:mm:ss</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="-3669"/>
+        <location filename="procedures.cpp" line="-3657"/>
         <location line="+9"/>
         <source>Langue de l&apos;interface</source>
         <translation>Limba interfeței</translation>
@@ -5669,22 +5702,27 @@ act</translation>
         <translation>Tratamente în curs</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="-10972"/>
+        <location filename="rufus.cpp" line="-10981"/>
         <source>Erreur fichier Rufus.ini</source>
         <translation>Eroare fișier Rufus.ini</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+1"/>
         <source>Aucun paramétrage valide de connexion retrouvé</source>
         <translation>Nicio configurare validă de conectare regăsită</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>Le fichier rufus.ini est endommagé et doit être réparé</source>
-        <translation>Fișierul rufus.ini este deteriorat și trebuie reparat</translation>
+        <location line="+1"/>
+        <source>Le fichier rufus.ini est endommagé</source>
+        <translation>Fișierul rufus.ini este deteriorat</translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="+1"/>
+        <source>le programme va être relancé</source>
+        <translation>programul va fi repornit</translation>
+    </message>
+    <message>
+        <location line="+52"/>
         <source>Pas d&apos;utilisateur identifié!
 Sortie du programme</source>
         <translation>Niciun utilizator identificat!
@@ -16352,7 +16390,7 @@ Confirmați introducerea?</translation>
     </message>
     <message>
         <location line="+61"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3712"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3715"/>
         <source>Monoposte</source>
         <translation>Monopost</translation>
     </message>
@@ -16360,7 +16398,7 @@ Confirmați introducerea?</translation>
         <location line="+37"/>
         <location line="+253"/>
         <location line="+280"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3064"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3065"/>
         <source>Port</source>
         <translation>Port</translation>
     </message>
@@ -16444,7 +16482,7 @@ către folderul de stocare a videoclipurilor</translation>
     </message>
     <message>
         <location line="-602"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3065"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3066"/>
         <source>Réseau local</source>
         <translation>Rețea locală</translation>
     </message>
@@ -16665,7 +16703,7 @@ datele</translation>
     </message>
     <message>
         <location line="+100"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3093"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3094"/>
         <location line="+1024"/>
         <source>Appareils connectés au réseau</source>
         <translation>Aparate conectate la rețea</translation>
@@ -16781,7 +16819,7 @@ instituțiilor bancare</translation>
         <translation>Versiune</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="-1561"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-1563"/>
         <source>&lt;b&gt;Table des cotations référencées par Rufus&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Tabelul codificărilor referențiate de Rufus&lt;/b&gt;&lt;br&gt;</translation>
     </message>
@@ -16816,7 +16854,17 @@ instituțiilor bancare</translation>
         <translation>Ce pot face în acest tabel?</translation>
     </message>
     <message>
-        <location line="+83"/>
+        <location line="+43"/>
+        <source>Restauration de la base patients et des dossiers d&apos;imagerie à partir d&apos;une sauvegarde</source>
+        <translation>Restaurarea bazei de pacienți și a folderelor de imagistică dintr-o copie de siguranță</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Effacement complet de la base patients et des dossiers d&apos;imagerie</source>
+        <translation>Ștergerea completă a bazei de pacienți și a folderelor de imagistică</translation>
+    </message>
+    <message>
+        <location line="+40"/>
         <source>Emplacement du dossier de stockage des documents d&apos;imagerie &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;SUR CE POSTE SERVEUR&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Cet emplacement n&apos;est pas modifiable et correspond à la variable secure_file_priv de MySQL</source>
         <translation>Amplasarea folderului de stocare a documentelor de imagistică &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;PE ACEASTĂ STAȚIE SERVER&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Această amplasare nu este modificabilă și corespunde variabilei secure_file_priv a MySQL</translation>
     </message>
@@ -17432,7 +17480,7 @@ pentru a putea lua în considerare modificările aduse!</translation>
         <translation>Repornirea programului în curs…</translation>
     </message>
     <message>
-        <location line="-2274"/>
+        <location line="-2276"/>
         <source>modifier une cotation.&lt;br&gt;</source>
         <translation>modifică o codificare.&lt;br&gt;</translation>
     </message>
@@ -17447,7 +17495,7 @@ pentru a putea lua în considerare modificările aduse!</translation>
         <translation>Clic pe ? pentru a obține ajutor</translation>
     </message>
     <message>
-        <location line="+2249"/>
+        <location line="+2251"/>
         <source>Génération impossible</source>
         <translation>Generare imposibilă</translation>
     </message>
@@ -17514,7 +17562,7 @@ pentru a putea lua în considerare modificările aduse!</translation>
         <translation>da, schimbă parola</translation>
     </message>
     <message>
-        <location line="+441"/>
+        <location line="+442"/>
         <source>Erreur</source>
         <translation>Eroare</translation>
     </message>
@@ -17723,72 +17771,47 @@ implicite pentru acest aparat</translation>
 <context>
     <name>dlg_paramconnexion</name>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="+29"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="+25"/>
         <source>Paramètrage de connexion à la base</source>
         <translation>Configurarea conectării la bază</translation>
     </message>
     <message>
-        <location line="+66"/>
-        <source>Mot de passe</source>
-        <translation>Parolă</translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Login</source>
-        <translation>Login</translation>
-    </message>
-    <message>
-        <location line="+129"/>
+        <location line="+11"/>
         <source>Emplacement du serveur</source>
         <translation>Amplasarea serverului</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="-4"/>
         <source>Sur ce poste</source>
         <translation>Pe această stație</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+1"/>
         <source>Réseau local</source>
         <translation>Rețea locală</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+1"/>
         <source>Accès distant</source>
         <translation>Acces la distanță</translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+14"/>
         <source>Adresse IP du serveur</source>
         <translation>Adresa IP a serverului</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+8"/>
         <source>Emplacement clés SSL</source>
         <translation>Amplasarea cheilor SSL</translation>
     </message>
     <message>
-        <location line="+68"/>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
-        <location line="+76"/>
+        <location line="+24"/>
         <source>Port</source>
         <translation>Port</translation>
     </message>
     <message>
-        <location line="+93"/>
-        <source>Annuler</source>
-        <translation>Anulează</translation>
-    </message>
-    <message>
-        <location line="+26"/>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="+96"/>
+        <location line="+54"/>
         <source>Informations importantes sur l&apos;accès par internet</source>
         <translation>Informații importante despre accesul prin internet</translation>
     </message>
@@ -17824,21 +17847,6 @@ implicite pentru acest aparat</translation>
     </message>
     <message>
         <location line="+24"/>
-        <source>Vous n&apos;avez pas précisé le login.</source>
-        <translation>Nu ați precizat loginul.</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Vous n&apos;avez pas précisé le mot de passe.</source>
-        <translation>Nu ați precizat parola.</translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Vous n&apos;avez pas précisé le mode d&apos;accès.</source>
-        <translation>Nu ați precizat modul de acces.</translation>
-    </message>
-    <message>
-        <location line="+6"/>
         <source>Vous n&apos;avez pas précisé l&apos;adresse du serveur.</source>
         <translation>Nu ați precizat adresa serverului.</translation>
     </message>
