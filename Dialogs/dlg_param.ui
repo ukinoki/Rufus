@@ -1283,8 +1283,8 @@ un serveur hébergé sur le réseau local</string>
              <bool>true</bool>
             </property>
             <property name="readOnly">
-             <bool>true</bool>
-            </property>
+      <bool>false</bool>
+     </property>
            </widget>
            <widget class="UpLabel" name="LocalPathStockageupLabel">
             <property name="geometry">
