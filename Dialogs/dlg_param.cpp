@@ -347,8 +347,6 @@ dlg_param::dlg_param(QWidget *parent) :
        wdg_villeCP                  ->move(15,10);
        wdg_villeCP->ui->CPlabel     ->setText(tr("Code postal par défaut"));
        wdg_villeCP->ui->Villelabel  ->setText(tr("Ville par défaut"));
-       wdg_villeCP->ui->CPlabel     ->setMinimumWidth(300);
-       wdg_villeCP->ui->Villelabel  ->setMinimumWidth(300);
        wdg_VilleDefautlineEdit      ->setText(proc->settings()->value(Ville_Defaut).toString());
        wdg_CPDefautlineEdit         ->completer()->setCurrentRow(proc->settings()->value(CodePostal_Defaut).toInt());
        // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
