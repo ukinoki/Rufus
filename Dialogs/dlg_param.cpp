@@ -343,12 +343,17 @@ dlg_param::dlg_param(QWidget *parent) :
 
        /*! Boutons de test des dossiers réseau, entre le champ et le bouton de choix. Le champ se saisit
         *  aussi au clavier : rien ne disait jusqu'ici si le chemin tapé répondait. */
-       wdg_testlocalstockage        = new QPushButton(tr("Tester"), ui->tabLocal);
-       wdg_testlocalvideo           = new QPushButton(tr("Tester"), ui->tabLocal);
+       wdg_testlocalstockage        = new QPushButton(tr("Test"), ui->tabLocal);
+       wdg_testlocalvideo           = new QPushButton(tr("Test"), ui->tabLocal);
        wdg_testlocalstockage        ->setGeometry(815, 9, 54, 32);
        wdg_testlocalvideo           ->setGeometry(815, 48, 54, 32);
        connect(wdg_testlocalstockage,   &QPushButton::clicked, this, [=, this]{TesteDossier(ui->LocalPathStockageupLineEdit);});
        connect(wdg_testlocalvideo,      &QPushButton::clicked, this, [=, this]{TesteDossier(ui->LocalVideoDirupLineEdit);});
+       /*! textChanged et non textEdited : les champs sont aussi remplis par setText, au chargement et par le bouton de choix. */
+       connect(ui->LocalPathStockageupLineEdit, &QLineEdit::textChanged, this, [=, this](const QString &t){wdg_testlocalstockage->setEnabled(t != "");});
+       connect(ui->LocalVideoDirupLineEdit,     &QLineEdit::textChanged, this, [=, this](const QString &t){wdg_testlocalvideo   ->setEnabled(t != "");});
+       wdg_testlocalstockage        ->setEnabled(ui->LocalPathStockageupLineEdit->text() != "");
+       wdg_testlocalvideo           ->setEnabled(ui->LocalVideoDirupLineEdit->text() != "");
 
        wdg_villeCP                  = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
        wdg_CPDefautlineEdit         = wdg_villeCP->ui->CPlineEdit;
@@ -1117,8 +1122,8 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->LocalVideoDirupLabel            ->setEnabled(a);
         ui->LocalVideoDirupLineEdit         ->setEnabled(a);
         ui->LocalVideoDirupPushButton       ->setEnabled(a);
-        wdg_testlocalstockage               ->setEnabled(a);
-        wdg_testlocalvideo                  ->setEnabled(a);
+        wdg_testlocalstockage               ->setEnabled(a && ui->LocalPathStockageupLineEdit->text() != "");
+        wdg_testlocalvideo                  ->setEnabled(a && ui->LocalVideoDirupLineEdit->text() != "");
     }
     else if (box == ui->DistantServcheckBox)
     {
