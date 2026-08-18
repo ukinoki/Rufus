@@ -2632,8 +2632,8 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         {
             /*! 1 - choix du dossier où se situe la sauvegarde */
             UpMessageBox::Information(parent, tr("Choix du dossier de sauvegarde"),
-                                      tr("Dans la fiche suivante, choisissez le dossier "
-                                         "contenant la sauvegarde de la base.") + "<br/><br/>" +
+                                      tr("Dans la fiche suivante, choisissez le dossier (format \"YYYYMMDD-HHmm\")") + "<br/>" +
+                                      tr("contenant la sauvegarde de la base.") + "<br/><br/>" +
                                       tr("Une fois le dossier sélectionné, "
                                          "la sauvegarde commencera automatiquement.") + "<br/>" +
                                       tr("Ce processus est long et peut durer plusieurs minutes (environ 1' pour 2 Go)"));
@@ -3374,7 +3374,9 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::serveurLocalPresent())
     {
         CreerOuRestaurerBase(tr("Aucun serveur de base de données"),
-                           tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
+                             tr("Un fichier de paramétrage de Rufus existe déjà sur ce poste") + "\n" +
+                             tr("et indique que ce poste héberge une base patients Rufus") + "\n" +
+                           tr("Cependant aucun serveur MySQL n'est installé.") + "\n" +
                            tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
                               "(le serveur sera installé automatiquement), ou quittez."),
                            false /*proposerRestauration*/);
