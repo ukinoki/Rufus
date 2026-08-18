@@ -23,22 +23,11 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     ui(new Ui::dlg_paramconnexion)
 {
     ui->setupUi(this);
-    //! Look Rufus : on hérite de UpDialog (fenêtre stylée, sans la barre de titre « brute » de l'OS).
-    //! Le .ui ayant un layout de premier niveau, on REMONTE ses cadres dans le layout de UpDialog
-    //! (dlglayout) — chaque insertWidget(0,…) reparente le cadre, l'ordre final (haut→bas) étant :
-    //! login, mode+IP, port, boutons. On garde les boutons du .ui (OK/Annuler) et leurs connexions ;
-    //! on NE refixe PAS setWindowFlags (UpDialog gère sa propre fenêtre stylée).
-    dlglayout()->insertWidget(0, ui->ButtonsFrame);
-    dlglayout()->insertWidget(0, ui->prtFrame);
-    dlglayout()->insertWidget(0, ui->MainFrame);
-    dlglayout()->insertWidget(0, ui->frame);
 
     ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");   
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
 
-    ui->LoginlineEdit   ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15,this));
-    ui->MDPlineEdit     ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
     //! Seul contrôle conservé sur le champ IP : un validateur d'adresse IPv4. Toute
     //! l'ancienne mécanique (masque de saisie, normalisation à zéros, recalcul de l'IP
     //! au focus-out) est supprimée — c'est elle qui faisait resurgir l'IP du mode précédent.
@@ -60,6 +49,7 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     // n'est choisi (RegleAffichage centralise cette logique). Combiné au sizeConstraint
     // SetFixedSize du layout (cf. .ui), la fiche s'ouvre à la bonne taille puis se
     // redimensionne automatiquement à chaque changement de mode.
+    ui->PosteradioButton->setChecked(true);
     RegleAffichage(ui->PosteradioButton);
 }
 
@@ -123,18 +113,6 @@ void dlg_paramconnexion::Verif()
  */
 bool dlg_paramconnexion::VerifFiche()
 {
-    if (ui->LoginlineEdit->text() == "")
-    {
-        UpMessageBox::Watch(this, tr("Vous n'avez pas précisé le login."));
-        ui->LoginlineEdit->setFocus();
-        return false;
-    }
-    if (ui->MDPlineEdit->text() == "")
-    {
-        UpMessageBox::Watch(this,tr( "Vous n'avez pas précisé le mot de passe."));
-        ui->MDPlineEdit->setFocus();
-        return false;
-    }
     QList <QRadioButton*> listboutons = ui->AccesgroupBox->findChildren<QRadioButton*>();
     bool a = false;
     for (int i=0; i<listboutons.size(); i++)

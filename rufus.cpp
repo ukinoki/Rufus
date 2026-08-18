@@ -61,26 +61,32 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
     /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
-    switch (proc->ListeModesAcces().size()) {
-    case 0:
-        /*! si aucun mode d'accès n'est paramétré, sortie du programme
+    bool OKconnect = false;
+    while(!OKconnect)
+    {
+        QString title =     tr("Erreur fichier Rufus.ini");
+        QString msginfo =   tr("Aucun paramétrage valide de connexion retrouvé") + "\n" +
+                            tr("Le fichier rufus.ini est endommagé") +"\n" +
+                            tr("le programme va être relancé");
+        int nbmodes = proc->ListeModesAcces().size();
+        switch (nbmodes) {
+        case 0:
+            /*! si aucun mode d'accès n'est paramétré, sortie du programme
          *  cette situation est impossible car elle a déjà été gérée en amont par Procedures::CreerOuRestaurerBase()
          *  elle n'est écrite que pour éviter les warnings du compilateur
         */
-        UpMessageBox::Watch(this, tr("Erreur fichier Rufus.ini"), tr("Aucun paramétrage valide de connexion retrouvé") + "\n" + tr("Le fichier rufus.ini est endommagé et doit être réparé"));
-        exit(0);
-    case 1:        /*! si un seul mode d'accès est paramétré, on passe directement à la fiche de connexion */
-        db->setModeacces(proc->ListeModesAcces().at(0));
-        if (!proc->Connexion_A_La_Base())
+            UpMessageBox::Watch(this, title, msginfo);
             exit(0);
-        break;
-    default:        /*! si plusieurs modes d'accès sont paramétrés, on propose le choix du mode de connexion */
-        bool a = false;
-        while (!a)
-        {
+        case 1:        /*! si un seul mode d'accès est paramétré, on passe directement à la fiche de connexion */
+            db->setModeacces(proc->ListeModesAcces().at(0));
+            if (!proc->Connexion_A_La_Base())
+                exit(0);
+            OKconnect = true;
+            break;
+        default:        /*! si plusieurs modes d'accès sont paramétrés, on propose le choix du mode de connexion */
             if (!proc->FicheChoixConnexion())
                 exit(0);
-            a = proc->Connexion_A_La_Base();
+            OKconnect = proc->Connexion_A_La_Base();
         }
     }
     proc->CleanIniFile();

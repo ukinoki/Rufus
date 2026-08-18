@@ -65,7 +65,7 @@
       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -836,7 +836,7 @@
            <enum>QTabWidget::TabPosition::North</enum>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>false</bool>
@@ -1289,9 +1289,9 @@ un serveur hébergé sur le réseau local</string>
            <widget class="UpLabel" name="LocalPathStockageupLabel">
             <property name="geometry">
              <rect>
-              <x>10</x>
+              <x>140</x>
               <y>10</y>
-              <width>311</width>
+              <width>221</width>
               <height>30</height>
              </rect>
             </property>
@@ -1322,9 +1322,9 @@ du dossier d'imagerie sur le serveur</string>
            <widget class="UpLabel" name="LocalVideoDirupLabel">
             <property name="geometry">
              <rect>
-              <x>10</x>
+              <x>140</x>
               <y>50</y>
-              <width>301</width>
+              <width>211</width>
               <height>30</height>
              </rect>
             </property>
@@ -1640,9 +1640,9 @@ du dossier de stockage des videos</string>
            <widget class="UpLabel" name="DistantStockageupLabel">
             <property name="geometry">
              <rect>
-              <x>10</x>
+              <x>70</x>
               <y>10</y>
-              <width>341</width>
+              <width>291</width>
               <height>30</height>
              </rect>
             </property>
@@ -1698,9 +1698,9 @@ des fichiers image importés depuis ce poste</string>
            <widget class="UpLabel" name="DistantVideoDirupLabel">
             <property name="geometry">
              <rect>
-              <x>10</x>
+              <x>70</x>
               <y>50</y>
-              <width>341</width>
+              <width>281</width>
               <height>30</height>
              </rect>
             </property>

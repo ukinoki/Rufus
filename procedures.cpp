@@ -3373,13 +3373,26 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
 
     if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::serveurLocalPresent())
     {
-        CreerOuRestaurerBase(tr("Aucun serveur de base de données"),
+        if (UpMessageBox::Question(parent,tr("Aucun serveur de base de données"),
                              tr("Un fichier de paramétrage de Rufus existe déjà sur ce poste") + "\n" +
                              tr("et indique que ce poste héberge une base patients Rufus") + "\n" +
                            tr("Cependant aucun serveur MySQL n'est installé.") + "\n" +
-                           tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
-                              "(le serveur sera installé automatiquement), ou quittez."),
-                           false /*proposerRestauration*/);
+                           tr("Voulez-vous installer un serveur MySQL et une base patients sur ce poste?"))
+                != UpSmallButton::STARTBUTTON)
+        {
+            m_settings->setValue(Utils::getBaseFromMode(Utils::Poste) + Param_Active, "NO");
+            ReconstruitListeModesAcces();
+            return false;
+        }
+        else if (!InitialisationBaseEtDossiers(true,true,parent))
+            {
+                UpMessageBox::Watch(parent, tr("Installation impossible"),
+                    tr("L'installation d'une base patients Rufus a échoué.") + "\n" +
+                    tr("Rufus ne peut pas démarrer sans base patients."));
+                m_settings->setValue(Utils::getBaseFromMode(Utils::Poste) + Param_Active, "NO");
+                ReconstruitListeModesAcces();
+                return false;
+            }
         return false;
     }
 
