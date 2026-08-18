@@ -2255,19 +2255,19 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+17"/>
-        <location line="+2454"/>
+        <location line="+2456"/>
         <source>Choisissez un dossier de sauvegarde</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2447"/>
-        <location line="+2427"/>
+        <location line="-2449"/>
+        <location line="+2429"/>
         <location line="+30"/>
         <source>Sauvegarde impossible</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2456"/>
+        <location line="-2458"/>
         <source>Impossible de créer le dossier de sauvegarde.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2279,7 +2279,7 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+70"/>
-        <location line="+1901"/>
+        <location line="+1903"/>
         <location line="+33"/>
         <location line="+186"/>
         <location line="+49"/>
@@ -2291,7 +2291,7 @@ Fermeture du programme.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2235"/>
+        <location line="-2237"/>
         <source>Fichier de paramétrage Rufus.ini sauvegardé
 </source>
         <translation type="unfinished"></translation>
@@ -2369,21 +2369,21 @@ Fermeture du programme.</source>
         <location line="+54"/>
         <location line="+676"/>
         <location line="+668"/>
-        <location line="+154"/>
+        <location line="+156"/>
         <location line="+236"/>
         <location line="+555"/>
-        <location line="+137"/>
+        <location line="+152"/>
         <location line="+51"/>
         <location line="+65"/>
         <location line="+19"/>
         <location line="+756"/>
         <location line="+689"/>
-        <location line="+674"/>
+        <location line="+662"/>
         <source>Annuler</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-4734"/>
+        <location line="-4739"/>
         <location line="+54"/>
         <source>Reprendre</source>
         <translation type="unfinished"></translation>
@@ -2426,12 +2426,12 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+3240"/>
+        <location line="+3257"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-3178"/>
+        <location line="-3195"/>
         <source>remplacé par</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2547,12 +2547,12 @@ Fermeture du programme.</source>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1996"/>
+        <location line="+2013"/>
         <source>Ophtalmologiste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1994"/>
+        <location line="-2011"/>
         <source>Orthoptiste</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2678,7 +2678,7 @@ Fermeture du programme.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+276"/>
+        <location line="+278"/>
         <source>d MMM yyyy</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2708,7 +2708,17 @@ Fermeture du programme.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+370"/>
+        <location line="+11"/>
+        <source>Dans la fiche suivante, choisissez le dossier (format &quot;YYYYMMDD-HHmm&quot;)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>contenant la sauvegarde de la base.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+358"/>
         <source>Rufus n&apos;a pas pu se connecter à la base pour la sauvegarder ; rien n&apos;a été effacé.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2770,7 +2780,42 @@ je dispose d&apos;une sauvegarde</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+286"/>
+        <location line="+265"/>
+        <source>Un fichier de paramétrage de Rufus existe déjà sur ce poste</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>et indique que ce poste héberge une base patients Rufus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cependant aucun serveur MySQL n&apos;est installé.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Voulez-vous installer un serveur MySQL et une base patients sur ce poste?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Installation impossible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>L&apos;installation d&apos;une base patients Rufus a échoué.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rufus ne peut pas démarrer sans base patients.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
         <source>Le serveur du cabinet ne fonctionne pas</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3132,7 +3177,7 @@ patients</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2602"/>
+        <location line="-2617"/>
         <source>Arrêt du programme!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3264,12 +3309,7 @@ Confirmez-vous la suppression des anciennes données?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Dans la fiche suivante, choisissez le dossier contenant la sauvegarde de la base.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Une fois le dossier sélectionné, la sauvegarde commencera automatiquement.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3291,7 +3331,7 @@ Je confirme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2334"/>
+        <location line="-2336"/>
         <source>Fichier de paramètrage Rufus.ini</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3317,13 +3357,16 @@ Je confirme</source>
     </message>
     <message>
         <location line="+1847"/>
-        <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée puis le programme sera arrêté.
+        <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers d&apos;imagerie seront réalisés puis le programme sera arrêté.
 Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.
 Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage à partir de la sauvegarde (fichier RufusBackup.ini).</source>
+        <oldsource>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée puis le programme sera arrêté.
+Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.
+Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage à partir de la sauvegarde (fichier RufusBackup.ini).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+303"/>
+        <location line="+305"/>
         <source>Dossier de sauvegarde invalide</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3338,12 +3381,12 @@ Vous pourrez encore annuler la réinitialisation en restaurant le fichier de par
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1721"/>
+        <location line="-1723"/>
         <source>Le chemin des programmes mysql et mysqldump (%1) n&apos;est pas valide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1807"/>
+        <location line="+1809"/>
         <source>Attention</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3463,14 +3506,14 @@ Confirmez-vous la suppression des anciennes données?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2509"/>
+        <location line="-2511"/>
         <location line="+34"/>
         <source>Sauvegarde de la base de données en cours…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+2172"/>
+        <location line="+2174"/>
         <source>table </source>
         <translation type="unfinished"></translation>
     </message>
@@ -3643,7 +3686,7 @@ Sortie du programme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1934"/>
+        <location line="+1949"/>
         <source>Mot de passe de la base du cabinet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3744,7 +3787,7 @@ Sortie du programme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2122"/>
+        <location line="-2137"/>
         <source>L&apos;accès distant nécessite les clés SSL du cabinet (client-key.pem, client-cert.pem), à copier depuis le poste serveur sur une clé USB.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3754,17 +3797,7 @@ Sortie du programme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Aucun serveur MySQL n&apos;est installé sur ce poste.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Pour utiliser Rufus en monoposte, créez une nouvelle base patients (le serveur sera installé automatiquement), ou quittez.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+265"/>
+        <location line="+282"/>
         <location line="+8"/>
         <source>Base de données endommagée</source>
         <translation type="unfinished"></translation>
@@ -4153,7 +4186,7 @@ quitter Rufus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+84"/>
+        <location line="+72"/>
         <source>Erreur connexion série</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4638,7 +4671,7 @@ Malheureusement, aucune de ces connexions ne semble fonctionner.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="-4079"/>
+        <location filename="procedures.cpp" line="-4067"/>
         <source>Fichier de configuration Rufus.ini absent ou corrompu</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4658,7 +4691,7 @@ Malheureusement, aucune de ces connexions ne semble fonctionner.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2135"/>
+        <location line="-2150"/>
         <source>Vous utilisez sur ce poste une version de Rufus prévue pour la version</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4688,7 +4721,7 @@ Malheureusement, aucune de ces connexions ne semble fonctionner.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2117"/>
+        <location line="+2132"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation type="unfinished"></translation>
@@ -4737,7 +4770,7 @@ patients Rufus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+878"/>
+        <location line="+866"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4768,7 +4801,7 @@ patients Rufus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="+344"/>
+        <location filename="rufus.cpp" line="+350"/>
         <source>Problème Autoref Huvitz</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5057,7 +5090,7 @@ de votre base de données.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="-3669"/>
+        <location filename="procedures.cpp" line="-3657"/>
         <location line="+9"/>
         <source>Langue de l&apos;interface</source>
         <translation type="unfinished"></translation>
@@ -5554,22 +5587,17 @@ acte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="-10972"/>
+        <location filename="rufus.cpp" line="-10981"/>
         <source>Erreur fichier Rufus.ini</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+1"/>
         <source>Aucun paramétrage valide de connexion retrouvé</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>Le fichier rufus.ini est endommagé et doit être réparé</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+46"/>
+        <location line="+54"/>
         <source>Pas d&apos;utilisateur identifié!
 Sortie du programme</source>
         <translation type="unfinished"></translation>
@@ -6056,7 +6084,17 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2197"/>
+        <location line="-2963"/>
+        <source>Le fichier rufus.ini est endommagé</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>le programme va être relancé</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+765"/>
         <source>ATTENTION</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16094,7 +16132,7 @@ Confirmez vous la saisie?</source>
     </message>
     <message>
         <location line="+61"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3712"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3715"/>
         <source>Monoposte</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16102,7 +16140,7 @@ Confirmez vous la saisie?</source>
         <location line="+37"/>
         <location line="+253"/>
         <location line="+280"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3064"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3065"/>
         <source>Port</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16138,7 +16176,7 @@ du dossier de stockage des videos</source>
     </message>
     <message>
         <location line="-602"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3065"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3066"/>
         <source>Réseau local</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16404,7 +16442,7 @@ les données</source>
     </message>
     <message>
         <location line="+100"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3093"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3094"/>
         <location line="+1024"/>
         <source>Appareils connectés au réseau</source>
         <translation type="unfinished"></translation>
@@ -16641,7 +16679,7 @@ des organismes bancaires</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2249"/>
+        <location line="-2251"/>
         <source>modifier une cotation.&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16656,7 +16694,7 @@ des organismes bancaires</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+186"/>
+        <location line="+188"/>
         <location line="+421"/>
         <source>Enregistrer</source>
         <translation type="unfinished"></translation>
@@ -16903,7 +16941,7 @@ pour pouvoir prendre en compte les modifications apportées!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2227"/>
+        <location line="-2229"/>
         <source>&lt;b&gt;Table des cotations référencées par Rufus&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16938,7 +16976,17 @@ pour pouvoir prendre en compte les modifications apportées!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+193"/>
+        <location line="+43"/>
+        <source>Restauration de la base patients et des dossiers d&apos;imagerie à partir d&apos;une sauvegarde</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Effacement complet de la base patients et des dossiers d&apos;imagerie</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+150"/>
         <source>cette fonction n&apos;est encore implémentée</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17220,7 +17268,7 @@ Voulez-vous l&apos;enregistrer?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1326"/>
+        <location line="+1327"/>
         <source>Acte</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17230,7 +17278,7 @@ Voulez-vous l&apos;enregistrer?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1328"/>
+        <location line="-1329"/>
         <source>Le modifier risque d&apos;empêcher ce poste de se reconnecter.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17240,7 +17288,7 @@ Voulez-vous l&apos;enregistrer?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+441"/>
+        <location line="+442"/>
         <source>Erreur</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17328,7 +17376,7 @@ par défaut pour cet appareil</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1129"/>
+        <location line="-1130"/>
         <source>Base restaurée</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17343,7 +17391,7 @@ par défaut pour cet appareil</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+963"/>
+        <location line="+964"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour l&apos;autorefractomètre </source>
         <translation type="unfinished"></translation>
     </message>
@@ -17450,72 +17498,47 @@ par défaut pour cet appareil</source>
 <context>
     <name>dlg_paramconnexion</name>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="+29"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="+25"/>
         <source>Paramètrage de connexion à la base</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+66"/>
-        <source>Mot de passe</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Login</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+129"/>
+        <location line="+11"/>
         <source>Emplacement du serveur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="-4"/>
         <source>Sur ce poste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+1"/>
         <source>Réseau local</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+1"/>
         <source>Accès distant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+14"/>
         <source>Adresse IP du serveur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+8"/>
         <source>Emplacement clés SSL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+68"/>
-        <source>...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+76"/>
+        <location line="+24"/>
         <source>Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+93"/>
-        <source>Annuler</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+26"/>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="+96"/>
+        <location line="+54"/>
         <source>Informations importantes sur l&apos;accès par internet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17550,27 +17573,12 @@ par défaut pour cet appareil</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+58"/>
+        <location line="+30"/>
         <source>Vous n&apos;avez pas précisé d&apos;adresse valide pour les clés SSL.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-34"/>
-        <source>Vous n&apos;avez pas précisé le login.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Vous n&apos;avez pas précisé le mot de passe.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Vous n&apos;avez pas précisé le mode d&apos;accès.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
+        <location line="-6"/>
         <source>Vous n&apos;avez pas précisé l&apos;adresse du serveur.</source>
         <translation type="unfinished"></translation>
     </message>
