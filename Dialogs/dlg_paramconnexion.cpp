@@ -40,7 +40,7 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     for (QRadioButton *radio : {wdg_posteradio, wdg_localradio, wdg_distantradio})
         acceslay        ->addWidget(radio);
     groupe              ->setLayout(acceslay);
-    groupe              ->setMinimumWidth(420);   /*!< seul bloc toujours visible : il tient la largeur de la fiche, titre compris */
+    groupe              ->setMinimumWidth(350);   /*!< seul bloc toujours visible : il tient la largeur de la fiche, titre compris */
     lay                 ->addWidget(groupe);
 
     /*! --- adresse du serveur et clés SSL : visibles selon le mode --- */

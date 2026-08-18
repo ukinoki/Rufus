@@ -5509,7 +5509,6 @@ bool Procedures::ChoisirDossierClesSSL(QWidget *parent)
 bool Procedures::VerifParamConnexion(QWidget *parent)
 {
     dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(parent);
-    Dlg_ParamConnex ->setWindowTitle(tr("Entrez votre identifiant et votre mot de passe d'utilisateur Rufus"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
     if (Dlg_ParamConnex->exec() == QDialog::Accepted)
     {
