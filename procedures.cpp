@@ -3546,7 +3546,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                  || issue == MySQLInstaller::IssueMdp::EchecSaisie)
                 {
                     if (UpMessageBox::Question(parent, tr("Aucun mot de passe ne fonctionne"),
-                            tr("Rufus peut rétablir l'accès à la base avec le mot de passe de "
+                            tr("Rufus peut tenter de rétablir l'accès à la base avec le mot de passe de "
                                "SECOURS choisi à l'installation de la base.") + "\n" +
                             tr("Vos données ne seront pas touchées.") + "\n\n" +
                             tr("Voulez-vous utiliser cette procédure ?"),
