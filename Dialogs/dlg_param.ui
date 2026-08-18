@@ -1055,7 +1055,7 @@
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::FocusPolicy::StrongFocus</enum>
+             <enum>Qt::FocusPolicy::NoFocus</enum>
             </property>
             <property name="contextMenuPolicy">
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
