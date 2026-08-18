@@ -1512,7 +1512,7 @@ du dossier de stockage des videos</string>
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::FocusPolicy::StrongFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
@@ -1680,7 +1680,7 @@ des fichiers image importés depuis ce poste</string>
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::FocusPolicy::StrongFocus</enum>
+             <enum>Qt::FocusPolicy::NoFocus</enum>
             </property>
             <property name="contextMenuPolicy">
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
@@ -1722,7 +1722,7 @@ du dossier de stockage des videos</string>
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::FocusPolicy::StrongFocus</enum>
+             <enum>Qt::FocusPolicy::NoFocus</enum>
             </property>
             <property name="contextMenuPolicy">
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
