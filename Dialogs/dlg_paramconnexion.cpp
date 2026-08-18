@@ -56,6 +56,7 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     wdg_clesSSLlineedit = new UpLineEdit();
     wdg_clesSSLlineedit ->setAlignment(Qt::AlignCenter);
     wdg_clesSSLlineedit ->useselftextastooltip();
+    wdg_clesSSLlineedit ->setMinimumWidth(350);   /*!< le plus large de la fiche : c'est lui qui en fixe la largeur */
     wdg_clesSSLbouton   = new QPushButton("...");
     wdg_clesSSLbouton   ->setFixedSize(54, 32);
     wdg_clesSSLbouton   ->setContextMenuPolicy(Qt::NoContextMenu);
