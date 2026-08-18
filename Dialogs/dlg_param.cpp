@@ -341,6 +341,15 @@ dlg_param::dlg_param(QWidget *parent) :
                                                                                        delete dlg_listvilles;
                                                                                    });
 
+       /*! Boutons de test des dossiers réseau, entre le champ et le bouton de choix. Le champ se saisit
+        *  aussi au clavier : rien ne disait jusqu'ici si le chemin tapé répondait. */
+       wdg_testlocalstockage        = new QPushButton(tr("Tester"), ui->tabLocal);
+       wdg_testlocalvideo           = new QPushButton(tr("Tester"), ui->tabLocal);
+       wdg_testlocalstockage        ->setGeometry(815, 9, 54, 32);
+       wdg_testlocalvideo           ->setGeometry(815, 48, 54, 32);
+       connect(wdg_testlocalstockage,   &QPushButton::clicked, this, [=, this]{TesteDossier(ui->LocalPathStockageupLineEdit);});
+       connect(wdg_testlocalvideo,      &QPushButton::clicked, this, [=, this]{TesteDossier(ui->LocalVideoDirupLineEdit);});
+
        wdg_villeCP                  = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
        wdg_CPDefautlineEdit         = wdg_villeCP->ui->CPlineEdit;
        wdg_VilleDefautlineEdit      = wdg_villeCP->ui->VillelineEdit;
@@ -468,6 +477,8 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->LocalVideoDirupLabel            ->setVisible(b);
     ui->LocalVideoDirupLineEdit         ->setVisible(b);
     ui->LocalVideoDirupPushButton       ->setVisible(b);
+    wdg_testlocalstockage               ->setVisible(b);
+    wdg_testlocalvideo                  ->setVisible(b);
     if (b)
     {
         ui->EmplacementLocaluplineEdit  ->setText(proc->settings()->value(Base + Param_Serveur).toString());
@@ -1095,6 +1106,8 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->LocalVideoDirupLabel            ->setVisible(a);
         ui->LocalVideoDirupLineEdit         ->setVisible(a);
         ui->LocalVideoDirupPushButton       ->setVisible(a);
+        wdg_testlocalstockage               ->setVisible(a);
+        wdg_testlocalvideo                  ->setVisible(a);
         ui->Localframe                      ->setEnabled(a);
         ui->LocalDocsExtupLabel             ->setEnabled(a);
         ui->LocalDocupTableWidget           ->setEnabled(a);
@@ -1104,6 +1117,8 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->LocalVideoDirupLabel            ->setEnabled(a);
         ui->LocalVideoDirupLineEdit         ->setEnabled(a);
         ui->LocalVideoDirupPushButton       ->setEnabled(a);
+        wdg_testlocalstockage               ->setEnabled(a);
+        wdg_testlocalvideo                  ->setEnabled(a);
     }
     else if (box == ui->DistantServcheckBox)
     {
@@ -2089,6 +2104,31 @@ void dlg_param::ModifBDDVilles(Villes::TownsFrom from)
 {
     db                  ->setvillesfrance(from == Villes::DATABASE);
     Datas::I()->villes  ->initListe(from);
+}
+
+/*!
+ * \brief dlg_param::TesteDossier
+ * Le dossier saisi répond-il ? On y écrit un fichier témoin : un partage réseau démonté existe parfois
+ * encore comme point de montage, et seule l'écriture le démasque.
+ * \param champ  le champ portant le chemin à vérifier
+ */
+void dlg_param::TesteDossier(UpLineEdit *champ)
+{
+    const QString dir = champ->text();
+    if (dir == "" || !QDir(dir).exists())
+    {
+        UpMessageBox::Watch(this, tr("Dossier introuvable"), dir);
+        return;
+    }
+    QFile temoin(dir + "/.rufus_test");
+    if (!temoin.open(QIODevice::WriteOnly))
+    {
+        UpMessageBox::Watch(this, tr("Dossier accessible en lecture seule"), dir);
+        return;
+    }
+    temoin.close();
+    temoin.remove();
+    UpMessageBox::Watch(this, tr("Dossier valide"), dir);
 }
 
 void dlg_param::DirLocalStockage()

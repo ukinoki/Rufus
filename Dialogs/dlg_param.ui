@@ -1266,7 +1266,7 @@ un serveur hébergé sur le réseau local</string>
              <rect>
               <x>365</x>
               <y>13</y>
-              <width>505</width>
+              <width>440</width>
               <height>21</height>
              </rect>
             </property>
@@ -1341,7 +1341,7 @@ du dossier de stockage des videos</string>
              <rect>
               <x>365</x>
               <y>53</y>
-              <width>505</width>
+              <width>440</width>
               <height>21</height>
              </rect>
             </property>

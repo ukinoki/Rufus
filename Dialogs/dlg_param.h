@@ -118,6 +118,7 @@ private:
     QTimer                  t_timerverifimportdocs;
 
     VilleCPWidget           *wdg_villeCP;
+    QPushButton             *wdg_testlocalstockage, *wdg_testlocalvideo;   /*!< le dossier saisi au clavier est-il joignable ? */
     WidgetButtonFrame       *wdg_cotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;
     QWidget                 *wdg_CCAM;
     UpDialog                *dlg_lieux;
@@ -154,6 +155,7 @@ private:
     void                ChoixFontpushButtonClicked();
     void                ClearPortsComboBox(UpComboBox *box, int);
     void                DirLocalStockage();
+    void                TesteDossier(UpLineEdit *champ);   //!< le dossier saisi existe-t-il et est-il accessible en écriture ?
     void                AvertirDossierReseau(const QUrl &url);   //!< un dossier réseau doit être monté au démarrage du poste
     void                DirDistantStockage();
     void                PosteVideoDir();
