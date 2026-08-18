@@ -5513,27 +5513,15 @@ bool Procedures::VerifParamConnexion(QWidget *parent)
     Dlg_ParamConnex ->setFont(m_applicationfont);
     if (Dlg_ParamConnex->exec() == QDialog::Accepted)
     {
-        QString Base;
-        if (Dlg_ParamConnex->ui->PosteradioButton->isChecked())
-        {
-            Base = Utils::getBaseFromMode(Utils::Poste);
-            db->setModeacces(Utils::Poste);
-        }
-        else if (Dlg_ParamConnex->ui->LocalradioButton->isChecked())
-        {
-            Base = Utils::getBaseFromMode(Utils::ReseauLocal);
-            m_settings->setValue(Base + Param_Serveur,   Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
-            db->setModeacces(Utils::ReseauLocal);
-        }
-        else if (Dlg_ParamConnex->ui->DistantradioButton->isChecked())
-        {
-            Base = Utils::getBaseFromMode(Utils::Distant);
-            m_settings->setValue(Base + Param_Serveur,    Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
-            m_settings->setValue(Base + Dossier_ClesSSL,  Dlg_ParamConnex->ui->ClesSSLLineEdit->text());
-            db->setModeacces(Utils::Distant);
-        }
+        const Utils::ModeAcces mode = Dlg_ParamConnex->modeacces();
+        const QString Base = Utils::getBaseFromMode(mode);
+        if (mode != Utils::Poste)
+            m_settings->setValue(Base + Param_Serveur,   Utils::calcIP(Dlg_ParamConnex->ip(), false));
+        if (mode == Utils::Distant)
+            m_settings->setValue(Base + Dossier_ClesSSL, Dlg_ParamConnex->dossierclesSSL());
+        db->setModeacces(mode);
         m_settings->setValue(Base + Param_Active,    "YES");
-        m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->ui->PortcomboBox->currentText());
+        m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->port());
 
         delete Dlg_ParamConnex;
         return true;

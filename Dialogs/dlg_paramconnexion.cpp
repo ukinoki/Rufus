@@ -15,73 +15,120 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QButtonGroup>
 #include "dlg_paramconnexion.h"
-#include "ui_dlg_paramconnexion.h"
+#include "upgroupbox.h"
 
 dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
-    UpDialog(parent),
-    ui(new Ui::dlg_paramconnexion)
+    UpDialog(parent)
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Paramètrage de connexion à la base"));
 
-    ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");   
-    ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
-    ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
+    QVBoxLayout *lay    = new QVBoxLayout();
+    lay                 ->setContentsMargins(5, 5, 5, 5);
+    lay                 ->setSpacing(5);
 
-    //! Seul contrôle conservé sur le champ IP : un validateur d'adresse IPv4. Toute
-    //! l'ancienne mécanique (masque de saisie, normalisation à zéros, recalcul de l'IP
-    //! au focus-out) est supprimée — c'est elle qui faisait resurgir l'IP du mode précédent.
-    ui->IPlineEdit      ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask,this));
+    /*! --- emplacement du serveur : trois modes exclusifs --- */
+    wdg_posteradio      = new QRadioButton(tr("Sur ce poste"));
+    wdg_localradio      = new QRadioButton(tr("Réseau local"));
+    wdg_distantradio    = new QRadioButton(tr("Accès distant"));
+    UpGroupBox *groupe  = new UpGroupBox();
+    groupe              ->setTitle(tr("Emplacement du serveur"));
+    groupe              ->setFocusProxy(wdg_posteradio);
+    QVBoxLayout *acceslay = new QVBoxLayout;
+    acceslay            ->setContentsMargins(10, 28, 10, 10);   /*!< 28 en haut : le stylesheet UpGroupBox ne réserve pas la place du titre */
+    for (QRadioButton *radio : {wdg_posteradio, wdg_localradio, wdg_distantradio})
+        acceslay        ->addWidget(radio);
+    groupe              ->setLayout(acceslay);
+    lay                 ->addWidget(groupe);
 
-    connect(ui->AnnuluppushButton,          &QPushButton::clicked,          this,   &QDialog::reject);
-    connect(ui->OKuppushButton,             &QPushButton::clicked,          this,   &dlg_paramconnexion::Verif);
-    connect(ui->LocalradioButton,           &QRadioButton::clicked,         this,   [=, this] {RegleAffichage(ui->LocalradioButton);});
-    connect(ui->PosteradioButton,           &QRadioButton::clicked,         this,   [=, this] {RegleAffichage(ui->PosteradioButton);});
-    connect(ui->DistantradioButton,         &QRadioButton::clicked,         this,   [=, this] {RegleAffichage(ui->DistantradioButton);});
-    connect(ui->ClesSSLuppushButton,        &QPushButton::clicked,          this,   &dlg_paramconnexion::DossierClesSSL);
+    /*! --- adresse du serveur et clés SSL : visibles selon le mode --- */
+    UpLabel *iplabel    = new UpLabel();
+    iplabel             ->setText(tr("Adresse IP du serveur"));
+    wdg_iplineedit      = new UpLineEdit();
+    wdg_iplineedit      ->setAlignment(Qt::AlignCenter);
+    /*! Seul contrôle sur le champ IP : un validateur IPv4. L'ancienne mécanique (masque, normalisation
+     *  à zéros, recalcul au focus-out) faisait resurgir l'IP du mode précédent. */
+    wdg_iplineedit      ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask, this));
 
-    ui->ClesSSLLineEdit ->useselftextastooltip();
-    QString dir = QDir::homePath();
-    if (dir == "" || !QDir(dir).exists())
-        ui->ClesSSLLineEdit ->clear();
-    else ui->ClesSSLLineEdit->setText(dir);
-    // État initial cohérent : IPFrame ET les widgets SSL masqués tant qu'aucun mode réseau
-    // n'est choisi (RegleAffichage centralise cette logique). Combiné au sizeConstraint
-    // SetFixedSize du layout (cf. .ui), la fiche s'ouvre à la bonne taille puis se
-    // redimensionne automatiquement à chaque changement de mode.
-    ui->PosteradioButton->setChecked(true);
-    RegleAffichage(ui->PosteradioButton);
-}
+    wdg_clesSSLlabel    = new UpLabel();
+    wdg_clesSSLlabel    ->setText(tr("Emplacement clés SSL"));
+    wdg_clesSSLlineedit = new UpLineEdit();
+    wdg_clesSSLlineedit ->setAlignment(Qt::AlignCenter);
+    wdg_clesSSLlineedit ->useselftextastooltip();
+    wdg_clesSSLbouton   = new QPushButton("...");
+    wdg_clesSSLbouton   ->setFixedSize(54, 32);
+    wdg_clesSSLbouton   ->setContextMenuPolicy(Qt::NoContextMenu);
+    QHBoxLayout *clesSSLlay = new QHBoxLayout;
+    clesSSLlay          ->setContentsMargins(0, 0, 0, 0);
+    clesSSLlay          ->addWidget(wdg_clesSSLlineedit, 1);
+    clesSSLlay          ->addWidget(wdg_clesSSLbouton, 0);
 
-dlg_paramconnexion::~dlg_paramconnexion()
-{
-    delete ui;
+    wdg_ipframe         = new QFrame();
+    wdg_ipframe         ->setFrameShape(QFrame::StyledPanel);
+    QVBoxLayout *iplay  = new QVBoxLayout;
+    iplay               ->addWidget(iplabel);
+    iplay               ->addWidget(wdg_iplineedit);
+    iplay               ->addWidget(wdg_clesSSLlabel);
+    iplay               ->addLayout(clesSSLlay);
+    wdg_ipframe         ->setLayout(iplay);
+    lay                 ->addWidget(wdg_ipframe);
+
+    /*! --- port --- */
+    UpLabel *portlabel  = new UpLabel();
+    portlabel           ->setText(tr("Port"));
+    wdg_portcombo       = new QComboBox();
+    wdg_portcombo       ->addItems(QStringList() << "3306" << "3307");
+    wdg_portcombo       ->setFixedWidth(110);
+    QFrame *portframe   = new QFrame();
+    portframe           ->setFrameShape(QFrame::StyledPanel);
+    QHBoxLayout *portlay = new QHBoxLayout;
+    portlay             ->addWidget(portlabel);
+    portlay             ->addWidget(wdg_portcombo);
+    portlay             ->addStretch(1);
+    portframe           ->setLayout(portlay);
+    lay                 ->addWidget(portframe);
+
+    AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonCancel);
+    dlglayout()         ->insertLayout(0, lay);
+    dlglayout()         ->setSizeConstraint(QLayout::SetFixedSize);
+
+    connect(OKButton,           &QPushButton::clicked,  this, &dlg_paramconnexion::Verif);
+    connect(CancelButton,       &QPushButton::clicked,  this, &QDialog::reject);
+    connect(wdg_clesSSLbouton,  &QPushButton::clicked,  this, &dlg_paramconnexion::DossierClesSSL);
+    for (QRadioButton *radio : {wdg_posteradio, wdg_localradio, wdg_distantradio})
+        connect(radio, &QRadioButton::clicked, this, [=, this] {RegleAffichage(radio);});
+
+    const QString dir = QDir::homePath();
+    if (dir != "" && QDir(dir).exists())
+        wdg_clesSSLlineedit ->setText(dir);
+    wdg_posteradio      ->setChecked(true);
+    RegleAffichage(wdg_posteradio);
 }
 
 void dlg_paramconnexion::DossierClesSSL()
 {
-    QString dir = ui->ClesSSLLineEdit->text();
+    QString dir = wdg_clesSSLlineedit->text();
     if (dir == "" || !QDir(dir).exists())
-        ui->ClesSSLLineEdit ->clear();
+        wdg_clesSSLlineedit ->clear();
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<dir);
     if (url == QUrl())
         return;
-    //! On renseigne le champ ; c'est VerifParamConnexion qui l'enregistrera avec le reste.
-    ui->ClesSSLLineEdit->setText(url.path());
-    ui->ClesSSLLineEdit ->setImmediateToolTip(ui->ClesSSLLineEdit->text());
+    /*! On renseigne le champ ; c'est VerifParamConnexion qui l'enregistrera avec le reste. */
+    wdg_clesSSLlineedit ->setText(url.path());
+    wdg_clesSSLlineedit ->setImmediateToolTip(wdg_clesSSLlineedit->text());
 }
 
 void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 {
-    ui->IPFrame             ->setVisible(butt!=ui->PosteradioButton);
-    ui->ClesSSLuppushButton ->setVisible(butt == ui->DistantradioButton);
-    ui->ClesSSLLabel        ->setVisible(butt == ui->DistantradioButton);
-    ui->ClesSSLLineEdit     ->setVisible(butt == ui->DistantradioButton);
-    if (butt == ui->DistantradioButton)
+    wdg_ipframe         ->setVisible(butt != wdg_posteradio);
+    wdg_clesSSLbouton   ->setVisible(butt == wdg_distantradio);
+    wdg_clesSSLlabel    ->setVisible(butt == wdg_distantradio);
+    wdg_clesSSLlineedit ->setVisible(butt == wdg_distantradio);
+    if (butt == wdg_distantradio)
     {
-        // Lien ACTIF et coloré : on passe l'URL en HTML (<a href>) ET en 5e paramètre « link »
-        // de Watch, qui active alors l'ouverture externe (setOpenExternalLinks) et le clic.
-        // Le href est retiré par convertPlainText au calcul de la taille → pas d'élargissement.
+        /*! Lien ACTIF : l'URL passe en HTML (<a href>) ET en 5e paramètre « link » de Watch, qui active
+         *  alors l'ouverture externe. Le href est retiré par convertPlainText au calcul de la taille. */
         const QString url = "https://www.rufusvision.org/configuration-pour-une-connexion-par-internet---le-cryptage-ssl.html";
         UpMessageBox::Watch(this, tr("Informations importantes sur l'accès par internet"),
                                 tr("Pour des raisons de confidentialité, l'accès distant dans Rufus "
@@ -108,34 +155,18 @@ void dlg_paramconnexion::Verif()
 
 /*!
  * \brief dlg_paramconnexion::VerifFiche
- * Saisie suffisante pour écrire un Rufus.ini valide ? Login et mot de passe, l'adresse du serveur hors
- * monoposte, le dossier des clés SSL en distant.
+ * Saisie suffisante pour écrire un Rufus.ini valide ? L'adresse du serveur hors monoposte, le dossier
+ * des clés SSL en distant.
  */
 bool dlg_paramconnexion::VerifFiche()
 {
-    QList <QRadioButton*> listboutons = ui->AccesgroupBox->findChildren<QRadioButton*>();
-    bool a = false;
-    for (int i=0; i<listboutons.size(); i++)
-    {
-        if (listboutons.at(i)->isChecked())
-        {
-            a = true;
-            break;
-        }
-    }
-    if (!a)
-    {
-        UpMessageBox::Watch(this, tr("Vous n'avez pas précisé le mode d'accès."));
-        return false;
-    }
-    if ((ui->LocalradioButton->isChecked() || ui->DistantradioButton->isChecked())
-            && ui->IPlineEdit->text() == "")
+    if (modeacces() != Utils::Poste && ip() == "")
     {
         UpMessageBox::Watch(this, tr("Vous n'avez pas précisé l'adresse du serveur."));
         return false;
     }
-    if (ui->DistantradioButton->isChecked()
-            && (ui->ClesSSLLineEdit->text() == "" || !QDir(ui->ClesSSLLineEdit->text()).exists()))
+    if (modeacces() == Utils::Distant
+            && (dossierclesSSL() == "" || !QDir(dossierclesSSL()).exists()))
     {
         UpMessageBox::Watch(this, tr("Vous n'avez pas précisé d'adresse valide pour les clés SSL."));
         return false;

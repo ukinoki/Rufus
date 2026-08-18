@@ -108,7 +108,6 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_identificationuser.ui \
     $$PWD/dlg_impressions.ui \
     $$PWD/dlg_motifs.ui \
-    $$PWD/dlg_paramconnexion.ui \
     $$PWD/dlg_param.ui \
     $$PWD/dlg_recettesspeciales.ui \
     $$PWD/dlg_refraction.ui \
