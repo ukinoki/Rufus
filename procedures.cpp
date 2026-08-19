@@ -1730,7 +1730,7 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     tblimprimantes          ->selectRow(rowdefaut < 0? 0 : rowdefaut);
     if (imprimantes.size() == 0)
     {
-        UpLabel *lblvide = new UpLabel(Q_NULLPTR, tr("Pas d'imprimante enregistrée sur ce poste"));
+        UpLabel *lblvide = new UpLabel(tblimprimantes->viewport(), tr("Pas d'imprimante enregistrée sur ce poste"));
         lblvide             ->setAlignment(Qt::AlignCenter);
         lblvide             ->setWordWrap(true);
         (new QVBoxLayout(tblimprimantes->viewport()))->addWidget(lblvide);
