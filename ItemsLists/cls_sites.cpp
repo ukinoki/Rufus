@@ -100,7 +100,7 @@ void Sites::SupprimeSite(Site* sit, QWidget *parent)
     Supprime(map_all, sit, parent);
 }
 
-Site* Sites::CreationSite(QHash<QString, QVariant> sets)
+Site* Sites::CreationSite(QHash<QString, QVariant> sets, QWidget *parent)
 {
     Site *sit = Q_NULLPTR;
     int idSite = 0;
@@ -116,7 +116,7 @@ Site* Sites::CreationSite(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce site dans la base!"));
+        UpMessageBox::Watch(parent,tr("Impossible d'enregistrer ce site dans la base!"));
         return sit;
     }
     QJsonObject  data = QJsonObject{};

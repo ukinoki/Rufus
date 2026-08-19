@@ -165,7 +165,7 @@ void dlg_listelieux::enregNouvLieu()
         m_listbinds[CP_SMTPPORT_SITE]     = wdg_smtpportlineedit->text().toInt();
         m_listbinds[CP_SMTPLOGIN_SITE]    = Utils::trim(wdg_smtploginlineedit->text());
 
-        Site *sit = Datas::I()->sites->CreationSite(m_listbinds);
+        Site *sit = Datas::I()->sites->CreationSite(m_listbinds, dlg_lieu);
         ReconstruitModel();
         dlg_lieu->accept();
         wdg_tblview->selectRow(getRowFromSite(sit));

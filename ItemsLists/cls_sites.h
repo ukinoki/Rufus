@@ -43,7 +43,7 @@ public:
 
     //!> actions sur les enregistrements
     void                    SupprimeSite(Site *sit, QWidget *parent = Q_NULLPTR);
-    Site*                   CreationSite(QHash<QString, QVariant> sets);
+    Site*                   CreationSite(QHash<QString, QVariant> sets, QWidget *parent = Q_NULLPTR);
 };
 
 #endif // SITES_H
