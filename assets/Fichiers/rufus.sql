@@ -158,6 +158,10 @@ CREATE TABLE `LieuxExercice` (
   `LieuVille` varchar(45) DEFAULT NULL,
   `LieuTelephone` varchar(17) DEFAULT NULL,
   `LieuFax` varchar(17) DEFAULT NULL,
+  `LieuMail` varchar(100) DEFAULT NULL COMMENT 'adresse mail du lieu - expediteur et copie des envois',
+  `LieuSMTPServeur` varchar(100) DEFAULT NULL COMMENT 'serveur d envoi des mails',
+  `LieuSMTPPort` int(11) DEFAULT 587 COMMENT '465 = connexion chiffree d emblee, sinon chiffrement apres connexion',
+  `LieuSMTPLogin` varchar(100) DEFAULT NULL COMMENT 'le mot de passe n est pas en base, il est local au poste (~/.rufus/.mlkey)',
   `LieuCouleur` varchar(6) DEFAULT NULL,
   `SiteLogo` BLOB DEFAULT NULL,
   PRIMARY KEY (`idLieu`)
@@ -938,6 +942,59 @@ LOCK TABLES `jointuresdocuments` WRITE;
 INSERT INTO `jointuresdocuments` VALUES (24,6,48),(25,6,19),(26,6,49),(27,6,6),(48,9,15),(49,9,18),(50,9,52),(51,9,3),(55,10,127),(56,10,125),(57,10,128),(62,11,12),(63,11,137),(64,11,44),(65,11,43),(68,12,146),(69,12,147),(70,5,14),(71,5,153),(74,1,12),(75,1,17),(76,1,44),(77,1,43),(78,1,162);
 /*!40000 ALTER TABLE `jointuresdocuments` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `mailsenvoyes`
+--
+
+DROP TABLE IF EXISTS `mailsenvoyes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `mailsenvoyes` (
+  `idMail` int(11) NOT NULL AUTO_INCREMENT,
+  `Destinataire` varchar(150) DEFAULT NULL COMMENT 'adresse telle qu elle a servi ce jour la, pas un lien vers une fiche',
+  `DateEnvoi` datetime DEFAULT NULL,
+  `idUser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`idMail`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `mailsenvoyes`
+--
+
+LOCK TABLES `mailsenvoyes` WRITE;
+/*!40000 ALTER TABLE `mailsenvoyes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `mailsenvoyes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+--
+-- Table structure for table `jointuresmails`
+--
+
+DROP TABLE IF EXISTS `jointuresmails`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jointuresmails` (
+  `idJointure` int(11) NOT NULL AUTO_INCREMENT,
+  `idMail` int(11) DEFAULT NULL,
+  `idImpression` int(11) DEFAULT NULL,
+  PRIMARY KEY (`idJointure`),
+  KEY `idMailidx` (`idMail`),
+  KEY `idImpressionidx` (`idImpression`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jointuresmails`
+--
+
+LOCK TABLES `jointuresmails` WRITE;
+/*!40000 ALTER TABLE `jointuresmails` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jointuresmails` ENABLE KEYS */;
+UNLOCK TABLES;
+
 
 --
 -- Table structure for table `listeappareils`
