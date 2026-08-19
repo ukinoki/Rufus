@@ -1684,6 +1684,11 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     UpCheckBox *pdfchk      = new UpCheckBox(tr("Créer un pdf"), dlg);
     UpCheckBox *mailchk     = new UpCheckBox(tr("Envoyer par mail"), dlg);
     printchk                ->setChecked(true);
+    QButtonGroup *grp       = new QButtonGroup(dlg);
+    grp                     ->setExclusive(true);
+    grp                     ->addButton(printchk);
+    grp                     ->addButton(pdfchk);
+    grp                     ->addButton(mailchk);
 
     /*! le mot de passe n'est pas ici, il est local au poste - on ne vérifie que ce qui est en base */
     QStringList manque;
@@ -1750,11 +1755,6 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg->layout());
     lay                     ->insertLayout(0, laycom);
     lay                     ->setSizeConstraint(QLayout::SetFixedSize);
-
-    auto majOK = [=]  { dlg->OKButton->setEnabled(printchk->isChecked() || pdfchk->isChecked() || mailchk->isChecked()); };
-    connect (printchk,      &QCheckBox::toggled,    dlg,    majOK);
-    connect (pdfchk,        &QCheckBox::toggled,    dlg,    majOK);
-    connect (mailchk,       &QCheckBox::toggled,    dlg,    majOK);
 
     /*! toujours au centre de l'écran, l'utilisateur n'a pas à chercher la fiche */
     dlg                     ->adjustSize();
