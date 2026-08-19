@@ -36,7 +36,7 @@ public:
     void initListe();
 
     //!> actions sur les enregistrements
-    void                SupprimeManufacturer(Manufacturer *Manufacturer);
+    void                SupprimeManufacturer(Manufacturer *Manufacturer, QWidget *parent = Q_NULLPTR);
     Manufacturer*       CreationManufacturer(QHash<QString, QVariant> sets);
 };
 

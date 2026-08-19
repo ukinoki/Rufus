@@ -36,7 +36,7 @@ public:
     void initListe();
 
     //!> actions sur les enregistrements
-    void                SupprimeCommentLunet(CommentLunet *comment);
+    void                SupprimeCommentLunet(CommentLunet *comment, QWidget *parent = Q_NULLPTR);
     CommentLunet*       CreationCommentLunet(QHash<QString, QVariant> sets);
 };
 

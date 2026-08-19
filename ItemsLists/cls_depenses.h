@@ -37,7 +37,7 @@ public:
     void        initListeByUser(int iduser);
 
     //!> actions sur les enregistrements
-    void        SupprimeDepense(Depense *dep);
+    void        SupprimeDepense(Depense *dep, QWidget *parent = Q_NULLPTR);
     Depense*    CreationDepense(int idUser, QDate DateDep, QString RefFiscale, QString Objet, double Montant, QString FamFiscale, QString Monnaie, int idRec, QString ModePaiement, int Compte, int Nocheque, int  idFacture);
 
     //recherche et modification de l'id rubrique fiscale d'une dépense

@@ -62,7 +62,7 @@ public:
     //!> actions sur les champs
 
     //!> actions sur les enregistrements
-    void    SupprimeActe(Acte *act);
+    void    SupprimeActe(Acte *act, QWidget *parent = Q_NULLPTR);
     Acte*   CreationActe(Patient *pat, User *usr, int idcentre, int idlieu);
 
     //!< action sur toutes les données

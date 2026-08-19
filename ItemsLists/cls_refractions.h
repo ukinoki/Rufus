@@ -38,7 +38,7 @@ public:
     void initListebyPatId(int id);
 
     //!> actions sur les enregistrements
-    void            SupprimeRefraction(Refraction *ref);
+    void            SupprimeRefraction(Refraction *ref, QWidget *parent = Q_NULLPTR);
     Refraction*     CreationRefraction(QHash<QString, QVariant> sets);
 };
 

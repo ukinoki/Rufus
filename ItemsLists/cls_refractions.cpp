@@ -55,9 +55,9 @@ void Refractions::initListebyPatId(int id)
 }
 
 
-void Refractions::SupprimeRefraction(Refraction* ref)
+void Refractions::SupprimeRefraction(Refraction* ref, QWidget *parent)
 {
-    Supprime(map_all, ref);
+    Supprime(map_all, ref, parent);
 }
 
 Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)

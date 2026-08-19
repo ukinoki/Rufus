@@ -67,9 +67,9 @@ void Commercials::initListebyidManufacturer(int idmanufacturer)
             map_all->insert(man->id(), man);
 }
 
-void Commercials::SupprimeCommercial(Commercial* man)
+void Commercials::SupprimeCommercial(Commercial* man, QWidget *parent)
 {
-    Supprime(map_all, man);
+    Supprime(map_all, man, parent);
 }
 
 Commercial* Commercials::CreationCommercial(QHash<QString, QVariant> sets)

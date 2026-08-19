@@ -39,7 +39,7 @@ public:
     QCompleter* completer();
 
     //!> actions sur les enregistrements
-    void          SupprimeMotCle(MotCle *motcle);
+    void          SupprimeMotCle(MotCle *motcle, QWidget *parent = Q_NULLPTR);
     MotCle*       CreationMotCle(QHash<QString, QVariant> sets);
     bool          isThisMCusedForOtherPatients(MotCle* mc, int idpat);
 

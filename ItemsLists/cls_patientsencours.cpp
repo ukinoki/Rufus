@@ -60,9 +60,9 @@ void PatientsEnCours::initListeAll()
     addList(map_all, &listpatencours, Item::Update);
 }
 
-void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat)
+void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat, QWidget *parent)
 {
-    Supprime(map_all, pat);
+    Supprime(map_all, pat, parent);
 }
 
 void PatientsEnCours::updatePatientEnCours(PatientEnCours *pat)

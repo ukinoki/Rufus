@@ -56,9 +56,9 @@ bool TiersPayants::isUtilise(QString nom) // si un tiers n'est plus utilisé dep
     return DataBase::I()->StandardSelectSQL(req, ok).size() >0;
 }
 
-void TiersPayants::SupprimeTiers(Tiers *tiers)
+void TiersPayants::SupprimeTiers(Tiers *tiers, QWidget *parent)
 {
-    Supprime(map_tierspayants, tiers);
+    Supprime(map_tierspayants, tiers, parent);
 }
 
 Tiers* TiersPayants::CreationTiers(QHash<QString, QVariant> sets)

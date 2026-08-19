@@ -67,9 +67,9 @@ void Impressions::initListe()
     m_isfull = true;
 }
 
-void Impressions::SupprimeImpression(Impression* impr)
+void Impressions::SupprimeImpression(Impression* impr, QWidget *parent)
 {
-    Supprime(map_all, impr);
+    Supprime(map_all, impr, parent);
 }
 
 Impression* Impressions::CreationImpression(QHash<QString, QVariant> sets)
@@ -179,9 +179,9 @@ void DossiersImpressions::setlistedocs(DossierImpression *dossier, QList<int> li
     dossier->setlistdocsloaded(true);
 }
 
-void DossiersImpressions::SupprimeDossierImpression(DossierImpression* impr)
+void DossiersImpressions::SupprimeDossierImpression(DossierImpression* impr, QWidget *parent)
 {
-    Supprime(map_all, impr);
+    Supprime(map_all, impr, parent);
 }
 
 DossierImpression* DossiersImpressions::CreationDossierImpression(QHash<QString, QVariant> sets)

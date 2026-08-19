@@ -39,7 +39,7 @@ public:
                                                                                              * \param upd force ou non la recharge depuis la BDD si elles sont déjà chargées
                                                                                              */
     void initListe(bool all = false);
-    void SupprimeCorrespondant(Correspondant* cor);
+    void SupprimeCorrespondant(Correspondant* cor, QWidget *parent = Q_NULLPTR);
 
     QStringList autresprofessions();                                                        /*! la liste de toutes les professions nonmedicales enregistrées dans la base */
 };

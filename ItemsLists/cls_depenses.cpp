@@ -68,9 +68,9 @@ void Depenses::initListeByUser(int iduser)
     addList(map_depenses, &listdepenses);
 }
 
-void Depenses::SupprimeDepense(Depense *dep)
+void Depenses::SupprimeDepense(Depense *dep, QWidget *parent)
 {
-    Supprime(map_depenses, dep);
+    Supprime(map_depenses, dep, parent);
 }
 
 Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale, QString Objet, double Montant, QString FamFiscale,

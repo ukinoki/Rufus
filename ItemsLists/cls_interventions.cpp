@@ -77,9 +77,9 @@ void Interventions::setcurrentintervention(Intervention *interv)
     m_currentintervention = interv;
 }
 
-void Interventions::SupprimeIntervention(Intervention* intervention)
+void Interventions::SupprimeIntervention(Intervention* intervention, QWidget *parent)
 {
-    Supprime(map_all, intervention);
+    Supprime(map_all, intervention, parent);
 }
 
 Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
@@ -176,9 +176,9 @@ void SessionsOperatoires::setcurrentsession(SessionOperatoire *sess)
     m_currentsession = sess;
 }
 
-void SessionsOperatoires::SupprimeSessionOperatoire(SessionOperatoire *session)
+void SessionsOperatoires::SupprimeSessionOperatoire(SessionOperatoire *session, QWidget *parent)
 {
-    Supprime(map_all, session);
+    Supprime(map_all, session, parent);
 }
 
 SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString, QVariant> sets)
@@ -284,9 +284,9 @@ void TypesInterventions::initListe()
 }
 
 
-void TypesInterventions::SupprimeTypeIntervention(TypeIntervention *typeintervention)
+void TypesInterventions::SupprimeTypeIntervention(TypeIntervention *typeintervention, QWidget *parent)
 {
-    Supprime(map_all, typeintervention);
+    Supprime(map_all, typeintervention, parent);
     UpdateModel();
 }
 

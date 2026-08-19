@@ -47,9 +47,9 @@ Banque* Banques::getById(int id)
     return itcpt.value();
 }
 
-void Banques::SupprimeBanque(Banque *bq)
+void Banques::SupprimeBanque(Banque *bq, QWidget *parent)
 {
-    Supprime(map_banques, bq);
+    Supprime(map_banques, bq, parent);
 }
 
  Banque* Banques::CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque)

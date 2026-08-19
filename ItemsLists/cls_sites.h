@@ -42,7 +42,7 @@ public:
     int                     idcurrentsite() const           { return (m_currentsite != Q_NULLPTR? m_currentsite->id() : -1); }
 
     //!> actions sur les enregistrements
-    void                    SupprimeSite(Site *sit);
+    void                    SupprimeSite(Site *sit, QWidget *parent = Q_NULLPTR);
     Site*                   CreationSite(QHash<QString, QVariant> sets);
 };
 

@@ -37,7 +37,7 @@ public:
     void initListebyidManufacturer(int idmanufacturer);
 
     //!> actions sur les enregistrements
-    void                SupprimeCommercial(Commercial *Commercial);
+    void                SupprimeCommercial(Commercial *Commercial, QWidget *parent = Q_NULLPTR);
     Commercial*         CreationCommercial(QHash<QString, QVariant> sets);
 };
 

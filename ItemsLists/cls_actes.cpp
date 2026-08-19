@@ -148,9 +148,9 @@ void Actes::updateActe(Acte* acte)
     acte->setData(DataBase::I()->loadActeAllData(acte->id()));
 }
 
-void Actes::SupprimeActe(Acte* act)
+void Actes::SupprimeActe(Acte* act, QWidget *parent)
 {
-    Supprime(map_actes, act);
+    Supprime(map_actes, act, parent);
 }
 
 Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)

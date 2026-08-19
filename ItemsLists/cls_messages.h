@@ -44,7 +44,7 @@ public:
     void initListeAllMsgsByIdUser(int iduser);
 
     //!> actions sur les enregistrements
-    void           SupprimeMessage(Message *comment);
+    void           SupprimeMessage(Message *comment, QWidget *parent = Q_NULLPTR);
     bool           CreationMessage(QHash<QString, QVariant> sets, QList<int> listdestinataires);
     bool           UpdateMessage(int idmsg, QHash<QString, QVariant> sets, QList<int> listdestinataires);
     bool           EnregistreDestinataires(int idmsg, QList<int> listdestinataires);

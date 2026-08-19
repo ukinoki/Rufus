@@ -64,9 +64,9 @@ void Manufacturers::initListe()
             map_all->insert(man->id(), man);
 }
 
-void Manufacturers::SupprimeManufacturer(Manufacturer* man)
+void Manufacturers::SupprimeManufacturer(Manufacturer* man, QWidget *parent)
 {
-    Supprime(map_all, man);
+    Supprime(map_all, man, parent);
 }
 
 Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)

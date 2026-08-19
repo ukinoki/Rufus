@@ -64,9 +64,9 @@ void LignesComptes::initListe(int idcompte)
     addList(map_lignes, &listlignes);
 }
 
-void LignesComptes::SupprimeLigne(LigneCompte *lign)
+void LignesComptes::SupprimeLigne(LigneCompte *lign, QWidget *parent)
 {
-    Supprime(map_lignes, lign);
+    Supprime(map_lignes, lign, parent);
 }
 
 QMap<int, bool> LignesComptes::initListeLignesByIdCompte(int id)

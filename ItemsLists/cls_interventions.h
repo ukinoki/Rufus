@@ -42,7 +42,7 @@ public:
     void initListebySessionId(int id);
 
     //!> actions sur les enregistrements
-    void                SupprimeIntervention(Intervention *intervention);
+    void                SupprimeIntervention(Intervention *intervention, QWidget *parent = Q_NULLPTR);
     Intervention*       CreationIntervention(QHash<QString, QVariant> sets);
 };
 
@@ -66,7 +66,7 @@ public:
     void initListebyUserId(int id);
 
     //!> actions sur les enregistrements
-    void                SupprimeSessionOperatoire(SessionOperatoire *session);
+    void                SupprimeSessionOperatoire(SessionOperatoire *session, QWidget *parent = Q_NULLPTR);
     SessionOperatoire*  CreationSessionOperatoire(QHash<QString, QVariant> sets);
 };
 
@@ -95,7 +95,7 @@ public:
     void                initListe();
 
     //!> actions sur les enregistrements
-    void                SupprimeTypeIntervention(TypeIntervention *typeintervention);
+    void                SupprimeTypeIntervention(TypeIntervention *typeintervention, QWidget *parent = Q_NULLPTR);
     TypeIntervention*   CreationTypeIntervention(QHash<QString, QVariant> sets);
     bool                isThisTypUsed(TypeIntervention* typ);
 };

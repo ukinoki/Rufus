@@ -121,12 +121,12 @@ QStringList Correspondants::autresprofessions()
     return listprof;
 }
 
-void Correspondants::SupprimeCorrespondant(Correspondant *cor)
+void Correspondants::SupprimeCorrespondant(Correspondant *cor, QWidget *parent)
 {
     if (cor == Q_NULLPTR)
         return;
     QString id = QString::number(cor->id());
-    Supprime(map_all, cor);
+    Supprime(map_all, cor, parent);
     DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg  = null where idcormedmg  = " + id);
     DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = null where idcormedspe1 = " + id);
     DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = null where idcormedspe2 = " + id);

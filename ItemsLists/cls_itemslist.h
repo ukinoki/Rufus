@@ -233,11 +233,12 @@ protected:
      * Cette fonction va supprimer un item passé en paramètre dans un QMap et retirer son enregistrement correpondant dans la base de données
      * \param m_map le QMap dans lequel on veut supprimer l'item
      * \param item l'item que l'on veut supprimer
+     * \param parent la fiche sur laquelle centrer le message d'erreur
      * \return true si l'item est supprimé
      * \return false si l'item est un Q_NULLPTR
 */
 template <typename T>
-static bool Supprime(QMap<int, T*> *m_map, T* item)
+static bool Supprime(QMap<int, T*> *m_map, T* item, QWidget *parent = Q_NULLPTR)
 {
     if (item == Q_NULLPTR)
         return false;
@@ -409,7 +410,7 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
         loop = true;
     }
     if (table == "")
-        UpMessageBox::Watch(Q_NULLPTR, tr("Suppression impossible - l'item n'est pas reconnu"));
+        UpMessageBox::Watch(parent, tr("Suppression impossible - l'item n'est pas reconnu"));
     if (table != "" && idname != "")
     {
         DataBase::I()->SupprRecordFromTable(item->id(), idname, table);

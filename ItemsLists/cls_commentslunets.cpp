@@ -62,9 +62,9 @@ void CommentsLunets::initListe()
     addList(map_all, &listCommentsLunets, Item::Update);
 }
 
-void CommentsLunets::SupprimeCommentLunet(CommentLunet* comment)
+void CommentsLunets::SupprimeCommentLunet(CommentLunet* comment, QWidget *parent)
 {
-    Supprime(map_all, comment);
+    Supprime(map_all, comment, parent);
 }
 
 CommentLunet* CommentsLunets::CreationCommentLunet(QHash<QString, QVariant> sets)

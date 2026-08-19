@@ -76,9 +76,9 @@ void IOLs::initListe()
     m_isfull     = true;
 }
 
-void IOLs::SupprimeIOL(IOL *iol)
+void IOLs::SupprimeIOL(IOL *iol, QWidget *parent)
 {
-    Supprime(map_all, iol);
+    Supprime(map_all, iol, parent);
 }
 
 IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets, QWidget *parent)

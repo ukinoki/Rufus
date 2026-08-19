@@ -122,12 +122,12 @@ void DocsExternes::reset()
     m_patient           = Q_NULLPTR;
 }
 
-void DocsExternes::SupprimeDocumentExterne(DocExterne *doc)
+void DocsExternes::SupprimeDocumentExterne(DocExterne *doc, QWidget *parent)
 {
     if (doc)
     {
         DataBase::I()->SupprRecordFromTable(doc->id(), CP_ID_ECHGIMAGES, TBL_ECHANGEIMAGES);
-        Supprime(map_docsexternes, doc);
+        Supprime(map_docsexternes, doc, parent);
     }
 }
 

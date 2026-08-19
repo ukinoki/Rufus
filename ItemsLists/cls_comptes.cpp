@@ -63,9 +63,9 @@ void Comptes::initListe()
     addList(map_all, &listcomptes);
 }
 
-void Comptes::SupprimeCompte(Compte *cpt)
+void Comptes::SupprimeCompte(Compte *cpt, QWidget *parent)
 {
-    Supprime(map_all, cpt);
+    Supprime(map_all, cpt, parent);
 }
 
 QMap<int, bool> Comptes::initListeComptesByIdUser(int id)

@@ -77,9 +77,9 @@ QCompleter* MotsCles::completer()
     return m_completer;
 }
 
-void MotsCles::SupprimeMotCle(MotCle* motcle)
+void MotsCles::SupprimeMotCle(MotCle* motcle, QWidget *parent)
 {
-    Supprime(map_all, motcle);
+    Supprime(map_all, motcle, parent);
 }
 
 MotCle* MotsCles::CreationMotCle(QHash<QString, QVariant> sets)

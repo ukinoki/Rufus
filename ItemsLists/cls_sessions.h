@@ -41,7 +41,7 @@ public:
     //!> actions sur les champs
 
     //!> actions sur les enregistrements
-    void        SupprimeSession(Session *ses);
+    void        SupprimeSession(Session *ses, QWidget *parent = Q_NULLPTR);
     Session*    CreationSession(QHash<QString, QVariant> sets);
 
 };

@@ -103,9 +103,9 @@ void Messages::initListeAllMsgsByIdUser(int iduser)
     m_listallmsgs = listmessages;
 }
 
-void Messages::SupprimeMessage(Message* msg)
+void Messages::SupprimeMessage(Message* msg, QWidget *parent)
 {
-    Supprime(map_all, msg);
+    Supprime(map_all, msg, parent);
 }
 
 bool Messages::CreationMessage(QHash<QString, QVariant> sets,  QList<int> listdestinataires)

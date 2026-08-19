@@ -38,7 +38,7 @@ public:
     QMap<int, bool> initListeComptesByIdUser(int id);    //! reconstruit la liste des comptes d'un utilisateur
 
     //!> actions sur les enregistrements
-    void       SupprimeCompte(Compte *cpt);
+    void       SupprimeCompte(Compte *cpt, QWidget *parent = Q_NULLPTR);
     Compte*    CreationCompte(int idBanque, int idUser, QString IBAN, QString IntituleCompte, QString NomCompteAbrege, double SoldeSurDernierReleve, bool Partage, bool Desactive);
 };
 

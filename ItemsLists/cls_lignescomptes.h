@@ -39,6 +39,6 @@ public:
     QMap<int, bool> initListeLignesByIdCompte(int id);    //! reconstruit la liste des lignes pour un compte
 
     //!> actions sur les enregistrements
-    void       SupprimeLigne(LigneCompte *lign);
+    void       SupprimeLigne(LigneCompte *lign, QWidget *parent = Q_NULLPTR);
 };
 #endif // LIGNESCOMPTES_H

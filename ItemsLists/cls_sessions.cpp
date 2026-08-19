@@ -48,9 +48,9 @@ Session* Sessions::getById(int id, Item::LOADDETAILS details)
     return sess;
 }
 
-void Sessions::SupprimeSession(Session* act)
+void Sessions::SupprimeSession(Session* act, QWidget *parent)
 {
-    Supprime(map_sessions, act);
+    Supprime(map_sessions, act, parent);
 }
 
 Session* Sessions::CreationSession(QHash<QString, QVariant> sets)

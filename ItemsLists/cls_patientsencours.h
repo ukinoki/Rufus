@@ -49,7 +49,7 @@ public:
     //! géré par la fonction static update de cls_itemslist
 
     //!> actions sur les enregistrements
-    void                SupprimePatientEnCours(PatientEnCours *pat);
+    void                SupprimePatientEnCours(PatientEnCours *pat, QWidget *parent = Q_NULLPTR);
     PatientEnCours*     CreationPatient(int idPat, User *usr , QString Statut, QTime heureStatut = QTime(), QTime heureRDV = QTime(),
                                         QTime heureArrivee = QTime(), QString Motif = "", QString ShowMessage = "", int idActeAPayer = 0, QString PosteExamen = "",
                                     int idUserEnCours = 0, int idSalDat = 0, QDate date = QDate(), QString messageretour = "");

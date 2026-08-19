@@ -45,7 +45,7 @@ public:
     Patient*                    patient() const { return m_patient; }
 
     //!> actions sur les enregistrements
-    void                        SupprimeDocumentExterne(DocExterne *doc);
+    void                        SupprimeDocumentExterne(DocExterne *doc, QWidget *parent = Q_NULLPTR);
     static DocExterne*          CreationDocumentExterne(QHash<QString, QVariant> sets);
 
     QList<DocExterne *> newdocuments() const;

@@ -38,7 +38,7 @@ public:
     bool isfull() const { return  m_isfull; }
 
     //!> actions sur les enregistrements
-    void          SupprimeImpression(Impression *impr);
+    void          SupprimeImpression(Impression *impr, QWidget *parent = Q_NULLPTR);
     Impression*   CreationImpression(QHash<QString, QVariant> sets);
 };
 
@@ -60,7 +60,7 @@ public:
     void loadlistedocs(DossierImpression *dossier);
     void setlistedocs(DossierImpression *dossier, QList<int> listiddocs);
     //!> actions sur les enregistrements
-    void                    SupprimeDossierImpression(DossierImpression *impr);
+    void                    SupprimeDossierImpression(DossierImpression *impr, QWidget *parent = Q_NULLPTR);
     DossierImpression*      CreationDossierImpression(QHash<QString, QVariant> sets);
 };
 
