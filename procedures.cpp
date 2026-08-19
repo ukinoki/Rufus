@@ -1728,6 +1728,13 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     tblimprimantes          ->FixLargeurTotale();
     int rowdefaut = imprimantes.indexOf(m_nomImprimante != ""? m_nomImprimante : QPrinterInfo::defaultPrinterName());
     tblimprimantes          ->selectRow(rowdefaut < 0? 0 : rowdefaut);
+    if (imprimantes.size() == 0)
+    {
+        UpLabel *lblvide = new UpLabel(Q_NULLPTR, tr("Pas d'imprimante enregistrée sur ce poste"));
+        lblvide             ->setAlignment(Qt::AlignCenter);
+        lblvide             ->setWordWrap(true);
+        (new QVBoxLayout(tblimprimantes->viewport()))->addWidget(lblvide);
+    }
 
     QVBoxLayout *laychk = new QVBoxLayout();
     laychk                  ->addWidget(printchk);
@@ -1748,6 +1755,11 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     connect (printchk,      &QCheckBox::toggled,    dlg,    majOK);
     connect (pdfchk,        &QCheckBox::toggled,    dlg,    majOK);
     connect (mailchk,       &QCheckBox::toggled,    dlg,    majOK);
+
+    /*! toujours au centre de l'écran, l'utilisateur n'a pas à chercher la fiche */
+    dlg                     ->adjustSize();
+    const QRect ecran = QGuiApplication::primaryScreen()->availableGeometry();
+    dlg                     ->move(ecran.center().x() - dlg->width()/2, ecran.center().y() - dlg->height()/2);
 
     bool initok = (dlg->exec() == QDialog::Accepted);
     if (initok)
