@@ -8118,7 +8118,7 @@ void Rufus::SupprimeActesVides(Patient *patient)
          || !estvide(act->conclusion()) || !estvide(act->cotation()))
             continue;
         db              ->SupprRecordFromTable(act->id(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
-        m_listeactes    ->SupprimeActe(act);
+        m_listeactes    ->SupprimeActe(act, this);
         ++nbsuppr;
     }
     if (nbsuppr == 0)
@@ -10225,7 +10225,7 @@ void Rufus::SupprimerActe(Acte *act)
     }
 
     // on supprime l'acte -------------------------------------------------------------------------------------------------
-    m_listeactes->SupprimeActe(act);
+    m_listeactes->SupprimeActe(act, this);
     if (m_listeactes->actes()->size() == 0)
     {
         ui->Acteframe->setVisible(false);
