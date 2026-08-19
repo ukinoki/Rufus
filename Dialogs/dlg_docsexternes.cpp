@@ -228,6 +228,33 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
             }
         }
         menuImprime->addAction(paction_Reimprimer);
+
+        QMenu *menuMail = menu->addMenu(tr("Envoyer par mail"));
+        menuMail            ->setIcon(Icons::icMessage());
+        menuMail            ->setEnabled(proc->ManqueEnvoiMail().size() == 0);
+
+        QAction *pactionmail_Reimprimer = new QAction(tr("Réimprimer"));
+        QAction *pactionmail_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
+        QAction *pactionmail_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
+        QAction *pactionmail_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
+        connect (pactionmail_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), true);});
+        connect (pactionmail_ModifierReimprimer,        &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  true,  true);});
+        connect (pactionmail_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  false, true);});
+        connect (pactionmail_ReimprimerCeJour,          &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, false, false, true);});
+
+        if (currentuser()->isSoignant()
+            && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
+        {
+            if (m_currentdate == docmt->datetimeimpression().date())
+                menuMail->addAction(pactionmail_ModifierReimprimer);
+            else
+            {
+                if (docmt->textorigine() != "")
+                    menuMail->addAction(pactionmail_ModifierReimprimerCeJour);
+                menuMail->addAction(pactionmail_ReimprimerCeJour);
+            }
+        }
+        menuMail->addAction(pactionmail_Reimprimer);
      }
 #endif
     QAction *paction_Poubelle   = new QAction(Icons::icPoubelle(), tr("Supprimer"));
@@ -588,7 +615,7 @@ QMap<QString, QString> dlg_docsexternes:: CalcNomFilePdf()
     return map;
 }
 
-bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin)
+bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin, bool mailprecoche)
 {
     // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
     QString     textcorps, textentete, textpied, txt;
@@ -652,7 +679,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         mapbarcodes = usr->mapBarCodes();
 
     bool pdf = false;
-    if (!proc->MailPdfOrPrint(this, pdf))
+    if (!proc->MailPdfOrPrint(this, pdf, nullptr, nullptr, -1, nullptr, mailprecoche))
         return false;
     if (pdf)
     {

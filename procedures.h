@@ -240,7 +240,7 @@ public:
     void                    CalcImageDocument(DocExterne *docmt);
 
     QPrinter*               printer() {return m_printer;}
-    void                    PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>());
+    void                    PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>(), bool mailprecoche = false);
     bool                    Print(QList<QImage> listimage, QWidget *parent = nullptr);
     bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>(), QWidget *parent = nullptr);
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
@@ -268,7 +268,8 @@ public:
             /*! c - Création d'un pdf QByteArray à stocker dans la base */
     QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = nullptr, bool ALD = false, QImage signature = QImage());
             /*! d - Choice: print or pdf */
-    bool                    MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print = nullptr, bool *mail = nullptr, int idlieu = -1, QString *imprimante = nullptr);
+    bool                    MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print = nullptr, bool *mail = nullptr, int idlieu = -1, QString *imprimante = nullptr, bool mailprecoche = false);
+    QStringList             ManqueEnvoiMail(int idlieu = -1);   /*!< ce qui manque au lieu pour pouvoir envoyer un mail */
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */
 

@@ -1672,8 +1672,30 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
  * \param mail    reçoit l'état de la case mail, si l'appelant le gère
  * \param idlieu  le lieu dont on utilise les coordonnées d'envoi, -1 = le lieu en cours
  * \param imprimante reçoit l'imprimante choisie, vide si le poste n'en a qu'une
+ * \param mailprecoche coche la case mail plutôt que la case imprimer à l'ouverture
  */
-bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *mail, int idlieu, QString *imprimante)
+
+/*!
+ * \brief Procedures::ManqueEnvoiMail
+ * Liste les coordonnées d'envoi de mail absentes du lieu d'exercice.
+ * \param idlieu  le lieu concerné, -1 = le lieu en cours
+ */
+QStringList Procedures::ManqueEnvoiMail(int idlieu)
+{
+    /*! le mot de passe n'est pas en base, il est local au poste - on ne vérifie que ce qui est en base */
+    QStringList manque;
+    int id = (idlieu < 0? Datas::I()->sites->idcurrentsite() : idlieu);
+    Site *sit = (id > 0? Datas::I()->sites->getById(id) : nullptr);
+    if (sit == nullptr)
+        return manque << tr("le lieu d'exercice du document est inconnu");
+    if (sit->mail() == "")          manque << tr("l'adresse mail du lieu");
+    if (sit->smtpserveur() == "")   manque << tr("le serveur d'envoi");
+    if (sit->smtplogin() == "")     manque << tr("l'identifiant de connexion");
+    if (sit->smtpport() <= 0)       manque << tr("le port du serveur d'envoi");
+    return manque;
+}
+
+bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *mail, int idlieu, QString *imprimante, bool mailprecoche)
 {
     UpDialog *dlg           = new UpDialog(parent);
     dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -1683,26 +1705,17 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     UpCheckBox *printchk    = new UpCheckBox(tr("Imprimer"), dlg);
     UpCheckBox *pdfchk      = new UpCheckBox(tr("Créer un pdf"), dlg);
     UpCheckBox *mailchk     = new UpCheckBox(tr("Envoyer par mail"), dlg);
-    printchk                ->setChecked(true);
     QButtonGroup *grp       = new QButtonGroup(dlg);
     grp                     ->setExclusive(true);
     grp                     ->addButton(printchk);
     grp                     ->addButton(pdfchk);
     grp                     ->addButton(mailchk);
-
-    /*! le mot de passe n'est pas ici, il est local au poste - on ne vérifie que ce qui est en base */
-    QStringList manque;
-    int id = (idlieu < 0? Datas::I()->sites->idcurrentsite() : idlieu);
-    Site *sit = (id > 0? Datas::I()->sites->getById(id) : nullptr);
-    if (sit == nullptr)
-        manque << tr("le lieu d'exercice du document est inconnu");
+    if (mailprecoche)
+        mailchk             ->setChecked(true);
     else
-    {
-        if (sit->mail() == "")          manque << tr("l'adresse mail du lieu");
-        if (sit->smtpserveur() == "")   manque << tr("le serveur d'envoi");
-        if (sit->smtplogin() == "")     manque << tr("l'identifiant de connexion");
-        if (sit->smtpport() <= 0)       manque << tr("le port du serveur d'envoi");
-    }
+        printchk            ->setChecked(true);
+
+    QStringList manque = ManqueEnvoiMail(idlieu);
     mailchk                 ->setEnabled(mail != nullptr && manque.size() == 0);
     if (manque.size() > 0)
         mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "), true);
@@ -2040,10 +2053,10 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
     return true;
 }
 
-void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map)
+void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map, bool mailprecoche)
 {
     bool pdf = false;
-    if (MailPdfOrPrint(parent, pdf))
+    if (MailPdfOrPrint(parent, pdf, nullptr, nullptr, -1, nullptr, mailprecoche))
     {
         if (pdf)
             createPdfFromListImage(listimage, map, parent);
