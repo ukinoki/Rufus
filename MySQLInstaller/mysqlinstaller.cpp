@@ -673,6 +673,8 @@ static void ecrireDBKey(const QHash<QString,QString>& table)
             if (table.contains(k))
                 f.write(QString("%1=%2\n").arg(k, table.value(k)).toUtf8());
         f.close();
+        f.setPermissions(QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                         | QFileDevice::ReadUser | QFileDevice::WriteUser);   /*!< un mot de passe ne se lit pas depuis les autres comptes du poste */
     }
 }
 
