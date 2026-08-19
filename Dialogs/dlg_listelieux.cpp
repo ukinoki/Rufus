@@ -160,6 +160,10 @@ void dlg_listelieux::enregNouvLieu()
         m_listbinds[CP_TELEPHONE_SITE]    = wdg_tellineedit->text();
         m_listbinds[CP_FAX_SITE]          = wdg_faxlineedit->text();
         m_listbinds[CP_COULEUR_SITE]      = str_nouvcolor;
+        m_listbinds[CP_MAIL_SITE]         = Utils::trim(wdg_maillineedit->text());
+        m_listbinds[CP_SMTPSERVEUR_SITE]  = Utils::trim(wdg_smtpserveurlineedit->text());
+        m_listbinds[CP_SMTPPORT_SITE]     = wdg_smtpportlineedit->text().toInt();
+        m_listbinds[CP_SMTPLOGIN_SITE]    = Utils::trim(wdg_smtploginlineedit->text());
 
         Site *sit = Datas::I()->sites->CreationSite(m_listbinds);
         ReconstruitModel();
@@ -237,6 +241,10 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     UpLabel *lblville = new UpLabel(dlg_lieu, tr("Ville"));
     UpLabel *lbltel = new UpLabel(dlg_lieu, tr("Telephone"));
     UpLabel *lblfax = new UpLabel(dlg_lieu, tr("Fax"));
+    UpLabel *lblmail = new UpLabel(dlg_lieu, tr("Mail"));
+    UpLabel *lblsmtpserveur = new UpLabel(dlg_lieu, tr("Serveur d'envoi"));
+    UpLabel *lblsmtpport = new UpLabel(dlg_lieu, tr("Port"));
+    UpLabel *lblsmtplogin = new UpLabel(dlg_lieu, tr("Identifiant"));
     wdg_nouvcouleurpushbutt = new UpPushButton();
     wdg_nouvcouleurpushbutt->setFixedHeight(35);
 
@@ -249,6 +257,10 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     lblville->setFixedHeight(h);
     lbltel  ->setFixedHeight(h);
     lblfax  ->setFixedHeight(h);
+    lblmail ->setFixedHeight(h);
+    lblsmtpserveur->setFixedHeight(h);
+    lblsmtpport->setFixedHeight(h);
+    lblsmtplogin->setFixedHeight(h);
 
     laylbl->addWidget(lblnom);
     laylbl->addWidget(lbladr1);
@@ -258,6 +270,10 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     laylbl->addWidget(lblville);
     laylbl->addWidget(lbltel);
     laylbl->addWidget(lblfax);
+    laylbl->addWidget(lblmail);
+    laylbl->addWidget(lblsmtpserveur);
+    laylbl->addWidget(lblsmtpport);
+    laylbl->addWidget(lblsmtplogin);
     laylbl->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
 
     wdg_nomlineedit   = new UpLineEdit(dlg_lieu);
@@ -268,6 +284,10 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     wdg_villelineedit = new UpLineEdit(dlg_lieu);
     wdg_tellineedit   = new UpLineEdit(dlg_lieu);
     wdg_faxlineedit   = new UpLineEdit(dlg_lieu);
+    wdg_maillineedit  = new UpLineEdit(dlg_lieu);
+    wdg_smtpserveurlineedit = new UpLineEdit(dlg_lieu);
+    wdg_smtpportlineedit    = new UpLineEdit(dlg_lieu);
+    wdg_smtploginlineedit   = new UpLineEdit(dlg_lieu);
 
     wdg_nomlineedit    ->setFixedWidth(240);       // NomLieu
     wdg_adress1lineedit   ->setFixedWidth(240);       // Adresse1
@@ -277,6 +297,10 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     wdg_villelineedit  ->setFixedWidth(240);       // Ville
     wdg_tellineedit    ->setFixedWidth(120);       // Telephone
     wdg_faxlineedit    ->setFixedWidth(120);       // Fax
+    wdg_maillineedit   ->setFixedWidth(240);       // Mail
+    wdg_smtpserveurlineedit->setFixedWidth(240);   // Serveur d'envoi
+    wdg_smtpportlineedit   ->setFixedWidth(90);    // Port
+    wdg_smtploginlineedit  ->setFixedWidth(240);   // Identifiant
 
     wdg_nomlineedit    ->setMaxLength(80);
     wdg_adress1lineedit   ->setMaxLength(45);
@@ -286,6 +310,10 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     wdg_villelineedit  ->setMaxLength(45);
     wdg_tellineedit    ->setMaxLength(17);
     wdg_faxlineedit    ->setMaxLength(17);
+    wdg_maillineedit   ->setMaxLength(100);
+    wdg_smtpserveurlineedit->setMaxLength(100);
+    wdg_smtpportlineedit   ->setMaxLength(5);
+    wdg_smtploginlineedit  ->setMaxLength(100);
 
     wdg_nomlineedit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_ville));
     wdg_adress1lineedit   ->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse));
@@ -295,6 +323,9 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     wdg_villelineedit  ->setValidator(new QRegularExpressionValidator(Utils::rgx_ville));
     wdg_tellineedit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone));
     wdg_faxlineedit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone));
+    wdg_maillineedit   ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail));
+    wdg_smtpserveurlineedit->setValidator(new QRegularExpressionValidator(Utils::rgx_adresseserveur));
+    wdg_smtpportlineedit   ->setValidator(new QIntValidator(1, 65535));
 
     layledit->addWidget(wdg_nomlineedit);
     layledit->addWidget(wdg_adress1lineedit);
@@ -304,11 +335,16 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     layledit->addWidget(wdg_villelineedit);
     layledit->addWidget(wdg_tellineedit);
     layledit->addWidget(wdg_faxlineedit);
+    layledit->addWidget(wdg_maillineedit);
+    layledit->addWidget(wdg_smtpserveurlineedit);
+    layledit->addWidget(wdg_smtpportlineedit);
+    layledit->addWidget(wdg_smtploginlineedit);
     layledit->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
 
     for (int i=0; i< dlg_lieu->findChildren<UpLineEdit*>().size(); i++)
         connect(dlg_lieu->findChildren<UpLineEdit*>().at(i), &QLineEdit::textEdited, this, [=, this]{    dlg_lieu->OKButton->setEnabled(true);});
     dlg_lieu->OKButton->setEnabled(false);
+    wdg_smtpportlineedit->setText("587");   /*!< 465 = connexion chiffrée d'emblée, sinon chiffrement après connexion */
 
     laycom->addLayout(laylbl);
     laylbl->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed));
@@ -345,6 +381,10 @@ void dlg_listelieux::ModifLieu()
     wdg_villelineedit  ->setText(sit->ville());
     wdg_tellineedit    ->setText(sit->telephone());
     wdg_faxlineedit    ->setText(sit->fax());
+    wdg_maillineedit   ->setText(sit->mail());
+    wdg_smtpserveurlineedit->setText(sit->smtpserveur());
+    wdg_smtpportlineedit   ->setText(QString::number(sit->smtpport()));
+    wdg_smtploginlineedit  ->setText(sit->smtplogin());
     dlg_lieu->exec();
     delete  dlg_lieu;
     dlg_lieu = Q_NULLPTR;
@@ -368,6 +408,10 @@ void dlg_listelieux::enregModifLieu()
         m_listbinds[CP_TELEPHONE_SITE]    = Utils::trim(wdg_tellineedit->text());
         m_listbinds[CP_FAX_SITE]          = Utils::trim(wdg_faxlineedit->text());
         m_listbinds[CP_COULEUR_SITE]      = str_nouvcolor;
+        m_listbinds[CP_MAIL_SITE]         = Utils::trim(wdg_maillineedit->text());
+        m_listbinds[CP_SMTPSERVEUR_SITE]  = Utils::trim(wdg_smtpserveurlineedit->text());
+        m_listbinds[CP_SMTPPORT_SITE]     = wdg_smtpportlineedit->text().toInt();
+        m_listbinds[CP_SMTPLOGIN_SITE]    = Utils::trim(wdg_smtploginlineedit->text());
 
         DataBase::I()->UpdateTable(TBL_LIEUXEXERCICE, m_listbinds, " where " CP_ID_SITE " = " + QString::number(sit->id()),tr("Impossible de modifier le site"));
         sit = Datas::I()->sites->getById(sit->id(), true);

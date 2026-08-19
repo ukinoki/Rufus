@@ -134,6 +134,10 @@ Site* Sites::CreationSite(QHash<QString, QVariant> sets)
         else if (champ == CP_TELEPHONE_SITE)                data[champ] = itset.value().toString();
         else if (champ == CP_FAX_SITE)                      data[champ] = itset.value().toString();
         else if (champ == CP_COULEUR_SITE)                  data[champ] = itset.value().toString();
+        else if (champ == CP_MAIL_SITE)                     data[champ] = itset.value().toString();
+        else if (champ == CP_SMTPSERVEUR_SITE)              data[champ] = itset.value().toString();
+        else if (champ == CP_SMTPPORT_SITE)                 data[champ] = itset.value().toInt();
+        else if (champ == CP_SMTPLOGIN_SITE)                data[champ] = itset.value().toString();
     }
     sit = new Site(data);
     if (sit != Q_NULLPTR)

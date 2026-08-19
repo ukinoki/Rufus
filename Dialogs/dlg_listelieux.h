@@ -55,6 +55,10 @@ private:
     UpLineEdit              *wdg_villelineedit;
     UpLineEdit              *wdg_tellineedit;
     UpLineEdit              *wdg_faxlineedit;
+    UpLineEdit              *wdg_maillineedit;
+    UpLineEdit              *wdg_smtpserveurlineedit;
+    UpLineEdit              *wdg_smtpportlineedit;
+    UpLineEdit              *wdg_smtploginlineedit;
     QString                 str_nouvcolor;
     QHash<QString, QVariant>    m_listbinds;
 

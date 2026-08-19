@@ -724,6 +724,26 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *
                 sit->setcouleur(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else if (field == CP_MAIL_SITE)
+            {
+                sit->setmail(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_SMTPSERVEUR_SITE)
+            {
+                sit->setsmtpserveur(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_SMTPPORT_SITE)
+            {
+                sit->setsmtpport(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_SMTPLOGIN_SITE)
+            {
+                sit->setsmtplogin(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
             else
                 ok = false;
             break;

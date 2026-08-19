@@ -38,6 +38,10 @@ void Site::setData(QJsonObject data)
     setDataString(data, CP_TELEPHONE_SITE, m_telephone);
     setDataString(data, CP_FAX_SITE, m_fax);
     setDataString(data, CP_COULEUR_SITE, m_couleur);
+    setDataString(data, CP_MAIL_SITE, m_mail);
+    setDataString(data, CP_SMTPSERVEUR_SITE, m_smtpserveur);
+    setDataInt(data, CP_SMTPPORT_SITE, m_smtpport);
+    setDataString(data, CP_SMTPLOGIN_SITE, m_smtplogin);
     m_data = data;
 }
 
@@ -54,6 +58,10 @@ void Site::resetdatas()
     data[CP_TELEPHONE_SITE] = "";
     data[CP_FAX_SITE]       = "";
     data[CP_COULEUR_SITE]   = "";
+    data[CP_MAIL_SITE]      = "";
+    data[CP_SMTPSERVEUR_SITE] = "";
+    data[CP_SMTPPORT_SITE]  = 587;
+    data[CP_SMTPLOGIN_SITE] = "";
     setData(data);
 }
 

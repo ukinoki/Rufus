@@ -3158,6 +3158,10 @@ QJsonObject DataBase::loadSiteData(QVariantList sitdata)         //! attribue la
     data[CP_TELEPHONE_SITE]    = sitdata.at(7).toString();
     data[CP_FAX_SITE]          = sitdata.at(8).toString();
     data[CP_COULEUR_SITE]      = sitdata.at(9).toString();
+    data[CP_MAIL_SITE]         = sitdata.at(10).toString();
+    data[CP_SMTPSERVEUR_SITE]  = sitdata.at(11).toString();
+    data[CP_SMTPPORT_SITE]     = sitdata.at(12).toInt();
+    data[CP_SMTPLOGIN_SITE]    = sitdata.at(13).toString();
     return data;
 }
 
@@ -3177,7 +3181,8 @@ QList<Site*> DataBase::loadSites()
 {
     QList<Site*> list = QList<Site*>();
     QString req = "select " CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
-          CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE
+          CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE ", "
+          CP_MAIL_SITE ", " CP_SMTPSERVEUR_SITE ", " CP_SMTPPORT_SITE ", " CP_SMTPLOGIN_SITE
           " from " TBL_LIEUXEXERCICE;
     QList<QVariantList> sitlist = StandardSelectSQL(req,ok);
     if(!ok || sitlist.size()==0)
@@ -3196,7 +3201,8 @@ Site* DataBase::loadSiteById(int id)
 {
     Site* sit = Q_NULLPTR;
     QString req = "select " CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
-            CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE
+            CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE ", "
+            CP_MAIL_SITE ", " CP_SMTPSERVEUR_SITE ", " CP_SMTPPORT_SITE ", " CP_SMTPLOGIN_SITE
             " from " TBL_LIEUXEXERCICE
             " where " CP_ID_SITE " = " + QString::number(id);
     //qDebug() << req;
