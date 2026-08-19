@@ -1671,8 +1671,9 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
  * \param print   reçoit l'état de la case imprimer, si l'appelant le gère
  * \param mail    reçoit l'état de la case mail, si l'appelant le gère
  * \param idlieu  le lieu dont on utilise les coordonnées d'envoi, -1 = le lieu en cours
+ * \param imprimante reçoit l'imprimante choisie, vide si le poste n'en a qu'une
  */
-bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *mail, int idlieu)
+bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *mail, int idlieu, QString *imprimante)
 {
     UpDialog *dlg           = new UpDialog(parent);
     dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -1701,10 +1702,53 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     if (manque.size() > 0)
         mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "), true);
 
+    /*! les imprimantes virtuelles (pdf, xps, fax) ne sont pas distinguables par Qt, on les écarte par leur nom */
+    QStringList imprimantes;
+    foreach (QString nom, QPrinterInfo::availablePrinterNames())
+        if (!nom.contains(QRegularExpression("pdf|xps|fax|onenote|document writer", QRegularExpression::CaseInsensitiveOption)))
+            imprimantes << nom;
+
+    UpTableView *tblimprimantes = Q_NULLPTR;
+    if (imprimantes.size() > 1)
+    {
+        tblimprimantes  = new UpTableView(dlg);
+        tblimprimantes  ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        tblimprimantes  ->setSelectionMode(QAbstractItemView::SingleSelection);
+        tblimprimantes  ->setSelectionBehavior(QAbstractItemView::SelectRows);
+        tblimprimantes  ->setGridStyle(Qt::NoPen);
+        tblimprimantes  ->verticalHeader()->setVisible(false);
+
+        QStandardItemModel *modelimprimantes = new QStandardItemModel(dlg);
+        modelimprimantes->setHorizontalHeaderItem(0, new QStandardItem(tr("Imprimante")));
+        foreach (QString nom, imprimantes)
+        {
+            QStandardItem *itm = new QStandardItem(nom);
+            itm             ->setEditable(false);
+            modelimprimantes->appendRow(itm);
+        }
+        tblimprimantes  ->setModel(modelimprimantes);
+        tblimprimantes  ->setColumnWidth(0, 200);
+        tblimprimantes  ->FixLargeurTotale();
+        int rowdefaut = imprimantes.indexOf(m_nomImprimante != ""? m_nomImprimante : QPrinterInfo::defaultPrinterName());
+        tblimprimantes  ->selectRow(rowdefaut < 0? 0 : rowdefaut);
+    }
+
+    QVBoxLayout *laychk = new QVBoxLayout();
+    laychk                  ->addWidget(printchk);
+    laychk                  ->addWidget(pdfchk);
+    laychk                  ->addWidget(mailchk);
+    laychk                  ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
+
+    QHBoxLayout *laycom = new QHBoxLayout();
+    laycom                  ->addLayout(laychk);
+    if (tblimprimantes != Q_NULLPTR)
+    {
+        laycom              ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed));
+        laycom              ->addWidget(tblimprimantes);
+    }
+
     QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg->layout());
-    lay                     ->insertWidget(0, printchk);
-    lay                     ->insertWidget(1, pdfchk);
-    lay                     ->insertWidget(2, mailchk);
+    lay                     ->insertLayout(0, laycom);
     lay                     ->setSizeConstraint(QLayout::SetFixedSize);
 
     auto majOK = [=]  { dlg->OKButton->setEnabled(printchk->isChecked() || pdfchk->isChecked() || mailchk->isChecked()); };
@@ -1720,6 +1764,9 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
             *print = printchk->isChecked();
         if (mail != Q_NULLPTR)
             *mail = mailchk->isChecked();
+        if (imprimante != Q_NULLPTR)
+            *imprimante = (tblimprimantes != Q_NULLPTR && tblimprimantes->currentIndex().isValid()?
+                               tblimprimantes->currentIndex().data().toString() : "");
     }
     delete dlg;
     return initok;

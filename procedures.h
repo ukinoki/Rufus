@@ -68,6 +68,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <cls_appareilimagerie.h>
 
 #include "upprogressdialog.h"
+#include "uptableview.h"
 #include <uptoolbar.h>
 #include <upmessagebox.h>
 #include "ressources.h"
@@ -267,7 +268,7 @@ public:
             /*! c - Création d'un pdf QByteArray à stocker dans la base */
     QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = Q_NULLPTR, bool ALD = false, QImage signature = QImage());
             /*! d - Choice: print or pdf */
-    bool                    MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print = Q_NULLPTR, bool *mail = Q_NULLPTR, int idlieu = -1);
+    bool                    MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print = Q_NULLPTR, bool *mail = Q_NULLPTR, int idlieu = -1, QString *imprimante = Q_NULLPTR);
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */
 
