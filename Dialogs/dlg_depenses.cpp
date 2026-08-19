@@ -171,7 +171,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->ChercheMontantupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::RechercheValeur);
     connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   [&] {
                                                                                                 bool ok;
-                                                                                                if (proc->QuestionPdfOrPrint(this, ok))
+                                                                                                if (proc->MailPdfOrPrint(this, ok))
                                                                                                 PrintReport(ok);
                                                                                             });
     connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);

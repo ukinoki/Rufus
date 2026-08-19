@@ -652,7 +652,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         mapbarcodes = usr->mapBarCodes();
 
     bool pdf = false;
-    if (!proc->QuestionPdfOrPrint(this, pdf))
+    if (!proc->MailPdfOrPrint(this, pdf))
         return false;
     if (pdf)
     {

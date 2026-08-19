@@ -114,12 +114,12 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     connect(wdg_IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeIOLs);
     connect(wdg_incidentbutt,           &QPushButton::clicked,  this,   [&] {
                                                                                 bool pdf;
-                                                                                if (proc->QuestionPdfOrPrint(this, pdf))
+                                                                                if (proc->MailPdfOrPrint(this, pdf))
                                                                                     ImprimeRapportIncident(pdf);
                                                                             });
     connect(wdg_commandeIOLbutt,        &QPushButton::clicked,  this,   [&] {
                                                                                 bool pdf;
-                                                                                if (proc->QuestionPdfOrPrint(this, pdf))
+                                                                                if (proc->MailPdfOrPrint(this, pdf))
                                                                                     ImprimeListeIOLsSession(pdf);
                                                                             });
     wdg_IOLbutt->setEnabled(Datas::I()->users->userconnected()->isMedecin());
@@ -128,7 +128,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
     connect(PrintButton,  &QPushButton::clicked,    this, [&] {
                                                                 bool pdf;
-                                                                if (proc->QuestionPdfOrPrint(this, pdf))
+                                                                if (proc->MailPdfOrPrint(this, pdf))
                                                                     ImprimeSession(pdf);
                                                                });
 

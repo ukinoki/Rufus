@@ -267,7 +267,7 @@ public:
             /*! c - Création d'un pdf QByteArray à stocker dans la base */
     QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = Q_NULLPTR, bool ALD = false, QImage signature = QImage());
             /*! d - Choice: print or pdf */
-    bool                    QuestionPdfOrPrint(QWidget *parent, bool &ok);
+    bool                    MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print = Q_NULLPTR, bool *mail = Q_NULLPTR, int idlieu = -1);
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */
 

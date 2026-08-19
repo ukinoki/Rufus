@@ -115,7 +115,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     connect(CloseButton,                &QPushButton::clicked,                                  this, [=, this] {close();});
     connect(PrintButton,                &QPushButton::clicked,                                  this, [&] {
                                                                                                             bool ok;
-                                                                                                            if (proc->QuestionPdfOrPrint(this, ok))
+                                                                                                            if (proc->MailPdfOrPrint(this, ok))
                                                                                                                 PrintReport(ok);
                                                                                                           });
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=, this] {NouvPeriode();});

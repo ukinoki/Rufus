@@ -1663,30 +1663,65 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
 //!    -- Choice printing : pdf or print ------------------------------------------------------------------------
 //  --------------------------------------------------------------------------------------------------------------
 
-bool Procedures::QuestionPdfOrPrint(QWidget *parent, bool &pdf)
+/*!
+ * \brief Procedures::MailPdfOrPrint
+ * Demande ce qu'il faut faire du document : l'imprimer, en faire un pdf, l'envoyer par mail.
+ * \param parent  la fiche appelante
+ * \param pdf     reçoit l'état de la case pdf
+ * \param print   reçoit l'état de la case imprimer, si l'appelant le gère
+ * \param mail    reçoit l'état de la case mail, si l'appelant le gère
+ * \param idlieu  le lieu dont on utilise les coordonnées d'envoi, -1 = le lieu en cours
+ */
+bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *mail, int idlieu)
 {
-    UpMessageBox *msgbox            = new UpMessageBox(parent);
-    msgbox                          ->setText(tr("Imprimer ou créer un pdf?"));
-    msgbox                          ->setIcon(UpMessageBox::Quest);
-    UpPushButton *wdg_annulbouton   = new UpPushButton(tr("Annuler"));
-    UpPushButton *wdg_printbouton   = new UpPushButton(tr("Imprimer"));
-    UpPushButton *wdg_pdfbouton     = new UpPushButton(tr("Créer un pdf"));
-    wdg_annulbouton                 ->setIcon(Icons::icAnnuler());
-    wdg_printbouton                 ->setIcon(Icons::icImprimer());
-    wdg_pdfbouton                   ->setIcon(Icons::icPdf());
+    UpDialog *dlg           = new UpDialog(parent);
+    dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg                     ->setModal(true);
+    dlg                     ->setWindowTitle(tr("Que faire de ce document?"));
 
-    wdg_annulbouton                 ->setData(UpPushButton::ANNULBUTTON);
+    UpCheckBox *printchk    = new UpCheckBox(tr("Imprimer"), dlg);
+    UpCheckBox *pdfchk      = new UpCheckBox(tr("Créer un pdf"), dlg);
+    UpCheckBox *mailchk     = new UpCheckBox(tr("Envoyer par mail"), dlg);
+    printchk                ->setChecked(true);
 
-    msgbox                          ->addButton(wdg_pdfbouton);
-    msgbox                          ->addButton(wdg_printbouton);
-    msgbox                          ->addButton(wdg_annulbouton);
+    /*! le mot de passe n'est pas ici, il est local au poste - on ne vérifie que ce qui est en base */
+    QStringList manque;
+    int id = (idlieu < 0? Datas::I()->sites->idcurrentsite() : idlieu);
+    Site *sit = (id > 0? Datas::I()->sites->getById(id) : Q_NULLPTR);
+    if (sit == Q_NULLPTR)
+        manque << tr("le lieu d'exercice du document est inconnu");
+    else
+    {
+        if (sit->mail() == "")          manque << tr("l'adresse mail du lieu");
+        if (sit->smtpserveur() == "")   manque << tr("le serveur d'envoi");
+        if (sit->smtplogin() == "")     manque << tr("l'identifiant de connexion");
+        if (sit->smtpport() <= 0)       manque << tr("le port du serveur d'envoi");
+    }
+    mailchk                 ->setEnabled(mail != Q_NULLPTR && manque.size() == 0);
+    if (manque.size() > 0)
+        mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "), true);
 
-    wdg_printbouton                 ->setFocus();
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg->layout());
+    lay                     ->insertWidget(0, printchk);
+    lay                     ->insertWidget(1, pdfchk);
+    lay                     ->insertWidget(2, mailchk);
+    lay                     ->setSizeConstraint(QLayout::SetFixedSize);
 
-    bool initok = (msgbox->exec() == QDialog::Accepted && msgbox->clickedpushbutton() != wdg_annulbouton);
+    auto majOK = [=]  { dlg->OKButton->setEnabled(printchk->isChecked() || pdfchk->isChecked() || mailchk->isChecked()); };
+    connect (printchk,      &QCheckBox::toggled,    dlg,    majOK);
+    connect (pdfchk,        &QCheckBox::toggled,    dlg,    majOK);
+    connect (mailchk,       &QCheckBox::toggled,    dlg,    majOK);
+
+    bool initok = (dlg->exec() == QDialog::Accepted);
     if (initok)
-        pdf = (msgbox->clickedpushbutton() == wdg_pdfbouton);
-    delete msgbox;
+    {
+        pdf = pdfchk->isChecked();
+        if (print != Q_NULLPTR)
+            *print = printchk->isChecked();
+        if (mail != Q_NULLPTR)
+            *mail = mailchk->isChecked();
+    }
+    delete dlg;
     return initok;
 }
 
@@ -1957,7 +1992,7 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
 void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map)
 {
     bool pdf = false;
-    if (QuestionPdfOrPrint(parent, pdf))
+    if (MailPdfOrPrint(parent, pdf))
     {
         if (pdf)
             createPdfFromListImage(listimage, map, parent);
