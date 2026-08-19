@@ -81,6 +81,7 @@ public:
 #define TBL_APPAREILSREFRACTION               "rufus.AppareilsRefraction"
 #define TBL_CCAM                              "rufus.ccam"
 #define TBL_COMMERCIALS                       "rufus.Commercials"
+#define TBL_COMMENTAIRESIMPRESSIONS           "rufus.commentairesimpressions"
 #define TBL_CORRESPONDANTS                    "rufus.correspondants"
 #define TBL_COTATIONS                         "rufus.cotations"
 #define TBL_DOSSIERSIMPRESSIONS               "rufus.Metadocuments"
@@ -852,6 +853,14 @@ public:
 #define CP_PARDEFAUT_COMLUN                             "ParDefautComment"
 #define CP_IDUSER_COMLUN                                "idUser"
 #define CP_PUBLIC_COMLUN                                "ComPublic"
+
+                            //! Table Rufus.commentairesimpressions
+#define CP_ID_COMIMPR                                   "idCommentImpr"
+#define CP_TEXT_COMIMPR                                 "TextComment"
+#define CP_RESUME_COMIMPR                               "ResumeComment"
+#define CP_PARDEFAUT_COMIMPR                            "ParDefautComment"
+#define CP_IDUSER_COMIMPR                               "idUser"
+#define CP_PUBLIC_COMIMPR                               "ComPublic"
 
                         //! Table Ophtalmologie.tonometries
 #define CP_ID_TONO                                      "idTono"

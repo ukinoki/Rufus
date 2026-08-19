@@ -64,6 +64,15 @@ BEGIN
         PRIMARY KEY (`idJointure`),
         KEY `idMailidx` (`idMail`),
         KEY `idImpressionidx` (`idImpression`));
+-- commentaires des documents imprimes, sur le modele de Ophtalmologie.commentaireslunettes
+    CREATE TABLE IF NOT EXISTS `rufus`.`commentairesimpressions` (
+        `idCommentImpr` INT(11) NOT NULL AUTO_INCREMENT,
+        `TextComment` TEXT NOT NULL,
+        `ResumeComment` VARCHAR(50) NOT NULL,
+        `ParDefautComment` TINYINT(1) NULL DEFAULT NULL,
+        `idUser` INT(11) NULL DEFAULT NULL,
+        `ComPublic` INT(1) NULL DEFAULT NULL,
+        PRIMARY KEY (`idCommentImpr`));
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 84;
 END|
 CALL MAJ84();

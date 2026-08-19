@@ -633,6 +633,33 @@ INSERT INTO `ccam` VALUES (8294,'ZCQH002','Scanographie de l\'abdomen ou du peti
 UNLOCK TABLES;
 
 --
+-- Table structure for table `commentairesimpressions`
+--
+
+DROP TABLE IF EXISTS `commentairesimpressions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `commentairesimpressions` (
+  `idCommentImpr` int(11) NOT NULL AUTO_INCREMENT,
+  `TextComment` text NOT NULL,
+  `ResumeComment` varchar(50) NOT NULL,
+  `ParDefautComment` tinyint(1) DEFAULT NULL,
+  `idUser` int(11) DEFAULT NULL,
+  `ComPublic` int(1) DEFAULT NULL,
+  PRIMARY KEY (`idCommentImpr`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `commentairesimpressions`
+--
+
+LOCK TABLES `commentairesimpressions` WRITE;
+/*!40000 ALTER TABLE `commentairesimpressions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `commentairesimpressions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `correspondants`
 --
 
