@@ -36,7 +36,7 @@ Commercial* Commercials::getById(int id)
         if (man)
             add( map_all, man, Item::Update );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<Commercial*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<Commercial*>(it.value()) : nullptr);
     }
     return itman.value();
 }
@@ -74,7 +74,7 @@ void Commercials::SupprimeCommercial(Commercial* man, QWidget *parent)
 
 Commercial* Commercials::CreationCommercial(QHash<QString, QVariant> sets)
 {
-    Commercial *com = Q_NULLPTR;
+    Commercial *com = nullptr;
     int idcommercial = 0;
     DataBase::I()->locktables(QStringList() << TBL_COMMERCIALS);
     idcommercial = DataBase::I()->selectMaxFromTable(CP_ID_COM, TBL_COMMERCIALS, m_ok);
@@ -88,7 +88,7 @@ Commercial* Commercials::CreationCommercial(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce fabricant dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce fabricant dans la base!"));
         return com;
     }
     QJsonObject  data = QJsonObject{};
@@ -106,7 +106,7 @@ Commercial* Commercials::CreationCommercial(QHash<QString, QVariant> sets)
         else if (champ == CP_IDMANUFACTURER_COM)            data[champ] = itset.value().toInt();
     }
     com = new Commercial(data);
-    if (com != Q_NULLPTR)
+    if (com != nullptr)
         map_all->insert(com->id(), com);
     return com;
 }

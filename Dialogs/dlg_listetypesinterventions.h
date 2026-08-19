@@ -27,7 +27,7 @@ class dlg_listetypesinterventions : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_listetypesinterventions(TypeIntervention* typ = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit dlg_listetypesinterventions(TypeIntervention* typ = nullptr, QWidget *parent = nullptr);
     ~dlg_listetypesinterventions();
     QList<int>          listtypDepart() const;
     enum Mode           {Selection, Modification, Creation};     Q_ENUM(Mode)
@@ -41,9 +41,9 @@ private:
     WidgetButtonFrame   *wdg_buttonframe;
     QHBoxLayout         *wdg_editlayout;
     UpDialog            *dlg_ask;
-    UpStandardItemModel *m_model = Q_NULLPTR;
+    UpStandardItemModel *m_model = nullptr;
     QHash<QString, QVariant>    m_listbinds;
-    TypeIntervention    *m_currenttype = Q_NULLPTR;
+    TypeIntervention    *m_currenttype = nullptr;
     QString             m_textdelegate = "";
     QString             m_ccamdelegate = "";
 
@@ -52,9 +52,9 @@ private:
     bool                ChercheDoublon(QString str, int row);
     void                ChoixButtonFrame();
     void                ChoixMenuContextuel(QString);
-    void                ConfigMode(Mode mode, TypeIntervention *typ = Q_NULLPTR);
+    void                ConfigMode(Mode mode, TypeIntervention *typ = nullptr);
     void                DisableLines();
-    void                EnableButtons(TypeIntervention *typ = Q_NULLPTR);
+    void                EnableButtons(TypeIntervention *typ = nullptr);
     void                EnableLines(int row = -1);
     bool                EnregistreType(TypeIntervention *typ);
     TypeIntervention*   getTypeFromIndex(QModelIndex idx);

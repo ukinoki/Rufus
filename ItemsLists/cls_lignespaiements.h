@@ -33,7 +33,7 @@ private:
                                                         * la key est donc la concaténation de ces 2 champs séparés par un séparateur */
 
 public:
-    explicit                        LignesPaiements(QObject *parent = Q_NULLPTR);
+    explicit                        LignesPaiements(QObject *parent = nullptr);
 
     QMap<QString, LignePaiement *>* lignespaiements() const;
     LignePaiement*                  getById(QString stringid);

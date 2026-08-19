@@ -25,11 +25,11 @@ class Refractions : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Refraction*> *map_all = Q_NULLPTR;    //!< la liste des refractions
+    QMap<int, Refraction*> *map_all = nullptr;    //!< la liste des refractions
     int m_idpat = 0;                                        //!< l'id du patient concerné par la la map de refractions
 
 public:
-    explicit Refractions(QObject *parent = Q_NULLPTR);
+    explicit Refractions(QObject *parent = nullptr);
 
     QMap<int, Refraction *> *refractions() const;
     int idpatient() const { return m_idpat ; }
@@ -38,7 +38,7 @@ public:
     void initListebyPatId(int id);
 
     //!> actions sur les enregistrements
-    void            SupprimeRefraction(Refraction *ref, QWidget *parent = Q_NULLPTR);
+    void            SupprimeRefraction(Refraction *ref, QWidget *parent = nullptr);
     Refraction*     CreationRefraction(QHash<QString, QVariant> sets);
 };
 

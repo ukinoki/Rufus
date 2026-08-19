@@ -29,7 +29,7 @@ class dlg_docsvideo : public QObject
 {
     Q_OBJECT
 public:
-    dlg_docsvideo(Patient *pat, QWidget *parent = Q_NULLPTR);
+    dlg_docsvideo(Patient *pat, QWidget *parent = nullptr);
     void                NavigueVers(UpToolBar::Choice choix);
 
     dlg_singleimageviewer *dialog() const;
@@ -38,18 +38,18 @@ public:
 private:
     DataBase            *db                 = DataBase::I();
     Procedures          *proc               = Procedures::I();
-    Patient             *m_currentpatient   = Q_NULLPTR;
+    Patient             *m_currentpatient   = nullptr;
     QStringList         m_listtypesexamen   = QStringList();
     QString             m_docpath           = QString();
     QDate               m_currentdate       = db->ServerDate();
     QString             m_currentvideofile  = QString();
 
-    UpLineEdit          *wdg_linetitre          = Q_NULLPTR;
-    QDateEdit           *wdg_editdate           = Q_NULLPTR;
-    UpComboBox          *wdg_typedoccombobx     = Q_NULLPTR;
-    UpToolBar           *wdg_toolbar            = Q_NULLPTR;
-    UpPushButton        *wdg_dirsearchbutton    = Q_NULLPTR;
-    dlg_singleimageviewer *dlg_imgviewer        = Q_NULLPTR;
+    UpLineEdit          *wdg_linetitre          = nullptr;
+    QDateEdit           *wdg_editdate           = nullptr;
+    UpComboBox          *wdg_typedoccombobx     = nullptr;
+    UpToolBar           *wdg_toolbar            = nullptr;
+    UpPushButton        *wdg_dirsearchbutton    = nullptr;
+    dlg_singleimageviewer *dlg_imgviewer        = nullptr;
     bool                m_initOK                = false;
     QStringList         m_filters               = QStringList() << "*.mp4" << "*.mpg" << "*.m4v";
 
@@ -57,7 +57,7 @@ private:
     void                ChangeFile();
     void                ValideFiche();
     bool                searchDir(bool &pathchanged);
-    QMenu               *m_Menu                 = Q_NULLPTR;
+    QMenu               *m_Menu                 = nullptr;
 };
 
 #endif // DLG_DOCSVIDEO_H

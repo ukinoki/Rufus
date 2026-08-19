@@ -39,8 +39,8 @@ public:
     };
     Q_DECLARE_FLAGS(Options, Option)
 
-    RangeSlider( QWidget* aParent = Q_NULLPTR);
-    RangeSlider( Qt::Orientation ori, Options t = DoubleHandles, QWidget* aParent = Q_NULLPTR);
+    RangeSlider( QWidget* aParent = nullptr);
+    RangeSlider( Qt::Orientation ori, Options t = DoubleHandles, QWidget* aParent = nullptr);
 
     QSize minimumSizeHint() const override;
 

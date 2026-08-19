@@ -26,24 +26,24 @@ class Sites : public ItemsList
     Q_OBJECT
 private:
     QMap<int, Site*> *map_all;                        //!<Collection de tous les sites sans exception, généralistes ou pas
-    Site*           m_currentsite = Q_NULLPTR;          //!> le site en cours
+    Site*           m_currentsite = nullptr;          //!> le site en cours
 
 public:
     //GETTER
     QMap<int, Site *> *sites()     const;
 
-    Sites(QObject *parent = Q_NULLPTR);
+    Sites(QObject *parent = nullptr);
 
     Site*                   getById(int id, bool reload = false);
     void                    initListe();
     QMap<Site *, qlonglong> initListeByUser(int idusr);
     Site*                   currentsite() const             { return m_currentsite; }
     void                    setcurrentsite(Site* site)      { m_currentsite = site; }
-    int                     idcurrentsite() const           { return (m_currentsite != Q_NULLPTR? m_currentsite->id() : -1); }
+    int                     idcurrentsite() const           { return (m_currentsite != nullptr? m_currentsite->id() : -1); }
 
     //!> actions sur les enregistrements
-    void                    SupprimeSite(Site *sit, QWidget *parent = Q_NULLPTR);
-    Site*                   CreationSite(QHash<QString, QVariant> sets, QWidget *parent = Q_NULLPTR);
+    void                    SupprimeSite(Site *sit, QWidget *parent = nullptr);
+    Site*                   CreationSite(QHash<QString, QVariant> sets, QWidget *parent = nullptr);
 };
 
 #endif // SITES_H

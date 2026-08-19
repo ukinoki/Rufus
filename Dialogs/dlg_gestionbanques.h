@@ -38,7 +38,7 @@ class dlg_gestionbanques : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_gestionbanques(QWidget *parent = Q_NULLPTR, QString nouvbanqueabrege = "");
+    explicit dlg_gestionbanques(QWidget *parent = nullptr, QString nouvbanqueabrege = "");
     ~dlg_gestionbanques();
     Ui::dlg_gestionbanques  *ui;
     enum Mode           {Norm, Modif, Nouv, Suppr};    Q_ENUM(Mode)
@@ -48,7 +48,7 @@ private:
     DataBase            *db = DataBase::I();
     UpTableWidget       *wdg_bigtable;
     WidgetButtonFrame   *wdg_buttonframe;
-    QStandardItemModel  *m_model = Q_NULLPTR;
+    QStandardItemModel  *m_model = nullptr;
     bool                m_fermeapresvalidation;
     Mode                m_mode;
 

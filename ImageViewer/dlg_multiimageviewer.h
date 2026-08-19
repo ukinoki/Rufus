@@ -10,7 +10,7 @@ class dlg_multiimageviewer : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_multiimageviewer(QList<int> listiddocs, int idcurrentdoc = 0, QWidget *parent = Q_NULLPTR);
+    dlg_multiimageviewer(QList<int> listiddocs, int idcurrentdoc = 0, QWidget *parent = nullptr);
     ~dlg_multiimageviewer();
     void                    Actualize();
 
@@ -20,8 +20,8 @@ private:
     UpTableView             *wdg_table;
     QStringList             m_listtypedocs      = QStringList();
     QList<QDate>            m_listdates         = QList<QDate>();
-    UpStandardItemModel     *m_Xmodel           = Q_NULLPTR;
-    UpStandardItemModel     *m_treemodel        = Q_NULLPTR;
+    UpStandardItemModel     *m_Xmodel           = nullptr;
+    UpStandardItemModel     *m_treemodel        = nullptr;
     UpCheckBox              *ODchkBox           = new UpCheckBox(tr("ŒIL DROIT"));
     UpCheckBox              *OGchkBox           = new UpCheckBox(tr("ŒIL GAUCHE"));
     UpCheckBox              *BothchkBox         = new UpCheckBox(tr("LES 2"));

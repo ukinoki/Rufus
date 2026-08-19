@@ -42,7 +42,7 @@ Compte* Comptes::getById(int id, bool reload)
         if (cpt)
             add( map_all, cpt );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<Compte*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<Compte*>(it.value()) : nullptr);
     }
     else if (reload)
     {
@@ -80,7 +80,7 @@ QMap<int, bool> Comptes::initListeComptesByIdUser(int id)
 
 Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString IntituleCompte, QString NomCompteAbrege, double SoldeSurDernierReleve, bool Partage, bool Desactive)
 {
-    Compte *cpt = Q_NULLPTR;
+    Compte *cpt = nullptr;
     QString idbq            = (idBanque == 0?               "null" : QString::number(idBanque));
     QString idusr           = (idUser == 0?                 "null" : QString::number(idUser));
     QString iban            = (IBAN == ""?                  "null" : "'" + Utils::correctquoteSQL(IBAN) + "'");
@@ -113,14 +113,14 @@ Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString 
     if (!DataBase::I()->StandardSQL(req, MsgErreur))
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     // Récupération de l'idMotif créé ------------------------------------
     int idcpt = DataBase::I()->selectMaxFromTable(CP_ID_COMPTES, TBL_COMPTES, m_ok, tr("Impossible de sélectionner les enregistrements"));
     if (!m_ok)
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     DataBase::I()->unlocktables();
     cpt = new Compte();

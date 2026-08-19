@@ -43,7 +43,7 @@ private:
     double m_montant = 0.00;
 
 public:
-    explicit LigneCompte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit LigneCompte(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     int idcompte() const                { return m_idcompte; }              //! le compte bancaire de la ligne

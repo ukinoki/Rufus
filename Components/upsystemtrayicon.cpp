@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "upsystemtrayicon.h"
 
-UpSystemTrayIcon* UpSystemTrayIcon::instance =  Q_NULLPTR;
+UpSystemTrayIcon* UpSystemTrayIcon::instance =  nullptr;
 UpSystemTrayIcon* UpSystemTrayIcon::I()
 {
     if( !instance )

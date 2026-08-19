@@ -45,14 +45,14 @@ LigneCompte* LignesComptes::getById(int id)
             add( map_lignes, lign );
             return lign;
         }
-        return Q_NULLPTR;
+        return nullptr;
     }
     return itlign.value();
 }
 
 void LignesComptes::reloadLigne(LigneCompte *lign)
 {
-    if (lign == Q_NULLPTR)
+    if (lign == nullptr)
         return;
     lign->setData(DataBase::I()->loadLigneCompteDataById(lign->id()));
 }

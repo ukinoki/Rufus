@@ -32,7 +32,7 @@ class dlg_paiementtiers : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_paiementtiers(QWidget *parent = Q_NULLPTR);
+    explicit dlg_paiementtiers(QWidget *parent = nullptr);
     ~dlg_paiementtiers();
     Ui::dlg_paiementtiers   *ui;
     bool                    initOK() const;
@@ -65,7 +65,7 @@ private:
     QList<QString>          m_montantactesamodifier;
 
     QTimer                  *t_timerrecord, *t_timerafficheacteverrouille, *t_timerafficheacteverrouilleclignotant;
-    User                    *m_useracrediter    = Q_NULLPTR;
+    User                    *m_useracrediter    = nullptr;
     User*                   currentuser() { return Datas::I()->users->userconnected(); }
 
     QMap<int, User*>        *map_comptables;

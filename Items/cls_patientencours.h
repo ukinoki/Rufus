@@ -45,7 +45,7 @@ private:
     int m_idsaldat              = 0;
 
 public:
-    explicit PatientEnCours(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit PatientEnCours(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     int idusersuperviseur() const       { return m_idusersuperviseur; }

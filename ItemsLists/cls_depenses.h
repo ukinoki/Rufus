@@ -25,19 +25,19 @@ class Depenses : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Depense*> *map_depenses = Q_NULLPTR;    //!< Collection de toutes les depenses pour un user et une année donnée
+    QMap<int, Depense*> *map_depenses = nullptr;    //!< Collection de toutes les depenses pour un user et une année donnée
 
 public:
     //GETTER
     QMap<int, Depense *> *depenses()     const;
 
-    Depenses(QObject *parent = Q_NULLPTR);
+    Depenses(QObject *parent = nullptr);
 
     Depense*    getById(int id);
     void        initListeByUser(int iduser);
 
     //!> actions sur les enregistrements
-    void        SupprimeDepense(Depense *dep, QWidget *parent = Q_NULLPTR);
+    void        SupprimeDepense(Depense *dep, QWidget *parent = nullptr);
     Depense*    CreationDepense(int idUser, QDate DateDep, QString RefFiscale, QString Objet, double Montant, QString FamFiscale, QString Monnaie, int idRec, QString ModePaiement, int Compte, int Nocheque, int  idFacture);
 
     //recherche et modification de l'id rubrique fiscale d'une dépense

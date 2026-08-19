@@ -34,7 +34,7 @@ private:
     bool m_medical = false;
 
 public:
-    explicit Impression(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Impression(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     int iduser() const;
@@ -71,7 +71,7 @@ private:
     QList<int> m_listiddocs = QList<int>();     //! la liste des documents du dossier
 
 public:
-    explicit DossierImpression(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit DossierImpression(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     int iduser() const;

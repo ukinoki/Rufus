@@ -1,6 +1,6 @@
 #include "shinnippon.h"
 
-ShinNippon* ShinNippon::instance = Q_NULLPTR;
+ShinNippon* ShinNippon::instance = nullptr;
 
 ShinNippon* ShinNippon::I()
 {

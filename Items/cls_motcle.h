@@ -32,7 +32,7 @@ private:
     QString m_motcle = "";            //!< motclé
 
 public:
-    MotCle(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    MotCle(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
     void resetdatas();
 

@@ -27,7 +27,7 @@ class dlg_docsscanner : public QObject
 public:
     enum Mode          {Document, Facture, Echeancier};    Q_ENUM(Mode)
     Mode                m_mode;
-    explicit dlg_docsscanner(Item *item, Mode mode = Document, QString titre = "", QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsscanner(Item *item, Mode mode = Document, QString titre = "", QWidget *parent = nullptr);
     ~dlg_docsscanner();
     bool                    initOK() const;
     void                    NavigueVers(UpToolBar::Choice choix);
@@ -38,7 +38,7 @@ public:
 private:
     DataBase                *db             = DataBase::I();
     Procedures              *proc           = Procedures::I();
-    dlg_singleimageviewer   *dlg_imgviewer  = Q_NULLPTR;
+    dlg_singleimageviewer   *dlg_imgviewer  = nullptr;
     bool                    m_accesdistant;
     QString                 m_pathdirstockageimagerie;
     QDate                   m_currentdate   = db->ServerDate();

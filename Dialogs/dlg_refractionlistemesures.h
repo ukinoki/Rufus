@@ -25,7 +25,7 @@ class dlg_refractionlistemesures : public UpDialog
     Q_OBJECT
 public:
     enum Mode               {Supprimer, Recuperer};   Q_ENUM(Mode)
-    explicit                dlg_refractionlistemesures(Mode mode, QWidget *parent = Q_NULLPTR);
+    explicit                dlg_refractionlistemesures(Mode mode, QWidget *parent = nullptr);
     ~dlg_refractionlistemesures();
     Refraction*             RefractionAOuvrir() const;
 
@@ -33,7 +33,7 @@ private:
     Procedures          *proc   = Procedures::I();
     DataBase            *db     = DataBase::I();
     QTableView          *wdg_bigtable;
-    QStandardItemModel  *m_model = Q_NULLPTR;
+    QStandardItemModel  *m_model = nullptr;
     Mode                m_mode;
     Refraction*         m_refselectionne;
 

@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 Actes::Actes(QObject *parent) : ItemsList(parent)
 {
     map_actes = new QMap<int, Acte*>();
-    m_actesmodel = Q_NULLPTR;
+    m_actesmodel = nullptr;
 }
 
 QMap<int, Acte *> *Actes::actes() const
@@ -42,7 +42,7 @@ void Actes::setcurrentacte(Acte *act)
  */
 void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
 {
-    if (pat == Q_NULLPTR)
+    if (pat == nullptr)
         return;
     if (upd == Item::NoUpdate)
         clearAll(map_actes);
@@ -60,7 +60,7 @@ void Actes::sortActesByDate()  /*! cette fonction n'est pour l'instant pas utili
                                  * si on continue à défiler par id, cet acte n'apparaîtra pas en ordre chronologique mais en dernier. */
 {
     // toute la manip qui suit sert à remetre les actes par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
-    if (m_actesmodel != Q_NULLPTR)
+    if (m_actesmodel != nullptr)
         delete m_actesmodel;
     m_actesmodel = new QStandardItemModel(this);
     for (auto it = map_actes->constBegin(); it != map_actes->constEnd(); ++it)
@@ -93,22 +93,22 @@ Acte* Actes::getActeFromIndex(QModelIndex idx)
     QModelIndex heureindx   = m_actesortmodel->mapToSource(idx);                      //  -> m_heuresortmodel
     QModelIndex pindx       = m_heuresortmodel->mapToSource(heureindx);               //  -> m_actesmodel
     UpStandardItem *item = dynamic_cast<UpStandardItem *>(m_actesmodel->itemFromIndex(pindx));
-    if (item != Q_NULLPTR)
+    if (item != nullptr)
         return qobject_cast<Acte *>(item->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 /*!
  * \brief Actes::getById -> charge un acte à partir de son id
  * \param id
- * \param details si l'acte n'est pas dans liste et si details = LoadDetails => va chercher l'acte dans la BDD sinon, renvoie Q_NULLPTR
+ * \param details si l'acte n'est pas dans liste et si details = LoadDetails => va chercher l'acte dans la BDD sinon, renvoie nullptr
  * \return
  * +++++ cette fonction n'ajoute pas l'acte à la map_actes quelquesoit son résultat
  */
 Acte* Actes::getById(int id, Item::LOADDETAILS details)
 {
-    Acte * act = Q_NULLPTR;
+    Acte * act = nullptr;
     QMap<int, Acte*>::const_iterator itact = map_actes->constFind(id);
     if( itact == map_actes->constEnd() )
     {
@@ -143,7 +143,7 @@ QList<int> Actes::listCourriersByUser(int iduser)
 
 void Actes::updateActe(Acte* acte)
 {
-    if (acte == Q_NULLPTR)
+    if (acte == nullptr)
         return;
     acte->setData(DataBase::I()->loadActeAllData(acte->id()));
 }
@@ -155,9 +155,9 @@ void Actes::SupprimeActe(Acte* act, QWidget *parent)
 
 Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
 {
-    if (pat == Q_NULLPTR)
-        return Q_NULLPTR;
-    Acte *act = Q_NULLPTR;
+    if (pat == nullptr)
+        return nullptr;
+    Acte *act = nullptr;
     QString rempla = (usr->isRemplacant()? "1" : "null");
     QString comptable = (usr->idcomptableactes() > 0? QString::number(usr->idcomptableactes()) : "null");
     QString creerrequete =
@@ -180,12 +180,12 @@ Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
     if (!DataBase::I()->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + TBL_ACTES))
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     int idacte = DataBase::I()->selectMaxFromTable(CP_ID_ACTES, TBL_ACTES, m_ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
     DataBase::I()->unlocktables();
     if (!m_ok)
-        return Q_NULLPTR;
+        return nullptr;
     act = new Acte();
     act->setid(idacte);
     act->setidpatient(pat->id());

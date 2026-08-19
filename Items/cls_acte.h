@@ -61,7 +61,7 @@ private:
     QTime m_heure;              //!< heure de la création de l'acte
 
 public:
-    Acte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    Acte(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     bool courrierAFaire();

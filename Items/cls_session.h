@@ -49,7 +49,7 @@ private:
     QDateTime m_datefin = QDateTime();
 
 public:
-    Session(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    Session(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     QDateTime datedebut() const             { return m_datedebut; };

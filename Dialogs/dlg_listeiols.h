@@ -34,7 +34,7 @@ class dlg_listeiols : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit                dlg_listeiols(bool onlyactifs = false, QWidget *parent = Q_NULLPTR);
+    explicit                dlg_listeiols(bool onlyactifs = false, QWidget *parent = nullptr);
     ~dlg_listeiols();
     int                     idcurrentIOL() const;
     bool                    listeIOLsmodifiee() const;
@@ -43,31 +43,31 @@ private:
     bool                    m_listemodifiee = false;
     bool                    m_onlyactifs;
     QList<int>              m_listidiolsutilises;
-    QStandardItemModel      *m_IOLsmodel            = Q_NULLPTR;
-    QStandardItemModel      *m_manufacturersmodel   = Q_NULLPTR;
-    UpComboBox              *wdg_manufacturerscombo = Q_NULLPTR;
-    UpCheckBox              *wdg_pwrchk             = Q_NULLPTR;
-    UpComboBox              *wdg_typebox            = Q_NULLPTR;
-    UpCheckBox              *wdg_prechargechk       = Q_NULLPTR;
-    UpCheckBox              *wdg_jaunechk           = Q_NULLPTR;
-    UpCheckBox              *wdg_clairchk           = Q_NULLPTR;
-    UpCheckBox              *wdg_singlepiecechk     = Q_NULLPTR;
-    UpCheckBox              *wdg_twopiecechk        = Q_NULLPTR;
-    UpCheckBox              *wdg_toricchk           = Q_NULLPTR;
-    UpCheckBox              *wdg_edofchk            = Q_NULLPTR;
-    UpCheckBox              *wdg_multifocalchk      = Q_NULLPTR;
-    UpCheckBox              *wdg_monofocalchk       = Q_NULLPTR;
-    UpLabel                 *wdg_minpwrlbl          = Q_NULLPTR;
-    UpLabel                 *wdg_maxpwrlbl          = Q_NULLPTR;
-    RangeSlider             *wdg_rangepwrslider     = Q_NULLPTR;
+    QStandardItemModel      *m_IOLsmodel            = nullptr;
+    QStandardItemModel      *m_manufacturersmodel   = nullptr;
+    UpComboBox              *wdg_manufacturerscombo = nullptr;
+    UpCheckBox              *wdg_pwrchk             = nullptr;
+    UpComboBox              *wdg_typebox            = nullptr;
+    UpCheckBox              *wdg_prechargechk       = nullptr;
+    UpCheckBox              *wdg_jaunechk           = nullptr;
+    UpCheckBox              *wdg_clairchk           = nullptr;
+    UpCheckBox              *wdg_singlepiecechk     = nullptr;
+    UpCheckBox              *wdg_twopiecechk        = nullptr;
+    UpCheckBox              *wdg_toricchk           = nullptr;
+    UpCheckBox              *wdg_edofchk            = nullptr;
+    UpCheckBox              *wdg_multifocalchk      = nullptr;
+    UpCheckBox              *wdg_monofocalchk       = nullptr;
+    UpLabel                 *wdg_minpwrlbl          = nullptr;
+    UpLabel                 *wdg_maxpwrlbl          = nullptr;
+    RangeSlider             *wdg_rangepwrslider     = nullptr;
     QWidget                 *wdg_pwrslider          = new QWidget();
     double                  m_minpwr                = 10.00;
     double                  m_maxpwr                = 30.00;
-    UpPushButton            *wdg_annulfiltresbut    = Q_NULLPTR;
-    QTreeView               *wdg_itemstree          = Q_NULLPTR;
-    WidgetButtonFrame       *wdg_buttonframe        = Q_NULLPTR;
+    UpPushButton            *wdg_annulfiltresbut    = nullptr;
+    QTreeView               *wdg_itemstree          = nullptr;
+    WidgetButtonFrame       *wdg_buttonframe        = nullptr;
     TreeViewDelegate        m_treedelegate;
-    IOL                     *m_currentIOL           = Q_NULLPTR;
+    IOL                     *m_currentIOL           = nullptr;
     bool                    m_filterbypwr           = false;
     QLabel                  *m_IOLtotalcount        = new QLabel;
 

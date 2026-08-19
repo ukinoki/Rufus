@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gbl_datas.h"
 
-Datas* Datas::instance =  Q_NULLPTR;
+Datas* Datas::instance =  nullptr;
 Datas* Datas::I()
 {
     if( !instance )

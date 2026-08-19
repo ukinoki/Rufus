@@ -29,14 +29,14 @@ class dlg_salledattente : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_salledattente(Acte *act, QString Titre, QWidget *parent = Q_NULLPTR);
+    explicit dlg_salledattente(Acte *act, QString Titre, QWidget *parent = nullptr);
     ~dlg_salledattente();
     Ui::dlg_salledattente *ui;
 private:
     Acte                *m_currentact;
     void                OKButtonClicked();
     void                EnableOKButton();
-    PatientEnCours*     m_patcrs = Q_NULLPTR;
+    PatientEnCours*     m_patcrs = nullptr;
 };
 
 #endif // DLG_SALLEDATTENTE_H

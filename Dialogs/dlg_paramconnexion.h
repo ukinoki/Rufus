@@ -42,7 +42,7 @@ class dlg_paramconnexion : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit            dlg_paramconnexion(QWidget *parent = Q_NULLPTR);
+    explicit            dlg_paramconnexion(QWidget *parent = nullptr);
     Utils::ModeAcces    modeacces() const       { return wdg_localradio->isChecked()?   Utils::ReseauLocal
                                                        : wdg_distantradio->isChecked()? Utils::Distant
                                                                                       : Utils::Poste; }

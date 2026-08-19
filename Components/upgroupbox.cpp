@@ -33,13 +33,13 @@ bool UpGroupBox::eventFilter(QObject *obj, QEvent *event)           //!> ce code
     else if (event->type() == QEvent::FocusIn )
     {
         QWidget *widg = qobject_cast<QWidget *>(obj);
-        if (widg!=Q_NULLPTR)
+        if (widg!=nullptr)
             setStyleSheet(STYLE_UPGROUBOXACTIVE);
     }
     else if (event->type() == QEvent::FocusOut )
     {
         QWidget *widg = qobject_cast<QWidget *>(obj);
-        if (widg!=Q_NULLPTR)
+        if (widg!=nullptr)
             setStyleSheet(STYLE_UPGROUBOXINACTIVE);
     }
     return QWidget::eventFilter(obj, event);

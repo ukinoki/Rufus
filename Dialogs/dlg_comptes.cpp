@@ -42,7 +42,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     }
     else
     {
-        m_compteencours = Q_NULLPTR;
+        m_compteencours = nullptr;
         ui->BanquecomboBox->clear();
         int idcptprefer = -1;
         QListIterator<int> itcpt(m_comptesusr);
@@ -277,7 +277,7 @@ void dlg_comptes::AnnulConsolidations()
                 allCheck.at(n)->setCheckState(Qt::Unchecked);
         }
         LigneCompte *lign = getLigneCompteFromRow(i);
-        if  (lign != Q_NULLPTR)
+        if  (lign != nullptr)
             lign->setconsolide(false);
     }
     db->StandardSQL("update " TBL_LIGNESCOMPTES " set " CP_CONSOLIDE_LIGNCOMPTES " = null where " CP_IDCOMPTE_LIGNCOMPTES " = " +  QString::number(m_idcompte));
@@ -288,7 +288,7 @@ void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
 {
     int row = lbl->Row();
     LigneCompte *lign = getLigneCompteFromRow(row);
-    if  (lign != Q_NULLPTR)
+    if  (lign != nullptr)
     {
         QMenu *menuContextuel       = new QMenu(this);
         QString msg = tr("Supprimer l'écriture") + " - " + lign->libelle() + " du " + QLocale::system().toString(lign->date(),"d MMM yyyy") + "?";
@@ -307,7 +307,7 @@ void dlg_comptes::RenvoieRangee(UpCheckBox* Check)
 {
     int R = Check->rowTable();
     LigneCompte *lign = getLigneCompteFromRow(R);
-    if  (lign != Q_NULLPTR)
+    if  (lign != nullptr)
     {
         lign->setconsolide(Check->isChecked());
         QString requete = "update " TBL_LIGNESCOMPTES " set " CP_CONSOLIDE_LIGNCOMPTES " = ";
@@ -576,11 +576,11 @@ void dlg_comptes::VoirArchives()
     dlg_archives->exec();
     m_dateencours = db->ServerDate();
     delete dlg_archives;
-    dlg_archives = Q_NULLPTR;
+    dlg_archives = nullptr;
 
     m_archivescptencours->clearAll();
     delete m_archivescptencours;
-    m_archivescptencours = Q_NULLPTR;
+    m_archivescptencours = nullptr;
 }
 
 void dlg_comptes::ModifMontant(LigneCompte *lign)
@@ -640,7 +640,7 @@ int dlg_comptes::getRowFromLigneCompte(LigneCompte *lign)
     for (int i=0; i<wdg_bigtable->rowCount(); ++i)
     {
         UpLabel *lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(i,0));
-        if (lbl == Q_NULLPTR)
+        if (lbl == nullptr)
             continue;
         if (lbl->id() == lign->id())
         {
@@ -841,10 +841,10 @@ void dlg_comptes::RemplitLaTable(int idcompte)
     for(int i=0; i<listlign->rowCount(); i++)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(listlign->item(i));
-        if (itm != Q_NULLPTR)
+        if (itm != nullptr)
         {
             LigneCompte *lign = qobject_cast<LigneCompte*>(itm->rufusitem());
-            if (lign != Q_NULLPTR)
+            if (lign != nullptr)
                 SetLigneCompteToRow(lign, i);
             delete itm;
         }
@@ -857,8 +857,8 @@ LigneCompte* dlg_comptes::getLigneCompteFromRow(int row)
 {
     int idcompte = 0;
     UpLabel *lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,0));
-    if (lbl == Q_NULLPTR)
-        return Q_NULLPTR;
+    if (lbl == nullptr)
+        return nullptr;
     idcompte = lbl->id();
     return Datas::I()->lignescomptes->getById(idcompte);
 }

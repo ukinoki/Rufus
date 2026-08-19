@@ -93,7 +93,7 @@ bool UpComboBox::eventFilter(QObject *obj, QEvent *event)
         setvaleuravant(currentText());
     if (event->type() == QEvent::FocusOut)
     {
-        if (lineEdit()!=Q_NULLPTR)
+        if (lineEdit()!=nullptr)
         {
             if (lineEdit()->text() != "")
             {

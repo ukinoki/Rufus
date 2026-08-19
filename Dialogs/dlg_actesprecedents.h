@@ -44,7 +44,7 @@ class dlg_actesprecedents : public QDialog
 {
     Q_OBJECT
 public:
-    dlg_actesprecedents(Patient *pat, QWidget *parent = Q_NULLPTR);
+    dlg_actesprecedents(Patient *pat, QWidget *parent = nullptr);
     ~dlg_actesprecedents();
     int                     idcurrentpatient() const;       //!> renvoie à rufus.cpp le patient concerné
     void                    Actualise();
@@ -55,7 +55,7 @@ public:
 private:
     Ui::dlg_actesprecedents             *ui;
     Procedures                          *proc = Procedures::I();
-    LignesPaiements                     *m_listepaiements = Q_NULLPTR;
+    LignesPaiements                     *m_listepaiements = nullptr;
     Patient                             *m_currentpatient;
     bool                                m_iscurrentpatient = false;
     QMap<int, Acte*>::const_iterator    it_currentacte;

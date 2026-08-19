@@ -23,7 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QElapsedTimer>
 #include <QEventLoop>
 
-Procedures* Procedures::instance =  Q_NULLPTR;
+Procedures* Procedures::instance =  nullptr;
 Procedures* Procedures::I()
 {
     if( !instance )
@@ -204,7 +204,7 @@ Procedures::Procedures(QObject *parent) :
         défaut et, si c'est une imprimante réseau éteinte, gèle le démarrage plusieurs dizaines de
         secondes (« tentative de connexion à l'imprimante »). Le QPrinter n'est utile qu'à
         l'impression d'images (Print()) : on l'y crée à la demande. */
-    m_printer             = Q_NULLPTR;
+    m_printer             = nullptr;
 }
 
 void Procedures::CleanIniFile()
@@ -321,7 +321,7 @@ bool Procedures::AutresPostesConnectes(bool msg)
         Datas::I()->users       ->initListe();
     Datas::I()->postesconnectes->initListe();
     int id = 0;
-    if (Datas::I()->users->userconnected() != Q_NULLPTR)
+    if (Datas::I()->users->userconnected() != nullptr)
         id = Datas::I()->users->userconnected()->id();
     QString stringid = Utils::MACAdress() + " - " + QString::number(id);
     for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
@@ -1106,7 +1106,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
 
     if (dirdestination == "")
     {
-        QString dirSauv = QFileDialog::getExistingDirectory(Q_NULLPTR,
+        QString dirSauv = QFileDialog::getExistingDirectory(nullptr,
                                                             tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base"),
                                                             (QDir(m_parametres->dirbkup()).exists()? m_parametres->dirbkup() : QDir::homePath()));
         if (dirSauv == "")
@@ -1406,7 +1406,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, 
                         if (listbutt.at(j)->isChecked())
                             idparent = listbutt.at(j)->iD();
                     delete dlg_askUser;
-                    dlg_askUser = Q_NULLPTR;
+                    dlg_askUser = nullptr;
                 }
             }
         }
@@ -1542,7 +1542,7 @@ bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString tex
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
     TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
-    if (usr != Q_NULLPTR && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
+    if (usr != nullptr && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
         TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
 
@@ -1582,7 +1582,7 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
     TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
-    if (usr != Q_NULLPTR && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
+    if (usr != nullptr && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
         TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
     QByteArray ba = TexteAImprimer->getPDFByteArray(Etat->document());
@@ -1688,8 +1688,8 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     /*! le mot de passe n'est pas ici, il est local au poste - on ne vérifie que ce qui est en base */
     QStringList manque;
     int id = (idlieu < 0? Datas::I()->sites->idcurrentsite() : idlieu);
-    Site *sit = (id > 0? Datas::I()->sites->getById(id) : Q_NULLPTR);
-    if (sit == Q_NULLPTR)
+    Site *sit = (id > 0? Datas::I()->sites->getById(id) : nullptr);
+    if (sit == nullptr)
         manque << tr("le lieu d'exercice du document est inconnu");
     else
     {
@@ -1698,7 +1698,7 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
         if (sit->smtplogin() == "")     manque << tr("l'identifiant de connexion");
         if (sit->smtpport() <= 0)       manque << tr("le port du serveur d'envoi");
     }
-    mailchk                 ->setEnabled(mail != Q_NULLPTR && manque.size() == 0);
+    mailchk                 ->setEnabled(mail != nullptr && manque.size() == 0);
     if (manque.size() > 0)
         mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "), true);
 
@@ -1765,11 +1765,11 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     if (initok)
     {
         pdf = pdfchk->isChecked();
-        if (print != Q_NULLPTR)
+        if (print != nullptr)
             *print = printchk->isChecked();
-        if (mail != Q_NULLPTR)
+        if (mail != nullptr)
             *mail = mailchk->isChecked();
-        if (imprimante != Q_NULLPTR)
+        if (imprimante != nullptr)
             *imprimante = (tblimprimantes->currentIndex().isValid()? tblimprimantes->currentIndex().data().toString() : "");
     }
     delete dlg;
@@ -1782,8 +1782,8 @@ QByteArray Procedures::getFileFromSQL(Item *item)
     QByteArray ba       = QByteArray();
     DocExterne *docmt   = qobject_cast<DocExterne*>(item);
     Depense *dep        = qobject_cast<Depense*>(item);
-    bool isdocument     = (docmt != Q_NULLPTR);
-    bool isfacture      = (dep != Q_NULLPTR);
+    bool isdocument     = (docmt != nullptr);
+    bool isfacture      = (dep != nullptr);
     if (!isdocument && ! isfacture)
         return ba;
     QString sQuery;
@@ -1907,7 +1907,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
                                    bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante, bool Administratif,
                                    QImage signature)
 {
-    if (pat == Q_NULLPTR || user == Q_NULLPTR)
+    if (pat == nullptr || user == nullptr)
         return false;
     QString     textcorps, textpied, textentete;
     bool        AvecNumPage = false;
@@ -1954,7 +1954,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                               m_dirnamepdf;
-        Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? user : Q_NULLPTR), ALD, dirname, signature);
+        Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? user : nullptr), ALD, dirname, signature);
         QFile file          = QFile(dirname + "/" + filename);
         aa                  = file.exists();
         UpMessageBox::Watch(parent,
@@ -1974,7 +1974,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     if (aa)
     {
         Utils::nettoieHTML(textcorps, 9);
-        QByteArray ba = Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : Q_NULLPTR), ALD, signature);
+        QByteArray ba = Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : nullptr), ALD, signature);
 
         int idpat = 0;
         idpat = pat->id();
@@ -1999,7 +1999,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
         listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = ba;
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        if(doc != Q_NULLPTR)
+        if(doc != nullptr)
             delete doc;
     }
     return aa;
@@ -2054,7 +2054,7 @@ void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QStri
 
 bool Procedures::Print(QList<QImage> listimage, QWidget *parent)
 {
-    if (m_printer == Q_NULLPTR)                      /*! création différée (voir constructeur) */
+    if (m_printer == nullptr)                      /*! création différée (voir constructeur) */
     {
         m_printer             = new QPrinter(QPrinter::HighResolution);
         m_printer             ->setFullPage(true);
@@ -2213,7 +2213,7 @@ QString Procedures::SessionStatus()
             if (cptencaissement)
             {
                 txtliberal +=  "\n" + tr("Honoraires encaissés sur le compte :") + "\t" + cptencaissement->nomabrege();
-                if (Datas::I()->users->getById(currentuser()->idcomptableactes()) != Q_NULLPTR)
+                if (Datas::I()->users->getById(currentuser()->idcomptableactes()) != nullptr)
                     txtliberal += " " + tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptableactes())->login();
             }
             txtstatut += txtliberal;
@@ -2312,9 +2312,9 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, Correspondants::
 
 QString Procedures::MDPAdmin()
 {
-    if (m_parametres == Q_NULLPTR)
+    if (m_parametres == nullptr)
         m_parametres = db->parametres();
-    if (m_parametres == Q_NULLPTR)
+    if (m_parametres == nullptr)
         return Utils::calcSHA1(MDP_ADMINISTRATEUR);
     if (m_parametres->mdpadmin() == "")
         db->setmdpadmin(Utils::calcSHA1(MDP_ADMINISTRATEUR));
@@ -3030,7 +3030,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
             }
         }
         delete dlg_buprestore;
-        dlg_buprestore = Q_NULLPTR;
+        dlg_buprestore = nullptr;
         //qDebug() << msg;
         UpMessageBox::Watch(parent,tr("Restauration terminée"),msg);
         emit ConnectTimers(true);
@@ -3247,7 +3247,7 @@ bool Procedures::VerifVersionBase(QWidget* parent)
                 BupDone = true;
                 Datas::I()->postesconnectes->initListe();
                 PosteConnecte* post = Datas::I()->postesconnectes->admin();
-                if (post != Q_NULLPTR)
+                if (post != nullptr)
                     UpMessageBox::Watch(parent,tr("RufusAdmin présent"), tr("Après la mise à jour de la base") + "\n" +
                                                                             tr("Il vous faudra installer une version de RufusAdmin correspondante à la nouvelle version de la base") + "\n" +
                                                                             tr("Il faudra relancer chaque poste du réseau après le redémarrage de RufusAdmin"));
@@ -3793,7 +3793,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     m_listbinds[CP_DATEDEBUT_SESSIONS]      = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
     Datas::I()->sessions->CreationSession(m_listbinds);
 
-    if (Datas::I()->sites->currentsite() == Q_NULLPTR && currentuser()->isSoignant())
+    if (Datas::I()->sites->currentsite() == nullptr && currentuser()->isSoignant())
         UpMessageBox::Watch(parent,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     m_connexionbaseOK = true;
 
@@ -3856,7 +3856,7 @@ void Procedures::CalcLieuExercice(QWidget *parent)
     for (auto it = mapEtab.cbegin(); it != mapEtab.cend(); ++it)
     {
         Site *sit = qobject_cast<Site*>(it.key());
-        if (sit != Q_NULLPTR)
+        if (sit != nullptr)
             mapid.insert(sit->id(), it.value());
     }
     currentuser()->setmapUserSites(mapid);
@@ -3884,7 +3884,7 @@ void Procedures::CalcLieuExercice(QWidget *parent)
         for (auto it = mapEtab.cbegin(); it != mapEtab.cend(); ++it)
         {
             Site *sit = qobject_cast<Site*>(it.key());
-            if (sit != Q_NULLPTR)
+            if (sit != nullptr)
             {
                 UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
                 pradiobutt->setText(sit->nom());
@@ -3914,7 +3914,7 @@ void Procedures::CalcLieuExercice(QWidget *parent)
         if (currentuser()->isRemplacant())
         {
             User *usr = Datas::I()->users->getById(currentuser()->idparent());
-            if (usr != Q_NULLPTR)
+            if (usr != nullptr)
             {
                 currentuser()->setusenum(usr->usenum());
                 if (usr->usenum())
@@ -3940,7 +3940,7 @@ void Procedures::VerifnumAM(QWidget *parent)
         return;
 
     int idsite = 0;
-    if (Datas::I()->sites->currentsite() != Q_NULLPTR)
+    if (Datas::I()->sites->currentsite() != nullptr)
     {
         idsite = Datas::I()->sites->currentsite()->id();
         currentuser()->setidSite(idsite);
@@ -3949,7 +3949,7 @@ void Procedures::VerifnumAM(QWidget *parent)
     if (currentuser()->isRemplacant() || !m_currentuser->ishisownsupervisor())
     {
         User* usr = Datas::I()->users->getById(currentuser()->idparent());
-        if (usr != Q_NULLPTR)
+        if (usr != nullptr)
         {
             currentuser()->setRPPSnumber(usr->NumPS());
             QMap<Site*,qlonglong> mapEtab = Datas::I()->sites->initListeByUser(usr->id());
@@ -3957,7 +3957,7 @@ void Procedures::VerifnumAM(QWidget *parent)
             for (auto it = mapEtab.cbegin(); it != mapEtab.cend(); ++it)
             {
                 Site *sit = qobject_cast<Site*>(it.key());
-                if (sit != Q_NULLPTR)
+                if (sit != nullptr)
                     mapidparent.insert(sit->id(), it.value());
             }
             QMap<int,qlonglong>::Iterator itr = mapidparent.find(Datas::I()->sites->currentsite()->id());
@@ -4010,7 +4010,7 @@ void Procedures::VerifnumAM(QWidget *parent)
             QCompleter *comp    = new QCompleter(listnumAM);
             comp                ->setCompletionMode(QCompleter::InlineCompletion);
             line                ->setCompleter(comp);
-            line                ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{9}"), Q_NULLPTR));
+            line                ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{9}"), nullptr));
             combo               ->addItems(listnumAM);
             combo               ->setLineEdit(line);
             combo               ->setEditable(true);
@@ -4075,7 +4075,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     Datas::I()->users->initListe();
     Datas::I()->comptes->initListe();
     User *user = currentuser();
-    if (user == Q_NULLPTR)
+    if (user == nullptr)
     {
         UpMessageBox::Watch(parent,tr("Impossible de créer l'utilisateur"),tr("Erreur de création de l'utilisateur"));
         return false;
@@ -4103,7 +4103,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     db                  ->setcotationsfrance(dlg.cotationsfrance());
     db                  ->setVersion(m_version);
     db                  ->setPays(dlg.territoire());
-    if (m_settings != Q_NULLPTR)
+    if (m_settings != nullptr)
         m_settings      ->setValue(Param_Poste_Version, m_version);      //! la langue du poste vit dans rufus.ini
 
     //! le territoire ne pilote pour l'instant que la base des villes et codes postaux
@@ -4138,7 +4138,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
 
     int al = 0;
     QString iban = "FR";
-    srand(static_cast<uint>(time(Q_NULLPTR)));
+    srand(static_cast<uint>(time(nullptr)));
     al = rand() % 100;
     while (al<10)
         al = rand() % 100;
@@ -4452,7 +4452,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
         }
     }
     delete dlg_IdentUser;
-    return (currentuser() != Q_NULLPTR);
+    return (currentuser() != nullptr);
 }
 
 /*! --------------------------------------------------------------------------------------------------------------------------------------
@@ -4639,7 +4639,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
             if( dlg_askUser->exec() != QDialog::Accepted)
             {
                 delete dlg_askUser;
-                dlg_askUser = Q_NULLPTR;
+                dlg_askUser = nullptr;
                 return false;
             }
             foreach (QGroupBox *groupBox, dlg_askUser->findChildren<QGroupBox*>())
@@ -4668,7 +4668,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
                 }
             }
             delete dlg_askUser;
-            dlg_askUser = Q_NULLPTR;
+            dlg_askUser = nullptr;
         }
         if( currentuser()->idsuperviseur() == User::ROLE_INDETERMINE )
         {
@@ -4732,7 +4732,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
                                 if (dlg_askUser->exec() != QDialog::Accepted)
                                 {
                                     delete dlg_askUser;
-                                    dlg_askUser = Q_NULLPTR;
+                                    dlg_askUser = nullptr;
                                     return false;
                                 }
                                 else
@@ -4748,7 +4748,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
                                                 }
                                         }
                                     delete dlg_askUser;
-                                    dlg_askUser = Q_NULLPTR;
+                                    dlg_askUser = nullptr;
                                 }
                             }
                         }
@@ -4857,7 +4857,7 @@ void Procedures::CalcUserSuperviseur()
     User *user = qobject_cast<User *>(dlg_askUser->data());
     currentuser()->setidsuperviseur(User::ROLE_INDETERMINE);
     currentuser()->setidparent(User::ROLE_INDETERMINE);
-    QGroupBox *ptbox = Q_NULLPTR;
+    QGroupBox *ptbox = nullptr;
     QList<QGroupBox*> Listgroupbx   = dlg_askUser->findChildren<QGroupBox*>();
     for (int i=0; i<Listgroupbx.size(); i++)
     {
@@ -4942,7 +4942,7 @@ void Procedures::CalcUserParent()
     User *user = qobject_cast<User *>(dlg_askUser->data());
 
     user->setidsuperviseur( user->id() );
-    QGroupBox *ptbox = Q_NULLPTR;
+    QGroupBox *ptbox = nullptr;
     foreach (QGroupBox * box, dlg_askUser->findChildren<QGroupBox*>())
     {
         if (box->objectName() == "Superv")
@@ -5152,7 +5152,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         //! Tout est OK concernant le serveur -> on passe à la création/restauration de la table
 
 
-        if (m_settings != Q_NULLPTR)
+        if (m_settings != nullptr)
             delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
 
@@ -5257,7 +5257,7 @@ bool Procedures::InstallationRufus(QWidget *parent)
  */
 void Procedures::ReconstruitIniMinimal()
 {
-    if (m_settings != Q_NULLPTR)
+    if (m_settings != nullptr)
         delete m_settings;
     m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
@@ -5394,7 +5394,7 @@ bool Procedures::EprouverConnexionApresSaisie(QWidget *parent)
                                    m_settings->value(base + Param_Port).toInt());
 
     //! Obtenu = mot de passe éprouvé ET enregistré dans .dbkey
-    if (MySQLInstaller::RecupererMotDePasseMySQL(Q_NULLPTR, tr("Mot de passe de la base du cabinet"),
+    if (MySQLInstaller::RecupererMotDePasseMySQL(nullptr, tr("Mot de passe de la base du cabinet"),
             tr("Indiquez le mot de passe de connexion à la base du cabinet.") + "\n" +
             tr("Il se récupère sur une clé USB depuis le poste qui héberge la base "
                "(menu Édition / Paramètres)."))
@@ -5439,7 +5439,7 @@ bool Procedures::EprouverConnexionApresSaisie(QWidget *parent)
 void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
 {
     auto Relectureini = [this]() -> bool {
-        if (m_settings != Q_NULLPTR)
+        if (m_settings != nullptr)
             delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
         return QFile::exists(PATH_FILE_INI) && iniContientModeValide(*m_settings);
@@ -5753,7 +5753,7 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
             }
         }
 
-        if (Datas::I()->actes->currentacte() != Q_NULLPTR)
+        if (Datas::I()->actes->currentacte() != nullptr)
         {
             if (Datas::I()->actes->currentacte()->date() == DataBase::I()->ServerDate()
             || (app != tr("le tonomètre")  // on peut faire plusieurs mesures de tonometrie sur la même consultation donc on ne vérifie pas dans ce cas si une mesure a déjà été faite pour cet acte
@@ -6026,7 +6026,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
         QString PortCom = "";
         QString DeviceName = "";
         Utils::SerialSettings sparamportserie = s_paramPortSerieFronto;
-        upSerialPort *serialport = Q_NULLPTR;
+        upSerialPort *serialport = nullptr;
         switch (appareil) {
         case Fronto:        sparamportserie = s_paramPortSerieFronto;       PortCom = m_portFronto;     DeviceName = tr("Fronto");      break;
         case Autoref:       sparamportserie = s_paramPortSerieAutoref;      PortCom = m_portAutoref;    DeviceName = tr("Autoref");     break;
@@ -6074,13 +6074,13 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             UpMessageBox::Watch(parent, tr("Erreur paramètrage connexion frontofocomètre"), tr("le port de comunication n'est pas configuré"));
         else
         {
-            if (sp_portFronto != Q_NULLPTR)
+            if (sp_portFronto != nullptr)
             {
                 sp_portFronto->close();
                 delete sp_portFronto;
             }
             sp_portFronto = loadserialsettings(Fronto);
-            if (sp_portFronto != Q_NULLPTR && sp_portFronto->isOpen())
+            if (sp_portFronto != nullptr && sp_portFronto->isOpen())
             {
                 if (!sp_portFronto->isOpen())
                     sp_portFronto->open(QIODevice::ReadWrite);
@@ -6094,17 +6094,17 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                     msg += (msg != ""? "<br/>" : "") + tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
                     UpMessageBox::Watch(parent, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
                     delete sp_portFronto;
-                    sp_portFronto = Q_NULLPTR;
+                    sp_portFronto = nullptr;
                 }
             }
             else
                 UpMessageBox::Watch(parent, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
         }
     }
-    else if (sp_portFronto != Q_NULLPTR)
+    else if (sp_portFronto != nullptr)
     {
         delete sp_portFronto;
-        sp_portFronto = Q_NULLPTR;
+        sp_portFronto = nullptr;
         m_settings->remove(Param_Poste_PortFronto_COM_baudrate);
         m_settings->remove(Param_Poste_PortFronto_COM_databits);
         m_settings->remove(Param_Poste_PortFronto_COM_parity);
@@ -6121,13 +6121,13 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             UpMessageBox::Watch(parent, tr("Erreur paramètrage connexion refracteur"), tr("le port de comunication n'est pas configuré"));
         else
         {
-            if (sp_portRefracteur != Q_NULLPTR)
+            if (sp_portRefracteur != nullptr)
             {
                 sp_portRefracteur->close();
                 delete sp_portRefracteur;
             }
             sp_portRefracteur = loadserialsettings(Refracteur);
-            if (sp_portRefracteur != Q_NULLPTR)
+            if (sp_portRefracteur != nullptr)
             {
                 if (!sp_portRefracteur->isOpen())
                     sp_portRefracteur->open(QIODevice::ReadWrite);
@@ -6141,17 +6141,17 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                     msg += (msg != ""? "<br/>" : "") + tr("Impossible de connecter le refracteur sur ") + m_portRefracteur;
                     UpMessageBox::Watch(parent, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
                     delete sp_portRefracteur;
-                    sp_portRefracteur = Q_NULLPTR;
+                    sp_portRefracteur = nullptr;
                 }
             }
             else
                 UpMessageBox::Watch(parent, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
         }
     }
-    else if (sp_portRefracteur != Q_NULLPTR)
+    else if (sp_portRefracteur != nullptr)
     {
         delete sp_portRefracteur;
-        sp_portRefracteur = Q_NULLPTR;
+        sp_portRefracteur = nullptr;
         m_settings->remove(Param_Poste_PortRefracteur_COM_baudrate);
         m_settings->remove(Param_Poste_PortRefracteur_COM_databits);
         m_settings->remove(Param_Poste_PortRefracteur_COM_parity);
@@ -6168,13 +6168,13 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             UpMessageBox::Watch(parent, tr("Erreur paramètrage connexion autorefractomètre"), tr("le port de comunication n'est pas configuré"));
         else
         {
-            if (sp_portAutoref != Q_NULLPTR)
+            if (sp_portAutoref != nullptr)
             {
                 sp_portAutoref->close();
                 delete sp_portAutoref;
             }
             sp_portAutoref = loadserialsettings(Autoref);
-            if (sp_portAutoref != Q_NULLPTR)
+            if (sp_portAutoref != nullptr)
             {
                 if (!sp_portAutoref->isOpen())
                     sp_portAutoref->open(QIODevice::ReadWrite);
@@ -6188,17 +6188,17 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                     msg += (msg != ""? "<br/>" : "") + tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref;
                     UpMessageBox::Watch(parent, tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref, listeports);
                     delete sp_portAutoref;
-                    sp_portAutoref = Q_NULLPTR;
+                    sp_portAutoref = nullptr;
                 }
             }
             else
                 UpMessageBox::Watch(parent, tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref, listeports);
         }
     }
-    else if (sp_portAutoref != Q_NULLPTR)
+    else if (sp_portAutoref != nullptr)
     {
         delete sp_portAutoref;
-        sp_portAutoref = Q_NULLPTR;
+        sp_portAutoref = nullptr;
         m_settings->remove(Param_Poste_PortAutoref_COM_baudrate);
         m_settings->remove(Param_Poste_PortAutoref_COM_databits);
         m_settings->remove(Param_Poste_PortAutoref_COM_parity);
@@ -6214,13 +6214,13 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             UpMessageBox::Watch(parent, tr("Erreur paramètrage connexion tonomomètre"), tr("le port de comunication n'est pas configuré"));
         else
         {
-            if (sp_portTono != Q_NULLPTR)
+            if (sp_portTono != nullptr)
             {
                 sp_portTono->close();
                 delete sp_portTono;
             }
             sp_portTono = loadserialsettings(Tonometre);
-            if (sp_portTono != Q_NULLPTR)
+            if (sp_portTono != nullptr)
             {
                 if (!sp_portTono->isOpen())
                     sp_portTono->open(QIODevice::ReadWrite);
@@ -6234,17 +6234,17 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                     msg += (msg != ""? "<br/>" : "") + tr("Impossible de connecter le tonomètre sur ") + m_portTono;
                     UpMessageBox::Watch(parent, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
                     delete sp_portTono;
-                    sp_portTono = Q_NULLPTR;
+                    sp_portTono = nullptr;
                 }
             }
             else
                 UpMessageBox::Watch(parent, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
         }
     }
-    else if (sp_portTono != Q_NULLPTR)
+    else if (sp_portTono != nullptr)
     {
         delete sp_portTono;
-        sp_portTono = Q_NULLPTR;
+        sp_portTono = nullptr;
         m_settings->remove(Param_Poste_PortTono_COM_baudrate);
         m_settings->remove(Param_Poste_PortTono_COM_databits);
         m_settings->remove(Param_Poste_PortTono_COM_parity);
@@ -6665,7 +6665,7 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
 
 void Procedures::RegleRefracteur(GenericProtocol::TypesMesures flag)
 {
-    if (sp_portRefracteur!=Q_NULLPTR) /*! par le port COM */
+    if (sp_portRefracteur!=nullptr) /*! par le port COM */
     {
         QString nompat = "";
         Patient *pat = Datas::I()->patients->currentpatient();
@@ -7042,7 +7042,7 @@ void Procedures::RegleRefracteurXML(GenericProtocol::TypesMesures flag)
 QString Procedures::currentuserstatus() const
 {
     const User *usr = Datas::I()->users->userconnected();
-    if (usr == Q_NULLPTR)
+    if (usr == nullptr)
         return "";
     QString str = "" +
             tr("utilisateur") + "\t\t= " + usr->login()  + "\n";
@@ -7100,7 +7100,7 @@ QString Procedures::currentuserstatus() const
 
 bool Procedures::isUserConnected(User *usr)
 {
-    if (Datas::I()->postesconnectes->admin(Item::NoUpdate) == Q_NULLPTR)
+    if (Datas::I()->postesconnectes->admin(Item::NoUpdate) == nullptr)
         Datas::I()->postesconnectes->MAJlistePostesConnectes();
     for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it !=  Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
     {
@@ -7113,10 +7113,10 @@ bool Procedures::isUserConnected(User *usr)
 
 void Procedures::saveDocumentToFile(DocExterne *doc, QWidget *parent)
 {
-    if (doc == Q_NULLPTR)
+    if (doc == nullptr)
         return;
     Patient *pat = Datas::I()->patients->getById(doc->idpatient());
-    if (pat == Q_NULLPTR)
+    if (pat == nullptr)
     {
         UpMessageBox::Watch(parent,  tr("Echec"), tr("Impossible de retrouver les données du patient pour ce document"));
         return;
@@ -7190,13 +7190,13 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
     bool a = true;
     if (a)
         return;
-    if (titre != "" && mesure != Q_NULLPTR)
+    if (titre != "" && mesure != nullptr)
         return;
 
     /*!
         qDebug() << titre;
     Pachymetrie *pachy = qobject_cast<Pachymetrie *>(mesure);
-    if (pachy != Q_NULLPTR)
+    if (pachy != nullptr)
     {
         qDebug() << "Pachymétrie";
         QString Formule = "OD : " + QString::number(pachy->pachyOD()) + "µ";
@@ -7207,7 +7207,7 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
         return;
     }
     Tonometrie *tono = qobject_cast<Tonometrie *>(mesure);
-    if (tono != Q_NULLPTR)
+    if (tono != nullptr)
     {
         qDebug() << "Tonométrie";
         QString Formule = "OD : " + QString::number(tono->TOD()) + "mmHg";
@@ -7221,7 +7221,7 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
         return;
     }
     Keratometrie *ker = qobject_cast<Keratometrie *>(mesure);
-    if (ker != Q_NULLPTR)
+    if (ker != nullptr)
     {
         qDebug() << "Keratométrie";
         QString Formule = "OD : " + QString::number(ker->K1OD()) + "/" + QString::number(ker->K2OD()) + " "  + QString::number(ker->axeKOD());
@@ -7231,7 +7231,7 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
         return;
     }
     MesureRefraction *ref = qobject_cast<MesureRefraction *>(mesure);
-    if (ref != Q_NULLPTR)
+    if (ref != nullptr)
     {
         qDebug() << Utils::EnumDescription(QMetaEnum::fromType<Refraction::Mesure>(), ref->typemesure());
         QString Formule = "OD : " + Utils::PrefixePlus(ref->sphereOD());
@@ -7282,15 +7282,15 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
     if (nameRF =="NIDEK RT-5100" || nameRF =="NIDEK RT-2100")
     {
         GenericProtocol::TypesMesures flag = GenericProtocol::MesureNone;
-        if (Mesure.contains("@LM") && PortFronto() == Q_NULLPTR && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
+        if (Mesure.contains("@LM") && PortFronto() == nullptr && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureFronto);
-        if (Mesure.contains("@KM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
+        if (Mesure.contains("@KM") && PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
             flag.setFlag(GenericProtocol::MesureKerato);
-        if (Mesure.contains("@RM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+        if (Mesure.contains("@RM") && PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureAutoref);
         if (Mesure.contains("@RT"))                                                          //!=> il y a une mesure de refraction
             flag.setFlag(GenericProtocol::MesureRefracteur);
-        if (Mesure.contains("@NT") && PortAutoref() == Q_NULLPTR &&  !m_LANAutoref )         //!=> il y a une mesure de tonometrie et l'autoref est branché sur la box du refracteur
+        if (Mesure.contains("@NT") && PortAutoref() == nullptr &&  !m_LANAutoref )         //!=> il y a une mesure de tonometrie et l'autoref est branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureTono);
         Nidek::I()->LectureDonneesCOMRefracteur(Mesure, flag);
         //debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
@@ -7382,7 +7382,7 @@ SOH*PC_RCV_EEOT                 -> end block
         }
 
         //! Données du FRONTO ---------------------------------------------------------------------------------------------------------------------
-        if (Mesure.contains("*LM") && PortFronto() == Q_NULLPTR && !m_LANFronto)        //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
+        if (Mesure.contains("*LM") && PortFronto() == nullptr && !m_LANFronto)        //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
         {
             /*!
             *LM
@@ -7446,7 +7446,7 @@ SOH*PC_RCV_EEOT                 -> end block
         }
 
         //! Données de l'AUTOREF ----------------------------------------------------------------------------------------------
-        if (Mesure.contains("*AR") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)      //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+        if (Mesure.contains("*AR") && PortAutoref() == nullptr && !m_LANAutoref)      //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
         {
             /*!
             *AR
@@ -7640,11 +7640,11 @@ SOH*PC_RCV_EEOT                 -> end block
     else if (nameRF =="SHIN-NIPPON DR-900")
     {
         GenericProtocol::TypesMesures flag = GenericProtocol::MesureNone;
-        if (Mesure.contains("LM") && PortFronto() == Q_NULLPTR && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
+        if (Mesure.contains("LM") && PortFronto() == nullptr && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureFronto);
-        if (Mesure.contains("KM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
+        if (Mesure.contains("KM") && PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
             flag.setFlag(GenericProtocol::MesureKerato);
-        if (Mesure.contains("RM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+        if (Mesure.contains("RM") && PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureAutoref);
         if (Mesure.contains("RT"))                                                          //!=> il y a une mesure de refraction
             flag.setFlag(GenericProtocol::MesureRefracteur);
@@ -7663,9 +7663,9 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
     else if (nameRF == "NIDEK RT-6100" || nameRF == "NIDEK Glasspop")
     {
         GenericProtocol::TypesMesures flag = GenericProtocol::MesureNone;
-        if (PortFronto() == Q_NULLPTR && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur)
+        if (PortFronto() == nullptr && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur)
             flag.setFlag(GenericProtocol::MesureFronto);
-        if (PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure pour l'autoref et l'autoref est directement branché sur la box du refracteur)
+        if (PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure pour l'autoref et l'autoref est directement branché sur la box du refracteur)
         {
             flag.setFlag(GenericProtocol::MesureAutoref);
             flag.setFlag(GenericProtocol::MesureKerato);
@@ -9161,9 +9161,9 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 //---------------------------------------------------------------------------------
 void Procedures::InsertMesure(GenericProtocol::TypeMesure typemesure)
 {
-    if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient() == nullptr)
         return;
-    if (Datas::I()->Datas::I()->actes->currentacte() == Q_NULLPTR)
+    if (Datas::I()->Datas::I()->actes->currentacte() == nullptr)
         return;
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
@@ -9579,7 +9579,7 @@ void Procedures::InsertMesure(GenericProtocol::TypeMesure typemesure)
 */
 void Procedures::CalcImageDocument(DocExterne *docmt)
 {
-    if (docmt == Q_NULLPTR )
+    if (docmt == nullptr )
         return;
     if (docmt->isVideo())
         return;

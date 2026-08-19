@@ -29,7 +29,7 @@ class Commercial : public Item
 {
     Q_OBJECT
 public:
-    explicit Commercial(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Commercial(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     QString nom() const;

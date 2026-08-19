@@ -35,8 +35,8 @@ class UpTableWidget : public QTableWidget
 {
     Q_OBJECT
 public:
-    explicit        UpTableWidget(QWidget *parent = Q_NULLPTR);
-    explicit        UpTableWidget(Item *rufusitem, QWidget *parent = Q_NULLPTR);
+    explicit        UpTableWidget(QWidget *parent = nullptr);
+    explicit        UpTableWidget(Item *rufusitem, QWidget *parent = nullptr);
 
     void            AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom);
     void            clearSelection();
@@ -58,12 +58,12 @@ public:
 
     void                    setrufusitem(Item* item) { m_rufusitem = item; }
     Item*                   rufusitem() const        { return m_rufusitem; }
-    bool                    hasrufusitem() const     { return m_rufusitem != Q_NULLPTR; }
+    bool                    hasrufusitem() const     { return m_rufusitem != nullptr; }
 
 private:
     QByteArray      m_encodedData       = QByteArray();
     QList<QImage>   m_listimg           = QList<QImage>();
-    Item            *m_rufusitem        = Q_NULLPTR;
+    Item            *m_rufusitem        = nullptr;
     QList<UpLabel*> m_labels = QList<UpLabel*>();
 
 protected:

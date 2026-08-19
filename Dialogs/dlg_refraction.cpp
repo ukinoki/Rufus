@@ -142,7 +142,7 @@ void dlg_refraction::ConnectSignals()
     connect (ui->OKPushButton,                      &QPushButton::clicked,                      this,     &dlg_refraction::OKPushButton_Clicked);
     connect (ui->ReprendrePushButton,               &QPushButton::clicked,                      this,     &dlg_refraction::ReprendreButtonClicked);
 
-    if (proc->PortFronto()!=Q_NULLPTR || proc->PortAutoref()!=Q_NULLPTR || proc->PortRefracteur()!=Q_NULLPTR)
+    if (proc->PortFronto()!=nullptr || proc->PortAutoref()!=nullptr || proc->PortRefracteur()!=nullptr)
         connect (proc,                              &Procedures::NouvMesure,                    this,     &dlg_refraction::NouvMesureRefraction);
 }
 
@@ -585,10 +585,10 @@ void dlg_refraction::OKPushButton_Clicked()
     if (m_mode == Refraction::Fronto)
     {
         // On vérifie s'il existe un enregistrement identique au meme jour pour ne pas surcharger la table
-        if (LectureMesure(Aujourdhui, Refraction::Fronto, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR) // il n'y en a pas - on suit la procédure normale
+        if (LectureMesure(Aujourdhui, Refraction::Fronto, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == nullptr) // il n'y en a pas - on suit la procédure normale
         {
             Refraction *ref = InsertRefraction();
-            if (ref == Q_NULLPTR)
+            if (ref == nullptr)
                 return;
             m_idrefraction = ref->id();
             MajDonneesOphtaPatient();
@@ -601,10 +601,10 @@ void dlg_refraction::OKPushButton_Clicked()
         // On vérifie s'il existe un enregistrement identique et si oui, on l'écrase
         Refraction::Cycloplegie dilat = (ui->CycloplegieCheckBox->isChecked()? Refraction::Dilatation : Refraction::NoDilatation);
         Refraction * ref = LectureMesure(Aujourdhui, m_mode, dilat);
-        if (ref != Q_NULLPTR)
+        if (ref != nullptr)
             DetruireLaMesure(ref);
         ref = InsertRefraction();
-        if (ref == Q_NULLPTR)
+        if (ref == nullptr)
             return;
         m_idrefraction = ref->id();
         MajDonneesOphtaPatient();
@@ -649,28 +649,28 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
     if (event->type() == QEvent::FocusIn )
     {
         UpLineEdit* objUpLine = qobject_cast<UpLineEdit*>(obj);
-        if (objUpLine != Q_NULLPTR)        {
+        if (objUpLine != nullptr)        {
             objUpLine->selectAll();
             return false;
         }
         UpDoubleSpinBox* objUpdSpin = qobject_cast<UpDoubleSpinBox*>(obj);
-        if (objUpdSpin != Q_NULLPTR)   {
+        if (objUpdSpin != nullptr)   {
             objUpdSpin->setPrefix("");
             objUpdSpin->selectAll();
             return false;
         }
         UpComboBox* objUpCombo = qobject_cast<UpComboBox*>(obj);
-        if (objUpCombo != Q_NULLPTR)   {
+        if (objUpCombo != nullptr)   {
             objUpCombo->setCurrentIndex(objUpCombo->findText(objUpCombo->currentText()));
             return false;
         }
         UpSpinBox* objUpSpin = qobject_cast<UpSpinBox*>(obj);
-        if (objUpSpin != Q_NULLPTR)   {
+        if (objUpSpin != nullptr)   {
             objUpSpin->selectAll();
             return false;
         }
 //        UpGroupBox* box = qobject_cast<UpGroupBox*>(obj->parent());
-//        if (box != Q_NULLPTR){
+//        if (box != nullptr){
 //            box->setStyleSheet(STYLE_UPGROUBOXACTIVE);
 //            return false;
 //        }
@@ -679,7 +679,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
     if (event->type() == QEvent::FocusOut )
     {
 //        UpGroupBox* box = qobject_cast<UpGroupBox*>(obj->parent());
-//        if (box!=Q_NULLPTR)
+//        if (box!=nullptr)
 //            box->setStyleSheet(STYLE_UPGROUBOXINACTIVE);
         if (obj == ui->CylindreOD)          if (ui->CylindreOD->value() == 0.0)   ui->AxeCylindreOD->setValue(0);
         if (obj == ui->CylindreOG)          if (ui->CylindreOG->value() == 0.0)   ui->AxeCylindreOG->setValue(0);
@@ -696,18 +696,18 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
         m_flagbugvalidenter = 0;
         if (keyEvent->key() == Qt::Key_Escape)
         {
-            if (qobject_cast<UpLineEdit *>(obj) != Q_NULLPTR)
+            if (qobject_cast<UpLineEdit *>(obj) != nullptr)
             {
                 UpLineEdit* objUpLine = qobject_cast<UpLineEdit*>(obj);
                 objUpLine->setText(objUpLine->valeuravant());
-                objUpLine = Q_NULLPTR;
+                objUpLine = nullptr;
             }
         }
 
         if (keyEvent->key() == Qt::Key_Left  && !ui->CommentaireGroupBox->isAncestorOf(widg))
         {        // quand le focus entre sur un qGroupBox rempli de radioButton, il doit se porter sur le radiobutton qui est coché
             QGroupBox *boxdep;
-            boxdep = Q_NULLPTR ;
+            boxdep = nullptr ;
             QList<QGroupBox *> listbox = findChildren<QGroupBox *>();
             for (int i=0; i<listbox.size(); i++)
             {
@@ -723,7 +723,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                   && ui->DateDateEdit->currentSection() != QDateTimeEdit::DaySection))
                 focusPreviousChild();
             QRadioButton *radio = qobject_cast<QRadioButton *>(focusWidget());
-            if (radio != Q_NULLPTR)
+            if (radio != nullptr)
                 if (!radio->isChecked())
                 {
                     for (int i=0; i<listbox.size(); i++)
@@ -741,7 +741,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
         if (keyEvent->key() == Qt::Key_Right  && !ui->CommentaireGroupBox->isAncestorOf(widg))
         {        // quand le focus entre sur un qGroupBox rempli de radioButton, il doit se porter sur le radiobutton qui est coché
             QGroupBox *boxdep;
-            boxdep = Q_NULLPTR;
+            boxdep = nullptr;
             QList<QGroupBox *> listbox = findChildren<QGroupBox *>();
             for (int i=0; i<listbox.size(); i++)
                 if (listbox.at(i)->isAncestorOf(widg))
@@ -755,7 +755,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                   && ui->DateDateEdit->currentSection() != QDateTimeEdit::YearSection))
                 focusNextChild();
             QRadioButton *radio = qobject_cast<QRadioButton *>(focusWidget());
-            if (radio != Q_NULLPTR )
+            if (radio != nullptr )
                 if (!radio->isChecked())
                 {
                     for (int i=0; i<listbox.size(); i++)
@@ -1406,7 +1406,7 @@ bool dlg_refraction::DeplaceVers(QWidget *widget, QString FinOuDebut)
 //---------------------------------------------------------------------------------
 void dlg_refraction::DetruireLaMesure(Refraction* ref)
 {
-    if (ref == Q_NULLPTR)
+    if (ref == nullptr)
         return;
 //1. On supprime la mesure de la table
     Datas::I()->refractions->SupprimeRefraction(ref);
@@ -1456,7 +1456,7 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         disconnect (ui->OKPushButton,   &QPushButton::clicked,  this,     &dlg_refraction::OKPushButton_Clicked);
 
         Refraction *ref = LectureMesure(Aujourdhui, Refraction::Prescription, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG());
-        if (ref== Q_NULLPTR)
+        if (ref== nullptr)
         {
             ResumeObservation();
             Refraction *ref = InsertRefraction();
@@ -1510,14 +1510,14 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     bool AvecNumPage = false;
     textorigine = ui->ResumePrescriptionTextEdit->toHtml();
     //création de l'entête
-    User *userEntete = Q_NULLPTR;
+    User *userEntete = nullptr;
     User *userconnected = Datas::I()->users->userconnected();
     if (userconnected)
     {
         int idsuperviseur = userconnected->idsuperviseur();
         userEntete = Datas::I()->users->getById(idsuperviseur);
     }
-    if (userEntete == Q_NULLPTR)
+    if (userEntete == nullptr)
         return false;
     textentete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete, true).value(NORMHeader);
     if (textentete == "") return false;
@@ -1563,10 +1563,10 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
         listbinds[CP_IDREFRACTION_DOCSEXTERNES]     = ref->id();
         listbinds[CP_PDFORIGIN_DOCSEXTERNES]        = ba;
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        if (doc != Q_NULLPTR)
+        if (doc != nullptr)
             delete doc;
     }
-    userEntete = Q_NULLPTR;
+    userEntete = nullptr;
     return a;
 }
 
@@ -1672,7 +1672,7 @@ void dlg_refraction::InitDivers()
 
 MesureRefraction* dlg_refraction::CalcMesureRefraction()
 {
-    MesureRefraction* ref = Q_NULLPTR;
+    MesureRefraction* ref = nullptr;
     switch (m_mode) {
     case Refraction::Fronto:
         ref = Datas::I()->mesurefronto;
@@ -1934,7 +1934,7 @@ Recherche d'une mesure
 Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Refraction::Cycloplegie dilatation, QString FormuleOD, QString FormuleOG)
 {
     if (Datas::I()->refractions->refractions()->size() == 0)
-        return Q_NULLPTR;
+        return nullptr;
     bool cejour = (Quand == Aujourdhui);
     bool dilat  = (dilatation == Refraction::Dilatation);
     QMap<int, Refraction*> mapref;
@@ -1953,13 +1953,13 @@ Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure M
         }
     }
     if (mapref.size() == 0)
-        return Q_NULLPTR;
+        return nullptr;
     return mapref.last();
 }
 
 void dlg_refraction::RemplitChamps(Refraction *ref)
 {
-    if (ref == Q_NULLPTR)
+    if (ref == nullptr)
         return;
     ref->ConversionCylindreNeg();
     // Remplissage des champs Oeil Droit
@@ -2078,7 +2078,7 @@ void dlg_refraction::OuvrirListeMesures(dlg_refractionlistemesures::Mode mode)
     if (RetourListe > 0 && mode == dlg_refractionlistemesures::Recuperer)
     {
         Refraction *ref = Dlg_ListeMes->RefractionAOuvrir();
-        if (ref != Q_NULLPTR)
+        if (ref != nullptr)
         {
             RemplitChamps(ref);
             m_mode = ref->typemesure();
@@ -2224,9 +2224,9 @@ void dlg_refraction::RechercheMesureEnCours()
     if (Reponse != Refraction::NoMesure)
     {
         Refraction *ref = LectureMesure(Aujourdhui, Reponse, Refraction::NoDilatation);            // on affiche la mesure du jour trouvée
-        if (ref == Q_NULLPTR)
+        if (ref == nullptr)
             ref = LectureMesure(Aujourdhui, Reponse, Refraction::Dilatation);
-        if (ref != Q_NULLPTR)            // on affiche la mesure du jour trouvée
+        if (ref != nullptr)            // on affiche la mesure du jour trouvée
         {
             RemplitChamps(ref);
             AfficheKerato();
@@ -2249,13 +2249,13 @@ void dlg_refraction::RechercheMesureEnCours()
 
     // On n'a rien trouvé pour le jour >> on cherche la dernière mesure de réfraction
     Refraction* ref = LectureMesure(Avant, Refraction::Acuite, Refraction::NoDilatation);
-    if (ref == Q_NULLPTR)
+    if (ref == nullptr)
         ref = LectureMesure(Avant, Refraction::Prescription, Refraction::NoDilatation); // on n'a rien trouvé en réfraction - on cherche la dernière prescription
-    if (ref == Q_NULLPTR)
+    if (ref == nullptr)
         ref = LectureMesure(Avant, Refraction::Autoref, Refraction::NoDilatation);      // on n'a rien trouvé en prescription - on cherche la dernière mesure Autoref
-    if (ref == Q_NULLPTR)
+    if (ref == nullptr)
         ref = LectureMesure(Avant, Refraction::Fronto, Refraction::NoDilatation);       // on n'a rien trouvé en autoref - on cherche la dernière mesure de fronto
-    if (ref != Q_NULLPTR)
+    if (ref != nullptr)
     {
         RemplitChamps(ref);
         AfficheKerato();
@@ -3943,7 +3943,7 @@ QString dlg_refraction::Valeur(QString StringValeur)
 void dlg_refraction::AfficheMesureFronto()
 {
     RadioButtonFronto_Clicked();
-    if (Datas::I()->mesurefronto == Q_NULLPTR)
+    if (Datas::I()->mesurefronto == nullptr)
     {
         UpMessageBox::Watch(this, tr("pas de données reçues du frontofocomètre"));
         return;
@@ -4118,7 +4118,7 @@ void dlg_refraction::AfficheKerato()
 //-----------------------------------------------------------------------------------------
 void dlg_refraction::AfficheMesureRefracteur()
 {
-    MesureRefraction*  MesureRefracteur = Q_NULLPTR;
+    MesureRefraction*  MesureRefracteur = nullptr;
     if ( Datas::I()->mesurefinal->isdataclean() )
     {
         RadioButtonRefraction_Clicked();
@@ -4131,7 +4131,7 @@ void dlg_refraction::AfficheMesureRefracteur()
         m_mode = Refraction::Prescription;
         MesureRefracteur = Datas::I()->mesurefinal;
     }
-    if (MesureRefracteur == Q_NULLPTR)
+    if (MesureRefracteur == nullptr)
     {
         UpMessageBox::Watch(this, tr("pas de données reçues du refracteur"));
         return;
@@ -4186,5 +4186,5 @@ void dlg_refraction::AfficheMesureRefracteur()
     }
     ui->EIPLabel->setText(tr("Ecart interpupillaire") + " " + (MesureRefracteur->ecartIP() > 0? QString::number(MesureRefracteur->ecartIP()) +"mm" : tr("inconnu")));
     // qDebug() << "AVLOD = " + AVLOD << "AVPOD = " + MesuresRefracteur["AVPOD"].toString() << "AVLOG = " + AVLOG << "AVPOG = " + MesuresRefracteur["AVPOG"].toString();
-    MesureRefracteur = Q_NULLPTR;
+    MesureRefracteur = nullptr;
 }

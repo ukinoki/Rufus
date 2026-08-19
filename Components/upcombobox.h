@@ -30,7 +30,7 @@ class UpComboBox : public QComboBox
 {
     Q_OBJECT
 public:
-    explicit UpComboBox(QWidget *parent = Q_NULLPTR);
+    explicit UpComboBox(QWidget *parent = nullptr);
     ~UpComboBox();
     void        setiD(int valprec);
     int         iD() const;

@@ -30,7 +30,7 @@ QList<TypeTiers *> *TypesTiers::typestiers() const
 
 bool TypesTiers::add(TypeTiers *typetiers)
 {
-    if (typetiers == Q_NULLPTR)
+    if (typetiers == nullptr)
         return false;
     if( m_typestiers->contains(typetiers) )
         return false;
@@ -41,7 +41,7 @@ bool TypesTiers::add(TypeTiers *typetiers)
 void TypesTiers::addList(QList<TypeTiers*> listTypesTiers)
 {
     foreach (TypeTiers* trs, listTypesTiers)
-        if (trs != Q_NULLPTR)
+        if (trs != nullptr)
             add( trs );
 }
 

@@ -210,10 +210,10 @@ void dlg_gestioncotations::appliqueMode()
 
     //! QCompleter CCAM sur les codes en modes 1 et 2 (on ne peut choisir qu'un code CCAM) ; aucun en mode
     //! autre. Le completer s'appuie sur m_modelCCAM -> infobulle (libellé de l'acte) dans le popup.
-    QCompleter *comp1 = (ccam || assoc) ? new QCompleter(m_modelCCAM, this) : Q_NULLPTR;
+    QCompleter *comp1 = (ccam || assoc) ? new QCompleter(m_modelCCAM, this) : nullptr;
     if (comp1) comp1    ->setCaseSensitivity(Qt::CaseInsensitive);
     wdg_codeline        ->setCompleter(comp1);
-    QCompleter *comp2 = assoc ? new QCompleter(m_modelCCAM, this) : Q_NULLPTR;
+    QCompleter *comp2 = assoc ? new QCompleter(m_modelCCAM, this) : nullptr;
     if (comp2) comp2    ->setCaseSensitivity(Qt::CaseInsensitive);
     wdg_codeline2       ->setCompleter(comp2);
 
@@ -634,7 +634,7 @@ void dlg_choixccam::filtreOphta(bool ophtaseul)
 void dlg_choixccam::selectionChangee()
 {
     int row = wdg_table->currentRow();
-    if (row < 0 || wdg_table->item(row,0) == Q_NULLPTR)
+    if (row < 0 || wdg_table->item(row,0) == nullptr)
     {
         m_codechoisi = "";
         wdg_libelle ->clear();

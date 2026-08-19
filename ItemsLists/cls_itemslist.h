@@ -23,11 +23,11 @@ class ItemsList : public QObject
 {
     Q_OBJECT
 public:
-    explicit ItemsList(QObject *parent = Q_NULLPTR);
+    explicit ItemsList(QObject *parent = nullptr);
     enum ADDTOLIST {AddToList, NoAddToList};    Q_ENUM(ADDTOLIST)
     enum POSITION {Debut, Prec, Suiv, Fin};     Q_ENUM(POSITION)
 
-    static bool update(Item*item, QString field, QVariant newvalue = QVariant(), LotUpdate *lot = Q_NULLPTR);
+    static bool update(Item*item, QString field, QVariant newvalue = QVariant(), LotUpdate *lot = nullptr);
     static bool updateFields(Item*item, const QHash<QString, QVariant> &champs);        /*!< tous les champs d'un item en UNE requête, au lieu d'un update() par champ */
     static bool updateBlob(Item*item, QString field, QByteArray blob = QByteArray());   /*!< jumelle de update() pour les champs blob (QByteArray) : passe par bindvalue (UpdateTablebyBinds) car un binaire ne peut pas être concaténé dans une requête SQL. Met à jour la base ET l'attribut de l'objet. Blob vide -> NULL en base. */
 
@@ -88,7 +88,7 @@ void epurelist(QMap<int, T*> *m_oldmap, const QList<T*> *m_newlist)
         if (m_newmap.find(it.key()) == m_newmap.constEnd())
         {
             T* item = const_cast<T*>(it.value());               //  T* item = m_oldmap->take(it.key()); ne marche pas
-            if (item != Q_NULLPTR)
+            if (item != nullptr)
                 delete item;
             it = m_oldmap->erase(it);
         }
@@ -113,7 +113,7 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
         if (m_newmap.find(it.key()) == m_newmap.constEnd())
         {
             T* item = const_cast<T*>(it.value());               // T* item = m_oldmap->take(it.key()); ne marche pass
-            if (item != Q_NULLPTR)
+            if (item != nullptr)
                 delete item;
             it = m_oldmap->erase(it);
         }
@@ -135,19 +135,19 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
 * \param item l'item que l'on veut ajouter
 * \param Item::UPDATE - si Update, force l'update de l'item s'il est déjà présent dans le QMap
 * \return true si l'item est ajouté et que la Map s'enrichit d'un élément
-* \return false dans le cas contraire (l'item est un Q_NULLPTR ou l'item est déjà présent dans le QMap -> delete l'item passé en paramètre dans ce dernier cas)
+* \return false dans le cas contraire (l'item est un nullptr ou l'item est déjà présent dans le QMap -> delete l'item passé en paramètre dans ce dernier cas)
 */
 template <typename T>
 bool add(QMap<int, T*> *m_map, T* &item, Item::UPDATE upd = Item::NoUpdate)
 {
     bool itemadded = false;
-    if (item != Q_NULLPTR)
+    if (item != nullptr)
     {
         auto it = m_map->constFind(item->id());
         itemadded = (it == m_map->cend());
         if (!itemadded)
         {
-            if (it.value() != Q_NULLPTR)
+            if (it.value() != nullptr)
             {
                 if (it.value() != item)
                 {
@@ -172,13 +172,13 @@ template <typename T>
 bool add(QMap<QString, T*> *m_map, T* &item, Item::UPDATE upd = Item::NoUpdate)
 {
     bool itemadded = false;
-    if (item != Q_NULLPTR)
+    if (item != nullptr)
     {
         auto it = m_map->find(item->stringid());
         itemadded = (it == m_map->cend());
         if (!itemadded)
         {
-            if (it.value() != Q_NULLPTR)
+            if (it.value() != nullptr)
             {
                 if (it.value() != item)
                 {
@@ -209,7 +209,7 @@ public:
 template <typename T>
 static void remove(QMap<int, T*> *m_map, const T* item)
 {
-    if (item == Q_NULLPTR)
+    if (item == nullptr)
         return;
     auto it = m_map->find(item->id());
     if (it != m_map->cend())
@@ -219,7 +219,7 @@ static void remove(QMap<int, T*> *m_map, const T* item)
 template <typename T>
 static void remove(QMap<QString, T*> *m_map, const T* item)
 {
-    if (item == Q_NULLPTR)
+    if (item == nullptr)
         return;
     auto it = m_map->find(item->stringid());
     if (it != m_map->cend())
@@ -235,172 +235,172 @@ protected:
      * \param item l'item que l'on veut supprimer
      * \param parent la fiche sur laquelle centrer le message d'erreur
      * \return true si l'item est supprimé
-     * \return false si l'item est un Q_NULLPTR
+     * \return false si l'item est un nullptr
 */
 template <typename T>
-static bool Supprime(QMap<int, T*> *m_map, T* item, QWidget *parent = Q_NULLPTR)
+static bool Supprime(QMap<int, T*> *m_map, T* item, QWidget *parent = nullptr)
 {
-    if (item == Q_NULLPTR)
+    if (item == nullptr)
         return false;
     QString table (""), idname ("");
     bool loop = false;
     while (!loop)
     {
-        if (qobject_cast<Acte*>(item) != Q_NULLPTR)
+        if (qobject_cast<Acte*>(item) != nullptr)
         {
             table = TBL_ACTES;
             idname = CP_ID_ACTES;
             loop = true;
             break;
         }
-        if (qobject_cast<Banque*>(item)!= Q_NULLPTR)
+        if (qobject_cast<Banque*>(item)!= nullptr)
         {
             table = TBL_BANQUES;
             idname = CP_ID_BANQUES;
             loop = true;
             break;
         }
-        if (qobject_cast<Compte*>(item)!= Q_NULLPTR)
+        if (qobject_cast<Compte*>(item)!= nullptr)
         {
             table = TBL_COMPTES;
             idname = CP_ID_COMPTES;
             loop = true;
             break;
         }
-        if (qobject_cast<Depense*>(item)!= Q_NULLPTR)
+        if (qobject_cast<Depense*>(item)!= nullptr)
         {
             table = TBL_DEPENSES;
             idname = CP_ID_DEPENSES;
             loop = true;
             break;
         }
-        if (qobject_cast<DocExterne*>(item) != Q_NULLPTR)
+        if (qobject_cast<DocExterne*>(item) != nullptr)
         {
             table = TBL_DOCSEXTERNES;
             idname = CP_ID_DOCSEXTERNES;
             loop = true;
             break;
         }
-        if (qobject_cast<PatientEnCours*>(item) != Q_NULLPTR)
+        if (qobject_cast<PatientEnCours*>(item) != nullptr)
         {
             table = TBL_SALLEDATTENTE;
             idname = CP_IDPAT_SALDAT;
             loop = true;
             break;
         }
-        if (qobject_cast<Refraction*>(item) != Q_NULLPTR)
+        if (qobject_cast<Refraction*>(item) != nullptr)
         {
             table = TBL_REFRACTIONS;
             idname = CP_ID_REFRACTIONS;
             loop = true;
             break;
         }
-        if (qobject_cast<Correspondant*>(item) != Q_NULLPTR)
+        if (qobject_cast<Correspondant*>(item) != nullptr)
         {
             table = TBL_CORRESPONDANTS;
             idname = CP_ID_CORRESP;
             loop = true;
             break;
         }
-        if (qobject_cast<LigneCompte*>(item) != Q_NULLPTR)
+        if (qobject_cast<LigneCompte*>(item) != nullptr)
         {
             table = TBL_LIGNESCOMPTES;
             idname = CP_ID_LIGNCOMPTES;
             loop = true;
             break;
         }
-        if (qobject_cast<SessionOperatoire*>(item) != Q_NULLPTR)
+        if (qobject_cast<SessionOperatoire*>(item) != nullptr)
         {
             table = TBL_SESSIONSOPERATOIRES;
             idname = CP_ID_SESSIONOPERATOIRE;
             loop = true;
             break;
         }
-        if (qobject_cast<Intervention*>(item) != Q_NULLPTR)
+        if (qobject_cast<Intervention*>(item) != nullptr)
         {
             table = TBL_LIGNESPRGOPERATOIRES;
             idname = CP_ID_LIGNPRGOPERATOIRE;
             loop = true;
             break;
         }
-        if (qobject_cast<TypeIntervention*>(item) != Q_NULLPTR)
+        if (qobject_cast<TypeIntervention*>(item) != nullptr)
         {
             table = TBL_TYPESINTERVENTIONS;
             idname = CP_ID_TYPINTERVENTION;
             loop = true;
             break;
         }
-        if (qobject_cast<Manufacturer*>(item) != Q_NULLPTR)
+        if (qobject_cast<Manufacturer*>(item) != nullptr)
         {
             table = TBL_MANUFACTURERS;
             idname = CP_ID_MANUFACTURER;
             loop = true;
             break;
         }
-        if (qobject_cast<IOL*>(item) != Q_NULLPTR)
+        if (qobject_cast<IOL*>(item) != nullptr)
         {
             table = TBL_IOLS;
             idname = CP_ID_IOLS;
             loop = true;
             break;
         }
-        if (qobject_cast<Tiers*>(item) != Q_NULLPTR)
+        if (qobject_cast<Tiers*>(item) != nullptr)
         {
             table = TBL_TIERS;
             idname = CP_ID_TIERS;
             loop = true;
             break;
         }
-        if (qobject_cast<Commercial*>(item) != Q_NULLPTR)
+        if (qobject_cast<Commercial*>(item) != nullptr)
         {
             table = TBL_COMMERCIALS;
             idname = CP_ID_COM;
             loop = true;
             break;
         }
-        if (qobject_cast<CommentLunet*>(item) != Q_NULLPTR)
+        if (qobject_cast<CommentLunet*>(item) != nullptr)
         {
             table = TBL_COMMENTAIRESLUNETTES;
             idname = CP_ID_COMLUN;
             loop = true;
             break;
         }
-        if (qobject_cast<MotCle*>(item) != Q_NULLPTR)
+        if (qobject_cast<MotCle*>(item) != nullptr)
         {
             table = TBL_MOTSCLES;
             idname = CP_ID_MOTCLE;
             loop = true;
             break;
         }
-        if (qobject_cast<Site*>(item) != Q_NULLPTR)
+        if (qobject_cast<Site*>(item) != nullptr)
         {
             table = TBL_LIEUXEXERCICE;
             idname = CP_ID_SITE;
             loop = true;
             break;
         }
-        if (qobject_cast<Impression*>(item) != Q_NULLPTR)
+        if (qobject_cast<Impression*>(item) != nullptr)
         {
             table = TBL_IMPRESSIONS;
             idname = CP_ID_IMPRESSIONS;
             loop = true;
             break;
         }
-        if (qobject_cast<DossierImpression*>(item) != Q_NULLPTR)
+        if (qobject_cast<DossierImpression*>(item) != nullptr)
         {
             table = TBL_DOSSIERSIMPRESSIONS;
             idname = CP_ID_DOSSIERIMPRESSIONS;
             loop = true;
             break;
         }
-        if (qobject_cast<Message*>(item) != Q_NULLPTR)
+        if (qobject_cast<Message*>(item) != nullptr)
         {
             table = TBL_MESSAGES;
             idname = CP_ID_MSG;
             loop = true;
             break;
         }
-        if (qobject_cast<Session*>(item) != Q_NULLPTR)
+        if (qobject_cast<Session*>(item) != nullptr)
         {
             table = TBL_SESSIONS;
             idname = CP_ID_SESSIONS;
@@ -416,7 +416,7 @@ static bool Supprime(QMap<int, T*> *m_map, T* item, QWidget *parent = Q_NULLPTR)
         DataBase::I()->SupprRecordFromTable(item->id(), idname, table);
         m_map->remove(item->id());
         delete item;
-        item = Q_NULLPTR;
+        item = nullptr;
         return true;
     }
     return false;

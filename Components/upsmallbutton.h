@@ -29,8 +29,8 @@ class UpSmallButton : public QPushButton
     Q_OBJECT
 
 public:
-    explicit    UpSmallButton(QString text, QWidget *parent = Q_NULLPTR);
-    explicit    UpSmallButton(QWidget *parent = Q_NULLPTR);
+    explicit    UpSmallButton(QString text, QWidget *parent = nullptr);
+    explicit    UpSmallButton(QWidget *parent = nullptr);
     ~UpSmallButton();
     enum        StyleBouton {BACKBUTTON, CALENDARBUTTON, CANCELBUTTON, CLOSEBUTTON, COPYBUTTON,
                              DONOTRECORDBUTTON, EDITBUTTON, HOMEBUTTON, LOUPEBUTTON, NOBUTTON,

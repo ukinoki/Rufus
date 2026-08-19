@@ -17,11 +17,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "tcpsocket.h"
 
-TcpSocket* TcpSocket::instance = Q_NULLPTR;
+TcpSocket* TcpSocket::instance = nullptr;
 
 TcpSocket* TcpSocket::I()
 {
-    if (instance == Q_NULLPTR)
+    if (instance == nullptr)
         instance = new TcpSocket();
     return instance;
 }
@@ -60,7 +60,7 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     {
         disconnect();
         close();
-        instance = Q_NULLPTR;
+        instance = nullptr;
     }
     return a;
 }

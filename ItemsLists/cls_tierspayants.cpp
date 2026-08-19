@@ -31,7 +31,7 @@ Tiers* TiersPayants::getById(int id)
 {
     QMap<int, Tiers*>::const_iterator itcpt = map_tierspayants->constFind(id);
     if( itcpt == map_tierspayants->constEnd() )
-        return Q_NULLPTR;
+        return nullptr;
     return itcpt.value();
 }
 
@@ -63,7 +63,7 @@ void TiersPayants::SupprimeTiers(Tiers *tiers, QWidget *parent)
 
 Tiers* TiersPayants::CreationTiers(QHash<QString, QVariant> sets)
 {
-    Tiers *tiers = Q_NULLPTR;
+    Tiers *tiers = nullptr;
     int idTiers = 0;
     DataBase::I()->locktables(QStringList() << TBL_TIERS);
     idTiers = DataBase::I()->selectMaxFromTable(CP_ID_TIERS, TBL_TIERS, m_ok);
@@ -77,7 +77,7 @@ Tiers* TiersPayants::CreationTiers(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce tiers payant dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce tiers payant dans la base!"));
         return tiers;
     }
     QJsonObject  data = QJsonObject{};
@@ -89,7 +89,7 @@ Tiers* TiersPayants::CreationTiers(QHash<QString, QVariant> sets)
     }
     data[CP_ID_TIERS] = idTiers;
     tiers = new Tiers(data);
-    if (tiers != Q_NULLPTR)
+    if (tiers != nullptr)
         initListe();
     return tiers;
 }

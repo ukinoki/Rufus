@@ -38,7 +38,7 @@ class dlg_programmationinterventions : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit            dlg_programmationinterventions(Patient *pat, Acte *act = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit            dlg_programmationinterventions(Patient *pat, Acte *act = nullptr, QWidget *parent = nullptr);
     ~dlg_programmationinterventions();
     bool                docimprime() const      { return m_docimprime; }
 
@@ -46,12 +46,12 @@ private:
     Procedures                      *proc = Procedures::I();
     DataBase                        *db =DataBase::I();
     QDate                           m_currentdate = db->ServerDate();
-    QStandardItemModel              *m_medecinsmodel            = Q_NULLPTR;
-    QStandardItemModel              *m_sessionsmodel            = Q_NULLPTR;
-    QStandardItemModel              *m_interventionsmodel       = Q_NULLPTR;
+    QStandardItemModel              *m_medecinsmodel            = nullptr;
+    QStandardItemModel              *m_sessionsmodel            = nullptr;
+    QStandardItemModel              *m_interventionsmodel       = nullptr;
     UpStandardItemModel             *m_typeinterventionsmodel   = Datas::I()->typesinterventions->listetypesinterventionsmodel();
-    QStandardItemModel              *m_manufacturersmodel       = Q_NULLPTR;
-    QStandardItemModel              *m_IOLsmodel                = Q_NULLPTR;
+    QStandardItemModel              *m_manufacturersmodel       = nullptr;
+    QStandardItemModel              *m_IOLsmodel                = nullptr;
     QFont                           m_font = QApplication::font();
     QHash<QString, QVariant>        m_listbinds =  QHash<QString, QVariant>();
 
@@ -61,9 +61,9 @@ private:
                                                                                         * dans la liste des actes en cours et va modifier sa propriété m_intervention
                                                                                         */
 /*! les items */
-    Acte                *m_currentchiracte          = Q_NULLPTR;                        //! l'acte concerné par le programme opératoire
-    User                *m_currentchiruser          = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
-    Patient             *m_currentchirpatient       = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme
+    Acte                *m_currentchiracte          = nullptr;                        //! l'acte concerné par le programme opératoire
+    User                *m_currentchiruser          = nullptr;                        //! le user dont on établit le programme opératoire
+    Patient             *m_currentchirpatient       = nullptr;                        //! le patient qu'on veut intégrer dans le programme
 
     //! l'intervention en cours
     Intervention*       currentintervention() const                     { return Datas::I()->interventions->currentintervention(); }
@@ -73,9 +73,9 @@ private:
     SessionOperatoire*  currentsession() const                          { return Datas::I()->sessionsoperatoires->currentsession(); }
     void                setcurrentsession(SessionOperatoire *session)   { Datas::I()->sessionsoperatoires->setcurrentsession(session); }
 
-    TypeIntervention    *m_currenttypeintervention  = Q_NULLPTR;                        //! le type d'intervention en cours
-    Manufacturer        *m_currentmanufacturer      = Q_NULLPTR;                        //! le fabricant en cours
-    IOL                 *m_currentIOL               = Q_NULLPTR;                        //! l'IOL en cours
+    TypeIntervention    *m_currenttypeintervention  = nullptr;                        //! le type d'intervention en cours
+    Manufacturer        *m_currentmanufacturer      = nullptr;                        //! le fabricant en cours
+    IOL                 *m_currentIOL               = nullptr;                        //! l'IOL en cours
 
 /*! les widgets */
     QMenu               *m_ctxtmenusessions;
@@ -109,7 +109,7 @@ private:
     void                EnregistreIncidentSession()             {EnregistreIncident(currentsession());}
     void                RemplirTreeSessions();
     void                MenuContextuelSessions();
-    void                FicheSession(SessionOperatoire *session = Q_NULLPTR);                                           //! crée la fiche qui permet de modifier ou d'enregistrer une session
+    void                FicheSession(SessionOperatoire *session = nullptr);                                           //! crée la fiche qui permet de modifier ou d'enregistrer une session
     void                ModifSession();
     void                SupprimeSession();
 
@@ -117,9 +117,9 @@ private:
     void                ChoixIntervention(QModelIndex idx);
     void                ChoixInterventionFrame();
     void                EnregistreIncidentIntervention()        {EnregistreIncident(currentintervention());}
-    void                FicheIntervention(Intervention *interv = Q_NULLPTR);                                            //! crée la fiche qui permet de modifier ou d'enregistrer une intervention
+    void                FicheIntervention(Intervention *interv = nullptr);                                            //! crée la fiche qui permet de modifier ou d'enregistrer une intervention
     void                SupprimeIntervention();
-    void                RemplirTreeInterventions(Intervention *intervention = Q_NULLPTR);
+    void                RemplirTreeInterventions(Intervention *intervention = nullptr);
     void                PositionneTreeInterventionsSurIntervention(Intervention* interv);
     void                MenuContextuelInterventionsions();
     void                VerifExistIntervention(UpDialog *dlg, bool &ok, QComboBox *box);
@@ -129,7 +129,7 @@ private slots:
 
 /*! les types d'interventions */
 private:
-    void                FicheTypeIntervention(QString txt, UpDialog *parent = Q_NULLPTR);
+    void                FicheTypeIntervention(QString txt, UpDialog *parent = nullptr);
 
 /*! les fabricants */
     void                ChoixManufacturer(int idx);
@@ -138,7 +138,7 @@ private:
     void                rafraichitWidgetsIOL();                                                         //! (re)peuple combos fabricant/IOL + ranges pwr/cyl : au démarrage de la partie IOL et à chaque MAJ de la liste des implants
 
 /*! les IOLs */
-    void                CalcRangeBox(IOL* iol = Q_NULLPTR);
+    void                CalcRangeBox(IOL* iol = nullptr);
     void                FicheListeIOLs();
     void                ReconstruitListeIOLs(int idmanufacturer, int idiol = 0);                                        //! recalcule la liste des IOLs pour un fabricant
 

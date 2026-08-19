@@ -635,7 +635,7 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->AppareilsConnectesupTableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignLeft);
     ui->AppareilsConnectesupTableWidget->FixLargeurTotale();
     ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>"
-                                           + (Datas::I()->sites->currentsite() != Q_NULLPTR? Datas::I()->sites->currentsite()->nom() : "") + "</b></font> ");
+                                           + (Datas::I()->sites->currentsite() != nullptr? Datas::I()->sites->currentsite()->nom() : "") + "</b></font> ");
     QVBoxLayout *applay = new QVBoxLayout();
     applay      ->addWidget(ui->AppareilsconnectesupLabel);
     applay      ->addWidget(wdg_appareilswdgbuttonframe->widgButtonParent());
@@ -658,7 +658,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->SamediradioButton   ->setChecked(m_parametres->daysbkup().testFlag(Utils::Samedi));
     ui->DimancheradioButton ->setChecked(m_parametres->daysbkup().testFlag(Utils::Dimanche));
     PosteConnecte* post = Datas::I()->postesconnectes->admin(Item::NoUpdate);
-    if (post != Q_NULLPTR)
+    if (post != nullptr)
         ui->TCPlabel->setText("<font color=\"black\">" + tr("Serveur") + " </font>"
                             + "<font color=\"green\"><b>" + post->ipadress() + "</b></font>"
                             + "<font color=\"black\"> " + " - " + tr("Port") + " " + "</font>"
@@ -726,7 +726,7 @@ dlg_param::~dlg_param()
 void dlg_param::AfficheToolTip(QModelIndex idx)
 {
     Cotation *cot = getCotationFromIndex(idx);
-    if (cot == Q_NULLPTR)
+    if (cot == nullptr)
         return;
     const QRect rect = QRect(cursor().pos(), QSize(10,10));
     QToolTip::showText(cursor().pos(), cot->descriptif(), ui->cotationsUpTableView, rect, 2000);
@@ -771,7 +771,7 @@ void dlg_param::EnableSupprAppareilBouton()
 void dlg_param::scrollToCotation(QString txt)
 {
     //! recherche la cotation dont le Typeacte (colonne 0) commence par txt et amène la table dessus
-    if (m_modelCotations == Q_NULLPTR)
+    if (m_modelCotations == nullptr)
         return;
     const QList<QStandardItem*> items = m_modelCotations->findItems(txt, Qt::MatchStartsWith, 0);
     if (items.isEmpty())
@@ -807,24 +807,24 @@ void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
     if (url == QUrl())
         return;
     int row;
-    UpLineEdit *line = Q_NULLPTR;
+    UpLineEdit *line = nullptr;
     switch (mode) {
     case Utils::Poste:
         row = ui->MonoDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
         line    = qobject_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(row,2));
-        if (line!=Q_NULLPTR)
+        if (line!=nullptr)
             line->setText(url.path());
         break;
     case Utils::ReseauLocal:
         row = ui->LocalDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
         line    = qobject_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(row,2));
-        if (line!=Q_NULLPTR)
+        if (line!=nullptr)
             line->setText(url.path());
         break;
     case Utils::Distant:
         row = ui->DistantDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
         line    = qobject_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(row,2));
-        if (line!=Q_NULLPTR)
+        if (line!=nullptr)
             line->setText(url.path());
         break;
     default:
@@ -836,7 +836,7 @@ void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
 
 void dlg_param::EnregDossierStockageApp(UpLineEdit *line, QString dir)
 {
-    if (line==Q_NULLPTR) return;
+    if (line==nullptr) return;
     if (!QDir(dir).exists() && dir != "")
     {
         QString textline = line->valeuravant();
@@ -925,7 +925,7 @@ void dlg_param::ChoixFontpushButtonClicked()
 
 void dlg_param::ClearPortsComboBox(UpComboBox* box, int a)
 {
-    if (box == Q_NULLPTR)
+    if (box == nullptr)
         return;
     if (box==ui->AutorefupComboBox)
     {
@@ -1048,7 +1048,7 @@ void dlg_param::EnableModif(QWidget *obj)
     else if (obj == ui->LockParamGeneralupLabel)
     {
         PosteConnecte* post = Datas::I()->postesconnectes->admin(Item::NoUpdate);
-        if (post != Q_NULLPTR)
+        if (post != nullptr)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier les paramètres généraux"),
                                      tr("Une session de RufusAdmin est actuellement active sur le poste") + " "
@@ -1245,7 +1245,7 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
     for (auto it = mapsites.cbegin(); it != mapsites.cend(); ++it)
     {
         Site *sit = qobject_cast<Site*>(it.key());
-        if (sit != Q_NULLPTR)
+        if (sit != nullptr)
         {
             QTableWidgetItem *pitem1, *pitem2, *pitem3;
             UpPushButton        *AMnumberbutton = new UpPushButton;
@@ -1322,7 +1322,7 @@ void dlg_param::fixAMnumberforSite(UpPushButton *AMnumberButton, QMap<Site *, ql
     QCompleter *comp    = new QCompleter(listnumAM);
     comp                ->setCompletionMode(QCompleter::InlineCompletion);
     line                ->setCompleter(comp);
-    line                ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{9}"), Q_NULLPTR));
+    line                ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{9}"), nullptr));
     combo               ->addItems(listnumAM);
     combo               ->setLineEdit(line);
     combo               ->setEditable(true);
@@ -1401,7 +1401,7 @@ void dlg_param::NouvAppareil()
     connect(dlg_askappareil->OKButton,    &QPushButton::clicked,    this,   &dlg_param::EnregistreAppareil);
     dlg_askappareil->exec();
     delete dlg_askappareil;
-    dlg_askappareil = Q_NULLPTR;
+    dlg_askappareil = nullptr;
 }
 
 void dlg_param::startImmediateBackup()
@@ -1433,10 +1433,10 @@ void dlg_param::startImmediateBackup()
 void dlg_param::MAJCotation(QStandardItem *itcheck)
 {
     UpStandardItem *upit = dynamic_cast<UpStandardItem*>(itcheck);
-    if (upit == Q_NULLPTR)
+    if (upit == nullptr)
         return;
     Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
-    if (cot == Q_NULLPTR)
+    if (cot == nullptr)
         return;
 
     const int typ        = cot->typcotation();
@@ -1450,7 +1450,7 @@ void dlg_param::MAJCotation(QStandardItem *itcheck)
     //! L'ouverture de l'éditeur est DIFFÉRÉE (singleShot) : appelée synchroniquement depuis le clic sur
     //! la case, l'événement clic en cours refermerait aussitôt l'éditeur.
     auto ouvreEditionPratique = [&] (double v) {
-        if (itprat == Q_NULLPTR)
+        if (itprat == nullptr)
             return;
         m_modelCotations->blockSignals(true);       //! on pose la valeur sans redéclencher itemChanged
         itprat->setText(QLocale().toString(v, 'f', 2));
@@ -1464,7 +1464,7 @@ void dlg_param::MAJCotation(QStandardItem *itcheck)
     if (!checked)                                   //! --- décochage : on retire la jointure du user ---
     {
         db->retireJointureCotation(typ, cot->id(), iduser);
-        if (itprat != Q_NULLPTR)
+        if (itprat != nullptr)
         {
             m_modelCotations->blockSignals(true);
             itprat->setText("");
@@ -1542,7 +1542,7 @@ void dlg_param::SupprAppareil()
  */
 bool dlg_param::cotationUtiliseeParAutre(Cotation *cot)
 {
-    if (cot == Q_NULLPTR)
+    if (cot == nullptr)
         return false;
     return db->cotationUtiliseeParAutreUser(cot->typcotation(), cot->id(), currentuser()->id());
 }
@@ -1561,8 +1561,8 @@ void dlg_param::RegleCotationsBoutons()
     Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
 
     wdg_cotationswdgbuttonframe->wdg_plusBouton ->setEnabled(sonParent);
-    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(sonParent && cot != Q_NULLPTR && cot->isAutre());
-    wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(sonParent && cot != Q_NULLPTR
+    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(sonParent && cot != nullptr && cot->isAutre());
+    wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(sonParent && cot != nullptr
                                                              && !cot->isNGAP() && !cotationUtiliseeParAutre(cot));
 }
 
@@ -1575,7 +1575,7 @@ void dlg_param::RegleCotationsBoutons()
  */
 void dlg_param::MAJMontantPratique(Cotation *cot, double montant)
 {
-    if (cot == Q_NULLPTR)
+    if (cot == nullptr)
         return;
     db->majMontantPratiqueCotation(cot->typcotation(), cot->id(), currentuser()->id(), montant);
     cot->setmontantpratique(montant);
@@ -1595,7 +1595,7 @@ void dlg_param::MenuContextuelCotations()
         return;
     ui->cotationsUpTableView->setCurrentIndex(idx);         //! le clic droit sélectionne la rangée
     Cotation *cot = getCotationFromIndex(idx);
-    if (cot == Q_NULLPTR)
+    if (cot == nullptr)
         return;
     //! un utilisateur ne modifie que ses propres cotations : pas de menu s'il n'est pas son propre parent
     if (currentuser()->idparent() != currentuser()->id())
@@ -1661,7 +1661,7 @@ void dlg_param::EnregistreEmplacementServeur(int idx)
     {
         db->setidlieupardefaut(idlieu);
         Site *sit = Datas::I()->sites->getById(idlieu);
-        if (sit != Q_NULLPTR)
+        if (sit != nullptr)
             ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + sit->nom() + "</b></font> ");
     }
 }
@@ -1682,7 +1682,7 @@ void dlg_param::NouvCotation()
 void dlg_param::ModifCotation()
 {
     Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
-    if (cot == Q_NULLPTR)
+    if (cot == nullptr)
         return;
     //! le type (association 2 / autre 4) est déterminé par la fiche à partir de la cotation
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Modification, cot->typeacte(), this);
@@ -1704,7 +1704,7 @@ void dlg_param::ModifCotation()
  */
 void dlg_param::supprimeCotation(Cotation *cot)
 {
-    if (cot == Q_NULLPTR)
+    if (cot == nullptr)
         return;
     //! retrait de la cotation de la jointure du user (revient à un décochage)
     db->retireJointureCotation(cot->typcotation(), cot->id(), currentuser()->id());
@@ -2439,7 +2439,7 @@ bool dlg_param::VerifDirStockageImagerie()
             for (int i=0; i<ui->LocalDocupTableWidget->rowCount(); i++)
             {
                 UpLineEdit *line = qobject_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(i,2));
-                if (line !=  Q_NULLPTR)
+                if (line !=  nullptr)
                     if (line->text() != "")
                     {
                         DirStockageAVerifier = true;
@@ -2467,7 +2467,7 @@ bool dlg_param::VerifDirStockageImagerie()
             for (int i=0; i<ui->DistantDocupTableWidget->rowCount(); i++)
             {
                 UpLineEdit *line = qobject_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(i,2));
-                if (line !=  Q_NULLPTR)
+                if (line !=  nullptr)
                     if (line->text() != "")
                     {
                         DirStockageAVerifier = true;
@@ -2505,7 +2505,7 @@ void dlg_param::RestaureBase()
 void dlg_param::VerifPosteImportDocs()
 {
     PosteConnecte* post = Datas::I()->postesconnectes->admin(Item::NoUpdate);
-    ui->LockParamGeneralupLabel->setEnabled(post == Q_NULLPTR);
+    ui->LockParamGeneralupLabel->setEnabled(post == nullptr);
     QString A = proc->PosteImportDocs();
     if (A == "")
     {
@@ -2547,7 +2547,7 @@ bool dlg_param::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::MouseButtonRelease)
     {
         UpLabel *lbl = qobject_cast<UpLabel *>(obj);
-        if (lbl != Q_NULLPTR)
+        if (lbl != nullptr)
         {
             UpLabel* upLabelObj = qobject_cast<UpLabel*>(obj);
             emit click(upLabelObj);
@@ -2769,7 +2769,7 @@ void dlg_param::enableCotations(bool enable)
     bool autormodif = enable
                       && (currentuser()->isAlterneResponsableEtAssistant() || currentuser()->isResponsable() || currentuser()->isAssistant())
                       && !currentuser()->isRemplacant();  // les remplaçants ne peuvent pas modifier les actes
-    if (m_modelCotations == Q_NULLPTR)
+    if (m_modelCotations == nullptr)
         return;
     //! modèle/vue : la case à cocher est portée par l'item de la colonne 0 ; on active ou non son
     //! caractère cochable selon les droits de l'utilisateur. (setFlags émet itemChanged, mais la
@@ -2777,7 +2777,7 @@ void dlg_param::enableCotations(bool enable)
     for (int row = 0; row < m_modelCotations->rowCount(); ++row)
     {
         QStandardItem *itacte = m_modelCotations->item(row, 0);
-        if (itacte == Q_NULLPTR)
+        if (itacte == nullptr)
             continue;
         Qt::ItemFlags f = itacte->flags();
         f.setFlag(Qt::ItemIsUserCheckable, autormodif);
@@ -2802,7 +2802,7 @@ void dlg_param::enableCotations(bool enable)
 
 void dlg_param::EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, QString txtport)
 {
-    if (combo == Q_NULLPTR)
+    if (combo == nullptr)
         return;
     Procedures::TypesAppareils devicesCOM = proc->devicesCOM();
     Procedures::TypesAppareils devicesLAN = proc->devicesLAN();
@@ -3105,7 +3105,7 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
 
 void dlg_param::EnregistreNouvMDPAdmin()
 {
-    if (dlg_askMDP != Q_NULLPTR)
+    if (dlg_askMDP != nullptr)
     {
         // Vérifier la cohérence
         QString anc, nouv, confirm;
@@ -3985,12 +3985,12 @@ bool dlg_param::Valide_Modifications()
 void dlg_param::Remplir_TableCotations()
 {
     //! map de référence (loadCotations) + marquage used() de l'utilisateur courant (loadUserCotations)
-    if (m_cotations == Q_NULLPTR)
+    if (m_cotations == nullptr)
         m_cotations = new Cotations(this);
     m_cotations         ->initListe();
     m_cotations         ->loadUserCotations(currentuser());
 
-    if (m_modelCotations != Q_NULLPTR)
+    if (m_modelCotations != nullptr)
         delete m_modelCotations;
     m_modelCotations = new UpStandardItemModel(this);
     const QStringList entetes = QStringList() << tr("Acte") << tr("Conventionnel") << tr("Pratiqué");
@@ -4010,7 +4010,7 @@ void dlg_param::Remplir_TableCotations()
     for (auto it = m_cotations->cotations()->constBegin(); it != m_cotations->cotations()->constEnd(); ++it)
     {
         Cotation *cot = const_cast<Cotation*>(it.value());
-        if (cot == Q_NULLPTR)
+        if (cot == nullptr)
             continue;
         listeActes << cot->typeacte();
         UpStandardItem *itacte = new UpStandardItem(cot->typeacte(), cot);
@@ -4036,7 +4036,7 @@ void dlg_param::Remplir_TableCotations()
 
     QItemSelectionModel *sel = ui->cotationsUpTableView->selectionModel();   //! à détruire après setModel (bugs d'affichage à la réinitialisation)
     ui->cotationsUpTableView            ->setModel(m_modelCotations);
-    if (sel != Q_NULLPTR)
+    if (sel != nullptr)
         delete sel;
     ui->cotationsUpTableView            ->verticalHeader()->setVisible(false);
     ui->cotationsUpTableView            ->setColumnWidth(0,200);
@@ -4050,7 +4050,7 @@ void dlg_param::Remplir_TableCotations()
     completer                   ->setCaseSensitivity(Qt::CaseInsensitive);
     completer                   ->setFilterMode(Qt::MatchStartsWith);
     ui->ChercheCotationupLineEdit       ->setCompleter(completer);
-    if (ancienCompleter != Q_NULLPTR)
+    if (ancienCompleter != nullptr)
         ancienCompleter         ->deleteLater();        //! évite l'accumulation à chaque remplissage
 
     //! item modifié : colonne 2 (pratiqué) -> update du montant ; colonne 0 (coche/décoche) -> MAJCotation.
@@ -4062,7 +4062,7 @@ void dlg_param::Remplir_TableCotations()
     //! a changé : l'état lu est donc toujours le bon, sans dépendre de l'ordre des signaux.
     connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=, this] (QStandardItem *it) {
         UpStandardItem *upit = dynamic_cast<UpStandardItem*>(it);
-        if (upit == Q_NULLPTR)
+        if (upit == nullptr)
             return;
         Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
         if (it->column() == 2)                          //! case pratiqué éditée
@@ -4075,7 +4075,7 @@ void dlg_param::Remplir_TableCotations()
         }
         else if (it->column() == 0)                     //! coche/décoche RÉELLE (état != isused)
         {
-            if (cot != Q_NULLPTR && (it->checkState() == Qt::Checked) != cot->isused())
+            if (cot != nullptr && (it->checkState() == Qt::Checked) != cot->isused())
                 MAJCotation(it);
         }
     });
@@ -4091,7 +4091,7 @@ void dlg_param::Remplir_TableCotations()
 Cotation* dlg_param::getCotationFromIndex(QModelIndex idx)
 {
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_modelCotations->item(idx.row()));
-    if (itm != Q_NULLPTR)
+    if (itm != nullptr)
         return qobject_cast<Cotation*>(itm->rufusitem());
-    return Q_NULLPTR;
+    return nullptr;
 }

@@ -34,14 +34,14 @@ class dlg_identificationmanufacturer : public UpDialog
     Q_OBJECT
 public:
     enum Mode   {Creation, Modification};    Q_ENUM(Mode)
-    explicit dlg_identificationmanufacturer(enum Mode mode, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationmanufacturer(enum Mode mode, Manufacturer *man = nullptr, QWidget *parent = nullptr);
     Ui::dlg_identificationmanufacturer *ui;
     ~dlg_identificationmanufacturer();
     int idcurrentmanufacturer() const { return (m_currentmanufacturer? m_currentmanufacturer->id() : 0); }
 
 private:
     DataBase                    *db                = DataBase::I();
-    Manufacturer                *m_currentmanufacturer    = Q_NULLPTR;
+    Manufacturer                *m_currentmanufacturer    = nullptr;
 
     QRegularExpression          rgx_nom             = QRegularExpression("[a-zA-Z0-9 .+-]*");
     QString                     m_nommanufacturer;
@@ -49,7 +49,7 @@ private:
     QLineEdit                   *wdg_CPlineedit, *wdg_villelineedit;
     VilleCPWidget               *wdg_villeCP;
     QHash<QString, QVariant>    m_listbinds;
-    QStandardItemModel          *m_commodel = Q_NULLPTR;
+    QStandardItemModel          *m_commodel = nullptr;
     WidgetButtonFrame           *wdg_buttonframe;
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;

@@ -99,7 +99,7 @@ void UpTextEdit::ChoixMenuContextuel(QString choix)
     else if (choix  == "Police")
     {
         bool ok = false;
-        QFont police = QFontDialog::getFont(&ok, qApp->font(), Q_NULLPTR, tr("Choisissez une police"));
+        QFont police = QFontDialog::getFont(&ok, qApp->font(), nullptr, tr("Choisissez une police"));
         if (ok)
         {
             QTextCharFormat format;

@@ -65,8 +65,8 @@ dlg_listemanufacturers::~dlg_listemanufacturers()
 void dlg_listemanufacturers::Enablebuttons(QModelIndex idx)
 {
     Manufacturer *man = getmanufacturerFromIndex(idx);
-    wdg_buttonframe->wdg_modifBouton->setEnabled(man != Q_NULLPTR);
-    if (man != Q_NULLPTR)
+    wdg_buttonframe->wdg_modifBouton->setEnabled(man != nullptr);
+    if (man != nullptr)
     {
         bool existmaufacturer = false;
         foreach (IOL* iol, *Datas::I()->iols->iols())
@@ -85,7 +85,7 @@ void dlg_listemanufacturers::Enablebuttons(QModelIndex idx)
 
 void dlg_listemanufacturers::ChoixButtonFrame()
 {
-    Manufacturer *man = Q_NULLPTR;
+    Manufacturer *man = nullptr;
     if (wdg_itemstree->selectionModel()->hasSelection())
         man = getmanufacturerFromIndex(wdg_itemstree->currentIndex());
     switch (wdg_buttonframe->Choix()) {
@@ -113,7 +113,7 @@ bool dlg_listemanufacturers::listemanufacturersmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listemanufacturers::EnregistreNouveauManufacturer()
 {
-    dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, Q_NULLPTR, this);
+    dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, nullptr, this);
     Dlg_IdentManufacturer->setWindowModality(Qt::WindowModal);
     if (Dlg_IdentManufacturer->exec() == QDialog::Accepted)
     {
@@ -132,10 +132,10 @@ void dlg_listemanufacturers::EnregistreNouveauManufacturer()
 Manufacturer* dlg_listemanufacturers::getmanufacturerFromIndex(QModelIndex idx )
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(idx));
-    if (it != Q_NULLPTR)
+    if (it != nullptr)
         return qobject_cast<Manufacturer *>(it->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -143,14 +143,14 @@ Manufacturer* dlg_listemanufacturers::getmanufacturerFromIndex(QModelIndex idx )
 // ------------------------------------------------------------------------------------------
 void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
 {
-    if (man == Q_NULLPTR)
+    if (man == nullptr)
         return;
     dlg_identificationmanufacturer *Dlg_IdentManufacturer = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Modification, man, this);
     Dlg_IdentManufacturer->setWindowModality(Qt::WindowModal);
     if (Dlg_IdentManufacturer->exec() == QDialog::Accepted)
     {
         man =  Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idcurrentmanufacturer());
-        if (man != Q_NULLPTR)
+        if (man != nullptr)
         {
             int idman = man->id();
             m_listemodifiee = true;
@@ -165,7 +165,7 @@ void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
 
 void dlg_listemanufacturers::scrollToManufacturer(Manufacturer *man)
 {
-    if (man != Q_NULLPTR)
+    if (man != nullptr)
     {
         int id = man->id();
         for (int i=0; i < m_model->rowCount(); ++i)
@@ -173,7 +173,7 @@ void dlg_listemanufacturers::scrollToManufacturer(Manufacturer *man)
             UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_model->item(i));
             if (itm)
             {
-                if (itm->rufusitem() != Q_NULLPTR)
+                if (itm->rufusitem() != nullptr)
                 {
                     if (itm->rufusitem()->id() == id)
                     {
@@ -217,7 +217,7 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(QString filtre)
 {
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
-    if (m_model != Q_NULLPTR)
+    if (m_model != nullptr)
         delete m_model;
     m_model = new QStandardItemModel(this);
 

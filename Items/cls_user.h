@@ -204,8 +204,8 @@ private:
     STATUT_COMPTABLE statutcomptable() const;  //!< Liberal, LiberalSEL, Salarie, Remplacant, NoCompta
 
 public:
-    explicit User(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    explicit User(QString login, QString password, QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit User(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit User(QString login, QString password, QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data) override;
 

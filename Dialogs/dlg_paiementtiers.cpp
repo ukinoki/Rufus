@@ -56,7 +56,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     }
     else if(currentuser()->isSecretaire())
         m_useracrediter = Datas::I()->users->getById(map_comptables->firstKey());
-    if (m_useracrediter == Q_NULLPTR)
+    if (m_useracrediter == nullptr)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("L'utilisateur n'est pas valide"));
         m_initok = false;
@@ -328,7 +328,7 @@ void dlg_paiementtiers::Annuler()
         // 3.       restaurer les types de paiement quand il s'agit d'un paiement direct
         m_modifpaiementencours = false;
         m_mode = Accueil;
-        disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
+        disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, nullptr);
         ui->RecImageLabel->setVisible(false);
         RegleAffichageFiche();
         ui->AnnulupPushButton->setText("Annuler");
@@ -363,7 +363,7 @@ void dlg_paiementtiers::Annuler()
         else
         {
             m_mode = Accueil;
-            disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
+            disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, nullptr);
             ui->RecImageLabel->setVisible(false);
             RegleAffichageFiche();
             m_traiteparcloseflag = false;
@@ -404,9 +404,9 @@ void dlg_paiementtiers::ChangeUtilisateur()
 {
     int id = m_useracrediter->id();
     m_useracrediter = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
-    if (m_useracrediter != Q_NULLPTR)
+    if (m_useracrediter != nullptr)
         proc        ->MAJComptesBancaires(m_useracrediter);
-    if (m_useracrediter == Q_NULLPTR || m_useracrediter->listecomptesbancaires().size() == 0)
+    if (m_useracrediter == nullptr || m_useracrediter->listecomptesbancaires().size() == 0)
     {
         UpMessageBox::Watch                 (this,tr("Impossible de changer d'utilisateur!") , tr("Les paramètres de") + ui->UserscomboBox->currentText() + tr("ne sont pas retrouvés"));
         disconnect (ui->UserscomboBox,      QOverload<int>::of(&QComboBox::currentIndexChanged), this, &dlg_paiementtiers::ChangeUtilisateur);
@@ -509,7 +509,7 @@ void dlg_paiementtiers::EnregistreNouveauPaiement()
             && ui->DetailupTableWidget->rowCount() == 0)
     {
         m_mode = Accueil;
-        disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
+        disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, nullptr);
         ui->RecImageLabel->setVisible(false);
         RegleAffichageFiche();
         m_traiteparcloseflag = false;
@@ -594,7 +594,7 @@ void dlg_paiementtiers::RegleComptesComboBox(bool avecLesComptesInactifs)
     foreach (int idcpt, m_useracrediter->listecomptesbancaires(avecLesComptesInactifs))
     {
         Compte *cpt = Datas::I()->comptes->getById(idcpt);
-        if (cpt != Q_NULLPTR)
+        if (cpt != nullptr)
             ui->ComptesupComboBox->addItem(m_useracrediter->login() + "/" + cpt->nomabrege(), cpt->id());
     }
 }
@@ -700,7 +700,7 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframeDepuisBouton()
 void dlg_paiementtiers::RenvoieRangee(bool Coche)
 {
     QTableWidget*  TableOrigine = qobject_cast<QTableWidget*>(focusWidget());
-    if (TableOrigine != Q_NULLPTR)
+    if (TableOrigine != nullptr)
     {
         switch (m_mode) {
         case EnregistrePaiementTiers:
@@ -731,7 +731,7 @@ void dlg_paiementtiers::RenvoieRangee(bool Coche)
         default:
             break;
         }
-        TableOrigine = Q_NULLPTR;
+        TableOrigine = nullptr;
     }
 }
 
@@ -786,7 +786,7 @@ void dlg_paiementtiers::ValidePaiement()
                 m_modifpaiementencours = false;
                 RemetToutAZero();
                 m_mode = Accueil;
-                disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
+                disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, nullptr);
                 ui->RecImageLabel->setVisible(false);
                 m_modiflignerecettepossible = true;
                 RegleAffichageFiche();
@@ -848,7 +848,7 @@ bool dlg_paiementtiers::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn )
     {
-        if (qobject_cast<UpLineEdit *>(obj) != Q_NULLPTR)
+        if (qobject_cast<UpLineEdit *>(obj) != nullptr)
         {
             if (obj->parent()->parent() == ui->DetailupTableWidget  && m_mode == EnregistrePaiementTiers)
             {
@@ -881,14 +881,14 @@ bool dlg_paiementtiers::eventFilter(QObject *obj, QEvent *event)
     }
     if (event->type() == QMouseEvent::MouseButtonDblClick)
     {
-        if (qobject_cast<UpCheckBox *>(obj) != Q_NULLPTR)
+        if (qobject_cast<UpCheckBox *>(obj) != nullptr)
         {
             return true; //permet d'éviter un cafouillage
         }
     }
     if (event->type() == QMouseEvent::MouseButtonPress)
     {
-        if (qobject_cast<UpCheckBox *>(obj) != Q_NULLPTR)
+        if (qobject_cast<UpCheckBox *>(obj) != nullptr)
         {
             QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
             if (mouseEvent->button() == Qt::LeftButton)
@@ -917,7 +917,7 @@ bool dlg_paiementtiers::eventFilter(QObject *obj, QEvent *event)
         if ((keyEvent->key()==Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
                 && keyEvent->modifiers() == Qt::NoModifier)
         {
-            if (qobject_cast<UpLineEdit *>(obj) != Q_NULLPTR)
+            if (qobject_cast<UpLineEdit *>(obj) != nullptr)
             {
                 UpLineEdit* Line = qobject_cast<UpLineEdit*>(obj);
                 if (obj->parent()->parent() == ui->DetailupTableWidget  && m_mode == EnregistrePaiementTiers)
@@ -940,7 +940,7 @@ bool dlg_paiementtiers::eventFilter(QObject *obj, QEvent *event)
 //                else
 //                    ui->ListeupTableWidget->setFocus();
             }
-            else if (qobject_cast<UpPushButton *>(obj) != Q_NULLPTR && obj->objectName() != "dlg_paiementtiers")
+            else if (qobject_cast<UpPushButton *>(obj) != nullptr && obj->objectName() != "dlg_paiementtiers")
             {
                 QKeyEvent *newevent = new QKeyEvent ( QEvent::KeyPress, Qt::Key_Tab , Qt::NoModifier);
                 QCoreApplication::postEvent (obj, newevent);
@@ -1667,10 +1667,10 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
 
         // Remplir les infos sur la recette concernée
         RecetteComptable* rec = db->loadRecetteComptablebyId(TextidRecette.toInt());
-        if (rec == Q_NULLPTR)
+        if (rec == nullptr)
             break;
         ui->dateEdit->setDate(rec->date());
-        QRadioButton *RadioAClicker = Q_NULLPTR;
+        QRadioButton *RadioAClicker = nullptr;
         QString mp = rec->modepaiement();
         if (mp == VRMT)
         {
@@ -1680,7 +1680,7 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
         }
         else if (mp == ESP) RadioAClicker = ui->EspecesradioButton;
         else if (mp == CHQ) RadioAClicker = ui->ChequeradioButton;
-        if (RadioAClicker != Q_NULLPTR)
+        if (RadioAClicker != nullptr)
             RadioAClicker->setChecked(true);
         ui->ComptesupComboBox->clearEditText();
         if (rec->compteid() > 0)
@@ -1714,7 +1714,7 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
     if (!box)
         return;
     QLineEdit *Upline = qobject_cast<QLineEdit*>(box->lineEdit());
-    if (Upline == Q_NULLPTR) return;
+    if (Upline == nullptr) return;
     QString anc = box->valeuravant();
     QString nou = box->currentText();
     box->setCurrentText(nou);
@@ -1736,7 +1736,7 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
             msgbox.exec();
             if (msgbox.clickedButton() == &OKBouton)
             {
-                dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation, Q_NULLPTR, this);
+                dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation, nullptr, this);
                 Dlg_IdentTiers->setnomtiers(nou.toUpper());
                 if (Dlg_IdentTiers->exec() == QDialog::Accepted)
                 {
@@ -1781,10 +1781,10 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
 
     // Remplir les infos sur la recette concernée
     RecetteComptable* rec = db->loadRecetteComptablebyId(m_idrecette);
-    if (rec == Q_NULLPTR)
+    if (rec == nullptr)
         return;
     ui->dateEdit    ->setDate(rec->date());
-    QRadioButton *RadioAClicker = Q_NULLPTR;
+    QRadioButton *RadioAClicker = nullptr;
     QString mp      = rec->modepaiement();
     if (mp == VRMT)
     {
@@ -1794,7 +1794,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
     }
     else if (mp == ESP) RadioAClicker = ui->EspecesradioButton;
     else if (mp == CHQ) RadioAClicker = ui->ChequeradioButton;
-    if (RadioAClicker != Q_NULLPTR)
+    if (RadioAClicker != nullptr)
         RadioAClicker   ->setChecked(true);
     ui->ComptesupComboBox->clearEditText();
     if (rec->compteid() > 0)
@@ -2208,7 +2208,7 @@ void dlg_paiementtiers::ReconstruitListeTiers()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, bool AppeleParClicK)
 {
-    QAbstractButton *Emetteur = Q_NULLPTR;
+    QAbstractButton *Emetteur = nullptr;
     QList<QRadioButton *> allRButtons = ui->PaiementgroupBox->findChildren<QRadioButton *>();
     for (int n = 0; n <  allRButtons.size(); n++)
         if (allRButtons.at(n)->isChecked())
@@ -2288,7 +2288,7 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
-                    if (Paye == Q_NULLPTR)
+                    if (Paye == nullptr)
                         continue;
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
@@ -2311,7 +2311,7 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
-                    if (Paye == Q_NULLPTR)
+                    if (Paye == nullptr)
                         continue;
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
@@ -2338,7 +2338,7 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
     switch (m_mode) {
     case EnregistrePaiementTiers:
     {
-        ui->OKupPushButton      ->setEnabled(QLocale().toDouble(ui->MontantlineEdit->text()) > 0 || (Emetteur !=Q_NULLPTR) || ui->DetailupTableWidget->rowCount() > 0);
+        ui->OKupPushButton      ->setEnabled(QLocale().toDouble(ui->MontantlineEdit->text()) > 0 || (Emetteur !=nullptr) || ui->DetailupTableWidget->rowCount() > 0);
         ui->PaiementgroupBox    ->setEnabled(m_modiflignerecettepossible);
         ui->MontantlineEdit     ->setEnabled(m_modiflignerecettepossible);
         ui->Montantlabel        ->setEnabled(m_modiflignerecettepossible);
@@ -2403,7 +2403,7 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
     QString             A;
     QFontMetrics        fm(qApp->font());
 
-    disconnect (TableARemplir, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
+    disconnect (TableARemplir, &QTableWidget::itemSelectionChanged, this, nullptr);
     TableARemplir->clearContents();
     TableARemplir->verticalHeader()->hide();
 
@@ -2676,7 +2676,7 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
 void dlg_paiementtiers::RemplitLesTables(bool &ok)
 {
     QString             requete;
-    disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
+    disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, nullptr);
 
     QString user =  " AND act.UserComptable = "  + QString::number(m_useracrediter->id()) + "\n";
 

@@ -36,7 +36,7 @@ class dlg_listelieux : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_listelieux(QWidget *parent = Q_NULLPTR);
+    explicit dlg_listelieux(QWidget *parent = nullptr);
     ~dlg_listelieux();
     enum Mode               {Modif, Nouv, Suppr}; Q_ENUM(Mode)
 
@@ -62,7 +62,7 @@ private:
     QString                 str_nouvcolor;
     QHash<QString, QVariant>    m_listbinds;
 
-    QStandardItemModel      *m_model = Q_NULLPTR;
+    QStandardItemModel      *m_model = nullptr;
     WidgetButtonFrame       *wdg_buttonframe;
     int                     m_idlieuserveur;
     bool                    m_ok;

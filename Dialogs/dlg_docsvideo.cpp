@@ -168,7 +168,7 @@ void dlg_docsvideo::addFullScreenMenu()
 {
     if (!QFile(m_docpath + "/" + m_currentvideofile).exists())
         return;
-    if (m_Menu != Q_NULLPTR)
+    if (m_Menu != nullptr)
         delete m_Menu;
     m_Menu                          = new QMenu(dlg_imgviewer->imagewidget());
     QAction *paction_Fullscreen     = new QAction(Icons::pxFullscreen(), tr("Afficher en plein écran"));
@@ -271,7 +271,7 @@ void dlg_docsvideo::ValideFiche()
     listbinds[CP_FORMATDOC_DOCSEXTERNES] =        VIDEO;
 
     DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-    bool b = (doc != Q_NULLPTR);
+    bool b = (doc != nullptr);
     delete doc;
     if(!b)
         qFile.close ();

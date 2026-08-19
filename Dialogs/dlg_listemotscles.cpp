@@ -361,7 +361,7 @@ MotCle* dlg_listemotscles::getMotCleFromIndex(QModelIndex idx)
     if (itm)
         return qobject_cast<MotCle*>(itm->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 QList<int> dlg_listemotscles::listMCDepart() const
@@ -408,13 +408,13 @@ void dlg_listemotscles::RemplirTableView()
                                                                       });
     wdg_tblview->setItemDelegateForColumn(1,line);
     m_listidmotsclesdepart.clear();
-    if (m_currentpatient != Q_NULLPTR)
+    if (m_currentpatient != nullptr)
     {
         QList<int> listidMC = DataBase::I()->loadListIdMotsClesByPat(m_currentpatient->id());
         for (int i=0; i<listidMC.size(); i++)
             m_listidmotsclesdepart << listidMC.at(i);
     }
-    if (m_model != Q_NULLPTR)
+    if (m_model != nullptr)
         delete m_model;
     m_model = new UpStandardItemModel(this);
 

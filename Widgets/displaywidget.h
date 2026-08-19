@@ -35,11 +35,11 @@ private:
     //! redimensionnée) et le pixmap effectivement rendu à la taille du viewport.
     enum ItemDataKey { SourceImage = 0, RenderedPixmap = 1 };
 
-    Item                            *m_rufusitem        = Q_NULLPTR;
+    Item                            *m_rufusitem        = nullptr;
     QGraphicsScene                  *m_scene            = new QGraphicsScene;
     QList<QGraphicsPixmapItem*>     m_listgraphicsItem;
-    QGraphicsVideoItem              *m_vidItem          = Q_NULLPTR;
-    UpMediaPlayer                   *m_mediaPlayer      = Q_NULLPTR;
+    QGraphicsVideoItem              *m_vidItem          = nullptr;
+    UpMediaPlayer                   *m_mediaPlayer      = nullptr;
     qreal                           m_ScaleFactor       = 1.0;          //! init : checkSize() peut le lire avant le 1er fitImage
     bool                            OKwheelzoom         = false;
     bool                            m_inResize          = false;        //! garde anti-récursion du resizeEvent
@@ -70,7 +70,7 @@ public:
 
     void            setrufusitem(Item *item) { m_rufusitem = item; }
     Item*           rufusitem() const        { return m_rufusitem; }
-    bool            hasrufusitem() const     { return m_rufusitem != Q_NULLPTR; }
+    bool            hasrufusitem() const     { return m_rufusitem != nullptr; }
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

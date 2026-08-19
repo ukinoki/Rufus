@@ -31,7 +31,7 @@ class RecetteComptable : public Item
 {
     Q_OBJECT
 public:
-    explicit RecetteComptable(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit RecetteComptable(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
 private:

@@ -9,7 +9,7 @@
 #include "textprinter.h"
 #include <QPdfWriter>
 
-TextPrinter::TextPrinter(QObject *parent) : QObject(parent), parent_(Q_NULLPTR)
+TextPrinter::TextPrinter(QObject *parent) : QObject(parent), parent_(nullptr)
 {
     if (parent)
         parent_ = qobject_cast<QWidget*>(parent);
@@ -100,7 +100,7 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
     {
         if (QPrinterInfo::availablePrinterNames().size() == 0)
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Aucune imprimante n'est\nconfigurée sur cet ordinateur!"));
+            UpMessageBox::Watch(nullptr, tr("Aucune imprimante n'est\nconfigurée sur cet ordinateur!"));
             return false;
         }
 
@@ -140,7 +140,7 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
 
 void TextPrinter::PrintPageList(QPrinter *Imprimante, QList<QImage> pagelist)
 {
-    if (Imprimante == Q_NULLPTR)
+    if (Imprimante == nullptr)
         return;
 
     QPainter PrintingPreView(Imprimante);
@@ -347,7 +347,7 @@ QByteArray TextPrinter::getPDFByteArray(const QTextDocument *document)
 
         bapdf=buf.data();
         delete tempdoc_;
-        tempdoc_ = Q_NULLPTR;
+        tempdoc_ = nullptr;
     }
     return bapdf;
 }

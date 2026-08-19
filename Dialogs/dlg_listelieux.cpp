@@ -99,8 +99,8 @@ void dlg_listelieux::AfficheDetails(QModelIndex idx, QModelIndex)
 Site* dlg_listelieux::getSiteFromIndex(QModelIndex idx)
 {
     UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_model->itemFromIndex(idx));
-    if (upitem == Q_NULLPTR)
-        return Q_NULLPTR;
+    if (upitem == nullptr)
+        return nullptr;
     Site *sit = qobject_cast<Site *>(upitem->rufusitem());
     return sit;
 }
@@ -144,7 +144,7 @@ void dlg_listelieux::CreerLieu()
     ModifLieuxDialog(Nouv);
     dlg_lieu->exec();
     delete  dlg_lieu;
-    dlg_lieu = Q_NULLPTR;
+    dlg_lieu = nullptr;
 }
 
 void dlg_listelieux::enregNouvLieu()
@@ -371,7 +371,7 @@ void dlg_listelieux::ModifLieu()
 {
     ModifLieuxDialog(Modif);
     Site * sit = getSiteFromIndex(wdg_tblview->currentIndex());
-    if (sit == Q_NULLPTR)
+    if (sit == nullptr)
         return;
     wdg_nomlineedit    ->setText(sit->nom());
     wdg_adress1lineedit->setText(sit->adresse1());
@@ -387,7 +387,7 @@ void dlg_listelieux::ModifLieu()
     wdg_smtploginlineedit  ->setText(sit->smtplogin());
     dlg_lieu->exec();
     delete  dlg_lieu;
-    dlg_lieu = Q_NULLPTR;
+    dlg_lieu = nullptr;
 }
 
 void dlg_listelieux::enregModifLieu()
@@ -469,7 +469,7 @@ void dlg_listelieux::ReconstruitModel()
 {
     wdg_tblview->disconnect();
     wdg_tblview->selectionModel()->disconnect();
-    if (m_model != Q_NULLPTR)
+    if (m_model != nullptr)
         delete m_model;
     m_model = new UpStandardItemModel();
     QStandardItem *pitem0   = new QStandardItem(tr("Structure de soins"));

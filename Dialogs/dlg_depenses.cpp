@@ -277,12 +277,12 @@ void dlg_depenses::PrintReport(bool pdf)
     bool AvecDupli   = false;
     bool AvecNumPage = false;
 
-    User *userEntete = Q_NULLPTR;
+    User *userEntete = nullptr;
 
     //création de l'entête
     userEntete = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
 
-    if(userEntete == Q_NULLPTR)
+    if(userEntete == nullptr)
     {
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
@@ -355,7 +355,7 @@ void dlg_depenses::PrintReport(bool pdf)
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité") ;
         proc                ->Cree_pdffile(textcorps, textentete, textpied,
-                                filename, Q_NULLPTR,
+                                filename, nullptr,
                                 false,
                                 dirname);
         QFile file          = QFile(dirname + "/" + filename);
@@ -459,7 +459,7 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
         wdg_enreguppushbutton       ->setText("Valider");
         int compte = -1;
-        Depense *dep = (wdg_bigtable->rowCount()>0? getDepenseFromRow(wdg_bigtable->currentRow()) : Q_NULLPTR);
+        Depense *dep = (wdg_bigtable->rowCount()>0? getDepenseFromRow(wdg_bigtable->currentRow()) : nullptr);
         if (dep)
         {
             bool vis = (dep->modepaiement()!=ESP);
@@ -522,7 +522,7 @@ void dlg_depenses::AnnulEnreg()
 
 void dlg_depenses::CalcImageFacture(Depense *dep)
 {
-    if (dep == Q_NULLPTR)
+    if (dep == nullptr)
         return;
     QString filename = "";
     filename            = dep->lienfacture();
@@ -915,7 +915,7 @@ void dlg_depenses::SupprimerDepense()
         connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=, this](int) {RedessineBigTable();});
     }
     else for (int i = 0; i< wdg_bigtable->rowCount(); i++)
-        if (getDepenseFromRow(i) == Q_NULLPTR)
+        if (getDepenseFromRow(i) == nullptr)
         {
             wdg_bigtable->removeRow(i);
             if (i < wdg_bigtable->rowCount() - 1)
@@ -986,9 +986,9 @@ void dlg_depenses::AfficheDetailsDepenses()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::AfficheFacture(Depense *dep)
 {
-    if (dep == Q_NULLPTR)
+    if (dep == nullptr)
         dep = m_depenseencours;
-    if (dep == Q_NULLPTR)
+    if (dep == nullptr)
     {
         ui->FactureupPushButton     ->setVisible(false);
         ui->EcheancierupPushButton  ->setVisible(false);
@@ -1240,7 +1240,7 @@ void dlg_depenses::MetAJourFiche()
             {
                 //ATTENTION ERROR
             }
-            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
+            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != nullptr? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
             A = Utils::ModePaiementtotr(A);
         }
         ui->PaiementcomboBox    ->setCurrentText(A);
@@ -1499,7 +1499,7 @@ void dlg_depenses::ModifierDepense()
             {
                 //ATTENTION ERROR
             }
-            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
+            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != nullptr? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
             A = Utils::ModePaiementtotr(A);
             if (A == Utils::ConvertitModePaiementtotr(CHEQUE))
                 if (dep->nocheque() > 0)
@@ -1542,7 +1542,7 @@ void dlg_depenses::RedessineBigTable()
 {
     RemplitBigTable();
     disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
-    m_depenseencours = Q_NULLPTR;
+    m_depenseencours = nullptr;
     if (wdg_bigtable->rowCount() > 0)
     {
         wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
@@ -1775,13 +1775,13 @@ void dlg_depenses::RechercheValeur()
             FiltreTable();
         }
         QStandardItemModel *model = qobject_cast<QStandardItemModel*>(box->model());
-        if (model != Q_NULLPTR)
+        if (model != nullptr)
         {
             QModelIndex idx = box->model()->index(box->currentIndex(),0);
             UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(model->itemFromIndex(idx));
-            if (upitem != Q_NULLPTR) {
+            if (upitem != nullptr) {
                 Depense *dep = Datas::I()->depenses->getById(upitem->rufusitem()->id());
-                if (dep != Q_NULLPTR)
+                if (dep != nullptr)
                 {
                     if (dep->annee() != ui->AnneecomboBox->currentText().toInt())
                     {
@@ -1887,7 +1887,7 @@ Depense* dlg_depenses::getDepenseFromRow(int row)
 
 void dlg_depenses::EnregistreFacture(QString typedoc)
 {
-    if (m_depenseencours == Q_NULLPTR)
+    if (m_depenseencours == nullptr)
         return;
     if (typedoc == FACTURE)
         EnregistreDocScanne(dlg_docsscanner::Facture);
@@ -2119,7 +2119,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
         {
             //ATTENTION ERROR
         }
-        B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
+        B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != nullptr? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
         if (A == Utils::ConvertitModePaiementtotr(CHEQUE))
             if (dep->nocheque() > 0)
                 C += " " + QString::number(dep->nocheque());

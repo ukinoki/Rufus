@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 upSerialPort::upSerialPort(QString portname, QString NomApp, QObject *parent) : QSerialPort(portname, parent)
 {
     m_nomapp        = NomApp;
-    if (t_timer == Q_NULLPTR)
+    if (t_timer == nullptr)
     {
         t_timer = new QTimer (this);
         t_timer->setInterval(100);

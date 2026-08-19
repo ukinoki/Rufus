@@ -15,7 +15,7 @@ public:
         TonometreDev   = 0x8,
     };  Q_ENUM(Type)
 
-    explicit RefractionDevice(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit RefractionDevice(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     QString brand() const;

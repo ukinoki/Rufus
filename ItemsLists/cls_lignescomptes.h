@@ -25,10 +25,10 @@ class LignesComptes : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, LigneCompte*> *map_lignes = Q_NULLPTR;  //!< la liste de toutes les lignes
+    QMap<int, LigneCompte*> *map_lignes = nullptr;  //!< la liste de toutes les lignes
 
 public:
-    explicit LignesComptes(QObject *parent = Q_NULLPTR);
+    explicit LignesComptes(QObject *parent = nullptr);
     ~LignesComptes();
 
     QMap<int, LigneCompte*>* lignescomptes() const;
@@ -39,6 +39,6 @@ public:
     QMap<int, bool> initListeLignesByIdCompte(int id);    //! reconstruit la liste des lignes pour un compte
 
     //!> actions sur les enregistrements
-    void       SupprimeLigne(LigneCompte *lign, QWidget *parent = Q_NULLPTR);
+    void       SupprimeLigne(LigneCompte *lign, QWidget *parent = nullptr);
 };
 #endif // LIGNESCOMPTES_H

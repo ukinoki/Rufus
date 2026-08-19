@@ -29,7 +29,7 @@ class dlg_recettesspeciales : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_recettesspeciales(QWidget *parent = Q_NULLPTR);
+    explicit dlg_recettesspeciales(QWidget *parent = nullptr);
     Ui::dlg_recettesspeciales   *ui;
     bool                        initOK() const;
     enum Mode                   {Lire, Modifier, Enregistrer, TableVide};    Q_ENUM(Mode)

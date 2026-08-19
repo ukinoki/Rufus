@@ -259,7 +259,7 @@ void dlg_gestioncomptes::CompteFactice()
     msgbox.exec();
     if (msgbox.clickedButton()==&RemplirBouton)
     {
-        Banque *newbq = Q_NULLPTR;
+        Banque *newbq = nullptr;
         for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
         {
             Banque *bq = const_cast<Banque*>(it.value());
@@ -269,7 +269,7 @@ void dlg_gestioncomptes::CompteFactice()
                 break;
             }
         }
-        if (newbq == Q_NULLPTR)
+        if (newbq == nullptr)
             newbq = Datas::I()->banques->CreationBanque("PaPRS",             //! idBanqueAbrege
                                                 "Panama Papers");    //! NomBanque
         ReconstruitComboBanques();
@@ -494,7 +494,7 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
         foreach (int idcpt, m_userencours->listecomptesbancaires(true))
         {
             Compte *cpt = Datas::I()->comptes->getById(idcpt);
-            if (cpt != Q_NULLPTR)
+            if (cpt != nullptr)
             {
                 pitem0 = new QTableWidgetItem;
                 pitem1 = new QTableWidgetItem;
@@ -506,7 +506,7 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
                 i++;
             }
         }
-        connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, this, [=, this] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),Q_NULLPTR);});
+        connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, this, [=, this] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),nullptr);});
         if (idcompte > 0)
             ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->findItems(QString::number(idcompte), Qt::MatchExactly).at(0));
         else if (m_userencours->idcomptepardefaut() > 0)
@@ -558,7 +558,7 @@ bool dlg_gestioncomptes::VerifCompte()
         foreach (int idcpt, m_userencours->listecomptesbancaires(false))
         {
             Compte *cpt = Datas::I()->comptes->getById(idcpt);
-            if (cpt != Q_NULLPTR)
+            if (cpt != nullptr)
             {
                 if (cpt->idBanque() == idbanque)
                 {
@@ -585,7 +585,7 @@ bool dlg_gestioncomptes::VerifCompte()
         foreach (int idcpt, m_userencours->listecomptesbancaires(false))
         {
             Compte *cpt = Datas::I()->comptes->getById(idcpt);
-            if (cpt != Q_NULLPTR)
+            if (cpt != nullptr)
             {
                 if (cpt->nomabrege() == ui->NomCompteAbregeuplineEdit->text() && cpt->id() != ui->idCompteupLineEdit->text().toInt())
                 {

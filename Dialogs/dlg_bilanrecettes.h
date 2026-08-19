@@ -29,7 +29,7 @@ class dlg_bilanrecettes : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_bilanrecettes(QWidget *parent = Q_NULLPTR);
+    explicit dlg_bilanrecettes(QWidget *parent = nullptr);
     ~dlg_bilanrecettes();
     bool                        initOK() const;
     enum Mode                   {SUPERVISEUR, COMPTABLE};    Q_ENUM(Mode)
@@ -52,7 +52,7 @@ private:
     double                      m_grandtotalbanqu;
 
     Mode                        m_mode;
-    QStandardItemModel          *m_recettesmodel = Q_NULLPTR;
+    QStandardItemModel          *m_recettesmodel = nullptr;
 
     QGroupBox                   *wdg_classmtupgrpbox;
     QHBoxLayout                 *wdg_lblbox;
@@ -69,7 +69,7 @@ private:
     UpRadioButton               *wdg_comptableradiobouton;
     UpRadioButton               *wdg_superviseurradiobouton;
 
-    void                        CalcBilan(QWidget *parent = Q_NULLPTR);
+    void                        CalcBilan(QWidget *parent = nullptr);
     void                        CalcSuperviseursEtComptables();             //! Etablit la liste des superviseurs et des comptables pour la période du bilan
     void                        CalculeTotal();
     void                        ChangeMode(enum Mode);

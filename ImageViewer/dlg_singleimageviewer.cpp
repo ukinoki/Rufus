@@ -148,10 +148,10 @@ qreal dlg_singleimageviewer::widgetRatio(QList<QImage> listimg)
 
 void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc)
 {
-    if (m_controlplayer != Q_NULLPTR)
+    if (m_controlplayer != nullptr)
     {
         delete m_controlplayer;
-        m_controlplayer = Q_NULLPTR;
+        m_controlplayer = nullptr;
     }
     if (buttons().testFlag(ButtonPrint))
         PrintButton     ->setVisible(true);
@@ -182,7 +182,7 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
 
 void dlg_singleimageviewer::DisplayVideo(QString filepath)
 {
-    if (m_controlplayer == Q_NULLPTR)
+    if (m_controlplayer == nullptr)
     {
         m_controlplayer     = new PlayerControls(this);
         buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-2 : 0,m_controlplayer);
@@ -231,7 +231,7 @@ DisplayWidget *dlg_singleimageviewer::imagewidget() const
 
 void dlg_singleimageviewer::setCorrectionwidget(QWidget *newCorrectionwidget)
 {
-    if (newCorrectionwidget != Q_NULLPTR)
+    if (newCorrectionwidget != nullptr)
         setCorrectionWidth(newCorrectionwidget->width());
 }
 

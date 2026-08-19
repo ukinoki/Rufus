@@ -27,8 +27,8 @@ class UpPushButton : public QPushButton
     Q_OBJECT
 
 public:
-    explicit    UpPushButton(QWidget *parent = Q_NULLPTR);
-    explicit    UpPushButton(QString text, QWidget *parent = Q_NULLPTR);
+    explicit    UpPushButton(QWidget *parent = nullptr);
+    explicit    UpPushButton(QString text, QWidget *parent = nullptr);
     ~UpPushButton();
 
     enum        StyleBouton {OKBUTTON =0x1,ANNULBUTTON = 0x2,NORMALBUTTON = 0x4,IMPRIMEBUTTON = 0x8};      Q_ENUM(StyleBouton)

@@ -33,7 +33,7 @@ private:
     QMap<int, PaiementTiers*> *map_paiementstiers; //!< la liste des paiements par tiers
 
 public:
-    explicit PaiementsTiers(QObject *parent = Q_NULLPTR);
+    explicit PaiementsTiers(QObject *parent = nullptr);
 
     QMap<int, PaiementTiers *> *paiementstiers() const;
 

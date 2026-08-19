@@ -42,7 +42,7 @@ private:
     QString m_smtplogin = "";
 
 public:
-    explicit Site(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Site(QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data) override;
     void resetdatas();

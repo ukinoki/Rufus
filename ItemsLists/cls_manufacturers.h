@@ -25,10 +25,10 @@ class Manufacturers : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Manufacturer*> *map_all = Q_NULLPTR;      //!< la liste de tous les manufacturers
+    QMap<int, Manufacturer*> *map_all = nullptr;      //!< la liste de tous les manufacturers
 
 public:
-    explicit Manufacturers(QObject *parent = Q_NULLPTR);
+    explicit Manufacturers(QObject *parent = nullptr);
 
     QMap<int, Manufacturer*> *manufacturers() const;
 
@@ -36,7 +36,7 @@ public:
     void initListe();
 
     //!> actions sur les enregistrements
-    void                SupprimeManufacturer(Manufacturer *Manufacturer, QWidget *parent = Q_NULLPTR);
+    void                SupprimeManufacturer(Manufacturer *Manufacturer, QWidget *parent = nullptr);
     Manufacturer*       CreationManufacturer(QHash<QString, QVariant> sets);
 };
 

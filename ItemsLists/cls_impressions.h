@@ -25,11 +25,11 @@ class Impressions : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Impression*> *map_all = Q_NULLPTR;      //!< la liste des impressions
+    QMap<int, Impression*> *map_all = nullptr;      //!< la liste des impressions
     bool m_isfull = false;
 
 public:
-    explicit Impressions(QObject *parent = Q_NULLPTR);
+    explicit Impressions(QObject *parent = nullptr);
 
     QMap<int, Impression *> *impressions() const;
 
@@ -38,7 +38,7 @@ public:
     bool isfull() const { return  m_isfull; }
 
     //!> actions sur les enregistrements
-    void          SupprimeImpression(Impression *impr, QWidget *parent = Q_NULLPTR);
+    void          SupprimeImpression(Impression *impr, QWidget *parent = nullptr);
     Impression*   CreationImpression(QHash<QString, QVariant> sets);
 };
 
@@ -46,7 +46,7 @@ class DossiersImpressions : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, DossierImpression*> *map_all = Q_NULLPTR;      //!< la liste des dossiers d'impressions
+    QMap<int, DossierImpression*> *map_all = nullptr;      //!< la liste des dossiers d'impressions
     bool m_isfull = false;
 
 public:
@@ -60,7 +60,7 @@ public:
     void loadlistedocs(DossierImpression *dossier);
     void setlistedocs(DossierImpression *dossier, QList<int> listiddocs);
     //!> actions sur les enregistrements
-    void                    SupprimeDossierImpression(DossierImpression *impr, QWidget *parent = Q_NULLPTR);
+    void                    SupprimeDossierImpression(DossierImpression *impr, QWidget *parent = nullptr);
     DossierImpression*      CreationDossierImpression(QHash<QString, QVariant> sets);
 };
 

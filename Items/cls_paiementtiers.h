@@ -29,7 +29,7 @@ class PaiementTiers : public Item
 {
     Q_OBJECT
 public:
-    explicit PaiementTiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit PaiementTiers(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
 private:

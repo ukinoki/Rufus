@@ -24,7 +24,7 @@ UpRadioButton::UpRadioButton(QWidget *parent) : QRadioButton(parent)
     setContextMenuPolicy(Qt::NoContextMenu);
     m_id         = -1;
     m_toggleable    = true;
-    m_rufusitem    = Q_NULLPTR;
+    m_rufusitem    = nullptr;
 }
 
 UpRadioButton::UpRadioButton(const QString Title, QWidget *parent) : QRadioButton(Title, parent)

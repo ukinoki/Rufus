@@ -255,7 +255,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     bool AvecNumPage = false;
 
     User *userEntete = Datas::I()->users->getById(m_currentact->idUserSuperviseur());
-    if (userEntete == Q_NULLPTR)
+    if (userEntete == nullptr)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
         return;
@@ -322,7 +322,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds[CP_FORMATDOC_DOCSEXTERNES] =        BILANORTHOPTIQUE;
         listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->sites->idcurrentsite();
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        if(doc != Q_NULLPTR)
+        if(doc != nullptr)
             delete doc;
     }
     delete textHtml;

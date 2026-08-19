@@ -31,7 +31,7 @@ class dlg_identificationuser : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_identificationuser(QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationuser(QWidget *parent = nullptr);
     ~dlg_identificationuser();
     Ui::dlg_identificationuser *ui;
     enum LoginResult { NoConnexion, NoUser, CorruptedBase, CorruptedUser, OK}; Q_ENUM(LoginResult)

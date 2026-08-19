@@ -29,16 +29,16 @@ class dlg_identificationcommercial : public UpDialog
     Q_OBJECT
 public:
     enum                        Mode {Creation, Modification};    Q_ENUM(Mode);
-    explicit                    dlg_identificationcommercial(enum Mode mode, Item *itm, QWidget *parent = Q_NULLPTR);
+    explicit                    dlg_identificationcommercial(enum Mode mode, Item *itm, QWidget *parent = nullptr);
     ~dlg_identificationcommercial();
     void                        setNomcommercial(QString nom)   {wdg_nomcommercialline->setText(nom);}
     int                         idcurrentcommercial() const     { return (m_currentcommercial? m_currentcommercial->id() : 0); }
 
 private:
     Mode                m_mode;
-    Manufacturer        *m_currentmanufacturer  = Q_NULLPTR;
+    Manufacturer        *m_currentmanufacturer  = nullptr;
     QStandardItemModel  *m_manufacturersmodel;
-    Commercial          *m_currentcommercial    = Q_NULLPTR;
+    Commercial          *m_currentcommercial    = nullptr;
     QHash<QString, QVariant>
                         m_listbinds;
     QComboBox           *wdg_manufacturercombo ;

@@ -137,7 +137,7 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 
 ### 🔴 Double `delete` dans `dlg_actesprecedents` ✓ vérifié
 - **Où** : `Dialogs/dlg_actesprecedents.cpp:61-64` (le constructeur, branche « autre dossier »,
-  libère `m_listepaiements` et `m_actes` sans les remettre à `Q_NULLPTR`), `:113-118` (le
+  libère `m_listepaiements` et `m_actes` sans les remettre à `nullptr`), `:113-118` (le
   destructeur refait exactement la même chose sous la même condition `!m_iscurrentpatient`),
   déclenché par `rufus.cpp:3868` (`if (!Dlg_ActesPrecs->initOK()) { … delete Dlg_ActesPrecs; }`).
 - **Effet** : **double libération → corruption du tas** : plantage immédiat ou, pire, différé et
@@ -146,7 +146,7 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
   enregistrée** (cas prévu par l'auteur, le message existe).
 - **Piste** : retirer les 4 lignes de nettoyage du constructeur — laisser le destructeur faire le
   ménage (il est déjà écrit pour ça), en lui ajoutant un test de nullité pour couvrir aussi le
-  retour anticipé `pat == Q_NULLPTR` (`:30`).
+  retour anticipé `pat == nullptr` (`:30`).
 
 ### 🟠 `dlg_docsexternes` garde un pointeur que l'appelant détruit juste après `exec()`
 - **Où** : `rufus.cpp:3890-3894` (`new DocsExternes` … `OuvrirDocsExternes(docs)` … `clearAll` +

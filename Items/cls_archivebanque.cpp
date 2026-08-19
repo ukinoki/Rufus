@@ -93,7 +93,7 @@ void Archives::clearAll()
 
 void Archives::removeArchive(Archive *arch)
 {
-    if (arch == Q_NULLPTR)
+    if (arch == nullptr)
         return;
     if( m_archives->find(arch->id()) == m_archives->end() )
         return;

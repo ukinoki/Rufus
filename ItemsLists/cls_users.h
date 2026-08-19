@@ -29,19 +29,19 @@ class Users : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, User*> *map_all = Q_NULLPTR;             //!< map de tous les users
-    QMap<int, User*> *map_actifs = Q_NULLPTR;          //!< map de tous les users actifs
-    QMap<int, User*> *map_inactifs = Q_NULLPTR;        //!< map de tous les users inactifs
-    QMap<int, User*> *map_superviseurs = Q_NULLPTR;    //!< map des superviseurs : User->isResponsable()
-    QMap<int, User*> *map_parents = Q_NULLPTR;         //!< map des parents : User->isSoignant() && !User->isRemplacant()
-    QMap<int, User*> *map_liberaux = Q_NULLPTR;        //!< map des liberaux : User->isLiberal()
-    QMap<int, User*> *map_comptablesactes = Q_NULLPTR; //!< map des comptables qui enregistrent des actes médicaux: User->isSocComptable() || User->isLiberal()
-    QMap<int, User*> *map_comptablessaufactes = Q_NULLPTR;//!< map des comptables qui enregistrent des recettes dépenses mais pas d'actes médicaux: User->isSocComptable() || User->isLiberal()
-    QMap<int, User*> *map_medecins = Q_NULLPTR;        //!< map des medecins : User->isMedecin()
+    QMap<int, User*> *map_all = nullptr;             //!< map de tous les users
+    QMap<int, User*> *map_actifs = nullptr;          //!< map de tous les users actifs
+    QMap<int, User*> *map_inactifs = nullptr;        //!< map de tous les users inactifs
+    QMap<int, User*> *map_superviseurs = nullptr;    //!< map des superviseurs : User->isResponsable()
+    QMap<int, User*> *map_parents = nullptr;         //!< map des parents : User->isSoignant() && !User->isRemplacant()
+    QMap<int, User*> *map_liberaux = nullptr;        //!< map des liberaux : User->isLiberal()
+    QMap<int, User*> *map_comptablesactes = nullptr; //!< map des comptables qui enregistrent des actes médicaux: User->isSocComptable() || User->isLiberal()
+    QMap<int, User*> *map_comptablessaufactes = nullptr;//!< map des comptables qui enregistrent des recettes dépenses mais pas d'actes médicaux: User->isSocComptable() || User->isLiberal()
+    QMap<int, User*> *map_medecins = nullptr;        //!< map des medecins : User->isMedecin()
     bool addUser(User *usr);
     void addList(QList<User*> listusr);
-    void mapsclean(User *usr = Q_NULLPTR);
-    User* m_useradmin = Q_NULLPTR;
+    void mapsclean(User *usr = nullptr);
+    User* m_useradmin = nullptr;
 
 public:
     //GETTER
@@ -55,7 +55,7 @@ public:
     QMap<int, User *> *comptablesSaufActes() const;
     QMap<int, User *> *medecins() const;
 
-    Users(QObject *parent = Q_NULLPTR);
+    Users(QObject *parent = nullptr);
     User*       Admin()  const  { return m_useradmin; }
     User*       getById(int id, Item::UPDATE upd = Item::NoUpdate);
     void        reload(User* usr);

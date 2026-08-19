@@ -92,7 +92,7 @@ private:
     bool chargeCotationsXml(QDomDocument &docxml);              //! localise et charge le fichier de cotations ; false si introuvable/invalide
 
     int m_iduserConnected = 0;
-    ParametresSysteme *m_parametres = Q_NULLPTR;
+    ParametresSysteme *m_parametres = nullptr;
     DonneesOphtaPatient *m_donneesophtapatient = new DonneesOphtaPatient();
 
     Utils::ModeAcces m_modeacces = Utils::Undefined;    //! DOIT être fixé via setModeacces() avant toute connexion
@@ -390,7 +390,7 @@ public:
     QJsonObject             loadPatientAllData(int idPat);                                                  //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
     void                    loadSocialDataPatient(QJsonObject &jData, bool &ok);                            //! charge les donnéess sociales d'un patient à partir de la table donneessocialespatients
     void                    loadMedicalDataPatient(QJsonObject &jData, bool &ok);                           //! charge les donnéess médicales d'un patient à partir de la table renseignementsmedicauxpatients
-    Patient*                loadPatientById(int idPat, Patient *pat = Q_NULLPTR,
+    Patient*                loadPatientById(int idPat, Patient *pat = nullptr,
                                             Item::LOADDETAILS details = Item::NoLoadDetails);               //! charge un patient par son id à partir de la table patients
 
     qint64                  countPatientsAll(QString nom = "", QString prenom = "");                        /*! compte le nombre de patients
@@ -456,7 +456,7 @@ private:
     QJsonObject             loadSessionOpData(QVariantList refdata);            //! attribue le liste des datas à une session
 public:
     QList<SessionOperatoire *> loadSessionsOpByUserId(int id);                  //! charge toutes les sessions opératoires d'un user
-    SessionOperatoire*      loadSessionOpById(int idintervention, SessionOperatoire *session = Q_NULLPTR);              //! charge une session définie par son id - utilisé pour renouveler les données en cas de modification
+    SessionOperatoire*      loadSessionOpById(int idintervention, SessionOperatoire *session = nullptr);              //! charge une session définie par son id - utilisé pour renouveler les données en cas de modification
 
     /*
      * Interventions
@@ -466,7 +466,7 @@ private:
 public:
     QList<Intervention*>    loadInterventionsBySessionId(int id);                       //! charge toutes les Interventions d'une session
     QList<QPair<int, int> > loadIdInterventionsByPatientId(int id);                     //! charge tous les id d'interventions d'un patient
-    Intervention*           loadInterventionById(int idintervention, Intervention* interv = Q_NULLPTR);                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+    Intervention*           loadInterventionById(int idintervention, Intervention* interv = nullptr);                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
     Intervention*           loadInterventionByDateIdPatient(QDate date, int idpatient); //! charge une Intervention définie par sa sate et l'id du patient
 
     /*

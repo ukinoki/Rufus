@@ -24,14 +24,14 @@ class dlg_listemanufacturers : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit                dlg_listemanufacturers(QWidget *parent = Q_NULLPTR);
+    explicit                dlg_listemanufacturers(QWidget *parent = nullptr);
     ~dlg_listemanufacturers();
     bool                    listemanufacturersmodifiee() const;
 
 private:
     bool                    m_listemodifiee = false;
 
-    QStandardItemModel      *m_model = Q_NULLPTR;
+    QStandardItemModel      *m_model = nullptr;
     QTreeView               *wdg_itemstree;
     WidgetButtonFrame       *wdg_buttonframe;
     QList<int>              m_listidmanufacturersutilises;

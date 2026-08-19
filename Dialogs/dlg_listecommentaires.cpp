@@ -179,7 +179,7 @@ bool dlg_listecommentaires::ChercheDoublon(QString str, int row)
                         QString comment = tr("Il existe déjà un commentaire portant ce nom");
                         if (iduser != currentuser()->id())
                         {
-                            if (Datas::I()->users->getById(iduser) != Q_NULLPTR)
+                            if (Datas::I()->users->getById(iduser) != nullptr)
                                 b = " " + tr("créé par") + " " + Datas::I()->users->getById(iduser)->login();
                             else
                                 b = "";
@@ -262,7 +262,7 @@ void dlg_listecommentaires::ChoixMenuContextuel(QString choix)
         m_listbinds[CP_IDUSER_COMLUN]   = currentuser()->id();
         m_listbinds[CP_PARDEFAUT_COMLUN]= (m_currentcomment->isdefaut()?  "1" : QVariant());
         m_listbinds[CP_PUBLIC_COMLUN]   = QVariant();
-        m_currentcomment = Q_NULLPTR;
+        m_currentcomment = nullptr;
         m_currentcomment = Datas::I()->commentslunets->CreationCommentLunet(m_listbinds);
         RemplirTableView();
     }
@@ -469,7 +469,7 @@ CommentLunet* dlg_listecommentaires::getCommentFromIndex(QModelIndex idx)
     if (itm)
         return qobject_cast<CommentLunet*>(itm->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 void dlg_listecommentaires::MenuContextuel()
@@ -526,7 +526,7 @@ void dlg_listecommentaires::RemplirTableView()
 {
     wdg_tblview->disconnect();
     wdg_tblview->selectionModel()->disconnect();
-    if (m_model != Q_NULLPTR)
+    if (m_model != nullptr)
         delete m_model;
     m_model = new UpStandardItemModel();
     UpLineDelegate *line = new UpLineDelegate();
@@ -601,7 +601,7 @@ void dlg_listecommentaires::RemplirTableView()
                                                                                                                         EnableButtons(m_currentcomment);
                                                                                                                     }
                                                                                                                 });
-        m_currentcomment = Q_NULLPTR;
+        m_currentcomment = nullptr;
     }
     else
         ConfigMode(Creation);

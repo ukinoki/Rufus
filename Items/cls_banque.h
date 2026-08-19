@@ -34,7 +34,7 @@ private:
     QString m_idbanqueabrege, m_nombanque;
 
 public:
-    explicit Banque(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Banque(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     int code() const;

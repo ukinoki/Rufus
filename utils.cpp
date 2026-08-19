@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyle>
 #include <QWhatsThis>
 
-Utils* Utils::instance =  Q_NULLPTR;
+Utils* Utils::instance =  nullptr;
 Utils* Utils::I()
 {
     if( !instance )
@@ -1183,7 +1183,7 @@ bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified
 {
     if (mdpverified)
         return true;
-    if (parent != Q_NULLPTR)
+    if (parent != nullptr)
     {
         UpDialog *dlg_askMDP    = new UpDialog(parent);
         dlg_askMDP      ->setWindowModality(Qt::WindowModal);
@@ -1236,7 +1236,7 @@ bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified
             else if (quest.textValue() == MDP)
                 return true;
             else
-                UtilsMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));
+                UtilsMessageBox::Watch(nullptr, QObject::tr("Mot de passe invalide!"));
         }
         return false;
     }
@@ -2230,8 +2230,8 @@ UtilsMessageBox::UtilsMessageBox(QWidget *parent) : UpDialog(parent)
     wdg_infolbl             = new UpLabel();
     wdg_textlayout          = new QVBoxLayout();
     wdg_infolayout          = new QHBoxLayout();
-    wdg_ReponsSmallButton   = Q_NULLPTR;
-    wdg_ReponsPushButton    = Q_NULLPTR;
+    wdg_ReponsSmallButton   = nullptr;
+    wdg_ReponsPushButton    = nullptr;
     wdg_texteditlbl         ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
     wdg_infolbl             ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
 
@@ -2269,7 +2269,7 @@ void UtilsMessageBox::removeButton(UpSmallButton *button)
     for (int i=0; i<buttonslayout()->count();i++)
     {
         UpSmallButton *buttonARetirer =  qobject_cast<UpSmallButton*>(buttonslayout()->itemAt(i)->widget());
-        if (buttonARetirer!=Q_NULLPTR)
+        if (buttonARetirer!=nullptr)
             if (buttonARetirer == button)
             {
                 delete buttonARetirer;
@@ -2281,7 +2281,7 @@ void UtilsMessageBox::removeButton(UpSmallButton *button)
 void UtilsMessageBox::Repons(QPushButton *button)
 {
     UpSmallButton *but = qobject_cast<UpSmallButton*>(button);
-    if (but != Q_NULLPTR)
+    if (but != nullptr)
         wdg_ReponsSmallButton = but;
     else
         wdg_ReponsPushButton = qobject_cast<UpPushButton*>(button);
@@ -2395,7 +2395,7 @@ void UtilsMessageBox::setInformativeText(QString Text)
     wdg_infolbl     ->setText(Text);
     wdg_infolbl     ->setWordWrap(true);
     int position = 1;
-    if (qobject_cast<QLabel*>(wdg_textlayout->itemAt(1)->widget()) != Q_NULLPTR)
+    if (qobject_cast<QLabel*>(wdg_textlayout->itemAt(1)->widget()) != nullptr)
         position += 1;
     wdg_infolbl     ->setFixedSize(Utils::CalcSize(Text));
     wdg_textlayout      ->insertWidget(position,wdg_infolbl);
@@ -2423,7 +2423,7 @@ void UtilsMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
     {
         UpSmallButton *butt =  qobject_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
-        if (butt!=Q_NULLPTR)
+        if (butt!=nullptr)
             connect(butt, &QPushButton::clicked, msgbox, &UtilsMessageBox::accept);
     }
     msgbox  ->exec();
@@ -2444,7 +2444,7 @@ UpSmallButton::StyleBouton UtilsMessageBox::Watch(QWidget *parent, QString Text,
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
     {
         UpSmallButton *butt =  qobject_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
-        if (butt!=Q_NULLPTR)
+        if (butt!=nullptr)
         {
             if (butt->ButtonStyle() == UpSmallButton::CANCELBUTTON)
                 msgbox->disconnect(butt);
@@ -2493,7 +2493,7 @@ UpSmallButton::StyleBouton UtilsMessageBox::Question(QWidget *parent, QString Te
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
     {
         UpSmallButton *butt =  qobject_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
-        if (butt!=Q_NULLPTR)
+        if (butt!=nullptr)
         {
             if (titresboutonslist.size()>k)
                 butt->setText(titresboutonslist.at(k));

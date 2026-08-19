@@ -134,14 +134,14 @@ void dlg_motifs::ActualiseDetails()
     ui->MotifupLineEdit->setStyleSheet(background);
     bool checkUt    = false;
     bool checkUtTog = false;
-    if (UpchkFromTableW(ui->MotifsupTableWidget,row,0)!=Q_NULLPTR)
+    if (UpchkFromTableW(ui->MotifsupTableWidget,row,0)!=nullptr)
     {
         checkUt     = UpchkFromTableW(ui->MotifsupTableWidget,row,0)->isChecked();
         checkUtTog  = UpchkFromTableW(ui->MotifsupTableWidget,row,0)->Toggleable();
     }
     bool checkPD    = false;
     bool checkPDTog = false;
-    if (UpchkFromTableW(ui->MotifsupTableWidget,row,6)!=Q_NULLPTR)
+    if (UpchkFromTableW(ui->MotifsupTableWidget,row,6)!=nullptr)
     {
         checkPD     = UpchkFromTableW(ui->MotifsupTableWidget,row,6)->isChecked();
         checkPDTog  = UpchkFromTableW(ui->MotifsupTableWidget,row,6)->Toggleable();
@@ -239,10 +239,10 @@ void dlg_motifs::DeplaceVersRow(int id, int anc, int nouv)
     bool PDCheckSender      = false;
     QString MotifSender(""), RaccourciSender(""), idSender(""), CouleurSender(""), DureeSender("");
 
-    if (UpchkFromTableW(ui->MotifsupTableWidget,row,0) != Q_NULLPTR)
+    if (UpchkFromTableW(ui->MotifsupTableWidget,row,0) != nullptr)
         UtilCheckSender = UpchkFromTableW(ui->MotifsupTableWidget,row,0)->isChecked();
     else return;
-    if (UpchkFromTableW(ui->MotifsupTableWidget,row,6) != Q_NULLPTR)
+    if (UpchkFromTableW(ui->MotifsupTableWidget,row,6) != nullptr)
         PDCheckSender = UpchkFromTableW(ui->MotifsupTableWidget,row,6)->isChecked();
     else return;
 
@@ -416,11 +416,11 @@ void dlg_motifs::ModifPD()
     int row = ui->MotifsupTableWidget->selectedRanges().at(0).topRow();
     for (int i=0; i< ui->MotifsupTableWidget->rowCount(); i++)
     {
-        if (UpchkFromTableW(ui->MotifsupTableWidget,i,6)!=Q_NULLPTR)
+        if (UpchkFromTableW(ui->MotifsupTableWidget,i,6)!=nullptr)
         {
             UpchkFromTableW(ui->MotifsupTableWidget,i,6)->setToggleable(i!=row);
             UpchkFromTableW(ui->MotifsupTableWidget,i,6)->setChecked(i==row);
-            if (UpchkFromTableW(ui->MotifsupTableWidget,i,0)!=Q_NULLPTR)
+            if (UpchkFromTableW(ui->MotifsupTableWidget,i,0)!=nullptr)
             {
                 UpchkFromTableW(ui->MotifsupTableWidget,i,0)->setToggleable(i!=row);
                 if (i==row)
@@ -439,7 +439,7 @@ void dlg_motifs::ModifUtil()
     if (ui->MotifsupTableWidget->selectedRanges().size()==0)
         return;
     int row = ui->MotifsupTableWidget->selectedRanges().at(0).topRow();
-    if (UpchkFromTableW(ui->MotifsupTableWidget,row,0)!=Q_NULLPTR)
+    if (UpchkFromTableW(ui->MotifsupTableWidget,row,0)!=nullptr)
         UpchkFromTableW(ui->MotifsupTableWidget,row,0)->setChecked(ui->UtiliserupCheckBox->isChecked());
     OKButton->setEnabled(true);
 }
@@ -449,11 +449,11 @@ void dlg_motifs::ParDefaut(UpCheckBox *check)
     int row = check->rowTable();
     for (int i=0; i< ui->MotifsupTableWidget->rowCount(); i++)
     {
-        if (UpchkFromTableW(ui->MotifsupTableWidget,i,6)!=Q_NULLPTR)
+        if (UpchkFromTableW(ui->MotifsupTableWidget,i,6)!=nullptr)
         {
             UpchkFromTableW(ui->MotifsupTableWidget,i,6)->setToggleable(i!=row);
             UpchkFromTableW(ui->MotifsupTableWidget,i,6)->setChecked(i==row);
-            if (UpchkFromTableW(ui->MotifsupTableWidget,i,0)!=Q_NULLPTR)
+            if (UpchkFromTableW(ui->MotifsupTableWidget,i,0)!=nullptr)
             {
                 UpchkFromTableW(ui->MotifsupTableWidget,i,0)->setToggleable(i!=row);
                 if (i==row)
@@ -492,17 +492,17 @@ void dlg_motifs::SupprimMotif()
         rowdest = row - 1;
     else
         rowdest = row;
-    if (UpchkFromTableW(ui->MotifsupTableWidget,row,6)!=Q_NULLPTR)
+    if (UpchkFromTableW(ui->MotifsupTableWidget,row,6)!=nullptr)
         PD = UpchkFromTableW(ui->MotifsupTableWidget,row,6)->isChecked();
 
     ui->MotifsupTableWidget->removeRow(row);
 
-    if (UpchkFromTableW(ui->MotifsupTableWidget,rowdest,6)!=Q_NULLPTR)
+    if (UpchkFromTableW(ui->MotifsupTableWidget,rowdest,6)!=nullptr)
         if (PD)
         {
             UpchkFromTableW(ui->MotifsupTableWidget,rowdest,6)->setChecked(true);
             UpchkFromTableW(ui->MotifsupTableWidget,rowdest,6)->setToggleable(false);
-            if (UpchkFromTableW(ui->MotifsupTableWidget,rowdest,0)!=Q_NULLPTR)
+            if (UpchkFromTableW(ui->MotifsupTableWidget,rowdest,0)!=nullptr)
             {
                 UpchkFromTableW(ui->MotifsupTableWidget,rowdest,0)->setChecked(true);
                 UpchkFromTableW(ui->MotifsupTableWidget,rowdest,0)->setToggleable(false);
@@ -510,9 +510,9 @@ void dlg_motifs::SupprimMotif()
         }
     for (int i=0; i<ui->MotifsupTableWidget->rowCount(); i++)
     {
-        if (UpchkFromTableW(ui->MotifsupTableWidget,i,0)!=Q_NULLPTR)
+        if (UpchkFromTableW(ui->MotifsupTableWidget,i,0)!=nullptr)
             UpchkFromTableW(ui->MotifsupTableWidget,i,0)->setRowTable(i);
-        if (UpchkFromTableW(ui->MotifsupTableWidget,i,6)!=Q_NULLPTR)
+        if (UpchkFromTableW(ui->MotifsupTableWidget,i,6)!=nullptr)
             UpchkFromTableW(ui->MotifsupTableWidget,i,6)->setRowTable(i);
     }
 
@@ -533,7 +533,7 @@ void dlg_motifs::CreeMotif()
                                              false,                         //! pardefaut
                                              true,                          //! utiliser
                                              row+1);                        //! noOrdreidSalDat
-    if (motif == Q_NULLPTR)
+    if (motif == nullptr)
         return;
     ui->MotifsupTableWidget->insertRow(row);
     SetMotifToRow(motif,row);
@@ -566,7 +566,7 @@ void dlg_motifs::EnregistreMotifs()
             req += ",\n";
         req += "(";
         QString a = "NULL";
-        if (UpchkFromTableW(ui->MotifsupTableWidget,j,0)!=Q_NULLPTR)
+        if (UpchkFromTableW(ui->MotifsupTableWidget,j,0)!=nullptr)
             if (UpchkFromTableW(ui->MotifsupTableWidget,j,0)->isChecked())
                 a = "1";
         req += a + ",";
@@ -574,7 +574,7 @@ void dlg_motifs::EnregistreMotifs()
         req += "'" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->MotifsupTableWidget->item(j,2)->text())) +"',";
         req += "'" + ui->MotifsupTableWidget->item(j,4)->text() +"',";
         a = "NULL";
-        if (UpchkFromTableW(ui->MotifsupTableWidget,j,6)!=Q_NULLPTR)
+        if (UpchkFromTableW(ui->MotifsupTableWidget,j,6)!=nullptr)
             if (UpchkFromTableW(ui->MotifsupTableWidget,j,6)->isChecked())
                 a = "1";
         req += a + ",";
@@ -611,7 +611,7 @@ UpCheckBox* dlg_motifs::UpchkFromTableW(QTableWidget *Table, int row, int col) c
         if (listcheckBox.size()>0)
             return listcheckBox.at(0);
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 Motif* dlg_motifs::getMotifFromRow(int row) const

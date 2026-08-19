@@ -29,7 +29,7 @@ class UpDoubleSpinBox : public QDoubleSpinBox
 {
     Q_OBJECT
 public:
-    explicit UpDoubleSpinBox(QWidget *parent = Q_NULLPTR);
+    explicit UpDoubleSpinBox(QWidget *parent = nullptr);
     ~UpDoubleSpinBox();
     void                    setvaleuravant(double valprec);
     double                  valeuravant() const;

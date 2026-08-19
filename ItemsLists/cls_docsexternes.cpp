@@ -26,7 +26,7 @@ DocsExternes::DocsExternes(QObject *parent) : ItemsList(parent)
 {
     map_docsexternes    = new QMap<int, DocExterne*>();
     m_nouveaudocument   = false;
-    m_patient           = Q_NULLPTR;
+    m_patient           = nullptr;
 }
 
 QMap<int, DocExterne *> *DocsExternes::docsexternes()
@@ -37,7 +37,7 @@ QMap<int, DocExterne *> *DocsExternes::docsexternes()
 /*!
  * \brief docsexternes::getById
  * \param id l'idimpr du Document recherché
- * \return Q_NULLPTR si aucun Document trouvée
+ * \return nullptr si aucun Document trouvée
  * \return DocExterne* le Document correspondant à l'id
  */
 DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
@@ -60,7 +60,7 @@ DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLI
         if( jsonDocExterne.isEmpty() )
         {
             delete result;
-            return Q_NULLPTR;
+            return nullptr;
         }
         else
             result->setData(jsonDocExterne);
@@ -85,7 +85,7 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
     m_newdocuments.clear();
     foreach (DocExterne* doc, listdocs)
     {
-        if (doc == Q_NULLPTR)
+        if (doc == nullptr)
             continue;;
         if(!map_docsexternes->contains(doc->id()))
         {
@@ -119,7 +119,7 @@ void DocsExternes::reset()
 {
     ItemsList::clearAll(map_docsexternes);
     m_nouveaudocument   = false;
-    m_patient           = Q_NULLPTR;
+    m_patient           = nullptr;
 }
 
 void DocsExternes::SupprimeDocumentExterne(DocExterne *doc, QWidget *parent)
@@ -134,7 +134,7 @@ void DocsExternes::SupprimeDocumentExterne(DocExterne *doc, QWidget *parent)
 DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)
 {
     bool ok;
-    DocExterne *doc = Q_NULLPTR;
+    DocExterne *doc = nullptr;
     int iddoc = 0;
     DataBase::I()->locktable(TBL_DOCSEXTERNES);
     iddoc = DataBase::I()->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, ok);
@@ -148,7 +148,7 @@ DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce document dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce document dans la base!"));
         return doc;
     }
 

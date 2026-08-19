@@ -36,7 +36,7 @@ bool Patients::isfull()
 void Patients::setcurrentpatient(Patient *pat)
 {
     m_currentpatient = pat;
-    if (m_currentpatient == Q_NULLPTR)
+    if (m_currentpatient == nullptr)
         return;
     if (!m_currentpatient->isalloaded())
         DataBase::I()->loadPatientById(pat->id(), m_currentpatient, Item::LoadDetails);
@@ -67,25 +67,25 @@ void Patients::actualiseDonneesOphtaCurrentPatient()
 /*! charge les données du patient corresondant à l'id * \brief Patients::getById
  * \param id l'id du patient recherché
  * \param loaddetails = NoLoadDetails  -> ne charge que les données d'identité - = LoadDetails -> charge les données sociales et médicales
- * \return Q_NULLPTR si aucun patient trouvé
+ * \return nullptr si aucun patient trouvé
  * \return Patient* le patient correspondant à l'id
  */
 Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
 {
     if (id == 0)
-        return Q_NULLPTR;
-    Patient *pat = Q_NULLPTR;
+        return nullptr;
+    Patient *pat = nullptr;
     QMap<int, Patient*>::const_iterator itpat = map_patients->constFind(id);
     if (itpat == map_patients->constEnd())
     {
         pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
-        if (pat != Q_NULLPTR)
+        if (pat != nullptr)
             map_patients->insert(pat->id(), pat);
     }
     else
     {
         pat = itpat.value();
-        if (pat == Q_NULLPTR)
+        if (pat == nullptr)
         {
             pat = new Patient;
             map_patients->insert(id, pat);
@@ -94,7 +94,7 @@ Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
         {
             QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(id);
             if( jsonPatient.isEmpty() )
-                return Q_NULLPTR;
+                return nullptr;
             pat->resetdatas();
             pat->setData(jsonPatient);
         }
@@ -104,7 +104,7 @@ Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
 
 void Patients::loadAll(Patient *pat, Item::UPDATE upd)
 {
-    if (pat == Q_NULLPTR)
+    if (pat == nullptr)
         return;
     if (!pat->isalloaded() || upd == Item::Update)
     {
@@ -122,7 +122,7 @@ void Patients::initListeTable(QString nom, QString prenom, bool filtre)
     /*! on recrée une liste des patients pour remplir la table
      */
     int id = 0;
-    if (m_currentpatient != Q_NULLPTR)
+    if (m_currentpatient != nullptr)
         id = m_currentpatient->id();
     QList<Patient*> listpatients = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
     m_full = (nom == "" && prenom == "");
@@ -142,7 +142,7 @@ void Patients::initListeTable(QString nom, QString prenom, bool filtre)
 void Patients::initListeByDDN(QDate DDN)
 {
     int id = 0;
-    if (m_currentpatient != Q_NULLPTR)
+    if (m_currentpatient != nullptr)
         id = m_currentpatient->id();
     QList<Patient*> listpatients = (DDN == QDate()? DataBase::I()->loadPatientsAll() : DataBase::I()->loadPatientsByDDN(DDN));
     m_full = (DDN == QDate());
@@ -168,7 +168,7 @@ void Patients::initListeIdInterventions(Patient *pat)
 
 void Patients::SupprimePatient(Patient *pat)
 {
-    if (pat == Q_NULLPTR)
+    if (pat == nullptr)
         return;
     //!. Suppression des bilans orthoptiques
     DataBase::I()->StandardSQL("DELETE FROM " TBL_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " TBL_ACTES " where idPat = " + QString::number(pat->id()) + ")");
@@ -207,23 +207,23 @@ void Patients::SupprimePatient(Patient *pat)
     int id = pat->id();
     if (pat != m_currentpatient)
         delete pat;
-    if (m_currentpatient != Q_NULLPTR)
+    if (m_currentpatient != nullptr)
         if (m_currentpatient->id() == id)
-            m_currentpatient = Q_NULLPTR;
+            m_currentpatient = nullptr;
 }
 
 void Patients::updatePatient(Patient *pat)
 {
-    if (pat == Q_NULLPTR)
+    if (pat == nullptr)
         return;
     pat->setData(DataBase::I()->loadPatientAllData(pat->id()));
 }
 
 void Patients::updateCorrespondant(Patient *pat, Correspondant::typecorrespondant type, Correspondant *cor)
 {
-    if (pat == Q_NULLPTR)
+    if (pat == nullptr)
         return;
-    int id = (cor != Q_NULLPTR ? cor->id() : 0);
+    int id = (cor != nullptr ? cor->id() : 0);
     QString field;
     switch (type) {
     case Correspondant::MG:
@@ -238,21 +238,21 @@ void Patients::updateCorrespondant(Patient *pat, Correspondant::typecorrespondan
         pat->setspe2(id);
         field = CP_IDSPE2_RMP;
     }
-    QString idsql = (cor != Q_NULLPTR ? QString::number(cor->id()) : "null");
+    QString idsql = (cor != nullptr ? QString::number(cor->id()) : "null");
     DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + field + " = " + idsql +
                 " where idpat = " + QString::number(pat->id()));
 }
 
 Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
 {
-    Patient *pat = Q_NULLPTR;
+    Patient *pat = nullptr;
     DataBase::I()->locktables(QStringList() << TBL_PATIENTS << TBL_DONNEESSOCIALESPATIENTS << TBL_RENSEIGNEMENTSMEDICAUXPATIENTS );
     sets[CP_DATECREATION_PATIENTS] = DataBase::I()->ServerDateTime().date();
     sets[CP_IDCREATEUR_PATIENTS]   = DataBase::I()->idUserConnected();
     bool result = DataBase::I()->InsertSQLByBinds(TBL_PATIENTS, sets);
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce patient dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce patient dans la base!"));
         DataBase::I()->unlocktables();
         return pat;
     }
@@ -268,7 +268,7 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
         if (!ok)
         {
             DataBase::I()->unlocktables();
-            return Q_NULLPTR;
+            return nullptr;
         }
     }
     QJsonObject  data = QJsonObject{};

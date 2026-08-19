@@ -28,9 +28,9 @@ class UpLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit                UpLabel(QWidget *parent = Q_NULLPTR, QString txt = QString());
-    explicit                UpLabel(Item* itm, QString txt = QString(), QWidget* parent = Q_NULLPTR);
-    explicit                UpLabel(int id, QString txt = QString(), QWidget* parent = Q_NULLPTR);
+    explicit                UpLabel(QWidget *parent = nullptr, QString txt = QString());
+    explicit                UpLabel(Item* itm, QString txt = QString(), QWidget* parent = nullptr);
+    explicit                UpLabel(int id, QString txt = QString(), QWidget* parent = nullptr);
     ~UpLabel();
     void                    setiD(int m_id);
     int                     id() const;
@@ -39,7 +39,7 @@ public:
     int                     Row() const;
     void                    setrufusitem(Item *item) { m_rufusitem = item; }
     Item*                   rufusitem() const        { return m_rufusitem; }
-    bool                    hasrufusitem() const     { return m_rufusitem != Q_NULLPTR; }
+    bool                    hasrufusitem() const     { return m_rufusitem != nullptr; }
 
     QImage                  image() const;                                  //! Qimage used by label
     void                    setImage(const QImage &newImage);
@@ -55,7 +55,7 @@ private:
     int                     m_row           = -1;
     QString                 m_tooltipmsg    = "";
     QImage                  m_image         = QImage();
-    Item                    *m_rufusitem    = Q_NULLPTR;
+    Item                    *m_rufusitem    = nullptr;
 
     void                    AfficheToolTip();
 

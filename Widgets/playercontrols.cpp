@@ -62,7 +62,7 @@ QString PlayerControls::format(QMediaPlayer *plyr)
 
 void PlayerControls::setPlayer(QMediaPlayer *md)
 {
-    if (md == Q_NULLPTR)
+    if (md == nullptr)
         return;
     m_ctrlplayer    = md;
     m_ctrlplayer    ->disconnect();

@@ -1383,7 +1383,7 @@ void Rufus::BasculerMontantActe()
 {
     m_montantActe = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
     Cotation *cot = cotationcombo();
-    if (cot != Q_NULLPTR)
+    if (cot != nullptr)
     {
         const double MontantActe = QLocale().toDouble(ui->ActeMontantlineEdit->text());
         if (fabs(MontantActe) != fabs(cot->montantpratique()))
@@ -4458,7 +4458,7 @@ void Rufus::RetrouveMontantActe()
         return;
     ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->currentText() != "");
     Cotation *cot = cotationcombo();
-    const double montant = (cot == Q_NULLPTR? 0.0
+    const double montant = (cot == nullptr? 0.0
                             : currentpatient()->iscmu()?
                             cot->montantconventionnel() : cot->montantpratique());
     ui->ActeMontantlineEdit->setText(QLocale().toString(montant, 'f', 2));
@@ -9122,7 +9122,7 @@ Cotation* Rufus::cotationcombo()
 void Rufus::AfficheBasculerMontant(double montantacte)
 {
     Cotation *cot = cotationcombo();
-    if (cot == Q_NULLPTR)
+    if (cot == nullptr)
     {
         ui->BasculerMontantpushButton->setVisible(false);
         return;

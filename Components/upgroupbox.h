@@ -26,7 +26,7 @@ class UpGroupBox : public QGroupBox
 {
     Q_OBJECT
 public:
-    explicit    UpGroupBox(QWidget *parent = Q_NULLPTR);
+    explicit    UpGroupBox(QWidget *parent = nullptr);
 
 private:
     bool        eventFilter(QObject *obj, QEvent *event);

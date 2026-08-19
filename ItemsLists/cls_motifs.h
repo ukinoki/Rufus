@@ -28,7 +28,7 @@ private:
     QMap<int, Motif*> *map_all; //!< la liste des Motifs
 
 public:
-    explicit Motifs(QObject *parent = Q_NULLPTR);
+    explicit Motifs(QObject *parent = nullptr);
 
     QMap<int, Motif *> *motifs() const;
 

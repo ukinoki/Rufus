@@ -30,7 +30,7 @@ class dlg_choixdate : public QDialog
 {
     Q_OBJECT
 public:
-    explicit                    dlg_choixdate(QDate date = QDate::currentDate(), QWidget *parent = Q_NULLPTR);
+    explicit                    dlg_choixdate(QDate date = QDate::currentDate(), QWidget *parent = nullptr);
     ~dlg_choixdate();
     Ui::dlg_choixdate           *ui;
     QMap<Utils::Period, QDate>  mapdate() const { return map_date; }

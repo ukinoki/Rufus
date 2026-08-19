@@ -92,7 +92,7 @@ class TextPrinter : public QObject
     Q_OBJECT
 
 public:
-    explicit                TextPrinter(QObject *parent = Q_NULLPTR);
+    explicit                TextPrinter(QObject *parent = nullptr);
     enum Unit {Point, Inch, Millimeter}; Q_ENUM(Unit)    /*! +++ pour les distraits un point n'est pas un pixel mais une dimension de 1/72 inch et ne varie donc pas avec la résolution de l'imprimante */
     ~TextPrinter();
 
@@ -175,9 +175,9 @@ private:
     QRectF                  footerRect(QPaintDevice *device);
     QRectF                  adjustedContentRect(QPainter *painter);
 
-    QWidget                 *parent_        = Q_NULLPTR;
+    QWidget                 *parent_        = nullptr;
     QPrinter                *printer_       = new QPrinter(QPrinter::HighResolution);
-    QTextDocument           *tempdoc_       = Q_NULLPTR;
+    QTextDocument           *tempdoc_       = nullptr;
 
     // all margins in units_ (default = millimeter)
     double                  leftmargin_     = 10;

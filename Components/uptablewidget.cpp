@@ -137,7 +137,7 @@ QSize UpTableWidget::resizetofit(QSize sz)
     for (int i=0; i <rowCount(); i++)
     {
         UpLabel *lbl = qobject_cast<UpLabel*>(cellWidget(i,0));
-        if (lbl != Q_NULLPTR)
+        if (lbl != nullptr)
         {
             QImage img = listimg().at(i);
             QPixmap pix = QPixmap::fromImage(img).scaledToWidth(sz.width(), Qt::SmoothTransformation);

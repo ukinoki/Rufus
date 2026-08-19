@@ -114,7 +114,7 @@ public:
     void    setfactureformat(QString fmtimg){ m_formatfacture = fmtimg;}
     void    setfactureblob(QByteArray ba)   { m_blob = ba;}
 
-    explicit Depense(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Depense(QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data) override;
 };

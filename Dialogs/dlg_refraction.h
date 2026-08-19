@@ -37,7 +37,7 @@ public:
                 Auto,           //!> la fiche est lancée par l'envoi de données depuis le refracteur
                 Manuel          //!> la fiche est lancée par l'utilisateur
                 };  Q_ENUM(ModeOuverture)
-    dlg_refraction(ModeOuverture modeouverture, QWidget *parent = Q_NULLPTR);
+    dlg_refraction(ModeOuverture modeouverture, QWidget *parent = nullptr);
     ~dlg_refraction();
     Ui::dlg_refraction          *ui;
 

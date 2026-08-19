@@ -34,7 +34,7 @@ private:
     QString m_monnaie;
 
 public:
-    explicit LignePaiement(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit LignePaiement(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     int idacte() const;

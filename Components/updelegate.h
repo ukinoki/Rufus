@@ -30,7 +30,7 @@ class UpLabelDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    UpLabelDelegate(QObject* parent = Q_NULLPTR) : QStyledItemDelegate(parent) {}
+    UpLabelDelegate(QObject* parent = nullptr) : QStyledItemDelegate(parent) {}
 
     QWidget*    createEditor    (QWidget* parent,   const QStyleOptionViewItem& option, const QModelIndex &index) const  Q_DECL_OVERRIDE;
     void        setEditorData   (QWidget* editor,   const QModelIndex& index) const Q_DECL_OVERRIDE;
@@ -44,7 +44,7 @@ class UpLineDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    UpLineDelegate(QObject* parent = Q_NULLPTR) : QStyledItemDelegate(parent) {}
+    UpLineDelegate(QObject* parent = nullptr) : QStyledItemDelegate(parent) {}
 
     QWidget*    createEditor    (QWidget* parent, const QStyleOptionViewItem&, const QModelIndex &index) const  Q_DECL_OVERRIDE;
     void        setEditorData   (QWidget* editor,   const QModelIndex& index) const Q_DECL_OVERRIDE;
@@ -65,7 +65,7 @@ class TreeViewDelegate : public QStyledItemDelegate
 private:
     int m_height;
 public:
-    TreeViewDelegate(QObject *parent = Q_NULLPTR, int height = -1) : QStyledItemDelegate(parent), m_height(height) {}
+    TreeViewDelegate(QObject *parent = nullptr, int height = -1) : QStyledItemDelegate(parent), m_height(height) {}
     void setHeight(int height) { m_height = height; }
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };

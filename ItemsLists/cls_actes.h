@@ -29,14 +29,14 @@ class Actes: public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Acte*>        *map_actes = Q_NULLPTR;                                         //!< une liste d'actes
-    Acte                    *m_currentacte = Q_NULLPTR;                                     //! l'acte en cours
+    QMap<int, Acte*>        *map_actes = nullptr;                                         //!< une liste d'actes
+    Acte                    *m_currentacte = nullptr;                                     //! l'acte en cours
     QSortFilterProxyModel   *m_actesortmodel;
     QSortFilterProxyModel   *m_heuresortmodel;
     QStandardItemModel      *m_actesmodel;
 
 public:
-    explicit Actes(QObject *parent = Q_NULLPTR);
+    explicit Actes(QObject *parent = nullptr);
 
     QMap<int, Acte *> *actes() const;
 
@@ -62,7 +62,7 @@ public:
     //!> actions sur les champs
 
     //!> actions sur les enregistrements
-    void    SupprimeActe(Acte *act, QWidget *parent = Q_NULLPTR);
+    void    SupprimeActe(Acte *act, QWidget *parent = nullptr);
     Acte*   CreationActe(Patient *pat, User *usr, int idcentre, int idlieu);
 
     //!< action sur toutes les données

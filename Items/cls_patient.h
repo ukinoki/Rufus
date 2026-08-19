@@ -140,7 +140,7 @@ public:
 
     void setSexe(QString sex);
 
-    explicit Patient(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Patient(QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data = QJsonObject{}) override;
     void setSocialData(QJsonObject data = QJsonObject{});

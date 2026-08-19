@@ -75,7 +75,7 @@ private:
     int m_idrefraction;                             //!> l'id de la refraction concernée quand il s'agit d'une prescription de verres correcteurs
 
 public:
-    explicit DocExterne(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit DocExterne(QJsonObject data = {}, QObject *parent = nullptr);
     DocExterne(QString filepath, bool &initOK, QWidget *parent);
     void setData(QJsonObject data) override;
 

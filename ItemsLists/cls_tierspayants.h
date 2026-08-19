@@ -35,13 +35,13 @@ private:
     QMap<int, Tiers*> *map_tierspayants; //!< la liste des tiers payants
 
 public:
-    explicit TiersPayants(QObject *parent = Q_NULLPTR);
+    explicit TiersPayants(QObject *parent = nullptr);
 
     QMap<int, Tiers *> *tierspayants() const;
 
     Tiers* getById(int id);
     void initListe();
-    void SupprimeTiers(Tiers* tiers, QWidget *parent = Q_NULLPTR);
+    void SupprimeTiers(Tiers* tiers, QWidget *parent = nullptr);
     Tiers* CreationTiers(QHash<QString, QVariant> sets);
     bool isUtilise(QString nom);                 //! détermine si un tiers a été utilisé dans la table recettes  afinde savoi si on oeut le supprimer
 };

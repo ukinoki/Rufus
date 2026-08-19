@@ -25,11 +25,11 @@ class Sessions: public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Session*>         *map_sessions = Q_NULLPTR;                                      //!< une liste de sessions
-    Session                     *m_currentsession = Q_NULLPTR;                                  //!> la session en cours
+    QMap<int, Session*>         *map_sessions = nullptr;                                      //!< une liste de sessions
+    Session                     *m_currentsession = nullptr;                                  //!> la session en cours
 
 public:
-    explicit    Sessions(QObject *parent = Q_NULLPTR);
+    explicit    Sessions(QObject *parent = nullptr);
 
     QMap<int, Session *> *sessions() const;
 
@@ -41,7 +41,7 @@ public:
     //!> actions sur les champs
 
     //!> actions sur les enregistrements
-    void        SupprimeSession(Session *ses, QWidget *parent = Q_NULLPTR);
+    void        SupprimeSession(Session *ses, QWidget *parent = nullptr);
     Session*    CreationSession(QHash<QString, QVariant> sets);
 
 };

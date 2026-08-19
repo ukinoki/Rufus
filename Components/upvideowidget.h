@@ -27,7 +27,7 @@ class UpVideoWidget : public QVideoWidget
 {
     Q_OBJECT
 public:
-    UpVideoWidget(QWidget *parent = Q_NULLPTR);
+    UpVideoWidget(QWidget *parent = nullptr);
 
     QString         filename() const;
     void            setFilename(const QString &newFilename);
@@ -37,7 +37,7 @@ public:
 
     void            setrufusitem(Item* item)    { m_rufusitem = item; }
     Item*           rufusitem() const           { return m_rufusitem; }
-    bool            hasrufusitem() const        { return m_rufusitem != Q_NULLPTR; }
+    bool            hasrufusitem() const        { return m_rufusitem != nullptr; }
     int             id() const                  { return m_id; }
     void            setId(int id)               { m_id = id; }
 
@@ -45,8 +45,8 @@ private:
     bool            eventFilter(QObject *obj, QEvent *event)  ;
     void            keyPressEvent (QKeyEvent * keyEvent );
     QString         m_filename     = "";
-    UpMediaPlayer   *m_player      = Q_NULLPTR;
-    Item            *m_rufusitem   = Q_NULLPTR;
+    UpMediaPlayer   *m_player      = nullptr;
+    Item            *m_rufusitem   = nullptr;
     int             m_id           = -1;
 
 signals:

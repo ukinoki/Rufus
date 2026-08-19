@@ -43,10 +43,10 @@ IOL* IOLs::getById(int id, bool reload)
         if (data.isEmpty())
             return nullptr;
         IOL* iol = new IOL(data);
-        if (iol != Q_NULLPTR)
+        if (iol != nullptr)
             add( map_all, iol, Item::Update );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<IOL*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<IOL*>(it.value()) : nullptr);
     }
     else if (reload)
     {

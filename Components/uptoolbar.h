@@ -25,7 +25,7 @@ class UpToolBar : public QToolBar
 {
     Q_OBJECT
 public:
-    explicit    UpToolBar(QWidget *parent = Q_NULLPTR);
+    explicit    UpToolBar(QWidget *parent = nullptr);
     ~UpToolBar();
     enum                Choice {_first, _prec, _next, _last};    Q_ENUM(Choice)
     QAction*            First() const;

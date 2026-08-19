@@ -25,13 +25,13 @@ class Messages : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Message*> *map_all = Q_NULLPTR;       //!< la liste des messages
+    QMap<int, Message*> *map_all = nullptr;       //!< la liste des messages
     QList<Message*> m_listrecus;                    //!< la liste des messages reçus
     QList<Message*> m_listenvoyes;                  //!< la liste des messages envoyes
     QList<Message*> m_listallmsgs;                  //!< la liste de tous les messages reçus ou envoyes
 
 public:
-    explicit Messages(QObject *parent = Q_NULLPTR);
+    explicit Messages(QObject *parent = nullptr);
 
     QMap<int, Message*> *messages() const;
     QList<Message *> messagesrecus() const;
@@ -44,7 +44,7 @@ public:
     void initListeAllMsgsByIdUser(int iduser);
 
     //!> actions sur les enregistrements
-    void           SupprimeMessage(Message *comment, QWidget *parent = Q_NULLPTR);
+    void           SupprimeMessage(Message *comment, QWidget *parent = nullptr);
     bool           CreationMessage(QHash<QString, QVariant> sets, QList<int> listdestinataires);
     bool           UpdateMessage(int idmsg, QHash<QString, QVariant> sets, QList<int> listdestinataires);
     bool           EnregistreDestinataires(int idmsg, QList<int> listdestinataires);

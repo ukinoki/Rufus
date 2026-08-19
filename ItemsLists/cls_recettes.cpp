@@ -43,6 +43,6 @@ Recette* Recettes::getById(int id)
 {
     QMap<int, Recette*>::const_iterator itcpt = map_recettes->constFind(id);
     if( itcpt == map_recettes->constEnd() )
-        return Q_NULLPTR;
+        return nullptr;
     return itcpt.value();
 }
