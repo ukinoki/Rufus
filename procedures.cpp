@@ -1708,30 +1708,26 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
         if (!nom.contains(QRegularExpression("pdf|xps|fax|onenote|document writer", QRegularExpression::CaseInsensitiveOption)))
             imprimantes << nom;
 
-    UpTableView *tblimprimantes = Q_NULLPTR;
-    if (imprimantes.size() > 1)
-    {
-        tblimprimantes  = new UpTableView(dlg);
-        tblimprimantes  ->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        tblimprimantes  ->setSelectionMode(QAbstractItemView::SingleSelection);
-        tblimprimantes  ->setSelectionBehavior(QAbstractItemView::SelectRows);
-        tblimprimantes  ->setGridStyle(Qt::NoPen);
-        tblimprimantes  ->verticalHeader()->setVisible(false);
+    UpTableView *tblimprimantes = new UpTableView(dlg);
+    tblimprimantes          ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tblimprimantes          ->setSelectionMode(QAbstractItemView::SingleSelection);
+    tblimprimantes          ->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tblimprimantes          ->setGridStyle(Qt::NoPen);
+    tblimprimantes          ->verticalHeader()->setVisible(false);
 
-        QStandardItemModel *modelimprimantes = new QStandardItemModel(dlg);
-        modelimprimantes->setHorizontalHeaderItem(0, new QStandardItem(tr("Imprimante")));
-        foreach (QString nom, imprimantes)
-        {
-            QStandardItem *itm = new QStandardItem(nom);
-            itm             ->setEditable(false);
-            modelimprimantes->appendRow(itm);
-        }
-        tblimprimantes  ->setModel(modelimprimantes);
-        tblimprimantes  ->setColumnWidth(0, 200);
-        tblimprimantes  ->FixLargeurTotale();
-        int rowdefaut = imprimantes.indexOf(m_nomImprimante != ""? m_nomImprimante : QPrinterInfo::defaultPrinterName());
-        tblimprimantes  ->selectRow(rowdefaut < 0? 0 : rowdefaut);
+    QStandardItemModel *modelimprimantes = new QStandardItemModel(dlg);
+    modelimprimantes        ->setHorizontalHeaderItem(0, new QStandardItem(tr("Imprimante")));
+    foreach (QString nom, imprimantes)
+    {
+        QStandardItem *itm = new QStandardItem(nom);
+        itm                 ->setEditable(false);
+        modelimprimantes    ->appendRow(itm);
     }
+    tblimprimantes          ->setModel(modelimprimantes);
+    tblimprimantes          ->setColumnWidth(0, 200);
+    tblimprimantes          ->FixLargeurTotale();
+    int rowdefaut = imprimantes.indexOf(m_nomImprimante != ""? m_nomImprimante : QPrinterInfo::defaultPrinterName());
+    tblimprimantes          ->selectRow(rowdefaut < 0? 0 : rowdefaut);
 
     QVBoxLayout *laychk = new QVBoxLayout();
     laychk                  ->addWidget(printchk);
@@ -1741,11 +1737,8 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
 
     QHBoxLayout *laycom = new QHBoxLayout();
     laycom                  ->addLayout(laychk);
-    if (tblimprimantes != Q_NULLPTR)
-    {
-        laycom              ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed));
-        laycom              ->addWidget(tblimprimantes);
-    }
+    laycom                  ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed));
+    laycom                  ->addWidget(tblimprimantes);
 
     QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg->layout());
     lay                     ->insertLayout(0, laycom);
@@ -1765,8 +1758,7 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
         if (mail != Q_NULLPTR)
             *mail = mailchk->isChecked();
         if (imprimante != Q_NULLPTR)
-            *imprimante = (tblimprimantes != Q_NULLPTR && tblimprimantes->currentIndex().isValid()?
-                               tblimprimantes->currentIndex().data().toString() : "");
+            *imprimante = (tblimprimantes->currentIndex().isValid()? tblimprimantes->currentIndex().data().toString() : "");
     }
     delete dlg;
     return initok;
