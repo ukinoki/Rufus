@@ -1710,6 +1710,18 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
     grp                     ->addButton(printchk);
     grp                     ->addButton(pdfchk);
     grp                     ->addButton(mailchk);
+    QStringList manque = ManqueEnvoiMail(idsite);
+    mailchk                 ->setEnabled(manque.size() == 0);
+    if (manque.size() > 0)
+    {
+        mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "), true);
+        if (typ == SendMAIL)
+        {
+            UpMessageBox::Watch(parent, tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "));
+            typ = printDOC;
+        }
+    }
+
     switch (typ) {
     case printDOC:
         printchk->setChecked(true);
@@ -1723,11 +1735,6 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
     default:
         break;
     }
-
-    QStringList manque = ManqueEnvoiMail(idsite);
-    mailchk                 ->setEnabled(manque.size() == 0);
-    if (manque.size() > 0)
-        mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "), true);
 
     /*! les imprimantes virtuelles (pdf, xps, fax) ne sont pas distinguables par Qt, on les écarte par leur nom */
     QStringList imprimantes;
