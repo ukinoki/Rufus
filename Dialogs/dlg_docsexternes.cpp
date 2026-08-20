@@ -686,7 +686,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         break;
     case Procedures::SendMAIL:
         aa = proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? currentuser() : nullptr), ALD),
-                             docmt->titre() + ".pdf", docmt->idsite(), (currentpatient() != nullptr? currentpatient()->mail() : ""), destinataire);
+                             docmt->titre() + ".pdf", docmt->idsite(), currentpatient(), destinataire);
         break;
     case Procedures::createPDF: {
         QMap<QString, QString> map = CalcNomFilePdf();

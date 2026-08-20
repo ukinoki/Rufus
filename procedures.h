@@ -274,7 +274,7 @@ public:
     Procedures::typeEnvoi   QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ = printDOC, int idsite = -1);
     QStringList             ManqueEnvoiMail(int idlieu = -1);   /*!< ce qui manque au lieu pour pouvoir envoyer un mail */
     QStringList             CompleteCoordonneesMail(QWidget *parent, int idsite, QStringList manque);
-    bool                    EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, int idsite, QString mailpatient, QString &destinataire);
+    bool                    EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, int idsite, Patient *pat, QString &destinataire);
     void                    EnregistreEnvoiMail(int iddocument, QString destinataire);
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */

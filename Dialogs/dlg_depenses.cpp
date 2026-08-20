@@ -371,7 +371,7 @@ void dlg_depenses::PrintReport()
     {
         QString destinataire;
         proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
-                        windowTitle() + ".pdf", Datas::I()->sites->idcurrentsite(), "", destinataire);
+                        windowTitle() + ".pdf", Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
     }
 }
 

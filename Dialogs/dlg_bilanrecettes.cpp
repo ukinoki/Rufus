@@ -406,7 +406,7 @@ void dlg_bilanrecettes::PrintReport()
     {
         QString destinataire;
         proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
-                        windowTitle() + ".pdf", Datas::I()->sessions->currentsession()->idsite(), "", destinataire);
+                        windowTitle() + ".pdf", Datas::I()->sessions->currentsession()->idsite(), nullptr, destinataire);
     }
 }
 

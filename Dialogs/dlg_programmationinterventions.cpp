@@ -606,7 +606,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     {
         QString destinataire;
         proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
-                        windowTitle() + ".pdf", currentsession()->idsite(), "", destinataire);
+                        windowTitle() + ".pdf", currentsession()->idsite(), nullptr, destinataire);
     }
 }
 
@@ -782,7 +782,7 @@ void dlg_programmationinterventions::ImprimeSession()
     {
         QString destinataire;
         proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
-                        windowTitle() + ".pdf", currentsession()->idsite(), "", destinataire);
+                        windowTitle() + ".pdf", currentsession()->idsite(), nullptr, destinataire);
     }
 }
 
@@ -2092,7 +2092,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
         {
             QString destinataire;
             proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
-                            windowTitle() + ".pdf", Datas::I()->sites->idcurrentsite(), "", destinataire);
+                            windowTitle() + ".pdf", Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
         }
 
     }

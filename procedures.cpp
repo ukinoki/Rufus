@@ -1726,7 +1726,7 @@ QStringList Procedures::CompleteCoordonneesMail(QWidget *parent, int idsite, QSt
  * \param mailpatient  l'adresse proposée par défaut
  * \param destinataire reçoit l'adresse réellement utilisée
  */
-bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, int idsite, QString mailpatient, QString &destinataire)
+bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, int idsite, Patient *pat, QString &destinataire)
 {
     Site *sit = Datas::I()->sites->getById(idsite < 0? Datas::I()->sites->idcurrentsite() : idsite);
     if (sit == nullptr)
@@ -1744,20 +1744,35 @@ bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, 
     destled                 ->setFixedWidth(300);
     destled                 ->setMaxLength(150);
     destled                 ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail));
-    destled                 ->setText(mailpatient);
+    destled                 ->setText(pat != nullptr? pat->mail() : "");
+
     UpLineEdit *mdpled      = new UpLineEdit(dlg);
     mdpled                  ->setFixedWidth(300);
     mdpled                  ->setEchoMode(QLineEdit::Password);
-    mdpled                  ->setVisible(mdp == "");   /*!< le mot de passe n'est demandé que s'il n'est pas déjà sur ce poste */
+    mdpled                  ->setText(mdp);
+
+    UpSmallButton *effacebutt = new UpSmallButton();
+    effacebutt              ->setIcon(Icons::icPoubelle());
+    effacebutt              ->setIconSize(QSize(18, 18));
+    effacebutt              ->setImmediateToolTip(tr("Effacer le mot de passe de cet ordinateur"));
+    effacebutt              ->setVisible(mdp != "");
+    connect (effacebutt,        &QPushButton::clicked,  dlg,    [=, &cles] {
+        cles.remove(clesite);
+        Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
+        mdpled              ->clear();
+        effacebutt          ->setVisible(false);
+        mdpled              ->setFocus();
+    });
+
+    QHBoxLayout *laymdp = new QHBoxLayout();
+    laymdp                  ->addWidget(mdpled);
+    laymdp                  ->addWidget(effacebutt);
 
     QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg->layout());
     lay                     ->insertWidget(0, new UpLabel(dlg, tr("Adresse du destinataire")));
     lay                     ->insertWidget(1, destled);
-    if (mdp == "")
-    {
-        lay                 ->insertWidget(2, new UpLabel(dlg, tr("Mot de passe du compte ") + sit->smtplogin()));
-        lay                 ->insertWidget(3, mdpled);
-    }
+    lay                     ->insertWidget(2, new UpLabel(dlg, tr("Mot de passe du compte ") + sit->smtplogin()));
+    lay                     ->insertLayout(3, laymdp);
     lay                     ->setSizeConstraint(QLayout::SetFixedSize);
     destled                 ->setFocus();
     connect (dlg->OKButton,     &QPushButton::clicked,  dlg,    &QDialog::accept);
@@ -1766,8 +1781,7 @@ bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, 
     if (valide)
     {
         destinataire = Utils::trim(destled->text());
-        if (mdp == "")
-            mdp = mdpled->text();
+        mdp = mdpled->text();
     }
     delete dlg;
     if (!valide || destinataire == "" || mdp == "")
@@ -1776,18 +1790,13 @@ bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     SmtpClient smtp;
     bool ok = smtp.envoie(sit->smtpserveur(), sit->smtpport(), sit->smtplogin(), mdp,
-                          sit->mail(), destinataire, "",
+                          sit->mail(), destinataire, sit->mail(),
                           tr("Document ") + sit->nom(),
                           tr("Veuillez trouver ci-joint le document annoncé.") + "\n\n" + sit->nom(),
                           pdf, nomfichier);
     QApplication::restoreOverrideCursor();
 
-    if (ok)
-    {
-        cles.insert(clesite, mdp);
-        Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
-    }
-    else
+    if (!ok)
     {
         if (smtp.refusIdentifiants())              /*!< mot de passe périmé : on le réclamera au prochain envoi */
         {
@@ -1795,8 +1804,26 @@ bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, 
             Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
         }
         UpMessageBox::Watch(parent, tr("Le mail n'est pas parti"), smtp.erreur());
+        return false;
     }
-    return ok;
+
+    if (!cles.contains(clesite))               /*!< déjà enregistré, ou effacé à l'instant par le bouton */
+        if (UpMessageBox::Question(parent, tr("Enregistrer le mot de passe sur cet ordinateur?"), "",
+                                   UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                   QStringList() << tr("Ne pas enregistrer") << tr("Enregistrer")) == UpSmallButton::STARTBUTTON)
+        {
+            cles.insert(clesite, mdp);
+            Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
+        }
+
+    if (pat != nullptr && destinataire != pat->mail())
+        if (UpMessageBox::Question(parent, tr("Enregistrer cette adresse comme mail du patient?"), destinataire,
+                                   UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                   QStringList() << tr("Ne pas enregistrer") << tr("Enregistrer")) == UpSmallButton::STARTBUTTON)
+            ItemsList::update(pat, CP_MAIL_DSP, destinataire);
+
+    UpMessageBox::Watch(parent, tr("Mail envoyé"), destinataire);
+    return true;
 }
 
 Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ, int idsite)
@@ -2116,7 +2143,7 @@ bool Procedures::Imprimer_DocExterne(QWidget *parent, Patient *pat, User * user,
     }
     else if (typ == SendMAIL)
         aa = EnvoiMail(parent, Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : nullptr), ALD, signature),
-                       titre + ".pdf", Datas::I()->sites->idcurrentsite(), pat->mail(), destinataire);
+                       titre + ".pdf", Datas::I()->sites->idcurrentsite(), pat, destinataire);
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
@@ -2253,7 +2280,7 @@ void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEn
         break;
     case SendMAIL: {
         QString destinataire;
-        EnvoiMail(parent, calcPdfFromListImage(listimage), map.value("file"), idsite, "", destinataire);
+        EnvoiMail(parent, calcPdfFromListImage(listimage), map.value("file"), idsite, nullptr, destinataire);
         break; }
     case createPDF:
         createPdfFromListImage(listimage, map, parent);
