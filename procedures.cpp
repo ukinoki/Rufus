@@ -1702,7 +1702,7 @@ QStringList Procedures::ManqueEnvoiMail(int idlieu)
  */
 QStringList Procedures::CompleteCoordonneesMail(QWidget *parent, int idsite, QStringList manque)
 {
-    if (UpMessageBox::Question(parent, tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "),
+    if (UpMessageBox::Question(parent, tr("Envoi par mail impossible, il manque:") + "<br>- " + manque.join("<br>- "),
                                tr("Voulez-vous compléter les coordonnées d'envoi de ce lieu?")) != UpSmallButton::STARTBUTTON)
         return manque;
     Site *sit = Datas::I()->sites->getById(idsite < 0? Datas::I()->sites->idcurrentsite() : idsite);
@@ -1819,7 +1819,7 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
     mailchk                 ->setEnabled(manque.size() == 0);
     if (manque.size() > 0)
     {
-        mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "), true);
+        mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "<br>- " + manque.join("<br>- "), true);
         if (typ == SendMAIL)
             typ = printDOC;
     }
