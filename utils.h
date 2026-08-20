@@ -272,6 +272,8 @@ public:
                                                                     \result monoposte = BDD_POSTE, reseau local = BDD_LOCAL, distant = BDD_DISTANT
                                                                     \param le mode d'accès */
     static QString                  calcSHA1(QString mdp);              /*! renvoie la valeur de mdp codée en SHA */
+    static QHash<QString,QString>   lireKeyFile(const QString &path);                                   /*!< lit un fichier de mots de passe caché, une ligne CLE=valeur */
+    static void                     ecrireKeyFile(const QString &path, const QHash<QString,QString> &table);
     static bool                     VerifMDP(QString MDP, QString Msg, QString &mdp, bool mdpverified = false, QWidget *parent = nullptr);
     static bool                     VerifMDPAdmin(QString MDP, bool mdpverified = false, QWidget *parent = nullptr);
     static bool                     SaisirMDP(QString Msg, QString &mdp, QWidget *parent = nullptr);   /*! saisit un mot de passe sans le vérifier, l'appelant en juge */

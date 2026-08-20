@@ -993,6 +993,44 @@ QString Utils::calcSHA1(QString mdp)
     return QString(ba.toHex());
 }
 
+QHash<QString,QString> Utils::lireKeyFile(const QString &path)
+{
+    QHash<QString,QString> table;
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+        return table;
+    const QStringList lignes = QString::fromUtf8(f.readAll()).split('\n');
+    f.close();
+    for (const QString &ligne : lignes)
+    {
+        const QString l = ligne.trimmed();
+        if (l.isEmpty() || l.startsWith('['))     /*!< ignore lignes vides et sections INI */
+            continue;
+        const int eq = l.indexOf('=');
+        if (eq > 0)
+        {
+            const QString cle = l.left(eq).trimmed().toUpper();
+            const QString val = l.mid(eq + 1).trimmed();
+            if (!val.isEmpty())
+                table.insert(cle, val);
+        }
+    }
+    return table;
+}
+
+void Utils::ecrireKeyFile(const QString &path, const QHash<QString,QString> &table)
+{
+    QDir().mkpath(QFileInfo(path).absolutePath());
+    QFile f(path);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+        return;
+    for (auto it = table.cbegin(); it != table.cend(); ++it)
+        f.write(QString("%1=%2\n").arg(it.key(), it.value()).toUtf8());
+    f.close();
+    f.setPermissions(QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                     | QFileDevice::ReadUser | QFileDevice::WriteUser);   /*!< un mot de passe ne se lit pas depuis les autres comptes du poste */
+}
+
 /*---------------------------------------------------------------------------------------------------------------------
     -- VÉRIFICATION DE MDP --------------------------------------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
