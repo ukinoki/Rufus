@@ -605,8 +605,9 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     else if (typenvoi == Procedures::SendMAIL)
     {
         QString destinataire;
-        proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
-                        windowTitle() + ".pdf", currentsession()->idsite(), nullptr, destinataire);
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(windowTitle() + ".pdf", proc->Cree_pdfByteArray(textcorps, textentete, textpied));
+        proc->EnvoiMail(this, pieces, currentsession()->idsite(), nullptr, destinataire);
     }
 }
 
@@ -781,8 +782,9 @@ void dlg_programmationinterventions::ImprimeSession()
     else if (typenvoi == Procedures::SendMAIL)
     {
         QString destinataire;
-        proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
-                        windowTitle() + ".pdf", currentsession()->idsite(), nullptr, destinataire);
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(windowTitle() + ".pdf", proc->Cree_pdfByteArray(textcorps, textentete, textpied));
+        proc->EnvoiMail(this, pieces, currentsession()->idsite(), nullptr, destinataire);
     }
 }
 
@@ -2091,8 +2093,9 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
         else if (typenvoi == Procedures::SendMAIL)
         {
             QString destinataire;
-            proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
-                            windowTitle() + ".pdf", Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
+            QMap<QString, QByteArray> pieces;
+            pieces.insert(windowTitle() + ".pdf", proc->Cree_pdfByteArray(textcorps, textentete, textpied));
+            proc->EnvoiMail(this, pieces, Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
         }
 
     }

@@ -38,7 +38,7 @@ public:
 
     /*!
      * \brief SmtpClient::envoie
-     * Envoie un mail avec une pièce jointe pdf et renvoie true si le serveur l'a accepté.
+     * Envoie un mail avec ses pièces jointes et renvoie true si le serveur l'a accepté.
      * \param serveur     adresse du serveur d'envoi
      * \param port        465 = liaison chiffrée dès la connexion, sinon chiffrement après connexion
      * \param login       identifiant de connexion au serveur
@@ -48,14 +48,13 @@ public:
      * \param copiecachee adresse en copie cachée, vide si aucune
      * \param sujet       sujet du mail
      * \param corps       corps du mail, en texte simple
-     * \param pdf         la pièce jointe
-     * \param nomfichier  le nom sous lequel la pièce jointe est présentée
+     * \param pieces      les pièces jointes, nom de fichier -> pdf
      */
     bool                    envoie(const QString &serveur, int port,
                                    const QString &login, const QString &motdepasse,
                                    const QString &expediteur, const QString &destinataire, const QString &copiecachee,
                                    const QString &sujet, const QString &corps,
-                                   const QByteArray &pdf, const QString &nomfichier);
+                                   const QMap<QString, QByteArray> &pieces);
     QString                 erreur() const              { return m_erreur; }
     bool                    refusIdentifiants() const   { return m_refusidentifiants; }   /*!< le serveur a rejeté le login ou le mot de passe */
 
@@ -68,7 +67,7 @@ private:
     QString                 lisReponse();
     QByteArray              calcMessage(const QString &expediteur, const QString &destinataire,
                                         const QString &sujet, const QString &corps,
-                                        const QByteArray &pdf, const QString &nomfichier);
+                                        const QMap<QString, QByteArray> &pieces);
 };
 
 #endif // SMTPCLIENT_H

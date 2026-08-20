@@ -370,8 +370,9 @@ void dlg_depenses::PrintReport()
     else if (typenvoi == Procedures::SendMAIL)
     {
         QString destinataire;
-        proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
-                        windowTitle() + ".pdf", Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(windowTitle() + ".pdf", proc->Cree_pdfByteArray(textcorps, textentete, textpied));
+        proc->EnvoiMail(this, pieces, Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
     }
 }
 

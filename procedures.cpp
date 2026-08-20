@@ -1720,13 +1720,12 @@ QStringList Procedures::CompleteCoordonneesMail(QWidget *parent, int idsite, QSt
  * \brief Procedures::EnvoiMail
  * Demande le destinataire, envoie le pdf par le serveur du lieu et renvoie true si le serveur l'a accepté.
  * \param parent       la fiche appelante
- * \param pdf          le document à joindre
- * \param nomfichier   le nom sous lequel la pièce jointe est présentée
+ * \param pieces       les documents à joindre, nom de fichier -> pdf
  * \param idsite       le lieu dont on utilise les coordonnées d'envoi, -1 = le lieu en cours
  * \param mailpatient  l'adresse proposée par défaut
  * \param destinataire reçoit l'adresse réellement utilisée
  */
-bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, int idsite, Patient *pat, QString &destinataire)
+bool Procedures::EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, int idsite, Patient *pat, QString &destinataire)
 {
     Site *sit = Datas::I()->sites->getById(idsite < 0? Datas::I()->sites->idcurrentsite() : idsite);
     if (sit == nullptr)
@@ -1808,7 +1807,7 @@ bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, 
                           sit->mail(), destinataire, sit->mail(),
                           tr("Document ") + sit->nom(),
                           tr("Veuillez trouver ci-joint le document annoncé.") + "\n\n" + sit->nom(),
-                          pdf, nomfichier);
+                          pieces);
     QApplication::restoreOverrideCursor();
 
     if (!ok)
@@ -2160,8 +2159,11 @@ bool Procedures::Imprimer_DocExterne(QWidget *parent, Patient *pat, User * user,
                             AvecDupli, AvecNumPage, signature);
     }
     else if (typ == SendMAIL)
-        aa = EnvoiMail(parent, Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : nullptr), ALD, signature),
-                       titre + ".pdf", Datas::I()->sites->idcurrentsite(), pat, destinataire);
+    {
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(titre + ".pdf", Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : nullptr), ALD, signature));
+        aa = EnvoiMail(parent, pieces, Datas::I()->sites->idcurrentsite(), pat, destinataire);
+    }
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
@@ -2298,7 +2300,9 @@ void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEn
         break;
     case SendMAIL: {
         QString destinataire;
-        EnvoiMail(parent, calcPdfFromListImage(listimage), map.value("file"), idsite, nullptr, destinataire);
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(map.value("file"), calcPdfFromListImage(listimage));
+        EnvoiMail(parent, pieces, idsite, nullptr, destinataire);
         break; }
     case createPDF:
         createPdfFromListImage(listimage, map, parent);

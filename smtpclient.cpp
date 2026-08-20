@@ -60,11 +60,11 @@ bool SmtpClient::commande(const QString &texte, const QString &codeattendu)
 
 /*!
  * \brief SmtpClient::calcMessage
- * Assemble le message au format MIME : le texte puis la pièce jointe encodée en base64.
+ * Assemble le message au format MIME : le texte puis les pièces jointes encodées en base64.
  */
 QByteArray SmtpClient::calcMessage(const QString &expediteur, const QString &destinataire,
                                    const QString &sujet, const QString &corps,
-                                   const QByteArray &pdf, const QString &nomfichier)
+                                   const QMap<QString, QByteArray> &pieces)
 {
     const QString limite = "----RufusMIME000";      /*!< sépare les parties du message */
     QString msg;
@@ -79,14 +79,17 @@ QByteArray SmtpClient::calcMessage(const QString &expediteur, const QString &des
     msg += "Content-Transfer-Encoding: base64\r\n\r\n";
     msg += corps.toUtf8().toBase64() + "\r\n\r\n";
 
-    msg += "--" + limite + "\r\n";
-    msg += "Content-Type: application/pdf; name=\"" + nomfichier + "\"\r\n";
-    msg += "Content-Transfer-Encoding: base64\r\n";
-    msg += "Content-Disposition: attachment; filename=\"" + nomfichier + "\"\r\n\r\n";
-    const QByteArray b64 = pdf.toBase64();
-    for (int i = 0; i < b64.size(); i += 76)        /*!< certains serveurs refusent les lignes trop longues */
-        msg += QString::fromLatin1(b64.mid(i, 76)) + "\r\n";
-    msg += "\r\n";
+    for (auto it = pieces.cbegin(); it != pieces.cend(); ++it)
+    {
+        msg += "--" + limite + "\r\n";
+        msg += "Content-Type: application/pdf; name=\"" + it.key() + "\"\r\n";
+        msg += "Content-Transfer-Encoding: base64\r\n";
+        msg += "Content-Disposition: attachment; filename=\"" + it.key() + "\"\r\n\r\n";
+        const QByteArray b64 = it.value().toBase64();
+        for (int i = 0; i < b64.size(); i += 76)    /*!< certains serveurs refusent les lignes trop longues */
+            msg += QString::fromLatin1(b64.mid(i, 76)) + "\r\n";
+        msg += "\r\n";
+    }
     msg += "--" + limite + "--\r\n";
     return msg.toUtf8();
 }
@@ -95,7 +98,7 @@ bool SmtpClient::envoie(const QString &serveur, int port,
                         const QString &login, const QString &motdepasse,
                         const QString &expediteur, const QString &destinataire, const QString &copiecachee,
                         const QString &sujet, const QString &corps,
-                        const QByteArray &pdf, const QString &nomfichier)
+                        const QMap<QString, QByteArray> &pieces)
 {
     m_erreur = "";
     m_refusidentifiants = false;
@@ -148,7 +151,7 @@ bool SmtpClient::envoie(const QString &serveur, int port,
             ok = commande("RCPT TO:<" + copiecachee + ">", "250");
         if (ok && commande("DATA", "354"))
         {
-            m_socket.write(calcMessage(expediteur, destinataire, sujet, corps, pdf, nomfichier));
+            m_socket.write(calcMessage(expediteur, destinataire, sujet, corps, pieces));
             m_socket.waitForBytesWritten(DELAI_SMTP);
             ok = commande("\r\n.", "250");          /*!< un point seul sur sa ligne termine le message */
         }
