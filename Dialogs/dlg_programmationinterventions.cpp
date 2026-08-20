@@ -1685,6 +1685,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             delete Dlg_Imprs;
             return;
         }
+        QList<Procedures::DocAEnvoyer> docsamailer;   /*!< en mode mail, tous les documents partent dans un seul envoi */
         foreach (mapdoc, Dlg_Imprs->mapdocsaimprimer())
         {
             bool Prescription           = (mapdoc.find(dlg_impressions::d_Prescription).value() == "1");
@@ -1699,10 +1700,21 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
             if (typenvoi == Procedures::createPDF)
                 proc->setDirnamepdf(tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy"));
-            m_docimprime = proc->Imprimer_DocExterne(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, typenvoi, Administratif, signature);
+            if (typenvoi == Procedures::SendMAIL)
+            {
+                Procedures::DocAEnvoyer doc;
+                m_docimprime = proc->PrepareDocExterne(pat, userEntete, Titre, TxtDocument, DateDoc,
+                                                       Prescription, ALD, Administratif, signature, doc);
+                if (m_docimprime)
+                    docsamailer << doc;
+            }
+            else
+                m_docimprime = proc->Imprimer_DocExterne(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, typenvoi, Administratif, signature);
             if (!m_docimprime)
                 break;
         }
+        if (m_docimprime && typenvoi == Procedures::SendMAIL)
+            m_docimprime = proc->EnvoiGroupeDocExternes(this, docsamailer, currentsession()->idsite(), pat);
     }
     delete Dlg_Imprs;
 }

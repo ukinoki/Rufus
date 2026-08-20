@@ -8910,6 +8910,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
         }
         if (typenvoi == Procedures::createPDF)
             proc->setDirnamepdf(tr("Documents") + " - " + userEntete->prenom() + " " + userEntete->nom() + " - " + QLocale::system().toString(QDate::currentDate(),"dd MMM yyyy"));
+        QList<Procedures::DocAEnvoyer> docsamailer;   /*!< en mode mail, tous les documents partent dans un seul envoi */
         foreach (mapdoc, listdocs)
         {
             bool Prescription           = (mapdoc.find(dlg_impressions::d_Prescription).value() == "1");
@@ -8920,12 +8921,23 @@ void    Rufus::ImprimeDocument(Patient *pat)
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
-            success                     = proc->Imprimer_DocExterne(this, pat, userEntete, Titre,
+            if (typenvoi == Procedures::SendMAIL)
+            {
+                Procedures::DocAEnvoyer doc;
+                success                 = proc->PrepareDocExterne(pat, userEntete, Titre, TxtDocument, DateDoc,
+                                                                 Prescription, ALD, Administratif, signature, doc);
+                if (success)
+                    docsamailer << doc;
+            }
+            else
+                success                 = proc->Imprimer_DocExterne(this, pat, userEntete, Titre,
                                                                   TxtDocument, DateDoc, Prescription, ALD,
                                                                   AvecDupli, typenvoi, Administratif, signature);
             if (!success)
                 break;
         }
+        if (success && typenvoi == Procedures::SendMAIL)
+            success = proc->EnvoiGroupeDocExternes(this, docsamailer, Datas::I()->sites->idcurrentsite(), pat);
     }
     delete Dlg_Imprs;
     if (currentpatient() != nullptr)

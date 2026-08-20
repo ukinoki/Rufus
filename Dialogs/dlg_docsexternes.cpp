@@ -737,7 +737,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         {
             int idimpr = doc->id();
             if (typenvoi == Procedures::SendMAIL)
-                proc->EnregistreEnvoiMail(idimpr, destinataire);
+                proc->EnregistreEnvoiMail(QList<int>() << idimpr, destinataire);
             delete doc;
             if (detruirealafin)
             {

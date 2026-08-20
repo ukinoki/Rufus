@@ -2093,51 +2093,102 @@ void Procedures::EditHtml(QString txt, QWidget *parent)
 }
 
 
+/*!
+ * \brief Procedures::PrepareDocExterne
+ * Fabrique les textes et le pdf d'un document, sans rien émettre ni enregistrer.
+ * \param doc  reçoit les textes, le pdf, le nom de fichier et les champs de la table des documents
+ */
+bool Procedures::PrepareDocExterne(Patient *pat, User *user, QString titre, QString textorigine, QDate date,
+                                   bool Prescription, bool ALD, bool Administratif, QImage signature, DocAEnvoyer &doc)
+{
+    if (pat == nullptr || user == nullptr)
+        return false;
+    setImpressionALD(ALD);
+
+    QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user, Prescription);
+    if (EnteteMap.value(NORMHeader) == "")
+        return false;
+    doc.textentete = (m_ALD? EnteteMap.value(ALDHeader) : EnteteMap.value(NORMHeader));
+    if (doc.textentete == "")
+        return false;
+    doc.textentete.replace("{{TITRE1}}", "");
+    doc.textentete.replace("{{TITRE}}" , "");
+    doc.textentete.replace("{{DDN}}"   , "");
+
+    doc.textpied = CalcPiedImpression(user);
+    if (doc.textpied == "")
+        return false;
+
+    doc.textcorps = CalcCorpsImpression(textorigine, m_ALD);
+    if (m_ALD)
+    {
+        doc.textcorps.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
+        doc.textcorps.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
+        doc.textcorps.replace("{{DATE}}", tr("le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
+    }
+    else
+    {
+        doc.textentete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
+        doc.textentete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
+    }
+    if (doc.textcorps == "")
+        return false;
+    QTextEdit Etat_textEdit;
+    Etat_textEdit.setHtml(doc.textcorps);
+    if (Etat_textEdit.toPlainText() == "")
+        return false;
+
+    doc.titre       = titre;
+    doc.nomfichier  = titre + ".pdf";
+    doc.pdf         = Cree_pdfByteArray(doc.textcorps, doc.textentete, doc.textpied, (Prescription? user : nullptr), ALD, signature);
+
+    QString corpsnettoye = doc.textcorps;
+    Utils::nettoieHTML(corpsnettoye, 9);
+    doc.listbinds[CP_IDUSER_DOCSEXTERNES]        = user->id();
+    doc.listbinds[CP_IDPAT_DOCSEXTERNES]         = pat->id();
+    doc.listbinds[CP_TYPEDOC_DOCSEXTERNES]       = (Prescription? "Prescription" : "Courrier");
+    doc.listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = titre;
+    doc.listbinds[CP_TITRE_DOCSEXTERNES]         = titre;
+    doc.listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = doc.textentete;
+    doc.listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = corpsnettoye;
+    doc.listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = textorigine;
+    doc.listbinds[CP_TEXTPIED_DOCSEXTERNES]      = QString(doc.textpied).replace("{{DUPLI}}","");
+    doc.listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+    doc.listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = Datas::I()->users->userconnected()->id();
+    doc.listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QString()));
+    doc.listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
+    doc.listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
+    doc.listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
+    doc.listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
+    doc.listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = doc.pdf;
+    return true;
+}
+
+/*!
+ * \brief Procedures::EnregistreDocExterne
+ * Enregistre le document dans la table des documents et renvoie son id, 0 si l'enregistrement échoue.
+ */
+int Procedures::EnregistreDocExterne(const DocAEnvoyer &doc)
+{
+    DocExterne *docmt = DocsExternes::CreationDocumentExterne(doc.listbinds);
+    if (docmt == nullptr)
+        return 0;
+    int id = docmt->id();
+    delete docmt;
+    return id;
+}
+
 bool Procedures::Imprimer_DocExterne(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
                                    bool Prescription, bool ALD, bool AvecDupli, typeEnvoi typ, bool Administratif,
                                    QImage signature)
 {
-    if (pat == nullptr || user == nullptr || typ == noEMISSION)
+    if (typ == noEMISSION)
         return false;
-    QString     textcorps, textpied, textentete, destinataire;
-    bool        AvecNumPage = false;
-    bool        aa = false;
-    setImpressionALD(ALD);
-
-    //création de l'entête
-    QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user, Prescription);
-    if (EnteteMap.value(NORMHeader) == "")
+    DocAEnvoyer doc;
+    if (!PrepareDocExterne(pat, user, titre, textorigine, date, Prescription, ALD, Administratif, signature, doc))
         return false;
-    textentete                      = (m_ALD? EnteteMap.value(ALDHeader) : EnteteMap.value(NORMHeader));
-    if (textentete == "") return false;
-    textentete.replace("{{TITRE1}}"        , "");
-    textentete.replace("{{TITRE}}"         , "");
-    textentete.replace("{{DDN}}"           , "");
-
-    //création du pied
-    textpied = CalcPiedImpression(user);
-    if (textpied == "")
-        return false;
-
-    // creation du corps
-    textcorps = CalcCorpsImpression(textorigine, m_ALD);
-    if (m_ALD)
-    {
-        textcorps.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
-        textcorps.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
-        textcorps.replace("{{DATE}}", tr("le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
-    }
-    else
-    {
-        textentete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
-        textentete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
-    }
-    if (textcorps == "")
-        return false;
-    QTextEdit   Etat_textEdit;
-    Etat_textEdit.setHtml(textcorps);
-    if (Etat_textEdit.toPlainText() == "")
-        return false;
+    QString destinataire;
+    bool    aa = false;
     if (typ == createPDF)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + m_dirnamepdf;
@@ -2145,7 +2196,7 @@ bool Procedures::Imprimer_DocExterne(QWidget *parent, Patient *pat, User * user,
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                               m_dirnamepdf;
-        Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? user : nullptr), ALD, dirname, signature);
+        Cree_pdffile(doc.textcorps, doc.textentete, doc.textpied, filename, (Prescription? user : nullptr), ALD, dirname, signature);
         QFile file          = QFile(dirname + "/" + filename);
         aa                  = file.exists();
         UpMessageBox::Watch(parent,
@@ -2153,65 +2204,61 @@ bool Procedures::Imprimer_DocExterne(QWidget *parent, Patient *pat, User * user,
                             aa? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
     }
     else if (typ == printDOC)
-    {
-        aa = Imprime_Etat(parent, textcorps, textentete, textpied,
-                            (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
-                            AvecDupli, AvecNumPage, signature);
-    }
+        aa = Imprime_Etat(parent, doc.textcorps, doc.textentete, doc.textpied,
+                          (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
+                          AvecDupli, false, signature);
     else if (typ == SendMAIL)
     {
         QMap<QString, QByteArray> pieces;
-        pieces.insert(titre + ".pdf", Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : nullptr), ALD, signature));
+        pieces.insert(doc.nomfichier, doc.pdf);
         aa = EnvoiMail(parent, pieces, Datas::I()->sites->idcurrentsite(), pat, destinataire);
     }
-
-    // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        Utils::nettoieHTML(textcorps, 9);
-        QByteArray ba = Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : nullptr), ALD, signature);
-
-        int idpat = 0;
-        idpat = pat->id();
-
-        QHash<QString, QVariant> listbinds;
-        // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-        listbinds[CP_IDUSER_DOCSEXTERNES]        = user->id();
-        listbinds[CP_IDPAT_DOCSEXTERNES]         = idpat;
-        listbinds[CP_TYPEDOC_DOCSEXTERNES]       = (Prescription? "Prescription" : "Courrier");
-        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = titre;
-        listbinds[CP_TITRE_DOCSEXTERNES]         = titre;
-        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = textentete;
-        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = textcorps;
-        listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = textorigine;
-        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = textpied.replace("{{DUPLI}}","");
-        listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = Datas::I()->users->userconnected()->id();
-        listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QString()));
-        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
-        listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
-        listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
-        listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
-        listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = ba;
-        DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        if (doc != nullptr)
-        {
-            if (typ == SendMAIL)
-                EnregistreEnvoiMail(doc->id(), destinataire);
-            delete doc;
-        }
+        int id = EnregistreDocExterne(doc);
+        if (id > 0 && typ == SendMAIL)
+            EnregistreEnvoiMail(QList<int>() << id, destinataire);
         m_ALD = false;
     }
     return aa;
 }
 
 /*!
+ * \brief Procedures::EnvoiGroupeDocExternes
+ * Envoie plusieurs documents dans un seul mail et ne les enregistre que si le serveur l'a accepté.
+ * \param docs    les documents préparés par PrepareDocExterne
+ * \param idsite  le lieu dont on utilise les coordonnées d'envoi
+ * \param pat     le patient concerné, pour l'adresse proposée par défaut
+ */
+bool Procedures::EnvoiGroupeDocExternes(QWidget *parent, QList<DocAEnvoyer> docs, int idsite, Patient *pat)
+{
+    if (docs.size() == 0)
+        return false;
+    QMap<QString, QByteArray> pieces;
+    foreach (DocAEnvoyer doc, docs)
+        pieces.insert(doc.nomfichier, doc.pdf);
+    QString destinataire;
+    if (!EnvoiMail(parent, pieces, idsite, pat, destinataire))
+        return false;
+    QList<int> ids;
+    foreach (DocAEnvoyer doc, docs)
+    {
+        int id = EnregistreDocExterne(doc);
+        if (id > 0)
+            ids << id;
+    }
+    EnregistreEnvoiMail(ids, destinataire);
+    m_ALD = false;
+    return true;
+}
+
+/*!
  * \brief Procedures::EnregistreEnvoiMail
- * Trace un mail parti : une ligne d'envoi et une jointure vers le document envoyé.
- * \param iddocument   le document joint au mail
+ * Trace un mail parti : une ligne d'envoi et une jointure par document joint.
+ * \param iddocuments  les documents joints au mail
  * \param destinataire l'adresse telle qu'elle a servi
  */
-void Procedures::EnregistreEnvoiMail(int iddocument, QString destinataire)
+void Procedures::EnregistreEnvoiMail(QList<int> iddocuments, QString destinataire)
 {
     QHash<QString, QVariant> listbinds;
     listbinds[CP_DESTINATAIRE_MAILSENVOYES] = destinataire;
@@ -2224,7 +2271,8 @@ void Procedures::EnregistreEnvoiMail(int iddocument, QString destinataire)
     db                      ->unlocktables();
     if (!enreg)
         return;
-    db                      ->StandardSQL("insert into " TBL_JOINTURESMAILS " (" CP_IDMAIL_JOINTMAIL ", " CP_IDIMPRESSION_JOINTMAIL ")"
+    foreach (int iddocument, iddocuments)
+        db                  ->StandardSQL("insert into " TBL_JOINTURESMAILS " (" CP_IDMAIL_JOINTMAIL ", " CP_IDIMPRESSION_JOINTMAIL ")"
                                           " values (" + QString::number(idmail) + ", " + QString::number(iddocument) + ")");
 }
 

@@ -247,6 +247,20 @@ public:
     bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf = QMap<QString, QString>(), QWidget *parent = nullptr);
     QByteArray              calcPdfFromListImage(QList<QImage> listimage);   /*!< la même liste d'images, en pdf et sans fichier */
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
+    /*! un document prêt à être émis : ses textes, son pdf et ses champs pour la table des documents */
+    struct DocAEnvoyer {
+        QString                 textcorps   = "";
+        QString                 textentete  = "";
+        QString                 textpied    = "";
+        QString                 titre       = "";
+        QString                 nomfichier  = "";
+        QByteArray              pdf         = QByteArray();
+        QHash<QString, QVariant> listbinds;
+    };
+    bool                    PrepareDocExterne(Patient *pat, User *user, QString titre, QString textorigine, QDate date,
+                           bool Prescription, bool ALD, bool Administratif, QImage signature, DocAEnvoyer &doc);
+    int                     EnregistreDocExterne(const DocAEnvoyer &doc);
+    bool                    EnvoiGroupeDocExternes(QWidget *parent, QList<DocAEnvoyer> docs, int idsite, Patient *pat);
     bool                    Imprimer_DocExterne(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
                            bool Prescription, bool ALD, bool AvecDupli, typeEnvoi typ, bool Administratif = true,
                            QImage signature = QImage());   /*!< signature à apposer sous le corps (vide = pas de signature) */
@@ -275,7 +289,7 @@ public:
     QStringList             ManqueEnvoiMail(int idlieu = -1);   /*!< ce qui manque au lieu pour pouvoir envoyer un mail */
     QStringList             CompleteCoordonneesMail(QWidget *parent, int idsite, QStringList manque);
     bool                    EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, int idsite, Patient *pat, QString &destinataire);
-    void                    EnregistreEnvoiMail(int iddocument, QString destinataire);
+    void                    EnregistreEnvoiMail(QList<int> iddocuments, QString destinataire);
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */
 
