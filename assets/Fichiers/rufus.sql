@@ -436,7 +436,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,83,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,84,
                                         1,77,'2026-07-01',2.60,2.72,
                                         1,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
