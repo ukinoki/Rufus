@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedures.h"
 #include "dlg_initbase.h"
+#include "dlg_identificationsite.h"
 #include "mysqlinstaller.h"
 #include <QBuffer>
 #include <QPdfWriter>
@@ -1695,6 +1696,29 @@ QStringList Procedures::ManqueEnvoiMail(int idlieu)
     return manque;
 }
 
+/*!
+ * \brief Procedures::CompleteCoordonneesMail
+ * Propose de compléter les coordonnées d'envoi du lieu et renvoie ce qui manque encore.
+ * \param parent  la fiche appelante
+ * \param idsite  le lieu concerné, -1 = le lieu en cours
+ * \param manque  ce qui manque avant la proposition
+ */
+QStringList Procedures::CompleteCoordonneesMail(QWidget *parent, int idsite, QStringList manque)
+{
+    if (UpMessageBox::Question(parent, tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "),
+                               tr("Voulez-vous compléter les coordonnées d'envoi de ce lieu?")) != UpSmallButton::STARTBUTTON)
+        return manque;
+    Site *sit = Datas::I()->sites->getById(idsite < 0? Datas::I()->sites->idcurrentsite() : idsite);
+    if (sit == nullptr)
+        return manque;
+    dlg_identificationsite dlg(sit, dlg_identificationsite::Complement, parent);
+    if (dlg.exec() != QDialog::Accepted)
+        return manque;
+    db                      ->UpdateTable(TBL_LIEUXEXERCICE, dlg.listbinds(), " where " CP_ID_SITE " = " + QString::number(sit->id()), tr("Impossible de modifier le site"));
+    Datas::I()->sites       ->getById(sit->id(), true);
+    return ManqueEnvoiMail(idsite);
+}
+
 Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ, int idsite)
 {
     UpDialog *dlg           = new UpDialog(parent);
@@ -1711,15 +1735,14 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
     grp                     ->addButton(pdfchk);
     grp                     ->addButton(mailchk);
     QStringList manque = ManqueEnvoiMail(idsite);
+    if (manque.size() > 0 && typ == SendMAIL)
+        manque = CompleteCoordonneesMail(parent, idsite, manque);
     mailchk                 ->setEnabled(manque.size() == 0);
     if (manque.size() > 0)
     {
         mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "), true);
         if (typ == SendMAIL)
-        {
-            UpMessageBox::Watch(parent, tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "));
             typ = printDOC;
-        }
     }
 
     switch (typ) {

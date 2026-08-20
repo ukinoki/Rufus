@@ -1069,7 +1069,7 @@ void dlg_gestionusers::GestLieux()
     m_MDPverified = Utils::VerifMDPAdmin(DataBase::I()->getMDPAdmin(), m_MDPverified, this);
     if (!m_MDPverified)
             return;
-    dlg_listelieux *gestLieux = new dlg_listelieux(this);
+    dlg_listesites *gestLieux = new dlg_listesites(this);
     gestLieux->exec();
     ReconstruitListeLieuxExercice();
     delete gestLieux;

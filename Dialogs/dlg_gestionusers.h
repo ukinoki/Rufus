@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_GESTIONUSERS_H
 
 #include "dlg_gestioncomptes.h"
-#include "dlg_listelieux.h"
+#include "dlg_listesites.h"
 #include "upheaderview.h"
 #include <QPainter>
 #include "procedures.h"
