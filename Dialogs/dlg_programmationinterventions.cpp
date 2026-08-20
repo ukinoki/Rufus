@@ -113,24 +113,54 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     connect(wdg_manufacturerbutt,       &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeManufacturers);
     connect(wdg_IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeIOLs);
     connect(wdg_incidentbutt,           &QPushButton::clicked,  this,   [&] {
-                                                                                bool pdf;
-                                                                                if (proc->MailPdfOrPrint(this, pdf))
-                                                                                    ImprimeRapportIncident(pdf);
-                                                                            });
+        switch (proc->QuestionMailPdfOrPrint(parent))
+        {
+        case Procedures::printDOC:
+            ImprimeRapportIncident();
+            break;
+        case Procedures::SendMAIL:
+            /*! TODO */
+            break;
+        case Procedures::createPDF:
+            ImprimeRapportIncident(true);
+            break;
+        default:
+            break;
+        }});
     connect(wdg_commandeIOLbutt,        &QPushButton::clicked,  this,   [&] {
-                                                                                bool pdf;
-                                                                                if (proc->MailPdfOrPrint(this, pdf))
-                                                                                    ImprimeListeIOLsSession(pdf);
-                                                                            });
+        switch (proc->QuestionMailPdfOrPrint(parent))
+        {
+        case Procedures::printDOC:
+            ImprimeListeIOLsSession();
+            break;
+        case Procedures::SendMAIL:
+            /*! TODO */
+            break;
+        case Procedures::createPDF:
+            ImprimeListeIOLsSession(true);
+            break;
+        default:
+            break;
+        }});
     wdg_IOLbutt->setEnabled(Datas::I()->users->userconnected()->isMedecin());
 
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
     connect(PrintButton,  &QPushButton::clicked,    this, [&] {
-                                                                bool pdf;
-                                                                if (proc->MailPdfOrPrint(this, pdf))
-                                                                    ImprimeSession(pdf);
-                                                               });
+        switch (proc->QuestionMailPdfOrPrint(parent))
+        {
+        case Procedures::printDOC:
+            ImprimeSession();
+            break;
+        case Procedures::SendMAIL:
+            /*! TODO */
+            break;
+        case Procedures::createPDF:
+            ImprimeSession(true);
+            break;
+        default:
+            break;
+        }});
 
     dlglayout()->setStretch(0,1);
     dlglayout()->setStretch(1,15);

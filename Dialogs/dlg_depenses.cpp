@@ -170,9 +170,8 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
     connect (ui->ChercheMontantupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::RechercheValeur);
     connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   [&] {
-                                                                                                bool ok;
-                                                                                                if (proc->QuestionMailPdfOrPrint(this, ok))
-                                                                                                PrintReport(ok);
+                                                                                                bool ok = proc->QuestionMailPdfOrPrint(this) != Procedures::noEMISSION;
+                                                                                                if (ok) PrintReport(ok);
                                                                                             });
     connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),

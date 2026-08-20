@@ -2064,15 +2064,21 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
     return true;
 }
 
-void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map, bool mailprecoche, int idlieu)
+void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map, bool mailprecoche, int idsite)
 {
-    bool pdf = false;
-    if (QuestionMailPdfOrPrint(parent, pdf, nullptr, nullptr, idlieu, nullptr, mailprecoche))
+    switch (QuestionMailPdfOrPrint(parent, printDOC, QString(), idsite))
     {
-        if (pdf)
-            createPdfFromListImage(listimage, map, parent);
-        else
-            Print(listimage);
+    case printDOC:
+        Print(listimage);
+        break;
+    case SendMAIL:
+        /*! TODO */
+        break;
+    case createPDF:
+        createPdfFromListImage(listimage, map, parent);
+        break;
+    default:
+        break;
     }
 }
 

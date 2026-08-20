@@ -209,7 +209,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         QAction *paction_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
         QAction *paction_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
         QAction *paction_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
-        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), false, docmt->idsite());});
+        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->MailPdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), false, docmt->idsite());});
         connect (paction_ModifierReimprimer,        &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  true);});
         connect (paction_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  false);});
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, false, false);});
@@ -237,7 +237,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         QAction *pactionmail_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
         QAction *pactionmail_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
         QAction *pactionmail_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
-        connect (pactionmail_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), true, docmt->idsite());});
+        connect (pactionmail_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->MailPdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), true, docmt->idsite());});
         connect (pactionmail_ModifierReimprimer,        &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  true,  true);});
         connect (pactionmail_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  false, true);});
         connect (pactionmail_ReimprimerCeJour,          &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, false, false, true);});
@@ -589,7 +589,7 @@ void dlg_docsexternes::ImprimeDoc()
 
         //Reimpression simple du document, sans réédition => pas d'action sur la BDD
         if (msgbox.clickedButton() == &ReimprBouton)
-            proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf());
+            proc->MailPdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf());
 
         //Réédition d'un document - on va réimprimer le document à la date du jour en le modifiant - ne concerne que les courriers et ordonnances émis => on enregistre le nouveau document dans la BDD
         else if (msgbox.clickedButton() == &ModifEtReimprBouton || msgbox.clickedButton() == &ImpAujourdhuiBouton)

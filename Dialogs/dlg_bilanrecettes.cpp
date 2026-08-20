@@ -114,10 +114,20 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     FiltreTable(-1);
     connect(CloseButton,                &QPushButton::clicked,                                  this, [=, this] {close();});
     connect(PrintButton,                &QPushButton::clicked,                                  this, [&] {
-                                                                                                            bool ok;
-                                                                                                            if (proc->MailPdfOrPrint(this, ok))
-                                                                                                                PrintReport(ok);
-                                                                                                          });
+        switch (proc->QuestionMailPdfOrPrint(parent))
+        {
+        case Procedures::printDOC:
+            PrintReport();
+            break;
+        case Procedures::SendMAIL:
+            /*! TODO */
+            break;
+        case Procedures::createPDF:
+            PrintReport(true);
+            break;
+        default:
+            break;
+        }});
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=, this] {NouvPeriode();});
     connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=, this] {ExportTable();});
     connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=, this] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
