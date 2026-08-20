@@ -40,7 +40,7 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
     UpLabel *lblmail        = new UpLabel(this, tr("Mail"));
     UpLabel *lblsmtpserveur = new UpLabel(this, tr("Serveur d'envoi"));
     UpLabel *lblsmtpport    = new UpLabel(this, tr("Port"));
-    UpLabel *lblsmtplogin   = new UpLabel(this, tr("Identifiant"));
+    UpLabel *lblsmtplogin   = new UpLabel(this, tr("Login du compte mail"));
 
     int h = 22;
     foreach (UpLabel *lbl, findChildren<UpLabel*>())
@@ -111,13 +111,13 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
     wdg_smtpserveurlineedit ->setValidator(new QRegularExpressionValidator(Utils::rgx_adresseserveur));
     wdg_smtpportlineedit    ->setValidator(new QIntValidator(1, 65535));
 
-    wdg_maillineedit        ->setWhatsThis(tr("L'adresse d'où partiront les documents envoyés par mail."));
-    wdg_smtpserveurlineedit ->setWhatsThis(tr("Le serveur d'envoi de votre fournisseur de mail, en général smtp. suivi de son nom:")
+    wdg_maillineedit        ->setImmediateToolTip(tr("L'adresse d'où partiront les documents envoyés par mail."));
+    wdg_smtpserveurlineedit ->setImmediateToolTip(tr("Le serveur d'envoi de votre fournisseur de mail, en général smtp. suivi de son nom:")
                                            + "<br>smtp.sfr.fr, smtp.orange.fr, smtp.free.fr, ssl0.ovh.net, smtp.gmail.com<br>"
                                            + tr("Il figure dans les réglages de votre webmail, à la rubrique POP/IMAP."));
-    wdg_smtpportlineedit    ->setWhatsThis(tr("465 si la liaison est chiffrée dès la connexion, 587 sinon.")
+    wdg_smtpportlineedit    ->setImmediateToolTip(tr("465 si la liaison est chiffrée dès la connexion, 587 sinon.")
                                            + "<br>" + tr("En cas de doute, essayez 465."));
-    wdg_smtploginlineedit   ->setWhatsThis(tr("Ce que vous tapez pour vous connecter à votre messagerie, en général l'adresse mail complète.")
+    wdg_smtploginlineedit   ->setImmediateToolTip(tr("Ce que vous tapez pour vous connecter à votre messagerie, en général l'adresse mail complète.")
                                            + "<br>" + tr("Chez Gmail et Outlook, le mot de passe habituel est refusé: il faut créer un mot de passe d'application dans les réglages du compte."));
 
     layledit                ->addWidget(wdg_nomlineedit);
