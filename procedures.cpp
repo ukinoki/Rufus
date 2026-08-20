@@ -1695,7 +1695,7 @@ QStringList Procedures::ManqueEnvoiMail(int idlieu)
     return manque;
 }
 
-bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *mail, int idlieu, QString *imprimante, bool mailprecoche)
+Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ, QString imprimante, int idsite)
 {
     UpDialog *dlg           = new UpDialog(parent);
     dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -1710,13 +1710,22 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     grp                     ->addButton(printchk);
     grp                     ->addButton(pdfchk);
     grp                     ->addButton(mailchk);
-    if (mailprecoche)
-        mailchk             ->setChecked(true);
-    else
-        printchk            ->setChecked(true);
+    switch (typ) {
+    case printDOC:
+        printchk->setChecked(true);
+        break;
+    case SendMAIL:
+        mailchk->setChecked(true);
+        break;
+    case createPDF:
+        pdfchk->setChecked(true);
+        break;
+    default:
+        break;
+    }
 
-    QStringList manque = ManqueEnvoiMail(idlieu);
-    mailchk                 ->setEnabled(mail != nullptr && manque.size() == 0);
+    QStringList manque = ManqueEnvoiMail(idsite);
+    mailchk                 ->setEnabled(manque.size() == 0);
     if (manque.size() > 0)
         mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "\n- " + manque.join("\n- "), true);
 
@@ -1774,19 +1783,21 @@ bool Procedures::MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print, bool *m
     const QRect ecran = QGuiApplication::primaryScreen()->availableGeometry();
     dlg                     ->move(ecran.center().x() - dlg->width()/2, ecran.center().y() - dlg->height()/2);
 
-    bool initok = (dlg->exec() == QDialog::Accepted);
-    if (initok)
+    typ = noEMISSION;
+    if (dlg->exec() == QDialog::Accepted)
     {
-        pdf = pdfchk->isChecked();
-        if (print != nullptr)
-            *print = printchk->isChecked();
-        if (mail != nullptr)
-            *mail = mailchk->isChecked();
-        if (imprimante != nullptr)
-            *imprimante = (tblimprimantes->currentIndex().isValid()? tblimprimantes->currentIndex().data().toString() : "");
+        if (pdfchk->isChecked())
+            typ = createPDF;
+        else if (printchk->isChecked())
+        {
+            m_nomImprimante = (tblimprimantes->currentIndex().isValid()? tblimprimantes->currentIndex().data().toString() : "");
+            typ = printDOC;
+        }
+        else if (mailchk->isChecked())
+            typ = SendMAIL;
     }
     delete dlg;
-    return initok;
+    return typ;
 }
 
 // Get file content from SQL table
@@ -2056,7 +2067,7 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
 void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map, bool mailprecoche, int idlieu)
 {
     bool pdf = false;
-    if (MailPdfOrPrint(parent, pdf, nullptr, nullptr, idlieu, nullptr, mailprecoche))
+    if (QuestionMailPdfOrPrint(parent, pdf, nullptr, nullptr, idlieu, nullptr, mailprecoche))
     {
         if (pdf)
             createPdfFromListImage(listimage, map, parent);

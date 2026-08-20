@@ -97,6 +97,7 @@ public:
     static Procedures       *I();
     QSettings*              settings() const { return m_settings; }
     enum typeDoc {Text, Image}; Q_ENUM(typeDoc)   //! les 2 types de documents utilisés par Rufus: image (jpg ou pdf) ou texte
+    enum typeEnvoi {SendMAIL, createPDF, printDOC, noEMISSION}; Q_ENUM(typeEnvoi)   //! les 3 types d'émission de documents : mail, pdf ou impression
 
 /*! --------------------------------------------------------------------------------------------------------
 * opérations sur la base de données, le système et les datas
@@ -268,7 +269,7 @@ public:
             /*! c - Création d'un pdf QByteArray à stocker dans la base */
     QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = nullptr, bool ALD = false, QImage signature = QImage());
             /*! d - Choice: print or pdf */
-    bool                    MailPdfOrPrint(QWidget *parent, bool &pdf, bool *print = nullptr, bool *mail = nullptr, int idlieu = -1, QString *imprimante = nullptr, bool mailprecoche = false);
+    Procedures::typeEnvoi   QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ = printDOC, QString imprimante = QString(), int idsite = -1);
     QStringList             ManqueEnvoiMail(int idlieu = -1);   /*!< ce qui manque au lieu pour pouvoir envoyer un mail */
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */

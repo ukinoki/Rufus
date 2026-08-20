@@ -26,7 +26,7 @@ class DocsExternes : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, DocExterne*> *map_docsexternes = nullptr; //!< la liste des DocExternes pour un patient donné
+    QMap<int, DocExterne*>      *map_docsexternes = nullptr; //!< la liste des DocExternes pour un patient donné
     bool                        m_nouveaudocument;
     Patient                     *m_patient;
     QList<DocExterne *>         m_newdocuments = QList<DocExterne *>();

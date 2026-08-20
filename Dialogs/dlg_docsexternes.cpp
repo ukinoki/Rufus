@@ -620,7 +620,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
     QString     textcorps, textentete, textpied, txt;
     QTextEdit   *Etat_textEdit  = new QTextEdit;
-    bool        aa;
+    bool        aa = false;
     bool        ALD             = (docmt->isALD());
     bool        Prescription    = docmt->isprescription();
 
@@ -677,12 +677,17 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         usr = Datas::I()->users->getById(docmt->iduser());
     if (usr != nullptr)
         mapbarcodes = usr->mapBarCodes();
-
-    bool pdf = false;
-    if (!proc->MailPdfOrPrint(this, pdf, nullptr, nullptr, docmt->idsite(), nullptr, mailprecoche))
+    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, nullptr, docmt->idsite());
+    switch (typenvoi) {
+    case Procedures::printDOC:
+        aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
+                                proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(), mapbarcodes,
+                                AvecDupli);
+        break;
+    case Procedures::SendMAIL:
         return false;
-    if (pdf)
-    {
+        break;
+    case Procedures::createPDF: {
         QMap<QString, QString> map = CalcNomFilePdf();
         QString dirname     = map.value("dir");
         QString filename    = map.value("file");
@@ -693,11 +698,12 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         UpMessageBox::Watch(this,
                             aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
                             aa? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
+        break;
     }
-    else
-        aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                            proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(), mapbarcodes,
-                            AvecDupli);
+    default:
+        return false;
+        break;
+    }
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)

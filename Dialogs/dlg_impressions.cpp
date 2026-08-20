@@ -1205,7 +1205,6 @@ void dlg_impressions::OKpushButtonClicked()
         UpMessageBox::Watch(this, tr("Pas d'émetteur pour ce document"),tr("Aucun émetteur n'est précisé pour l'impression"));
         return;
     }
-    int ndocs = 0;
     switch (m_mode) {
     case CreationDOC:
     case ModificationDOC:
@@ -1682,6 +1681,7 @@ void dlg_impressions::OKpushButtonClicked()
              * ils sont déterminés par la fiche demandeuse de l'impression - rufus.cpp oudlg_programmationinterventions, en appelant les fonctions correspondantes dans procedures.cpp
              */
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            int ndocs = 0;
             if (itm)
             {
                 if (itm->ischecked())
@@ -1722,7 +1722,22 @@ void dlg_impressions::OKpushButtonClicked()
         }
         if (map_docsaimprimer.size() > 0)
         {
-            proc->MailPdfOrPrint(this, m_pdf);
+            Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, nullptr, docmt->idsite());
+            switch (typenvoi) {
+            case Procedures::printDOC:
+                m_pdf = false;
+                break;
+            case Procedures::SendMAIL:
+                /*! TODO */
+                return;
+                break;
+            case Procedures::createPDF:
+                m_pdf = true;
+                break;
+            default:
+                return;
+                break;
+            }
             accept();
         }
         break;
