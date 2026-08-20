@@ -2053,10 +2053,10 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
     return true;
 }
 
-void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map, bool mailprecoche)
+void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map, bool mailprecoche, int idlieu)
 {
     bool pdf = false;
-    if (MailPdfOrPrint(parent, pdf, nullptr, nullptr, -1, nullptr, mailprecoche))
+    if (MailPdfOrPrint(parent, pdf, nullptr, nullptr, idlieu, nullptr, mailprecoche))
     {
         if (pdf)
             createPdfFromListImage(listimage, map, parent);

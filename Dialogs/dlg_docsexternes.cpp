@@ -209,7 +209,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         QAction *paction_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
         QAction *paction_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
         QAction *paction_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
-        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf());});
+        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), false, docmt->idsite());});
         connect (paction_ModifierReimprimer,        &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  true);});
         connect (paction_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  false);});
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, false, false);});
@@ -231,13 +231,13 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 
         QMenu *menuMail = menu->addMenu(tr("Envoyer par mail"));
         menuMail            ->setIcon(Icons::icMessage());
-        menuMail            ->setEnabled(proc->ManqueEnvoiMail().size() == 0);
+        menuMail            ->setEnabled(proc->ManqueEnvoiMail(docmt->idsite()).size() == 0);
 
         QAction *pactionmail_Reimprimer = new QAction(tr("Réimprimer"));
         QAction *pactionmail_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
         QAction *pactionmail_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
         QAction *pactionmail_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
-        connect (pactionmail_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), true);});
+        connect (pactionmail_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), true, docmt->idsite());});
         connect (pactionmail_ModifierReimprimer,        &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  true,  true);});
         connect (pactionmail_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  false, true);});
         connect (pactionmail_ReimprimerCeJour,          &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, false, false, true);});
@@ -679,7 +679,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         mapbarcodes = usr->mapBarCodes();
 
     bool pdf = false;
-    if (!proc->MailPdfOrPrint(this, pdf, nullptr, nullptr, -1, nullptr, mailprecoche))
+    if (!proc->MailPdfOrPrint(this, pdf, nullptr, nullptr, docmt->idsite(), nullptr, mailprecoche))
         return false;
     if (pdf)
     {

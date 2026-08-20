@@ -2005,7 +2005,8 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
     if (pat == nullptr)
         return QList<DocExterne*>();
     QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
-                  CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_COTE_DOCSEXTERNES
+                  CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_COTE_DOCSEXTERNES ","
+                  CP_IDLIEU_DOCSEXTERNES
                   " from " TBL_DOCSEXTERNES
                   " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
 
@@ -2028,6 +2029,7 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
         jData[CP_FORMATDOC_DOCSEXTERNES]        = doclist.at(i).at(7).toString();
         jData[CP_IMPORTANCE_DOCSEXTERNES]       = doclist.at(i).at(8).toInt();
         jData[CP_COTE_DOCSEXTERNES]             = doclist.at(i).at(9).toInt();
+        jData[CP_IDLIEU_DOCSEXTERNES]           = doclist.at(i).at(10).toInt();
         DocExterne *doc = new DocExterne(jData);
         if (doc != nullptr)
             docsexternes << doc;
@@ -2041,7 +2043,8 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
     QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ","     //! 0,1,2,3,4
                   CP_TITRE_DOCSEXTERNES ", " CP_TEXTENTETE_DOCSEXTERNES ", " CP_TEXTCORPS_DOCSEXTERNES ", " CP_TEXTORIGINE_DOCSEXTERNES ", " CP_TEXTPIED_DOCSEXTERNES ","   //! 5,6,7,8,9
                   CP_DATE_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_ALD_DOCSEXTERNES ", " CP_IDEMETTEUR_DOCSEXTERNES ","       //! 10,11,12,13,14
-                  CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_IDREFRACTION_DOCSEXTERNES ", " CP_COTE_DOCSEXTERNES ", " CP_PDFORIGIN_DOCSEXTERNES     //! 15,16,17,18,19
+                  CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_IDREFRACTION_DOCSEXTERNES ", " CP_COTE_DOCSEXTERNES ", " CP_PDFORIGIN_DOCSEXTERNES ","  //! 15,16,17,18,19
+                  CP_IDLIEU_DOCSEXTERNES                                                                                                                                 //! 20
                   " from " TBL_DOCSEXTERNES
                   " where " CP_ID_DOCSEXTERNES " = " + QString::number(idDoc);
     QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
@@ -2072,6 +2075,7 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
     jData[CP_IDREFRACTION_DOCSEXTERNES]     = docdata.at(17).toInt();
     jData[CP_COTE_DOCSEXTERNES]             = docdata.at(18).toInt();
     jData[CP_PDFORIGIN_DOCSEXTERNES]        = QLatin1String(docdata.at(19).toByteArray().toBase64());
+    jData[CP_IDLIEU_DOCSEXTERNES]           = docdata.at(20).toInt();
 
     return jData;
 }

@@ -87,6 +87,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *
                 doc->setCote(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
+            else if (field == CP_IDLIEU_DOCSEXTERNES)
+            {
+                doc->setidsite(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
             else
                 ok = false;
             break;
