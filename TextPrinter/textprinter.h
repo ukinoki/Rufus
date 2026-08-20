@@ -100,7 +100,7 @@ public:
     //added by Javier
     QByteArray              getPDFByteArray(const QTextDocument *document);
 
-    bool                    print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true);   // Print the document
+    bool                    print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString());   // Print the document
     void                    exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString());                              // Export the document to PDF
     bool                    preview(const QTextDocument *document, const QString &caption=QString());                                       // Display the document in a preview dialog
 

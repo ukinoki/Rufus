@@ -1610,7 +1610,7 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
  */
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
                               int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString, QString> mapbarcodes,
-                              bool AvecDupli, bool AvecNumPage, bool AvecChoixImprimante, QImage signature)
+                              bool AvecDupli, bool AvecNumPage, QImage signature)
 {
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QTextEdit *Etat = new QTextEdit;
@@ -1639,9 +1639,8 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
         a = TexteAImprimer->preview(Etat->document());
     else
     {
-        if (!AvecChoixImprimante)
-            TexteAImprimer->setPrinterName(m_nomImprimante);
-        a = TexteAImprimer->print(Etat->document(), "", "", AvecChoixImprimante);
+        TexteAImprimer->setPrinterName(m_nomImprimante);
+        a = TexteAImprimer->print(Etat->document(), "", "");
     }
     if (a)
         if (AvecDupli)
@@ -1652,7 +1651,7 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
                 textpied.replace("&page;","");
             TexteAImprimer->setFooterText(textpied);
             TexteAImprimer->setFooterSize(TexteAImprimer->footerSize() + 20);
-            TexteAImprimer->print(Etat->document(),"","",false);
+            TexteAImprimer->print(Etat->document(),"","");
         }
     m_nomImprimante = TexteAImprimer->getPrinterName();
     delete TexteAImprimer;
@@ -1958,7 +1957,7 @@ void Procedures::EditHtml(QString txt, QWidget *parent)
 
 
 bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
-                                   bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante, bool Administratif,
+                                   bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool Administratif,
                                    QImage signature)
 {
     if (pat == nullptr || user == nullptr)
@@ -2021,7 +2020,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         if (ALD) tailleEnTete = TailleEnTeteALD();
         aa = Imprime_Etat(parent, textcorps, textentete, textpied,
                             TaillePieddePage(), tailleEnTete, TailleTopMarge(), (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
-                            AvecDupli, AvecNumPage, AvecChoixImprimante, signature);
+                            AvecDupli, AvecNumPage, signature);
     }
 
     // stockage du document dans la base de donnees - table impressions

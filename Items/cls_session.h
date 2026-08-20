@@ -30,7 +30,7 @@ public: //static
 
 private:
     int m_iduser = ROLE_INDETERMINE;
-    int m_idlieu = ROLE_INDETERMINE;
+    int m_idsite = ROLE_INDETERMINE;
     int m_idUserSuperviseur = ROLE_INDETERMINE;     //!< son id si le user est responsable de ses SESSIONS
                                                     //!< l'id du user assisté s'il est assistant
     int m_idUserParent = ROLE_INDETERMINE;          //!< son id si le user n'est pas remplaçant
@@ -55,7 +55,7 @@ public:
     QDateTime datedebut() const             { return m_datedebut; };
     QDateTime datefin() const               { return m_datefin; };
     int iduser() const                      { return m_iduser; };
-    int idsite() const                      { return m_idlieu; };
+    int idsite() const                      { return m_idsite; };
     int idsuperviseur() const               { return m_idUserSuperviseur; };
     int idParent() const                    { return m_idUserParent; };
     int idComptable() const                 { return m_idUserComptable; };
@@ -72,7 +72,7 @@ public:
                                               m_data[CP_IDSUPERVISEUR_SESSIONS] = id; }
     void setidcomptable(int id)             { m_idUserComptable = id;
                                               m_data[CP_IDCOMPTABLE_SESSIONS] = id; }
-    void setidlieu(int id)                  { m_idlieu = id;
+    void setidsite(int id)                  { m_idsite = id;
                                               m_data[CP_IDLIEU_SESSIONS] = id; }
     void setidparent(int id)                { m_idUserParent = id;
                                               m_data[CP_IDPARENT_SESSIONS] = id; }

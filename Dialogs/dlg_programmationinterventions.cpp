@@ -1684,7 +1684,6 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             QString TxtDocument         =  mapdoc.find(dlg_impressions::d_Texte).value();
 
             QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> map = Dlg_Imprs->mapdocsaimprimer();
-            bool AvecChoixImprimante    = (mapdoc == map.first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
@@ -1696,7 +1695,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             Il faut grouper les pages pour ne pas envoyer autant de mails que de pages */
             else if (typenvoi ==Procedures::printDOC)
             {
-                m_docimprime = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, Dlg_Imprs->modeEnvoi(), AvecChoixImprimante, Administratif, signature);
+                m_docimprime = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, Dlg_Imprs->modeEnvoi(), Administratif, signature);
                 if (!m_docimprime)
                     break;
             }

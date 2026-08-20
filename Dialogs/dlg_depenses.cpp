@@ -341,7 +341,7 @@ void dlg_depenses::PrintReport()
     textcorps += "</table>";
     textcorps += "</body></html>";
 
-    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
+    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sessions->currentsession()->idsite());
 
     if (typenvoi == Procedures::createPDF)
     {

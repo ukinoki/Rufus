@@ -246,8 +246,8 @@ public:
     bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf = QMap<QString, QString>(), QWidget *parent = nullptr);
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
-                                              bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante = false, bool Administratif = true,
-                                              QImage signature = QImage());   /*!< signature à apposer sous le corps (vide = pas de signature) */
+                           bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool Administratif = true,
+                           QImage signature = QImage());   /*!< signature à apposer sous le corps (vide = pas de signature) */
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
 
@@ -263,7 +263,7 @@ public:
     bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
                       int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>(),
                       bool AvecDupli = false, bool AvecNumPage = false,
-                      bool AvecChoixImprimante = true, QImage signature = QImage());   /*!< signature dessinée sous le texte (vide = aucune) */
+                      QImage signature = QImage());   /*!< signature dessinée sous le texte (vide = aucune) */
             /*! b - Création d'un pdf */
     bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, User *usr = nullptr, bool ALD = false, QString nomdossier = "", QImage signature = QImage(), QWidget *parent = nullptr);
             /*! c - Création d'un pdf QByteArray à stocker dans la base */

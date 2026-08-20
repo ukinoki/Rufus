@@ -1526,7 +1526,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *
             }
             else if (field == CP_IDLIEU_SESSIONS )
             {
-                session->setidlieu(newvalue.toInt());
+                session->setidsite(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
             else if (field == CP_IDUSER_SESSIONS )

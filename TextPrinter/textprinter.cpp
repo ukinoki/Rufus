@@ -90,7 +90,7 @@ void TextPrinter::setUnits(const Unit value)
     }
 }
 
-bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QString &caption, bool AvecChoixImprimante)
+bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QString &caption)
 {
     if (!document) return false;
     // Get PDF document;
@@ -106,7 +106,7 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
 
         // imprime le document
         // show print dialog
-        if (AvecChoixImprimante || printer_->printerName() == "")
+        if (printer_->printerName() == "")
         {
             if (QPrinterInfo::availablePrinterNames().size() > 1)
             {
