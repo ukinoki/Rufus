@@ -2140,7 +2140,7 @@ bool Procedures::Imprimer_DocExterne(QWidget *parent, Patient *pat, User * user,
                 EnregistreEnvoiMail(doc->id(), destinataire);
             delete doc;
         }
-        m_ALD = true;
+        m_ALD = false;
     }
     return aa;
 }
