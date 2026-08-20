@@ -231,7 +231,6 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 
         QMenu *menuMail = menu->addMenu(tr("Envoyer par mail"));
         menuMail            ->setIcon(Icons::icMessage());
-        menuMail            ->setEnabled(proc->ManqueEnvoiMail(docmt->idsite()).size() == 0);
 
         QAction *pactionmail_Reimprimer = new QAction(tr("Envoyer"));
         QAction *pactionmail_ModifierReimprimer = new QAction(tr("Modifier et envoyerer"));
