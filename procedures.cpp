@@ -1620,7 +1620,6 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
     TexteAImprimer->setHeaderText(textentete);
 
     int tailleentete = (m_ALD? TailleEnTeteALD() : TailleEnTete());
-    qDebug() << "Imprime_Etat - m_ALD" << m_ALD << "entete" << tailleentete << "pied" << TaillePieddePage() << "topmarge" << TailleTopMarge();
     TexteAImprimer->setHeaderSize(tailleentete > 0? tailleentete : 25);   /*!< le réglage peut être absent de rufus.ini */
     textpied.replace("{{DUPLI}}","");
     if (!AvecNumPage)
@@ -5374,9 +5373,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 delete installeurMySQL;
                 return;
             }
-            QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
-            m_settings->setValue(BasePoste + Param_Active, "YES");
-            m_settings->setValue(BasePoste + Param_Port, "3306");
+            ReconstruitIniMinimal();
             m_parametres = db->parametres();
             m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
             Datas::I()->sites->initListe();
@@ -5462,13 +5459,14 @@ void Procedures::ReconstruitIniMinimal()
     QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
     m_settings->setValue(BasePoste + Param_Active, "YES");
     m_settings->setValue(BasePoste + Param_Port, "3306");
-    if (!QFile::exists(PATH_FILE_INI) && !iniContientModeValide(*m_settings))
-    {
-        QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
-        m_settings->setValue(BasePoste + Param_Active, "YES");
-        m_settings->setValue(BasePoste + Param_Port, "3306");
-    }
-
+    m_settings->setValue(Imprimante_TailleEnTete,"45");
+    m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
+    m_settings->setValue(Imprimante_TaillePieddePage,"20");
+    m_settings->setValue(Imprimante_TailleTopMarge,"3");
+    m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
+    /*! Sans participant, les blobs déposés par les postes distants ne sont jamais déversés sur le disque. */
+    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
+    m_settings->setValue(Param_Poste_Version, m_version);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -5476,22 +5474,7 @@ void Procedures::ReconstruitIniMinimal()
 -----------------------------------------------------------------------------------------------------------------*/
 void Procedures::PremierParametrageMateriel()
 {
-    m_settings->setValue(Imprimante_TailleEnTete,"45");
-    m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
-    m_settings->setValue(Imprimante_TaillePieddePage,"20");
-    m_settings->setValue(Imprimante_TailleTopMarge,"3");
-    m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
-    m_settings->setValue(Param_Poste_Autoref,"-");
-    m_settings->setValue(Param_Poste_Refracteur,"-");
-    m_settings->setValue(Param_Poste_Fronto,"-");
-    m_settings->setValue(Param_Poste_Tono,"-");
-    m_settings->setValue(Param_Poste_PortAutoref,"-");
-    m_settings->setValue(Param_Poste_PortRefracteur,"-");
-    m_settings->setValue(Param_Poste_PortFronto,"-");
-    m_settings->setValue(Param_Poste_PortTono,"-");
-    /*! Sans participant, les blobs déposés par les postes distants ne sont jamais déversés sur le disque. */
-    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
-    m_settings->setValue(Param_Poste_Version, m_version);
+    ReconstruitIniMinimal();
 
     // Création des dossiers
     //!    on server
