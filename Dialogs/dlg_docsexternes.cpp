@@ -677,6 +677,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         usr = Datas::I()->users->getById(docmt->iduser());
     if (usr != nullptr)
         mapbarcodes = usr->mapBarCodes();
+    QString destinataire;
     Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, typ, docmt->idsite());
     switch (typenvoi) {
     case Procedures::printDOC:
@@ -684,11 +685,10 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
                                 proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(), mapbarcodes,
                                 AvecDupli);
         break;
-    case Procedures::SendMAIL: {
-        QString destinataire;
+    case Procedures::SendMAIL:
         aa = proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? currentuser() : nullptr), ALD),
                              docmt->titre() + ".pdf", docmt->idsite(), (currentpatient() != nullptr? currentpatient()->mail() : ""), destinataire);
-        break; }
+        break;
     case Procedures::createPDF: {
         QMap<QString, QString> map = CalcNomFilePdf();
         QString dirname     = map.value("dir");
@@ -736,6 +736,8 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         if (doc != nullptr)
         {
             int idimpr = doc->id();
+            if (typenvoi == Procedures::SendMAIL)
+                proc->EnregistreEnvoiMail(idimpr, destinataire);
             delete doc;
             if (detruirealafin)
             {
