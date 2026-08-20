@@ -1693,15 +1693,10 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
             if (typenvoi == Procedures::createPDF)
                 proc->setDirnamepdf(tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy"));
-            /*! TODO
-            else if (typenvoi == Procedures::SendMAIL)
-            Il faut grouper les pages pour ne pas envoyer autant de mails que de pages */
-            else if (typenvoi ==Procedures::printDOC)
-            {
-                m_docimprime = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, typenvoi, Administratif, signature);
-                if (!m_docimprime)
-                    break;
-            }
+            /*! TODO SendMAIL : grouper les pages pour ne pas envoyer autant de mails que de pages */
+            m_docimprime = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, typenvoi, Administratif, signature);
+            if (!m_docimprime)
+                break;
         }
     }
     delete Dlg_Imprs;
