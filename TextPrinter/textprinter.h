@@ -71,7 +71,7 @@
         * l'entête avec setHeaderText(const QString &text) où text est du texte en html
         * le pied de page avec setFooterText(const QString &text) où text est du texte en html
         * le corps du texte est fourni au moment de lancer l'impression, la conversion en pdf ou la prévisualisation avec
-            * print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true, bool QueLePdf = false)
+            * print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString())
             * exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString());
             * preview(const QTextDocument *document, QString ficpdf = QString(), const QString &caption=QString());
         * d'autres fonctions moins importantes

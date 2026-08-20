@@ -1672,9 +1672,13 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
         QDate DateDoc = Dlg_Imprs->ui->dateImpressiondateEdit->date();
 
         bool ALD;
-        QString imprimante = "";
         QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
         Procedures::typeEnvoi typenvoi = Dlg_Imprs->modeEnvoi();
+        if (typenvoi == Procedures::noEMISSION)
+        {
+            delete Dlg_Imprs;
+            return;
+        }
         foreach (mapdoc, Dlg_Imprs->mapdocsaimprimer())
         {
             bool Prescription           = (mapdoc.find(dlg_impressions::d_Prescription).value() == "1");
@@ -1687,7 +1691,6 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
-            proc                        ->setNomImprimante(imprimante);
             if (typenvoi == Procedures::createPDF)
                 proc->setDirnamepdf(tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy"));
             /*! TODO
@@ -1695,11 +1698,10 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             Il faut grouper les pages pour ne pas envoyer autant de mails que de pages */
             else if (typenvoi ==Procedures::printDOC)
             {
-                m_docimprime = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, Dlg_Imprs->modeEnvoi(), Administratif, signature);
+                m_docimprime = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, typenvoi, Administratif, signature);
                 if (!m_docimprime)
                     break;
             }
-            imprimante = proc->nomImprimante();
         }
     }
     delete Dlg_Imprs;

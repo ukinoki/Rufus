@@ -8900,10 +8900,15 @@ void    Rufus::ImprimeDocument(Patient *pat)
         QDate DateDoc = Dlg_Imprs->ui->dateImpressiondateEdit->date();
 
         bool ALD;
-        QString imprimante = "";
         QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> listdocs = Dlg_Imprs->mapdocsaimprimer();
         QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
-        if (Dlg_Imprs->modeEnvoi())
+        Procedures::typeEnvoi typenvoi = Dlg_Imprs->modeEnvoi();
+        if (typenvoi == Procedures::noEMISSION)
+        {
+            delete Dlg_Imprs;
+            return;
+        }
+        if (typenvoi == Procedures::createPDF)
             proc->setDirnamepdf(tr("Documents") + " - " + userEntete->prenom() + " " + userEntete->nom() + " - " + QLocale::system().toString(QDate::currentDate(),"dd MMM yyyy"));
         foreach (mapdoc, listdocs)
         {
@@ -8912,17 +8917,14 @@ void    Rufus::ImprimeDocument(Patient *pat)
             bool Administratif          = (mapdoc.find(dlg_impressions::d_Administratif).value() == "1");
             QString Titre               =  mapdoc.find(dlg_impressions::d_Titre).value();
             QString TxtDocument         =  mapdoc.find(dlg_impressions::d_Texte).value();
-            QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdocfirst = listdocs.first();
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
-            proc                        ->setNomImprimante(imprimante);
             success                     = proc->Imprimer_Document(this, pat, userEntete, Titre,
                                                                   TxtDocument, DateDoc, Prescription, ALD,
-                                                                  AvecDupli, Dlg_Imprs->modeEnvoi(), Administratif, signature);
+                                                                  AvecDupli, typenvoi, Administratif, signature);
             if (!success)
                 break;
-            imprimante = proc->nomImprimante();
         }
     }
     delete Dlg_Imprs;

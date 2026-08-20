@@ -1723,6 +1723,8 @@ void dlg_impressions::OKpushButtonClicked()
         if (map_docsaimprimer.size() > 0)
         {
             m_typeenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite());
+            if (m_typeenvoi == Procedures::noEMISSION)
+                return;
             accept();
         }
         break;

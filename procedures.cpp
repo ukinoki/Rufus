@@ -1605,7 +1605,6 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
  * \param m_mapbarcodes                   si un m_mapbarcodes est précisé les barcodes de cet utilisateur seront imprimés
  * \param AvecDupli
  * \param AvecNumPage
- * \param AvecChoixImprimante
  * \return
  */
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
@@ -1957,14 +1956,14 @@ void Procedures::EditHtml(QString txt, QWidget *parent)
 
 
 bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
-                                   bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool Administratif,
+                                   bool Prescription, bool ALD, bool AvecDupli, typeEnvoi typ, bool Administratif,
                                    QImage signature)
 {
-    if (pat == nullptr || user == nullptr)
+    if (pat == nullptr || user == nullptr || typ == noEMISSION)
         return false;
     QString     textcorps, textpied, textentete;
     bool        AvecNumPage = false;
-    bool        aa;
+    bool        aa = false;
 
     //création de l'entête
     QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user, Prescription);
@@ -2000,7 +1999,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     Etat_textEdit.setHtml(textcorps);
     if (Etat_textEdit.toPlainText() == "")
         return false;
-    if (pdf)
+    if (typ == createPDF)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + m_dirnamepdf;
         QString filename    = pat->prenom() + " " + pat->nom()  + " - " + titre + ".pdf";
@@ -2014,13 +2013,17 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
                             aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
                             aa? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
     }
-    else
+    else if (typ == printDOC)
     {
         int tailleEnTete = TailleEnTete();
         if (ALD) tailleEnTete = TailleEnTeteALD();
         aa = Imprime_Etat(parent, textcorps, textentete, textpied,
                             TaillePieddePage(), tailleEnTete, TailleTopMarge(), (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
                             AvecDupli, AvecNumPage, signature);
+    }
+    else if (typ == SendMAIL)
+    {
+        /*! TODO */
     }
 
     // stockage du document dans la base de donnees - table impressions

@@ -246,7 +246,7 @@ public:
     bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf = QMap<QString, QString>(), QWidget *parent = nullptr);
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
-                           bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool Administratif = true,
+                           bool Prescription, bool ALD, bool AvecDupli, typeEnvoi typ, bool Administratif = true,
                            QImage signature = QImage());   /*!< signature à apposer sous le corps (vide = pas de signature) */
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
