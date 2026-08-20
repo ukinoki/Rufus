@@ -233,7 +233,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         menuMail            ->setIcon(Icons::icMessage());
 
         QAction *pactionmail_Reimprimer = new QAction(tr("Envoyer"));
-        QAction *pactionmail_ModifierReimprimer = new QAction(tr("Modifier et envoyerer"));
+        QAction *pactionmail_ModifierReimprimer = new QAction(tr("Modifier et envoyer"));
         QAction *pactionmail_ModifierReimprimerCeJour = new QAction(tr("Modifier et envoyer à la date d'aujourd'hui"));
         QAction *pactionmail_ReimprimerCeJour = new QAction(tr("Envoyer à la date d'aujourd'hui"));
         connect (pactionmail_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->MailPdfOrPrint(this, docmt->pagelist(), Procedures::SendMAIL, CalcNomFilePdf(), docmt->idsite());});
@@ -677,7 +677,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     if (usr != nullptr)
         mapbarcodes = usr->mapBarCodes();
     QString destinataire;
-    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, typ, docmt->idsite());
+    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, typ, Datas::I()->sites->idcurrentsite());
     switch (typenvoi) {
     case Procedures::printDOC:
         aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
