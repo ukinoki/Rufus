@@ -209,7 +209,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         QAction *paction_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
         QAction *paction_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
         QAction *paction_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
-        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->MailPdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), false, docmt->idsite());});
+        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->MailPdfOrPrint(this, docmt->pagelist(), Procedures::printDOC, CalcNomFilePdf(), docmt->idsite());});
         connect (paction_ModifierReimprimer,        &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  true);});
         connect (paction_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  false);});
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, false, false);});
@@ -233,14 +233,14 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         menuMail            ->setIcon(Icons::icMessage());
         menuMail            ->setEnabled(proc->ManqueEnvoiMail(docmt->idsite()).size() == 0);
 
-        QAction *pactionmail_Reimprimer = new QAction(tr("Réimprimer"));
-        QAction *pactionmail_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
-        QAction *pactionmail_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
-        QAction *pactionmail_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
-        connect (pactionmail_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->MailPdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf(), true, docmt->idsite());});
-        connect (pactionmail_ModifierReimprimer,        &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  true,  true);});
-        connect (pactionmail_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  false, true);});
-        connect (pactionmail_ReimprimerCeJour,          &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, false, false, true);});
+        QAction *pactionmail_Reimprimer = new QAction(tr("Envoyer"));
+        QAction *pactionmail_ModifierReimprimer = new QAction(tr("Modifier et envoyerer"));
+        QAction *pactionmail_ModifierReimprimerCeJour = new QAction(tr("Modifier et envoyer à la date d'aujourd'hui"));
+        QAction *pactionmail_ReimprimerCeJour = new QAction(tr("Envoyer à la date d'aujourd'hui"));
+        connect (pactionmail_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->MailPdfOrPrint(this, docmt->pagelist(), Procedures::SendMAIL, CalcNomFilePdf(), docmt->idsite());});
+        connect (pactionmail_ModifierReimprimer,        &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  true,  Procedures::SendMAIL);});
+        connect (pactionmail_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  false, Procedures::SendMAIL);});
+        connect (pactionmail_ReimprimerCeJour,          &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, false, false, Procedures::SendMAIL);});
 
         if (currentuser()->isSoignant()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
@@ -589,7 +589,7 @@ void dlg_docsexternes::ImprimeDoc()
 
         //Reimpression simple du document, sans réédition => pas d'action sur la BDD
         if (msgbox.clickedButton() == &ReimprBouton)
-            proc->MailPdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf());
+            proc->MailPdfOrPrint(this, docmt->pagelist(), Procedures::printDOC, CalcNomFilePdf());
 
         //Réédition d'un document - on va réimprimer le document à la date du jour en le modifiant - ne concerne que les courriers et ordonnances émis => on enregistre le nouveau document dans la BDD
         else if (msgbox.clickedButton() == &ModifEtReimprBouton || msgbox.clickedButton() == &ImpAujourdhuiBouton)
@@ -615,7 +615,7 @@ QMap<QString, QString> dlg_docsexternes:: CalcNomFilePdf()
     return map;
 }
 
-bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin, bool mailprecoche)
+bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin, Procedures::typeEnvoi typ)
 {
     // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
     QString     textcorps, textentete, textpied, txt;
@@ -677,7 +677,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         usr = Datas::I()->users->getById(docmt->iduser());
     if (usr != nullptr)
         mapbarcodes = usr->mapBarCodes();
-    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, docmt->idsite());
+    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, typ, docmt->idsite());
     switch (typenvoi) {
     case Procedures::printDOC:
         aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
@@ -685,6 +685,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
                                 AvecDupli);
         break;
     case Procedures::SendMAIL:
+        /*! TODO */
         return false;
         break;
     case Procedures::createPDF: {

@@ -2029,7 +2029,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     return aa;
 }
 
-bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map, QWidget *parent)
+bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf, QWidget *parent)
 {
     auto creepdf = [=] (QPrinter &printer)
     {
@@ -2048,9 +2048,9 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
     };
     QPrinter printer(QPrinter::HighResolution);
     printer             .setOutputFormat(QPrinter::PdfFormat);
-    QString dirname     = map.value("dir");
-    QString filename    = map.value("file");
-    QString msgOK       = map.value("msg");
+    QString dirname     = infofilepdf.value("dir");
+    QString filename    = infofilepdf.value("file");
+    QString msgOK       = infofilepdf.value("msg");
     if (Utils::mkpath(dirname))
     {
         printer             .setOutputFileName(dirname + "/" + filename);
@@ -2064,9 +2064,9 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
     return true;
 }
 
-void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map, bool mailprecoche, int idsite)
+void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEnvoi typ, QMap<QString, QString> map, int idsite)
 {
-    switch (QuestionMailPdfOrPrint(parent, printDOC, idsite))
+    switch (QuestionMailPdfOrPrint(parent, typ, idsite))
     {
     case printDOC:
         Print(listimage);

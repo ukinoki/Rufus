@@ -344,12 +344,12 @@ void dlg_programmationinterventions::RemplirTreeSessions()
         {
             QList<QStandardItem *> items;
             QString nomsession = QLocale::system().toString(session->date(),"dd-MMM-yy");
-            Site* site = Datas::I()->sites->getById(session->idlieu());
+            Site* site = Datas::I()->sites->getById(session->idsite());
             if (site != nullptr)
                 nomsession += " - " + site->nom();
             UpStandardItem *item = new UpStandardItem(nomsession, session);
             if (site != nullptr)
-                item->setForeground(QBrush(QColor("#" + Datas::I()->sites->getById(session->idlieu())->couleur())));
+                item->setForeground(QBrush(QColor("#" + Datas::I()->sites->getById(session->idsite())->couleur())));
             items << item << new UpStandardItem(session->date().toString("yyyy-MM-dd"));
             m_sessionsmodel->appendRow(items);
         }
@@ -467,7 +467,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
     if (session != nullptr)
     {
         dateedit        ->setDate(session->date());
-        sitecombo       ->setCurrentIndex(sitecombo->findData(session->idlieu()));
+        sitecombo       ->setCurrentIndex(sitecombo->findData(session->idsite()));
         incidenttxtedit ->setText(session->incident());
     }
     connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [=, this]
@@ -478,7 +478,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
         {
             UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
             SessionOperatoire *session = qobject_cast<SessionOperatoire*>(upitem->rufusitem());
-            if (session->date() ==  date && session->idlieu() == idsite)
+            if (session->date() ==  date && session->idsite() == idsite)
             {
                 UpMessageBox::Watch(dlg_session, tr("Cette session existe déjà!"));
                 return;
@@ -524,7 +524,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
         return;
     textentete = proc->CalcEnteteImpression(m_currentdate, userEntete, false).value(NORMHeader);
     if (textentete == "") return;
-    Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
+    Site *sit = Datas::I()->sites->getById(currentsession()->idsite());
 
     textentete.replace("{{TITRE1}}"            , "<b>" + tr("RAPPORT D'INCIDENTS OPÉRATOIRES") +"</b>");
     textentete.replace("{{PRENOM PATIENT}}"    , "");
@@ -574,7 +574,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
         }
     }
     bool pdf;
-    switch (proc->QuestionMailPdfOrPrint(this))
+    switch (proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite()))
     {
     case Procedures::printDOC:
         pdf = false;
@@ -637,7 +637,7 @@ void dlg_programmationinterventions::ImprimeSession()
         return;
     textentete = proc->CalcEnteteImpression(m_currentdate, userEntete, false).value(NORMHeader);
     if (textentete == "") return;
-    Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
+    Site *sit = Datas::I()->sites->getById(currentsession()->idsite());
 
     textentete.replace("{{TITRE1}}"            , "<b>" + tr("PROGRAMME OPÉRATOIRE") +"</b>");
     textentete.replace("{{PRENOM PATIENT}}"    , (sit? sit->nom() + " - " + sit->ville() : ""));
@@ -761,7 +761,7 @@ void dlg_programmationinterventions::ImprimeSession()
         }
     }
     bool pdf;
-    switch (proc->QuestionMailPdfOrPrint(this))
+    switch (proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite()))
     {
     case Procedures::printDOC:
         pdf = false;
@@ -811,7 +811,7 @@ void dlg_programmationinterventions::SupprimeSession()
     if (currentsession() == nullptr)
         return;
     QString nomsession = QLocale::system().toString(currentsession()->date(),"dd-MMM-yy");
-    Site* site = Datas::I()->sites->getById(currentsession()->idlieu());
+    Site* site = Datas::I()->sites->getById(currentsession()->idsite());
     if (site != nullptr)
         nomsession += " - " + site->nom();
     if (UpMessageBox::Question(this, tr("Voulez-vous supprimer la session"), nomsession + " ?") != UpSmallButton::STARTBUTTON)
@@ -1746,7 +1746,7 @@ void dlg_programmationinterventions::SupprimeIntervention()
     if (pat)
         nomintervention += " - " + pat->nom() + " " + pat->prenom();
     QString nomsession = QLocale::system().toString(currentsession()->date(),"dd-MMM-yy");
-    Site* site = Datas::I()->sites->getById(currentsession()->idlieu());
+    Site* site = Datas::I()->sites->getById(currentsession()->idsite());
     if (site != nullptr)
         nomsession += " - " + site->nom();
     if (UpMessageBox::Question(this, tr("Voulez-vous supprimer l'intervention"), nomintervention + "\n" + nomsession + " ?") != UpSmallButton::STARTBUTTON)
@@ -2033,7 +2033,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
 
         //! creation du corps
         QString textcorps =  "<p align=\"center\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("COMMANDE D'IMPLANTS INTRAOCULAIRES") + "</b></span></font>" ;
-        Site *site = Datas::I()->sites->getById(currentsession()->idlieu());
+        Site *site = Datas::I()->sites->getById(currentsession()->idsite());
         QString sitadresse = "";
         if (site)
             sitadresse = site->nom() + " - " + site->coordonnees();
@@ -2077,7 +2077,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
             }
         }
         bool pdf;
-        switch (proc->QuestionMailPdfOrPrint(this))
+        switch (proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite()))
         {
         case Procedures::printDOC:
             pdf = false;

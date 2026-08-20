@@ -342,7 +342,7 @@ void dlg_depenses::PrintReport()
     textcorps += "</body></html>";
 
     bool pdf;
-    switch (proc->QuestionMailPdfOrPrint(this))
+    switch (proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite()))
     {
     case Procedures::printDOC:
         pdf = false;

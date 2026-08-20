@@ -2941,7 +2941,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
         SessionOperatoire * session = Datas::I()->sessionsoperatoires->getById(m_currentintervention->idsession());
         Site * sit = nullptr;
         if (session != nullptr)
-            sit = Datas::I()->sites->getById(session->idlieu());
+            sit = Datas::I()->sites->getById(session->idsite());
         TypeIntervention *typ = Datas::I()->typesinterventions->getById(m_currentintervention->idtypeintervention());
 
         txt = "((" + TITRESURGEONINTERVENTION + "//" + SURGEONINTERVENTION + "))";

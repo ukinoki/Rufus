@@ -241,9 +241,9 @@ public:
     void                    CalcImageDocument(DocExterne *docmt);
 
     QPrinter*               printer() {return m_printer;}
-    void                    MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>(), bool mailprecoche = false, int idsite = -1);
+    void                    MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEnvoi typ = printDOC, QMap<QString, QString> map = QMap<QString, QString>(), int idsite = -1);
     bool                    Print(QList<QImage> listimage, QWidget *parent = nullptr);
-    bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>(), QWidget *parent = nullptr);
+    bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf = QMap<QString, QString>(), QWidget *parent = nullptr);
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
                                               bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante = false, bool Administratif = true,

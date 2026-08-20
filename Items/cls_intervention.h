@@ -125,7 +125,7 @@ private: //Données de la session
 
 public:
     QDate date() const                      { return m_date; }
-    int idlieu() const                      { return m_idlieu; }
+    int idsite() const                      { return m_idlieu; }
     int iduser() const                      { return m_iduser; }
     int idaide() const                      { return m_idaide; }
     QString incident() const                { return m_incident; }

@@ -87,7 +87,7 @@ private:
     QStandardItem*          getItemFromDocument(QStandardItemModel *model, DocExterne* docmt);
     void                    ImprimeDoc();
 
-    bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin, bool mailprecoche = false);
+    bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin, Procedures::typeEnvoi typ = Procedures::printDOC);
     void                    ModifierDate(QModelIndex idx);
     void                    ModifierItem(QModelIndex idx);
 
