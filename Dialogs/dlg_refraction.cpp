@@ -1538,7 +1538,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
     QImage signature = ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), userEntete->mapBarCodes(),
+                       userEntete->mapBarCodes(),
                        AvecDupli, AvecNumPage, signature);
     // stockage de l'ordonnance dans la base de donnees - table impressions
     if (a && enregtable)

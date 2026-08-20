@@ -3036,7 +3036,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        bool     AvecDupli   = false;
        bool     AvecNumPage = true;
        aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                              proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                              QMap<QString,QString>(),
                               AvecDupli, AvecNumPage);
    }
    if (aa)
@@ -3628,7 +3628,7 @@ void Rufus::ImprimeListPatients(QVariant var)
      }
 
     proc->Imprime_Etat(this, textecorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
 }
 
@@ -8920,7 +8920,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
-            success                     = proc->Imprimer_Document(this, pat, userEntete, Titre,
+            success                     = proc->Imprimer_DocExterne(this, pat, userEntete, Titre,
                                                                   TxtDocument, DateDoc, Prescription, ALD,
                                                                   AvecDupli, typenvoi, Administratif, signature);
             if (!success)

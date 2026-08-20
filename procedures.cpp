@@ -1609,25 +1609,22 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
  * \return
  */
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
-                              int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString, QString> mapbarcodes,
+                              QMap<QString, QString> mapbarcodes,
                               bool AvecDupli, bool AvecNumPage, QImage signature)
 {
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QTextEdit *Etat = new QTextEdit;
     Etat->setHtml(textcorps);
     QString PiedDepart = textpied;
-    TexteAImprimer->setFooterSize(TaillePieddePage);
+    TexteAImprimer->setFooterSize(TaillePieddePage());
     TexteAImprimer->setHeaderText(textentete);
 
-    if (TailleEnTete > 0)
-        TexteAImprimer->setHeaderSize(TailleEnTete);
-    else
-        TexteAImprimer->setHeaderSize(25);
+    TexteAImprimer->setHeaderSize(m_ALD? TailleEnTeteALD():TailleEnTete());
     textpied.replace("{{DUPLI}}","");
     if (!AvecNumPage)
         textpied.replace("&page;","");
     TexteAImprimer->setFooterText(textpied);
-    TexteAImprimer->setTopMargin(TailleTopMarge);
+    TexteAImprimer->setTopMargin(TailleTopMarge());
     if (db->parametres()->cotationsfrance())            //! codes barres (n° AM, RPPS) : franco-français
         TexteAImprimer->setmapBarcodes(mapbarcodes);
     TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
@@ -2038,7 +2035,7 @@ void Procedures::EditHtml(QString txt, QWidget *parent)
 }
 
 
-bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
+bool Procedures::Imprimer_DocExterne(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
                                    bool Prescription, bool ALD, bool AvecDupli, typeEnvoi typ, bool Administratif,
                                    QImage signature)
 {
@@ -2047,12 +2044,13 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     QString     textcorps, textpied, textentete, destinataire;
     bool        AvecNumPage = false;
     bool        aa = false;
+    setImpressionALD(ALD);
 
     //création de l'entête
     QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user, Prescription);
     if (EnteteMap.value(NORMHeader) == "")
         return false;
-    textentete                      = (ALD? EnteteMap.value(ALDHeader) : EnteteMap.value(NORMHeader));
+    textentete                      = (m_ALD? EnteteMap.value(ALDHeader) : EnteteMap.value(NORMHeader));
     if (textentete == "") return false;
     textentete.replace("{{TITRE1}}"        , "");
     textentete.replace("{{TITRE}}"         , "");
@@ -2064,8 +2062,8 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         return false;
 
     // creation du corps
-    textcorps = CalcCorpsImpression(textorigine, ALD);
-    if (ALD)
+    textcorps = CalcCorpsImpression(textorigine, m_ALD);
+    if (m_ALD)
     {
         textcorps.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
         textcorps.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
@@ -2098,10 +2096,8 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     }
     else if (typ == printDOC)
     {
-        int tailleEnTete = TailleEnTete();
-        if (ALD) tailleEnTete = TailleEnTeteALD();
         aa = Imprime_Etat(parent, textcorps, textentete, textpied,
-                            TaillePieddePage(), tailleEnTete, TailleTopMarge(), (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
+                            (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
                             AvecDupli, AvecNumPage, signature);
     }
     else if (typ == SendMAIL)
@@ -2143,6 +2139,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
                 EnregistreEnvoiMail(doc->id(), destinataire);
             delete doc;
         }
+        m_ALD = true;
     }
     return aa;
 }
@@ -2896,8 +2893,8 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         QDir dirtorestore = QDir();
         if (!cheminRestauration.isEmpty())
         {
-            //! Mode AUTOMATIQUE (migration de base) : dossier imposé par l'appelant, aucune
-            //! interaction (ni choix de dossier ni saisie de mot de passe).
+            /*! Mode AUTOMATIQUE (migration de base) : dossier imposé par l'appelant, aucune
+            * interaction (ni choix de dossier ni saisie de mot de passe). */
             QDate date = QDate::fromString(QDir(cheminRestauration).dirName().left(8), "yyyyMMdd");
             QString msgdate = "";
             if (date.isValid())
@@ -3247,6 +3244,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         else
             return "";
     }
+    return "";
 }
 
 /*!

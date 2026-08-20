@@ -573,7 +573,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
             }
         }
     }
-    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
+    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
 
     if (typenvoi == Procedures::createPDF)
     {
@@ -599,7 +599,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
         bool AvecNumPage = true;
 
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
     }
     else if (typenvoi == Procedures::SendMAIL)
@@ -775,7 +775,7 @@ void dlg_programmationinterventions::ImprimeSession()
         bool AvecDupli   = false;
         bool AvecNumPage = true;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
     }
     else if (typenvoi == Procedures::SendMAIL)
@@ -1697,8 +1697,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
             if (typenvoi == Procedures::createPDF)
                 proc->setDirnamepdf(tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy"));
-            /*! TODO SendMAIL : grouper les pages pour ne pas envoyer autant de mails que de pages */
-            m_docimprime = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, typenvoi, Administratif, signature);
+            m_docimprime = proc->Imprimer_DocExterne(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, typenvoi, Administratif, signature);
             if (!m_docimprime)
                 break;
         }
@@ -2086,7 +2085,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
             bool AvecDupli   = false;
             bool AvecNumPage = true;
             proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                           proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                           QMap<QString,QString>(),
                            AvecDupli, AvecNumPage);
         }
         else if (typenvoi == Procedures::SendMAIL)

@@ -301,7 +301,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
     QImage signature = ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
     bool aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage, signature);
 
     // stockage du document dans la base de donnees - table impressions

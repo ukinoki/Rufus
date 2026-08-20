@@ -399,7 +399,7 @@ void dlg_bilanrecettes::PrintReport()
         bool AvecDupli   = false;
         bool AvecNumPage = false;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
     }
     else if (typenvoi == Procedures::SendMAIL)

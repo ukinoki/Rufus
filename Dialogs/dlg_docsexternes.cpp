@@ -682,7 +682,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     switch (typenvoi) {
     case Procedures::printDOC:
         aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                                proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(), mapbarcodes,
+                                mapbarcodes,
                                 AvecDupli);
         break;
     case Procedures::SendMAIL:

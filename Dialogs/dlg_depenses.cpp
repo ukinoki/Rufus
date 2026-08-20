@@ -364,7 +364,7 @@ void dlg_depenses::PrintReport()
     else if (typenvoi == Procedures::printDOC)
     {
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
     }
     else if (typenvoi == Procedures::SendMAIL)
