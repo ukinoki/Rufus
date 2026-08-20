@@ -1882,6 +1882,7 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
 
     tblimprimantes          ->setEnabled(printchk->isChecked());
     connect (printchk,          &QCheckBox::toggled,    dlg,    [=] (bool coche) {tblimprimantes->setEnabled(coche);});
+    connect (dlg->OKButton,     &QPushButton::clicked,  dlg,    &QDialog::accept);
 
     QVBoxLayout *laychk = new QVBoxLayout();
     laychk                  ->addWidget(printchk);
