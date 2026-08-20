@@ -1732,6 +1732,7 @@ bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, 
     if (sit == nullptr)
         return false;
     const QString clesite = QString::number(sit->id());
+    const QString clejamais = "NOSAVE" + clesite;   /*!< l'utilisateur a demandé qu'on n'enregistre pas le mot de passe de ce lieu */
     QHash<QString,QString> cles = Utils::lireKeyFile(PATH_FILE_MAILKEY);
     QString mdp = cles.value(clesite);
 
@@ -1751,22 +1752,36 @@ bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, 
     mdpled                  ->setEchoMode(QLineEdit::Password);
     mdpled                  ->setText(mdp);
 
-    UpSmallButton *effacebutt = new UpSmallButton();
-    effacebutt              ->setIcon(Icons::icPoubelle());
-    effacebutt              ->setIconSize(QSize(18, 18));
-    effacebutt              ->setImmediateToolTip(tr("Effacer le mot de passe de cet ordinateur"));
-    effacebutt              ->setVisible(mdp != "");
-    connect (effacebutt,        &QPushButton::clicked,  dlg,    [=, &cles] {
-        cles.remove(clesite);
+    UpSmallButton *mdpbutt  = new UpSmallButton();
+    mdpbutt                 ->setIconSize(QSize(18, 18));
+    auto majmdpbutt = [=, &cles] {
+        const bool enregistre = cles.contains(clesite);
+        mdpbutt             ->setVisible(enregistre || cles.contains(clejamais));
+        mdpbutt             ->setIcon(enregistre? Icons::icPoubelle() : Icons::icSauvegarder());
+        mdpbutt             ->setImmediateToolTip(enregistre? tr("Effacer le mot de passe de cet ordinateur")
+                                                            : tr("Enregistrer le mot de passe sur cet ordinateur"));
+    };
+    majmdpbutt();
+    connect (mdpbutt,           &QPushButton::clicked,  dlg,    [=, &cles] {
+        if (cles.contains(clesite))
+        {
+            cles.remove(clesite);
+            cles.insert(clejamais, "1");
+            mdpled          ->clear();
+        }
+        else
+        {
+            cles.remove(clejamais);
+            cles.insert(clesite, mdpled->text());
+        }
         Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
-        mdpled              ->clear();
-        effacebutt          ->setVisible(false);
+        majmdpbutt();
         mdpled              ->setFocus();
     });
 
     QHBoxLayout *laymdp = new QHBoxLayout();
     laymdp                  ->addWidget(mdpled);
-    laymdp                  ->addWidget(effacebutt);
+    laymdp                  ->addWidget(mdpbutt);
 
     QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg->layout());
     lay                     ->insertWidget(0, new UpLabel(dlg, tr("Adresse du destinataire")));
@@ -1807,14 +1822,18 @@ bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, 
         return false;
     }
 
-    if (!cles.contains(clesite))               /*!< déjà enregistré, ou effacé à l'instant par le bouton */
-        if (UpMessageBox::Question(parent, tr("Enregistrer le mot de passe sur cet ordinateur?"), "",
-                                   UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                                   QStringList() << tr("Ne pas enregistrer") << tr("Enregistrer")) == UpSmallButton::STARTBUTTON)
-        {
+    if (!cles.contains(clesite) && !cles.contains(clejamais))
+    {
+        UpSmallButton::StyleBouton rep = UpMessageBox::Question(parent, tr("Enregistrer le mot de passe sur cet ordinateur?"), "",
+                                            UpDialog::ButtonCancel | UpDialog::ButtonOups | UpDialog::ButtonOK,
+                                            QStringList() << tr("Ne pas enregistrer") << tr("Ne jamais enregistrer") << tr("Enregistrer"));
+        if (rep == UpSmallButton::STARTBUTTON)
             cles.insert(clesite, mdp);
+        else if (rep == UpSmallButton::OUPSBUTTON)
+            cles.insert(clejamais, "1");
+        if (rep == UpSmallButton::STARTBUTTON || rep == UpSmallButton::OUPSBUTTON)
             Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
-        }
+    }
 
     if (pat != nullptr && destinataire != pat->mail())
         if (UpMessageBox::Question(parent, tr("Enregistrer cette adresse comme mail du patient?"), destinataire,
