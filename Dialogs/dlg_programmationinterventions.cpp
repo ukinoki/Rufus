@@ -112,55 +112,13 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
 
     connect(wdg_manufacturerbutt,       &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeManufacturers);
     connect(wdg_IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeIOLs);
-    connect(wdg_incidentbutt,           &QPushButton::clicked,  this,   [&] {
-        switch (proc->QuestionMailPdfOrPrint(parent))
-        {
-        case Procedures::printDOC:
-            ImprimeRapportIncident();
-            break;
-        case Procedures::SendMAIL:
-            /*! TODO */
-            break;
-        case Procedures::createPDF:
-            ImprimeRapportIncident(true);
-            break;
-        default:
-            break;
-        }});
-    connect(wdg_commandeIOLbutt,        &QPushButton::clicked,  this,   [&] {
-        switch (proc->QuestionMailPdfOrPrint(parent))
-        {
-        case Procedures::printDOC:
-            ImprimeListeIOLsSession();
-            break;
-        case Procedures::SendMAIL:
-            /*! TODO */
-            break;
-        case Procedures::createPDF:
-            ImprimeListeIOLsSession(true);
-            break;
-        default:
-            break;
-        }});
+    connect(wdg_incidentbutt,           &QPushButton::clicked,  this,   &dlg_programmationinterventions::ImprimeRapportIncident);
+    connect(wdg_commandeIOLbutt,        &QPushButton::clicked,  this,   &dlg_programmationinterventions::ImprimeListeIOLsSession);
     wdg_IOLbutt->setEnabled(Datas::I()->users->userconnected()->isMedecin());
 
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
-    connect(PrintButton,  &QPushButton::clicked,    this, [&] {
-        switch (proc->QuestionMailPdfOrPrint(parent))
-        {
-        case Procedures::printDOC:
-            ImprimeSession();
-            break;
-        case Procedures::SendMAIL:
-            /*! TODO */
-            break;
-        case Procedures::createPDF:
-            ImprimeSession(true);
-            break;
-        default:
-            break;
-        }});
+    connect(PrintButton,  &QPushButton::clicked,    this, &dlg_programmationinterventions::ImprimeSession);
 
     dlglayout()->setStretch(0,1);
     dlglayout()->setStretch(1,15);
@@ -550,14 +508,13 @@ void dlg_programmationinterventions::ModifSession()
     FicheSession(currentsession());
 }
 
-void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
+void dlg_programmationinterventions::ImprimeRapportIncident()
 {
     if (currentsession() == nullptr)
         return;
     //--------------------------------------------------------------------
     // Préparation de l'état "session" dans un QplainTextEdit
-    //--------------------------------------------------------------------
-
+    //--------------------------------------------------------------------    
     int iduser = currentsession()->iduser();
 
 //    //création de l'entête
@@ -616,6 +573,24 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
             }
         }
     }
+    bool pdf;
+    switch (proc->QuestionMailPdfOrPrint(this))
+    {
+    case Procedures::printDOC:
+        pdf = false;
+        break;
+    case Procedures::SendMAIL:
+        /*! TODO */
+        return;
+        break;
+    case Procedures::createPDF:
+        pdf = true;
+        break;
+    default:
+        return;
+        break;
+    }
+
     if (pdf)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
@@ -645,7 +620,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
     }
 }
 
-void dlg_programmationinterventions::ImprimeSession(bool pdf)
+void dlg_programmationinterventions::ImprimeSession()
 {
     if (currentsession() == nullptr)
         return;
@@ -653,7 +628,6 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
     //--------------------------------------------------------------------
     //! Préparation de l'état "session" dans un QplainTextEdit
     //--------------------------------------------------------------------
-
     int iduser = currentsession()->iduser();
 
     //! création de l'entête
@@ -786,6 +760,24 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
             }
         }
     }
+    bool pdf;
+    switch (proc->QuestionMailPdfOrPrint(this))
+    {
+    case Procedures::printDOC:
+        pdf = false;
+        break;
+    case Procedures::SendMAIL:
+        /*! TODO */
+        return;
+        break;
+    case Procedures::createPDF:
+        pdf = true;
+        break;
+    default:
+        return;
+        break;
+    }
+
     if (pdf)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
@@ -1975,7 +1967,7 @@ void dlg_programmationinterventions::FicheListeIOLs()
     delete Dlg_ListIOLs;
 }
 
-void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
+void dlg_programmationinterventions::ImprimeListeIOLsSession()
 {
     if (Datas::I()->interventions->interventions()->size() == 0)
         return;
@@ -2084,6 +2076,24 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
                 }
             }
         }
+        bool pdf;
+        switch (proc->QuestionMailPdfOrPrint(this))
+        {
+        case Procedures::printDOC:
+            pdf = false;
+            break;
+        case Procedures::SendMAIL:
+            /*! TODO */
+            return;
+            break;
+        case Procedures::createPDF:
+            pdf = true;
+            break;
+        default:
+            return;
+            break;
+        }
+
         if (pdf)
         {
             QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +

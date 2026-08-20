@@ -1695,7 +1695,7 @@ QStringList Procedures::ManqueEnvoiMail(int idlieu)
     return manque;
 }
 
-Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ, QString imprimante, int idsite)
+Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ, int idsite)
 {
     UpDialog *dlg           = new UpDialog(parent);
     dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -2066,7 +2066,7 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
 
 void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map, bool mailprecoche, int idsite)
 {
-    switch (QuestionMailPdfOrPrint(parent, printDOC, QString(), idsite))
+    switch (QuestionMailPdfOrPrint(parent, printDOC, idsite))
     {
     case printDOC:
         Print(listimage);

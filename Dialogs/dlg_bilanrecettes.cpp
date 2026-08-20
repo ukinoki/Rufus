@@ -113,21 +113,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     CalcSuperviseursEtComptables();
     FiltreTable(-1);
     connect(CloseButton,                &QPushButton::clicked,                                  this, [=, this] {close();});
-    connect(PrintButton,                &QPushButton::clicked,                                  this, [&] {
-        switch (proc->QuestionMailPdfOrPrint(parent))
-        {
-        case Procedures::printDOC:
-            PrintReport();
-            break;
-        case Procedures::SendMAIL:
-            /*! TODO */
-            break;
-        case Procedures::createPDF:
-            PrintReport(true);
-            break;
-        default:
-            break;
-        }});
+    connect(PrintButton,                &QPushButton::clicked,                                  this, &dlg_bilanrecettes::PrintReport);
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=, this] {NouvPeriode();});
     connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=, this] {ExportTable();});
     connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=, this] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
@@ -257,7 +243,7 @@ Recette* dlg_bilanrecettes::getRecetteFromSelectionInTable()
     return getRecetteFromIndex(idx);
 }
 
-void dlg_bilanrecettes::PrintReport(bool pdf)
+void dlg_bilanrecettes::PrintReport()
 {
     QString            textentete, textpied;
 
@@ -276,7 +262,6 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
     }
     textentete = proc->CalcEnteteImpression(db->ServerDate(), userEntete, false).value(NORMHeader);
     if (textentete == "") return;
-
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
     // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
     // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
@@ -394,6 +379,23 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
     }
     textcorps += "</body></html>";
 
+    bool pdf;
+    switch (proc->QuestionMailPdfOrPrint(this))
+    {
+    case Procedures::printDOC:
+        pdf = false;
+        break;
+    case Procedures::SendMAIL:
+        /*! TODO */
+        return;
+        break;
+    case Procedures::createPDF:
+        pdf = true;
+        break;
+    default:
+        return;
+        break;
+    }
     if (pdf)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + tr("Comptabilité");

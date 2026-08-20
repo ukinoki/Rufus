@@ -677,7 +677,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         usr = Datas::I()->users->getById(docmt->iduser());
     if (usr != nullptr)
         mapbarcodes = usr->mapBarCodes();
-    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, nullptr, docmt->idsite());
+    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, docmt->idsite());
     switch (typenvoi) {
     case Procedures::printDOC:
         aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,

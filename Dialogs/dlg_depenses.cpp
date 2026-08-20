@@ -169,10 +169,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=, this] {EnregistreFacture(ECHEANCIER);});
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
     connect (ui->ChercheMontantupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::RechercheValeur);
-    connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   [&] {
-                                                                                                bool ok = proc->QuestionMailPdfOrPrint(this) != Procedures::noEMISSION;
-                                                                                                if (ok) PrintReport(ok);
-                                                                                            });
+    connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   &dlg_depenses::PrintReport);
     connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   &dlg_depenses::ChoixPaiement);
@@ -270,7 +267,7 @@ void dlg_depenses::ExportTable()
     UpMessageBox::Watch(this, (exportOK? tr("Exportation réussie") : tr("Echec exportation")), (exportOK? msg : tr("Les données n'ont pas pu être exportées")));
 }
 
-void dlg_depenses::PrintReport(bool pdf)
+void dlg_depenses::PrintReport()
 {
     QString            textentete, textpied;
     bool AvecDupli   = false;
@@ -343,6 +340,24 @@ void dlg_depenses::PrintReport(bool pdf)
     }
     textcorps += "</table>";
     textcorps += "</body></html>";
+
+    bool pdf;
+    switch (proc->QuestionMailPdfOrPrint(this))
+    {
+    case Procedures::printDOC:
+        pdf = false;
+        break;
+    case Procedures::SendMAIL:
+        /*! TODO */
+        return;
+        break;
+    case Procedures::createPDF:
+        pdf = true;
+        break;
+    default:
+        return;
+        break;
+    }
 
     if (pdf)
     {
