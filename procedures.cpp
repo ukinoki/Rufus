@@ -1619,7 +1619,9 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
     TexteAImprimer->setFooterSize(TaillePieddePage());
     TexteAImprimer->setHeaderText(textentete);
 
-    TexteAImprimer->setHeaderSize(m_ALD? TailleEnTeteALD():TailleEnTete());
+    int tailleentete = (m_ALD? TailleEnTeteALD() : TailleEnTete());
+    qDebug() << "Imprime_Etat - m_ALD" << m_ALD << "entete" << tailleentete << "pied" << TaillePieddePage() << "topmarge" << TailleTopMarge();
+    TexteAImprimer->setHeaderSize(tailleentete > 0? tailleentete : 25);   /*!< le réglage peut être absent de rufus.ini */
     textpied.replace("{{DUPLI}}","");
     if (!AvecNumPage)
         textpied.replace("&page;","");
