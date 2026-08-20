@@ -4353,7 +4353,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
             else if (msgbox.clickedButton() == &BaseViergeBouton)
             {
                 m_protoc = BaseVierge;
-                if (RestaureBase(BaseVierge, true, parent) != "")
+                if (RestaureBase(BaseVierge, true, parent) == "")
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
@@ -5089,8 +5089,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 return;
             }
             QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
-            m_settings->setValue(BasePoste + Param_Active, "YES");
-            m_settings->setValue(BasePoste + Param_Port, "3306");
             m_parametres = db->parametres();
             m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
             Datas::I()->sites->initListe();
@@ -5152,10 +5150,9 @@ bool Procedures::InstallationRufus(QWidget *parent)
     }
     else if (m_protoc == BaseVierge)
     {
-        QString pathdirtorestore = RestaureBase(BaseVierge, true, true, parent);
-        bool a = pathdirtorestore != "";
+        bool a = RestaureBase(BaseVierge, true, true, parent) != "";
         if (a)
-            ReconstruitIniMinimal();
+            PremierParametrageMateriel();
         return a;
     }
     return false;
@@ -5177,13 +5174,13 @@ void Procedures::ReconstruitIniMinimal()
     QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
     m_settings->setValue(BasePoste + Param_Active, "YES");
     m_settings->setValue(BasePoste + Param_Port, "3306");
-    if (!QFile::exists(PATH_FILE_INI) && !iniContientModeValide(*m_settings))
-    {
-        QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
-        m_settings->setValue(BasePoste + Param_Active, "YES");
-        m_settings->setValue(BasePoste + Param_Port, "3306");
-    }
-
+    m_settings->setValue(Imprimante_TailleEnTete,"45");
+    m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
+    m_settings->setValue(Imprimante_TaillePieddePage,"20");
+    m_settings->setValue(Imprimante_TailleTopMarge,"3");
+    m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
+    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
+    m_settings->setValue(Param_Poste_Version, m_version);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -5191,19 +5188,7 @@ void Procedures::ReconstruitIniMinimal()
 -----------------------------------------------------------------------------------------------------------------*/
 void Procedures::PremierParametrageMateriel()
 {
-    m_settings->setValue(Imprimante_TailleEnTete,"45");
-    m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
-    m_settings->setValue(Imprimante_TaillePieddePage,"20");
-    m_settings->setValue(Imprimante_TailleTopMarge,"3");
-    m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
-    m_settings->setValue(Param_Poste_Autoref,"-");
-    m_settings->setValue(Param_Poste_Refracteur,"-");
-    m_settings->setValue(Param_Poste_Fronto,"-");
-    m_settings->setValue(Param_Poste_Tono,"-");
-    m_settings->setValue(Param_Poste_PortAutoref,"-");
-    m_settings->setValue(Param_Poste_PortRefracteur,"-");
-    m_settings->setValue(Param_Poste_PortFronto,"-");
-    m_settings->setValue(Param_Poste_PortTono,"-");
+    ReconstruitIniMinimal();
     /*! Sans participant, les blobs déposés par les postes distants ne sont jamais déversés sur le disque. */
     m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
     m_settings->setValue(Param_Poste_Version, m_version);
