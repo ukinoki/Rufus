@@ -2880,7 +2880,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
                 UpMessageBox::Information(parent, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
                 dir.removeRecursively();
                 emit ConnectTimers(true);
-                return "basevierge";
+                return "baseviergeOK";
             }
         }
         dir.removeRecursively();
@@ -4639,7 +4639,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
             else if (msgbox.clickedButton() == &BaseViergeBouton)
             {
                 m_protoc = BaseVierge;
-                if (RestaureBase(BaseVierge, true, parent) != "")
+                if (RestaureBase(BaseVierge, true, parent) != "baseviergeOK")
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
@@ -5438,10 +5438,9 @@ bool Procedures::InstallationRufus(QWidget *parent)
     }
     else if (m_protoc == BaseVierge)
     {
-        QString pathdirtorestore = RestaureBase(BaseVierge, true, true, parent);
-        bool a = pathdirtorestore != "";
+        bool a = RestaureBase(BaseVierge, true, true, parent) != "";
         if (a)
-            ReconstruitIniMinimal();
+            PremierParametrageMateriel();
         return a;
     }
     return false;
