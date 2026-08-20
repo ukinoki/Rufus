@@ -1722,22 +1722,7 @@ void dlg_impressions::OKpushButtonClicked()
         }
         if (map_docsaimprimer.size() > 0)
         {
-            Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite());
-            switch (typenvoi) {
-            case Procedures::printDOC:
-                m_pdf = false;
-                break;
-            case Procedures::SendMAIL:
-                /*! TODO */
-                return;
-                break;
-            case Procedures::createPDF:
-                m_pdf = true;
-                break;
-            default:
-                return;
-                break;
-            }
+            m_typeenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite());
             accept();
         }
         break;

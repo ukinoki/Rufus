@@ -8903,7 +8903,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
         QString imprimante = "";
         QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> listdocs = Dlg_Imprs->mapdocsaimprimer();
         QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
-        if (Dlg_Imprs->printPdf())
+        if (Dlg_Imprs->modeEnvoi())
             proc->setDirnamepdf(tr("Documents") + " - " + userEntete->prenom() + " " + userEntete->nom() + " - " + QLocale::system().toString(QDate::currentDate(),"dd MMM yyyy"));
         foreach (mapdoc, listdocs)
         {
@@ -8920,7 +8920,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             proc                        ->setNomImprimante(imprimante);
             success                     = proc->Imprimer_Document(this, pat, userEntete, Titre,
                                                                   TxtDocument, DateDoc, Prescription, ALD,
-                                                                  AvecDupli, Dlg_Imprs->printPdf(), AvecChoixImprimante, Administratif, signature);
+                                                                  AvecDupli, Dlg_Imprs->modeEnvoi(), AvecChoixImprimante, Administratif, signature);
             if (!success)
                 break;
             imprimante = proc->nomImprimante();

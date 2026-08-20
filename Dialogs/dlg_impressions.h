@@ -71,7 +71,7 @@ public:
     enum Mode                                   {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS};  Q_ENUM(Mode)
     User*                                       userentete();
     QMap<int, QMap<DATASAIMPRIMER, QString> >   mapdocsaimprimer() const;
-    bool                                        printPdf() {return m_pdf;}
+    Procedures::typeEnvoi                       modeEnvoi() {return m_typeenvoi;}
 
 private:
     DataBase                                    *db             = DataBase::I();
@@ -87,7 +87,7 @@ private:
     QDate                                       m_currentdate = db->ServerDate();
     Mode                        m_mode;
     int                         larg(int width) {return Utils::I()->correctedwidth(width);}
-    bool                        m_pdf = false;
+    Procedures::typeEnvoi       m_typeenvoi = Procedures::printDOC;
     double                      m_opacity;
     QMap<QString,QString>       map_champs;
     QStringList                 m_listtexts;   /*! pour un document donné, il peut y avoir plusieurs impressions s'il y a plusieurs destinataires

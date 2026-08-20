@@ -573,25 +573,9 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
             }
         }
     }
-    bool pdf;
-    switch (proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite()))
-    {
-    case Procedures::printDOC:
-        pdf = false;
-        break;
-    case Procedures::SendMAIL:
-        /*! TODO */
-        return;
-        break;
-    case Procedures::createPDF:
-        pdf = true;
-        break;
-    default:
-        return;
-        break;
-    }
+    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
 
-    if (pdf)
+    if (typenvoi == Procedures::createPDF)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
                               tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
@@ -609,7 +593,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
         UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
                                   a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
     }
-    else
+    else if (typenvoi == Procedures::printDOC)
     {
         bool AvecDupli   = false;
         bool AvecNumPage = true;
@@ -617,6 +601,10 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
+    }
+    else if (typenvoi == Procedures::SendMAIL)
+    {
+        /*! Todo */
     }
 }
 
@@ -760,25 +748,9 @@ void dlg_programmationinterventions::ImprimeSession()
             }
         }
     }
-    bool pdf;
-    switch (proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite()))
-    {
-    case Procedures::printDOC:
-        pdf = false;
-        break;
-    case Procedures::SendMAIL:
-        /*! TODO */
-        return;
-        break;
-    case Procedures::createPDF:
-        pdf = true;
-        break;
-    default:
-        return;
-        break;
-    }
+    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
 
-    if (pdf)
+    if (typenvoi == Procedures::createPDF)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
                               tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
@@ -796,13 +768,17 @@ void dlg_programmationinterventions::ImprimeSession()
         UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
                                   a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
     }
-    else
+    else if (typenvoi == Procedures::printDOC)
     {
         bool AvecDupli   = false;
         bool AvecNumPage = true;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
+    }
+    else if (typenvoi == Procedures::SendMAIL)
+    {
+        /*! Todo */
     }
 }
 
@@ -1698,6 +1674,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
         bool ALD;
         QString imprimante = "";
         QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
+        Procedures::typeEnvoi typenvoi = Dlg_Imprs->modeEnvoi();
         foreach (mapdoc, Dlg_Imprs->mapdocsaimprimer())
         {
             bool Prescription           = (mapdoc.find(dlg_impressions::d_Prescription).value() == "1");
@@ -1712,11 +1689,17 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
             proc                        ->setNomImprimante(imprimante);
-            if (Dlg_Imprs->printPdf())
+            if (typenvoi == Procedures::createPDF)
                 proc->setDirnamepdf(tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy"));
-            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, Dlg_Imprs->printPdf(), AvecChoixImprimante, Administratif, signature);
-            if (!m_docimprime)
-                break;
+            /*! TODO
+            else if (typenvoi == Procedures::SendMAIL)
+            Il faut grouper les pages pour ne pas envoyer autant de mails que de pages */
+            else if (typenvoi ==Procedures::printDOC)
+            {
+                m_docimprime = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, Dlg_Imprs->modeEnvoi(), AvecChoixImprimante, Administratif, signature);
+                if (!m_docimprime)
+                    break;
+            }
             imprimante = proc->nomImprimante();
         }
     }
@@ -2076,25 +2059,9 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
                 }
             }
         }
-        bool pdf;
-        switch (proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite()))
-        {
-        case Procedures::printDOC:
-            pdf = false;
-            break;
-        case Procedures::SendMAIL:
-            /*! TODO */
-            return;
-            break;
-        case Procedures::createPDF:
-            pdf = true;
-            break;
-        default:
-            return;
-            break;
-        }
+        Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
 
-        if (pdf)
+        if (typenvoi == Procedures::createPDF)
         {
             QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
                                   tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
@@ -2114,7 +2081,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
             UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
                                       a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
         }
-        else
+        else if (typenvoi == Procedures::printDOC)
         {
             bool AvecDupli   = false;
             bool AvecNumPage = true;
@@ -2122,6 +2089,11 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
                            proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
                            AvecDupli, AvecNumPage);
         }
+        else if (typenvoi == Procedures::SendMAIL)
+        {
+            /*! TODO */
+        }
+
     }
 }
 

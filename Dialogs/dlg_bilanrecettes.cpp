@@ -379,24 +379,9 @@ void dlg_bilanrecettes::PrintReport()
     }
     textcorps += "</body></html>";
 
-    bool pdf;
-    switch (proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite()))
-    {
-    case Procedures::printDOC:
-        pdf = false;
-        break;
-    case Procedures::SendMAIL:
-        /*! TODO */
-        return;
-        break;
-    case Procedures::createPDF:
-        pdf = true;
-        break;
-    default:
-        return;
-        break;
-    }
-    if (pdf)
+    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
+
+    if (typenvoi == Procedures::createPDF)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + tr("Comptabilité");
         QString filename    = userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf";
@@ -409,13 +394,17 @@ void dlg_bilanrecettes::PrintReport()
         UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")),
                                    a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
     }
-    else
+    else if (typenvoi == Procedures::printDOC)
     {
         bool AvecDupli   = false;
         bool AvecNumPage = false;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
+    }
+    else if (typenvoi == Procedures::SendMAIL)
+    {
+        UpMessageBox::Watch(this, tr("Envoi par mail non encore implémenté"));
     }
 }
 
