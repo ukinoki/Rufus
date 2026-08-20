@@ -1760,6 +1760,7 @@ bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, 
     }
     lay                     ->setSizeConstraint(QLayout::SetFixedSize);
     destled                 ->setFocus();
+    connect (dlg->OKButton,     &QPushButton::clicked,  dlg,    &QDialog::accept);
 
     bool valide = (dlg->exec() == QDialog::Accepted);
     if (valide)
