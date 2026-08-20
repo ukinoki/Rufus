@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include "dlg_initbase.h"
 #include "dlg_identificationsite.h"
+#include "smtpclient.h"
 #include "mysqlinstaller.h"
 #include <QBuffer>
 #include <QPdfWriter>
@@ -1717,6 +1718,88 @@ QStringList Procedures::CompleteCoordonneesMail(QWidget *parent, int idsite, QSt
     return ManqueEnvoiMail(idsite);
 }
 
+/*!
+ * \brief Procedures::EnvoiMail
+ * Demande le destinataire, envoie le pdf par le serveur du lieu et renvoie true si le serveur l'a accepté.
+ * \param parent       la fiche appelante
+ * \param pdf          le document à joindre
+ * \param nomfichier   le nom sous lequel la pièce jointe est présentée
+ * \param idsite       le lieu dont on utilise les coordonnées d'envoi, -1 = le lieu en cours
+ * \param mailpatient  l'adresse proposée par défaut
+ * \param destinataire reçoit l'adresse réellement utilisée
+ */
+bool Procedures::EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, int idsite, QString mailpatient, QString &destinataire)
+{
+    Site *sit = Datas::I()->sites->getById(idsite < 0? Datas::I()->sites->idcurrentsite() : idsite);
+    if (sit == nullptr)
+        return false;
+    const QString clesite = QString::number(sit->id());
+    QHash<QString,QString> cles = Utils::lireKeyFile(PATH_FILE_MAILKEY);
+    QString mdp = cles.value(clesite);
+
+    UpDialog *dlg           = new UpDialog(parent);
+    dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg                     ->setModal(true);
+    dlg                     ->setWindowTitle(tr("Envoyer par mail"));
+
+    UpLineEdit *destled     = new UpLineEdit(dlg);
+    destled                 ->setFixedWidth(300);
+    destled                 ->setMaxLength(150);
+    destled                 ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail));
+    destled                 ->setText(mailpatient);
+    UpLineEdit *mdpled      = new UpLineEdit(dlg);
+    mdpled                  ->setFixedWidth(300);
+    mdpled                  ->setEchoMode(QLineEdit::Password);
+    mdpled                  ->setVisible(mdp == "");   /*!< le mot de passe n'est demandé que s'il n'est pas déjà sur ce poste */
+
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg->layout());
+    lay                     ->insertWidget(0, new UpLabel(dlg, tr("Adresse du destinataire")));
+    lay                     ->insertWidget(1, destled);
+    if (mdp == "")
+    {
+        lay                 ->insertWidget(2, new UpLabel(dlg, tr("Mot de passe du compte ") + sit->smtplogin()));
+        lay                 ->insertWidget(3, mdpled);
+    }
+    lay                     ->setSizeConstraint(QLayout::SetFixedSize);
+    destled                 ->setFocus();
+
+    bool valide = (dlg->exec() == QDialog::Accepted);
+    if (valide)
+    {
+        destinataire = Utils::trim(destled->text());
+        if (mdp == "")
+            mdp = mdpled->text();
+    }
+    delete dlg;
+    if (!valide || destinataire == "" || mdp == "")
+        return false;
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    SmtpClient smtp;
+    bool ok = smtp.envoie(sit->smtpserveur(), sit->smtpport(), sit->smtplogin(), mdp,
+                          sit->mail(), destinataire, "",
+                          tr("Document ") + sit->nom(),
+                          tr("Veuillez trouver ci-joint le document annoncé.") + "\n\n" + sit->nom(),
+                          pdf, nomfichier);
+    QApplication::restoreOverrideCursor();
+
+    if (ok)
+    {
+        cles.insert(clesite, mdp);
+        Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
+    }
+    else
+    {
+        if (smtp.refusIdentifiants())              /*!< mot de passe périmé : on le réclamera au prochain envoi */
+        {
+            cles.remove(clesite);
+            Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
+        }
+        UpMessageBox::Watch(parent, tr("Le mail n'est pas parti"), smtp.erreur());
+    }
+    return ok;
+}
+
 Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ, int idsite)
 {
     UpDialog *dlg           = new UpDialog(parent);
@@ -1961,7 +2044,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
 {
     if (pat == nullptr || user == nullptr || typ == noEMISSION)
         return false;
-    QString     textcorps, textpied, textentete;
+    QString     textcorps, textpied, textentete, destinataire;
     bool        AvecNumPage = false;
     bool        aa = false;
 
@@ -2022,9 +2105,8 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
                             AvecDupli, AvecNumPage, signature);
     }
     else if (typ == SendMAIL)
-    {
-        /*! TODO */
-    }
+        aa = EnvoiMail(parent, Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : nullptr), ALD, signature),
+                       titre + ".pdf", Datas::I()->sites->idcurrentsite(), pat->mail(), destinataire);
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
@@ -2055,10 +2137,65 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
         listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = ba;
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        if(doc != nullptr)
+        if (doc != nullptr)
+        {
+            if (typ == SendMAIL)
+                EnregistreEnvoiMail(doc->id(), destinataire);
             delete doc;
+        }
     }
     return aa;
+}
+
+/*!
+ * \brief Procedures::EnregistreEnvoiMail
+ * Trace un mail parti : une ligne d'envoi et une jointure vers le document envoyé.
+ * \param iddocument   le document joint au mail
+ * \param destinataire l'adresse telle qu'elle a servi
+ */
+void Procedures::EnregistreEnvoiMail(int iddocument, QString destinataire)
+{
+    QHash<QString, QVariant> listbinds;
+    listbinds[CP_DESTINATAIRE_MAILSENVOYES] = destinataire;
+    listbinds[CP_DATEENVOI_MAILSENVOYES]    = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    listbinds[CP_IDUSER_MAILSENVOYES]       = Datas::I()->users->userconnected()->id();
+    db                      ->locktables(QStringList() << TBL_MAILSENVOYES);
+    int idmail = db->selectMaxFromTable(CP_ID_MAILSENVOYES, TBL_MAILSENVOYES, m_ok) + 1;
+    listbinds[CP_ID_MAILSENVOYES]           = idmail;
+    bool enreg = db->InsertSQLByBinds(TBL_MAILSENVOYES, listbinds);
+    db                      ->unlocktables();
+    if (!enreg)
+        return;
+    db                      ->StandardSQL("insert into " TBL_JOINTURESMAILS " (" CP_IDMAIL_JOINTMAIL ", " CP_IDIMPRESSION_JOINTMAIL ")"
+                                          " values (" + QString::number(idmail) + ", " + QString::number(iddocument) + ")");
+}
+
+/*!
+ * \brief Procedures::calcPdfFromListImage
+ * Rend la liste d'images sous forme de pdf en mémoire, sans passer par un fichier.
+ * \param listimage  les pages à rendre
+ */
+QByteArray Procedures::calcPdfFromListImage(QList<QImage> listimage)
+{
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    QPrinter printer(QPrinter::HighResolution);
+    printer             .setOutputFormat(QPrinter::PdfFormat);
+    printer             .setOutputFileName("");
+    QPdfWriter pdf(&buffer);
+    pdf                 .setResolution(printer.resolution());
+    QPainter peintre(&pdf);
+    for (int i=0; i<listimage.size(); ++i)
+    {
+        if (i > 0)
+            pdf.newPage();
+        QImage page = listimage.at(i).scaled(pdf.pageLayout().pageSize().sizePixels(pdf.resolution()), Qt::KeepAspectRatio);
+        peintre.drawImage(QPoint(0,0), page);
+    }
+    peintre.end();
+    buffer.close();
+    return ba;
 }
 
 bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf, QWidget *parent)
@@ -2103,9 +2240,10 @@ void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEn
     case printDOC:
         Print(listimage);
         break;
-    case SendMAIL:
-        /*! TODO */
-        break;
+    case SendMAIL: {
+        QString destinataire;
+        EnvoiMail(parent, calcPdfFromListImage(listimage), map.value("file"), idsite, "", destinataire);
+        break; }
     case createPDF:
         createPdfFromListImage(listimage, map, parent);
         break;

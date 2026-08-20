@@ -604,7 +604,9 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     }
     else if (typenvoi == Procedures::SendMAIL)
     {
-        /*! Todo */
+        QString destinataire;
+        proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
+                        windowTitle() + ".pdf", currentsession()->idsite(), "", destinataire);
     }
 }
 
@@ -778,7 +780,9 @@ void dlg_programmationinterventions::ImprimeSession()
     }
     else if (typenvoi == Procedures::SendMAIL)
     {
-        /*! Todo */
+        QString destinataire;
+        proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
+                        windowTitle() + ".pdf", currentsession()->idsite(), "", destinataire);
     }
 }
 
@@ -2087,7 +2091,9 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
         }
         else if (typenvoi == Procedures::SendMAIL)
         {
-            /*! TODO */
+            QString destinataire;
+            proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
+                            windowTitle() + ".pdf", Datas::I()->sites->idcurrentsite(), "", destinataire);
         }
 
     }

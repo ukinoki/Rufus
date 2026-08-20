@@ -684,10 +684,11 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
                                 proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(), mapbarcodes,
                                 AvecDupli);
         break;
-    case Procedures::SendMAIL:
-        /*! TODO */
-        return false;
-        break;
+    case Procedures::SendMAIL: {
+        QString destinataire;
+        aa = proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? currentuser() : nullptr), ALD),
+                             docmt->titre() + ".pdf", docmt->idsite(), (currentpatient() != nullptr? currentpatient()->mail() : ""), destinataire);
+        break; }
     case Procedures::createPDF: {
         QMap<QString, QString> map = CalcNomFilePdf();
         QString dirname     = map.value("dir");

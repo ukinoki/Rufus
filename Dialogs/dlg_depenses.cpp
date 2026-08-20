@@ -369,7 +369,9 @@ void dlg_depenses::PrintReport()
     }
     else if (typenvoi == Procedures::SendMAIL)
     {
-        UpMessageBox::Watch(this, tr("Envoi par mail"), tr("Cette fonctionnalité n'est pas encore implémentée"));
+        QString destinataire;
+        proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
+                        windowTitle() + ".pdf", Datas::I()->sites->idcurrentsite(), "", destinataire);
     }
 }
 

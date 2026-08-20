@@ -404,7 +404,9 @@ void dlg_bilanrecettes::PrintReport()
     }
     else if (typenvoi == Procedures::SendMAIL)
     {
-        UpMessageBox::Watch(this, tr("Envoi par mail non encore implémenté"));
+        QString destinataire;
+        proc->EnvoiMail(this, proc->Cree_pdfByteArray(textcorps, textentete, textpied),
+                        windowTitle() + ".pdf", Datas::I()->sessions->currentsession()->idsite(), "", destinataire);
     }
 }
 

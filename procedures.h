@@ -244,6 +244,7 @@ public:
     void                    MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEnvoi typ = printDOC, QMap<QString, QString> map = QMap<QString, QString>(), int idsite = -1);
     bool                    Print(QList<QImage> listimage, QWidget *parent = nullptr);
     bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf = QMap<QString, QString>(), QWidget *parent = nullptr);
+    QByteArray              calcPdfFromListImage(QList<QImage> listimage);   /*!< la même liste d'images, en pdf et sans fichier */
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
                            bool Prescription, bool ALD, bool AvecDupli, typeEnvoi typ, bool Administratif = true,
@@ -272,6 +273,8 @@ public:
     Procedures::typeEnvoi   QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ = printDOC, int idsite = -1);
     QStringList             ManqueEnvoiMail(int idlieu = -1);   /*!< ce qui manque au lieu pour pouvoir envoyer un mail */
     QStringList             CompleteCoordonneesMail(QWidget *parent, int idsite, QStringList manque);
+    bool                    EnvoiMail(QWidget *parent, QByteArray pdf, QString nomfichier, int idsite, QString mailpatient, QString &destinataire);
+    void                    EnregistreEnvoiMail(int iddocument, QString destinataire);
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */
 
