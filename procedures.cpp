@@ -1688,6 +1688,7 @@ QStringList Procedures::ManqueEnvoiMail(int idlieu)
         return manque << tr("le lieu d'exercice du document est inconnu");
     if (sit->mail() == "")          manque << tr("l'adresse mail du lieu");
     if (sit->smtpserveur() == "")   manque << tr("le serveur d'envoi");
+    if (sit->smtpport() <= 0)       manque << tr("le port du serveur d'envoi");
     if (sit->smtplogin() == "")     manque << tr("le login du compte mail");
     return manque;
 }

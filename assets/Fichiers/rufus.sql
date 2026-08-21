@@ -160,7 +160,7 @@ CREATE TABLE `LieuxExercice` (
   `LieuFax` varchar(17) DEFAULT NULL,
   `LieuMail` varchar(100) DEFAULT NULL COMMENT 'adresse mail du lieu - expediteur et copie des envois',
   `LieuSMTPServeur` varchar(100) DEFAULT NULL COMMENT 'serveur d envoi des mails',
-  `LieuSMTPPort` int(11) DEFAULT 587 COMMENT '465 = connexion chiffree d emblee, sinon chiffrement apres connexion',
+  `LieuSMTPPort` int(11) DEFAULT NULL COMMENT '465 = connexion chiffree d emblee, sinon chiffrement apres connexion',
   `LieuSMTPLogin` varchar(100) DEFAULT NULL COMMENT 'le mot de passe n est pas en base, il est local au poste (~/.rufus/.mlkey)',
   `LieuCouleur` varchar(6) DEFAULT NULL,
   `SiteLogo` BLOB DEFAULT NULL,
