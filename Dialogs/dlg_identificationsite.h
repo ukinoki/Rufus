@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "uplineedit.h"
 #include "uppushbutton.h"
+#include <QComboBox>
 
 /*! La fiche dlg_identificationsite saisit les coordonnées d'un lieu d'exercice
     * elle ne touche pas à la base : elle valide les champs et expose le résultat dans listbinds(), l'appelant enregistre
@@ -51,7 +52,7 @@ private:
     UpLineEdit                      *wdg_faxlineedit;
     UpLineEdit                      *wdg_maillineedit;
     UpLineEdit                      *wdg_smtpserveurlineedit;
-    UpLineEdit                      *wdg_smtpportlineedit;
+    QComboBox                       *wdg_smtpportcombo;
     UpLineEdit                      *wdg_smtploginlineedit;
     UpPushButton                    *wdg_couleurpushbutt;
 
@@ -63,6 +64,7 @@ private:
 
     void                            ModifCouleur();
     void                            Valide();                   /*!< contrôle la fiche, remplit listbinds et ferme */
+    bool                            NomValide();                /*!< un nom renseigné, et pas déjà porté par un autre lieu */
 };
 
 #endif // DLG_IDENTIFICATIONSITE_H
