@@ -3873,17 +3873,22 @@ QJsonObject DataBase::loadRefractionData(QVariantList refdata)           //! att
 
 QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //! charge toutes les refractions d'un patient
 {
+    /*! correction bug majbase81.sql */
     QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
                                                   "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
-                                                  "WHERE TABLE_NAME = '" + Utils::nomTableDepuisCheminSQL(TBL_REFRACTIONS) + "' AND COLUMN_NAME = '" CP_QUICKOD_REFRACTIONS "') as chp;", ok);
+                                                  "WHERE TABLE_NAME = '" + Utils::nomTableDepuisCheminSQL(TBL_REFRACTIONS) + "' AND COLUMN_NAME = '" CP_QUICKOD_REFRACTIONS "')"
+                                                  " as chp;", ok);
     if (ok)
         if (listc.at(0).at(0).toInt() == 0)
         {
             QString nomtable = TBL_REFRACTIONS;
             StandardSQL("ALTER TABLE " + nomtable + " ADD COLUMN  `" CP_QUICKOD_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOD`;");
             StandardSQL("ALTER TABLE " + nomtable + " ADD COLUMN `" CP_QUICKOG_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOG`;");
-            StandardSQL("UPDATE " TBL_PARAMSYSTEME " SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
+            listc = StandardSelectSQL("SELECT " CP_VERSIONBASE_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME ";", ok);
+            if (ok && listc.at(0).at(0).toInt() < 81)
+                StandardSQL("UPDATE " TBL_PARAMSYSTEME " SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
         }
+    /*! fin correction bug majbase81.sql */
 
     QList<Refraction*> list = QList<Refraction*> ();
     QString req = "SELECT " CP_ID_REFRACTIONS ", " CP_IDPAT_REFRACTIONS ", " CP_IDACTE_REFRACTIONS ", " CP_DATE_REFRACTIONS ", " CP_TYPEMESURE_REFRACTIONS ", "          // 0-1-2-3-4
@@ -3916,6 +3921,7 @@ QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //!
 
 Refraction* DataBase::loadRefractionById(int idref)                   //! charge une refraction définie par son id - utilisé pour renouveler les données en cas de modification
 {
+    /*! correction bug majbase81.sql */
     QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
                                                   "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
                                                   "WHERE TABLE_NAME = " + Utils::nomTableDepuisCheminSQL(TBL_REFRACTIONS) + " AND COLUMN_NAME = '" CP_QUICKOD_REFRACTIONS "') as chp;", ok);
@@ -3925,8 +3931,11 @@ Refraction* DataBase::loadRefractionById(int idref)                   //! charge
             QString nomtable = TBL_REFRACTIONS;
             StandardSQL("ALTER TABLE " + nomtable + " ADD COLUMN " CP_QUICKOD_REFRACTIONS " INT NULL DEFAULT 0 AFTER AVPOD;");
             StandardSQL("ALTER TABLE " + nomtable + " ADD COLUMN " CP_QUICKOG_REFRACTIONS " INT NULL DEFAULT 0 AFTER AVPOG;");
-            StandardSQL("UPDATE " TBL_PARAMSYSTEME " SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
-        }
+            listc = StandardSelectSQL("SELECT " CP_VERSIONBASE_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME ";", ok);
+            if (ok && listc.at(0).at(0).toInt() < 81)
+                StandardSQL("UPDATE " TBL_PARAMSYSTEME " SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
+         }
+    /*! fin correction bug majbase81.sql */
 
     Refraction *ref = nullptr;
     QString req = "SELECT " CP_ID_REFRACTIONS ", " CP_IDPAT_REFRACTIONS ", " CP_IDACTE_REFRACTIONS ", " CP_DATE_REFRACTIONS ", " CP_TYPEMESURE_REFRACTIONS ", "          // 0-1-2-3-4
