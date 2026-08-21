@@ -38,7 +38,7 @@ private:
     //Envoi des mails
     QString m_mail = "";
     QString m_smtpserveur = "";
-    int     m_smtpport = 587;
+    int     m_smtpport = 0;
     QString m_smtplogin = "";
 
 public:

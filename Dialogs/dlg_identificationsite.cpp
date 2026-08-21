@@ -176,7 +176,7 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
         wdg_faxlineedit         ->setText(m_site->fax());
         wdg_maillineedit        ->setText(m_site->mail());
         wdg_smtpserveurlineedit ->setText(m_site->smtpserveur());
-        wdg_smtpportlineedit    ->setText(QString::number(m_site->smtpport()));
+        wdg_smtpportlineedit    ->setText(QString::number(m_site->smtpport() == 0? 587 : m_site->smtpport()));
         wdg_smtploginlineedit   ->setText(m_site->smtplogin());
         str_nouvcolor           = m_site->couleur();
     }
