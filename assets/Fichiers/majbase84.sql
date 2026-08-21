@@ -73,12 +73,6 @@ BEGIN
         `idUser` INT(11) NULL DEFAULT NULL,
         `ComPublic` INT(1) NULL DEFAULT NULL,
         PRIMARY KEY (`idCommentImpr`));
-    -- le port ne vaut que si le serveur d envoi est renseigne, sinon il masque une configuration absente
-    ALTER TABLE `rufus`.`LieuxExercice`
-        MODIFY COLUMN `LieuSMTPPort` INT(11) NULL DEFAULT NULL
-        COMMENT '465 = connexion chiffree d emblee, sinon chiffrement apres connexion';
-    UPDATE `rufus`.`LieuxExercice` SET `LieuSMTPPort` = NULL
-        WHERE `LieuSMTPServeur` IS NULL OR `LieuSMTPServeur` = '';
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 84;
 END|
 CALL MAJ84();
