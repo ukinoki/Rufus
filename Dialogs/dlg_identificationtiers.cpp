@@ -27,7 +27,7 @@ dlg_identificationtiers::dlg_identificationtiers(Mode mode, Tiers *trs, QWidget 
 {
     ui->setupUi(this);
     setWindowModality(Qt::WindowModal);
-    if (trs != Q_NULLPTR)
+    if (trs != nullptr)
         m_currenttiers          = trs;
     m_mode                      = mode;
     wdg_villeCP                 = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
@@ -128,7 +128,7 @@ void    dlg_identificationtiers::OKpushButtonClicked()
     }
 
     UpLineEdit* line = qobject_cast<UpLineEdit*>(focusWidget());
-    if (line != Q_NULLPTR)
+    if (line != nullptr)
         if (line == ui->NomlineEdit || line == ui->Adresse1lineEdit || line == ui->Adresse2lineEdit || line == ui->Adresse3lineEdit)
             line->setText(Utils::trimcapitilize(line->text()));
 
@@ -211,7 +211,7 @@ bool dlg_identificationtiers::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
-    if (event->type() == QEvent::KeyPress  && qobject_cast<QPushButton *>(obj) == Q_NULLPTR )
+    if (event->type() == QEvent::KeyPress  && qobject_cast<QPushButton *>(obj) == nullptr )
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // Return ou Enter - On va au Tab Suivant -----------------------------------------------------------------------------------------------------------------------------

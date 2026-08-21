@@ -293,7 +293,7 @@ void dlg_listeiols::Enablebuttons(QModelIndex idx)
 {
     IOL *iol = getIOLFromIndex(idx);
     m_currentIOL = iol;
-    if (iol != Q_NULLPTR)
+    if (iol != nullptr)
     {
         wdg_buttonframe->wdg_modifBouton->setEnabled(true);
         wdg_buttonframe->wdg_moinsBouton->setEnabled(m_listidiolsutilises.indexOf(iol->id()) == -1);
@@ -424,7 +424,7 @@ void dlg_listeiols::disconnectFiltersSignals()
 
 void dlg_listeiols::ChoixButtonFrame()
 {
-    IOL *iol = Q_NULLPTR;
+    IOL *iol = nullptr;
     if (wdg_itemstree->selectionModel()->hasSelection())
         iol = getIOLFromIndex(wdg_itemstree->currentIndex());
     switch (wdg_buttonframe->Choix()) {
@@ -452,7 +452,7 @@ bool dlg_listeiols::listeIOLsmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listeiols::EnregistreNouveauIOL()
 {
-    dlg_identificationIOL *Dlg_IdentIOL    = new dlg_identificationIOL(Q_NULLPTR, this);
+    dlg_identificationIOL *Dlg_IdentIOL    = new dlg_identificationIOL(nullptr, this);
     if (!Dlg_IdentIOL->initok())
     {
         delete Dlg_IdentIOL;
@@ -477,10 +477,10 @@ void dlg_listeiols::EnregistreNouveauIOL()
 IOL* dlg_listeiols::getIOLFromIndex(QModelIndex idx )
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_IOLsmodel->itemFromIndex(idx));
-    if (it != Q_NULLPTR)
+    if (it != nullptr)
         return qobject_cast<IOL *>(it->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -492,7 +492,7 @@ IOL* dlg_listeiols::getIOLFromIndex(QModelIndex idx )
 // ------------------------------------------------------------------------------------------
 void dlg_listeiols::ModifIOL(IOL *iol)
 {
-    if (iol == Q_NULLPTR)
+    if (iol == nullptr)
         return;
     dlg_identificationIOL *Dlg_IdentIOL = new dlg_identificationIOL(iol, this);
     if (!Dlg_IdentIOL->initok())
@@ -519,7 +519,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
 
 void dlg_listeiols::scrollToIOL(IOL *iol)
 {
-    if (iol != Q_NULLPTR)
+    if (iol != nullptr)
     {
         for (int i=0; i < m_IOLsmodel->rowCount(); ++i)
         {
@@ -586,7 +586,7 @@ void dlg_listeiols::SupprIOL(IOL *iol)
 
 void dlg_listeiols::ReconstruitListeManufacturers()
 {
-    if (m_manufacturersmodel != Q_NULLPTR)
+    if (m_manufacturersmodel != nullptr)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
 
@@ -597,7 +597,7 @@ void dlg_listeiols::ReconstruitListeManufacturers()
     {
         IOL *iol = const_cast<IOL*>(it.value());
         Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
-        if (man != Q_NULLPTR)
+        if (man != nullptr)
         {
             if (mapman.constFind(iol->idmanufacturer()) == mapman.constEnd())
             {
@@ -630,7 +630,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     //! surlignage / la navigation clavier.
     wdg_itemstree->disconnect(this);
     wdg_itemstree->selectionModel()->disconnect(this);
-    if (m_IOLsmodel != Q_NULLPTR)
+    if (m_IOLsmodel != nullptr)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
 
@@ -641,10 +641,10 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     for (int i=0; i<  m_manufacturersmodel->rowCount(); ++i)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
-        if (itm != Q_NULLPTR)
+        if (itm != nullptr)
         {
             Manufacturer *man = qobject_cast<Manufacturer*>(itm->rufusitem());
-            if (man != Q_NULLPTR)
+            if (man != nullptr)
             {
                 //! « Tous les fabricants » (idman==0) ou le seul fabricant sélectionné.
                 if (idman == 0 || man->id() == idman)
@@ -733,7 +733,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                 pix = QPixmap::fromImage(img2);
             pitem->setData(pix,Qt::DecorationRole);
             Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
-            if (man != Q_NULLPTR)
+            if (man != nullptr)
             {
                 QStandardItem *node = manufacturerNodes.value(man->nom(), nullptr);   //! accès direct (remplace findItems, recherche linéaire)
                 if (node)
@@ -744,7 +744,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     }
     for (int i=0; i<m_IOLsmodel->rowCount();i++)
     {
-        if (m_IOLsmodel->item(i) != Q_NULLPTR)
+        if (m_IOLsmodel->item(i) != nullptr)
             if (!m_IOLsmodel->item(i)->hasChildren())
             {
                 m_IOLsmodel->removeRow(i);

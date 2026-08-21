@@ -30,13 +30,13 @@ QMap<int, Session *> *Sessions::sessions() const
 /*!
  * \brief Sessions::getById -> charge une session à partir de son id
  * \param id
- * \param details si la session n'est pas dans liste et si details = LoadDetails => va chercher la session dans la BDD sinon, renvoie Q_NULLPTR
+ * \param details si la session n'est pas dans liste et si details = LoadDetails => va chercher la session dans la BDD sinon, renvoie nullptr
  * \return
  * +++++ cette fonction n'ajoute pas la session à la map_sessions quelquesoit son résultat
  */
 Session* Sessions::getById(int id, Item::LOADDETAILS details)
 {
-    Session * sess = Q_NULLPTR;
+    Session * sess = nullptr;
     QMap<int, Session*>::const_iterator itsession = map_sessions->constFind(id);
     if( itsession == map_sessions->constEnd() )
     {
@@ -48,14 +48,14 @@ Session* Sessions::getById(int id, Item::LOADDETAILS details)
     return sess;
 }
 
-void Sessions::SupprimeSession(Session* act)
+void Sessions::SupprimeSession(Session* act, QWidget *parent)
 {
-    Supprime(map_sessions, act);
+    Supprime(map_sessions, act, parent);
 }
 
 Session* Sessions::CreationSession(QHash<QString, QVariant> sets)
 {
-    Session *sess = Q_NULLPTR;
+    Session *sess = nullptr;
     int idSession = 0;
     DataBase::I()->locktables(QStringList() << TBL_SESSIONS);
     idSession = DataBase::I()->selectMaxFromTable(CP_ID_SESSIONS, TBL_SESSIONS, m_ok);
@@ -69,7 +69,7 @@ Session* Sessions::CreationSession(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cette session dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer cette session dans la base!"));
         return sess;
     }
     QJsonObject  data = QJsonObject{};
@@ -86,7 +86,7 @@ Session* Sessions::CreationSession(QHash<QString, QVariant> sets)
         else if (champ == CP_DATEFIN_SESSIONS)          data[champ] = itset.value().toString();
     }
     m_currentsession = new Session(data);
-    if (sess != Q_NULLPTR)
+    if (sess != nullptr)
         map_sessions->insert(sess->id(), sess);
     return sess;
 }

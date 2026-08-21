@@ -28,7 +28,7 @@ class Refraction : public Item
 {
     Q_OBJECT
 public:
-    explicit Refraction(QJsonObject data = QJsonObject(), QObject *parent = Q_NULLPTR);
+    explicit Refraction(QJsonObject data = QJsonObject(), QObject *parent = nullptr);
     enum Mesure {Fronto, Autoref, Acuite, Prescription, NoMesure};      Q_ENUM(Mesure)
     enum Distance {Loin, Pres, AllDistance, Inconnu};                   Q_ENUM(Distance)
     enum Cycloplegie {Dilatation, NoDilatation, NoLoSo};                Q_ENUM(Cycloplegie)

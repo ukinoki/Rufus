@@ -42,7 +42,7 @@ void conversionbase::conversionbaseophtalogic()
     QList<QVariantList> lgclist = db->StandardSelectSQL(req,ok);
     if (lgclist.size()==0)
     {
-        UpMessageBox::Watch(Q_NULLPTR,"pas de base ophtalogic retrouvée");
+        UpMessageBox::Watch(nullptr,"pas de base ophtalogic retrouvée");
         return;
     }
     else
@@ -50,7 +50,7 @@ void conversionbase::conversionbaseophtalogic()
         QString NomBase = "";
         for (int i=0; i<lgclist.size();i++)
         {
-            if (QMessageBox::question(Q_NULLPTR,"Conversion d'une base Ophtalogic","Tenter de convertir la base " + lgclist.at(i).at(0).toString() + "?") == QMessageBox::Yes)
+            if (QMessageBox::question(nullptr,"Conversion d'une base Ophtalogic","Tenter de convertir la base " + lgclist.at(i).at(0).toString() + "?") == QMessageBox::Yes)
             {
                 NomBase = lgclist.at(i).at(0).toString();
                 break;
@@ -119,7 +119,7 @@ void conversionbase::conversionbaseophtalogic()
             nom     = ordolist.at(i).at(5).toString();
             prenom  = Utils::trimcapitilize(ordolist.at(i).at(6).toString());
             //création de l'entête
-            Entete = (ALDQ? proc->CalcEnteteImpression(DateCreation, Q_NULLPTR, false).value(ALDHeader) : proc->CalcEnteteImpression(DateCreation, Q_NULLPTR, false).value(NORMHeader));
+            Entete = (ALDQ? proc->CalcEnteteImpression(DateCreation, nullptr, false).value(ALDHeader) : proc->CalcEnteteImpression(DateCreation, nullptr, false).value(NORMHeader));
             Entete.replace("{{TITRE1}}"            , "");
             Entete.replace("{{TITRE}}"             , "");
             Entete.replace("{{DDN}}"               , "");
@@ -591,13 +591,13 @@ void conversionbase::conversionbaseoplus()
     QList<QVariantList> lgclist = db->StandardSelectSQL(req,ok);
     if (lgclist.size()==0)
     {
-        UpMessageBox::Watch(Q_NULLPTR,"pas de base O+ retrouvée");
+        UpMessageBox::Watch(nullptr,"pas de base O+ retrouvée");
         return;
     }
     NomBase = "";
     for (int i=0; i<lgclist.size();i++)
     {
-        if (QMessageBox::question(Q_NULLPTR,"Conversion d'une base O+","Tenter de convertir la base " + lgclist.at(i).at(0).toString() + "?") == QMessageBox::Yes)
+        if (QMessageBox::question(nullptr,"Conversion d'une base O+","Tenter de convertir la base " + lgclist.at(i).at(0).toString() + "?") == QMessageBox::Yes)
         {
             NomBase = lgclist.at(i).at(0).toString();
             break;
@@ -605,7 +605,7 @@ void conversionbase::conversionbaseoplus()
     }
     if (NomBase=="")
         return;
-    dirimagerieoplus    = QFileDialog::getExistingDirectory(Q_NULLPTR,
+    dirimagerieoplus    = QFileDialog::getExistingDirectory(nullptr,
                                                             tr("Choisissez le dossier dans lequel se trouvent les images O+"),
                                                             QDir::homePath() + NOM_DIR_RUFUS,
                                                             QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -903,7 +903,7 @@ void conversionbase::conversionbaseoplus()
                         if (suffix == "tif") //! CONVERTIT LES TIF EN JPG
                         {
                             if (!fileorigin.open(QIODevice::ReadOnly)) {
-                                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + pathorigin);
+                                UpMessageBox::Watch(nullptr, tr("Impossible d'ouvrir le fichier") + " " + pathorigin);
                                 continue;
                             }
                             QByteArray ar(fileorigin.size(), ' ');
@@ -951,7 +951,7 @@ void conversionbase::conversionbaseoplus()
                             QFile CC(nomdossierdestination + "/" + nomfiledestination);
                             if (!CC.open(QIODevice::ReadWrite))
                             {
-                                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + nomfiledestination);
+                                UpMessageBox::Watch(nullptr, tr("Impossible d'ouvrir le fichier") + " " + nomfiledestination);
                                 continue;
                             }
                             CC.setPermissions(QFileDevice::ReadOther

@@ -35,7 +35,7 @@ class dlg_identificationpatient : public UpDialog
     Q_OBJECT
 public:
     enum Mode                       {Copie, Creation, Modification};    Q_ENUM(Mode)
-    explicit                        dlg_identificationpatient(enum Mode mode, Patient *pat, QWidget *parent = Q_NULLPTR);
+    explicit                        dlg_identificationpatient(enum Mode mode, Patient *pat, QWidget *parent = nullptr);
     ~dlg_identificationpatient();
     Ui::dlg_identificationpatient   *ui;
     Patient*                        currentpatient() const {return m_currentpatient;}

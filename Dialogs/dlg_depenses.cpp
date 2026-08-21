@@ -169,11 +169,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=, this] {EnregistreFacture(ECHEANCIER);});
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
     connect (ui->ChercheMontantupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::RechercheValeur);
-    connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   [&] {
-                                                                                                bool ok;
-                                                                                                if (proc->QuestionPdfOrPrint(this, ok))
-                                                                                                PrintReport(ok);
-                                                                                            });
+    connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   &dlg_depenses::PrintReport);
     connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   &dlg_depenses::ChoixPaiement);
@@ -271,18 +267,18 @@ void dlg_depenses::ExportTable()
     UpMessageBox::Watch(this, (exportOK? tr("Exportation réussie") : tr("Echec exportation")), (exportOK? msg : tr("Les données n'ont pas pu être exportées")));
 }
 
-void dlg_depenses::PrintReport(bool pdf)
+void dlg_depenses::PrintReport()
 {
     QString            textentete, textpied;
     bool AvecDupli   = false;
     bool AvecNumPage = false;
 
-    User *userEntete = Q_NULLPTR;
+    User *userEntete = nullptr;
 
     //création de l'entête
     userEntete = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
 
-    if(userEntete == Q_NULLPTR)
+    if(userEntete == nullptr)
     {
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
@@ -345,7 +341,9 @@ void dlg_depenses::PrintReport(bool pdf)
     textcorps += "</table>";
     textcorps += "</body></html>";
 
-    if (pdf)
+    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sessions->currentsession()->idsite());
+
+    if (typenvoi == Procedures::createPDF)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + tr("Comptabilité");
         QString filename    = userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + " "
@@ -355,7 +353,7 @@ void dlg_depenses::PrintReport(bool pdf)
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité") ;
         proc                ->Cree_pdffile(textcorps, textentete, textpied,
-                                filename, Q_NULLPTR,
+                                filename, nullptr,
                                 false,
                                 dirname);
         QFile file          = QFile(dirname + "/" + filename);
@@ -363,11 +361,18 @@ void dlg_depenses::PrintReport(bool pdf)
         UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
                             a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
     }
-    else
+    else if (typenvoi == Procedures::printDOC)
     {
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
+    }
+    else if (typenvoi == Procedures::SendMAIL)
+    {
+        QString destinataire;
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(windowTitle() + ".pdf", proc->Cree_pdfByteArray(textcorps, textentete, textpied));
+        proc->EnvoiMail(this, pieces, Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
     }
 }
 
@@ -459,7 +464,7 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
         wdg_enreguppushbutton       ->setText("Valider");
         int compte = -1;
-        Depense *dep = (wdg_bigtable->rowCount()>0? getDepenseFromRow(wdg_bigtable->currentRow()) : Q_NULLPTR);
+        Depense *dep = (wdg_bigtable->rowCount()>0? getDepenseFromRow(wdg_bigtable->currentRow()) : nullptr);
         if (dep)
         {
             bool vis = (dep->modepaiement()!=ESP);
@@ -522,7 +527,7 @@ void dlg_depenses::AnnulEnreg()
 
 void dlg_depenses::CalcImageFacture(Depense *dep)
 {
-    if (dep == Q_NULLPTR)
+    if (dep == nullptr)
         return;
     QString filename = "";
     filename            = dep->lienfacture();
@@ -915,7 +920,7 @@ void dlg_depenses::SupprimerDepense()
         connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=, this](int) {RedessineBigTable();});
     }
     else for (int i = 0; i< wdg_bigtable->rowCount(); i++)
-        if (getDepenseFromRow(i) == Q_NULLPTR)
+        if (getDepenseFromRow(i) == nullptr)
         {
             wdg_bigtable->removeRow(i);
             if (i < wdg_bigtable->rowCount() - 1)
@@ -986,9 +991,9 @@ void dlg_depenses::AfficheDetailsDepenses()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::AfficheFacture(Depense *dep)
 {
-    if (dep == Q_NULLPTR)
+    if (dep == nullptr)
         dep = m_depenseencours;
-    if (dep == Q_NULLPTR)
+    if (dep == nullptr)
     {
         ui->FactureupPushButton     ->setVisible(false);
         ui->EcheancierupPushButton  ->setVisible(false);
@@ -1240,7 +1245,7 @@ void dlg_depenses::MetAJourFiche()
             {
                 //ATTENTION ERROR
             }
-            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
+            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != nullptr? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
             A = Utils::ModePaiementtotr(A);
         }
         ui->PaiementcomboBox    ->setCurrentText(A);
@@ -1499,7 +1504,7 @@ void dlg_depenses::ModifierDepense()
             {
                 //ATTENTION ERROR
             }
-            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
+            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != nullptr? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
             A = Utils::ModePaiementtotr(A);
             if (A == Utils::ConvertitModePaiementtotr(CHEQUE))
                 if (dep->nocheque() > 0)
@@ -1542,7 +1547,7 @@ void dlg_depenses::RedessineBigTable()
 {
     RemplitBigTable();
     disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
-    m_depenseencours = Q_NULLPTR;
+    m_depenseencours = nullptr;
     if (wdg_bigtable->rowCount() > 0)
     {
         wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
@@ -1775,13 +1780,13 @@ void dlg_depenses::RechercheValeur()
             FiltreTable();
         }
         QStandardItemModel *model = qobject_cast<QStandardItemModel*>(box->model());
-        if (model != Q_NULLPTR)
+        if (model != nullptr)
         {
             QModelIndex idx = box->model()->index(box->currentIndex(),0);
             UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(model->itemFromIndex(idx));
-            if (upitem != Q_NULLPTR) {
+            if (upitem != nullptr) {
                 Depense *dep = Datas::I()->depenses->getById(upitem->rufusitem()->id());
-                if (dep != Q_NULLPTR)
+                if (dep != nullptr)
                 {
                     if (dep->annee() != ui->AnneecomboBox->currentText().toInt())
                     {
@@ -1887,7 +1892,7 @@ Depense* dlg_depenses::getDepenseFromRow(int row)
 
 void dlg_depenses::EnregistreFacture(QString typedoc)
 {
-    if (m_depenseencours == Q_NULLPTR)
+    if (m_depenseencours == nullptr)
         return;
     if (typedoc == FACTURE)
         EnregistreDocScanne(dlg_docsscanner::Facture);
@@ -2119,7 +2124,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
         {
             //ATTENTION ERROR
         }
-        B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
+        B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != nullptr? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
         if (A == Utils::ConvertitModePaiementtotr(CHEQUE))
             if (dep->nocheque() > 0)
                 C += " " + QString::number(dep->nocheque());

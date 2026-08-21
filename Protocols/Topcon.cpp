@@ -1,6 +1,6 @@
 #include "Topcon.h"
 
-Topcon* Topcon::instance = Q_NULLPTR;
+Topcon* Topcon::instance = nullptr;
 
 Topcon* Topcon::I()
 {

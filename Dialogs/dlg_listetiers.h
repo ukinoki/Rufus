@@ -24,14 +24,14 @@ class dlg_listetiers : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit                dlg_listetiers(QWidget *parent = Q_NULLPTR);
+    explicit                dlg_listetiers(QWidget *parent = nullptr);
     ~dlg_listetiers();
     bool                    listetiersmodifiee() const;
 
 private:
     bool                    m_listemodifiee = false;
 
-    QStandardItemModel      *m_model = Q_NULLPTR;
+    QStandardItemModel      *m_model = nullptr;
     QTreeView               *wdg_itemstree;
     WidgetButtonFrame       *wdg_buttonframe;
     QList<int>              m_listidtiersutilises;

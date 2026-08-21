@@ -43,7 +43,7 @@ RefractionDevice* RefractionDevices::getById(int id)
 {
     QMap<int, RefractionDevice*>::const_iterator itcpt = map_RefractionDevices->constFind(id);
     if( itcpt == map_RefractionDevices->constEnd() )
-        return Q_NULLPTR;
+        return nullptr;
     return itcpt.value();
 }
 

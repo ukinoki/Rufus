@@ -32,14 +32,14 @@ dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentd
 
     FillXTable();
 
-    UpStandardItem *item = Q_NULLPTR;
+    UpStandardItem *item = nullptr;
     if (m_idcurrentdoc == 0)
     {
         //! check XTable first row
         for (int i= 0; i < m_Xmodel->columnCount(); i++)
         {
             item = dynamic_cast<UpStandardItem*>(m_Xmodel->item(0,i));
-            if (item != Q_NULLPTR)
+            if (item != nullptr)
                 if (item->hascheckBox())
                 {
                     QModelIndex idx = item->index();                                        //! index of first item
@@ -94,7 +94,7 @@ dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentd
     connect (wdg_table,                     &QTableView::entered,               this,   &dlg_multiimageviewer::gettoolTipFromCursorPositionInTable);
     connect (wdg_table,                     &QTableView::clicked,               this,   [=, this] (QModelIndex idx) {
         UpStandardItem *upitem      = dynamic_cast<UpStandardItem *>(m_Xmodel->itemFromIndex(idx));
-        if (upitem == Q_NULLPTR)
+        if (upitem == nullptr)
             return;
         if ((upitem->checkState() == Qt::Checked  || upitem->checkState() == Qt::PartiallyChecked) && !upitem->beforeCheckState())
         {
@@ -141,7 +141,7 @@ void dlg_multiimageviewer::FillXTable()
     for (int it = 0; it < m_listiddocs.size(); ++it)
     {
         DocExterne *doc = Datas::I()->docsexternes->getById(m_listiddocs.at(it));
-        if (doc != Q_NULLPTR)
+        if (doc != nullptr)
         {
             if (!m_listdates.contains(doc->date()))
                 m_listdates     << doc->date();
@@ -163,7 +163,7 @@ void dlg_multiimageviewer::FillXTable()
     m_listtypedocs = listtypes;
 
 
-    if (m_Xmodel != Q_NULLPTR)
+    if (m_Xmodel != nullptr)
         delete m_Xmodel;
     m_Xmodel             = new UpStandardItemModel();
     m_Xmodel             ->setRowCount(m_listdates.size());
@@ -198,7 +198,7 @@ void dlg_multiimageviewer::FillXTable()
             for (int it = 0; it < m_listiddocs.size(); ++it)
             {
                 DocExterne *doc = Datas::I()->docsexternes->getById(m_listiddocs.at(it));
-                if (doc != Q_NULLPTR)
+                if (doc != nullptr)
                     if (doc->date() == m_listdates.at(i))
                         mapdocs.insert(doc->id(), doc);
             }
@@ -207,7 +207,7 @@ void dlg_multiimageviewer::FillXTable()
             for (auto it = mapdocs.begin(); it  != mapdocs.end(); ++it)
             {
                 DocExterne *doc = qobject_cast<DocExterne*>(it.value());
-                if (doc != Q_NULLPTR)
+                if (doc != nullptr)
                     if (doc->typedoc() == m_listtypedocs.at(j))
                     {
                         listiddocs << doc->id();
@@ -256,7 +256,7 @@ void dlg_multiimageviewer::gettoolTipFromCursorPositionInTable()
     QList<DocExterne*> listdocs = getListDocsfromIndexInTableView(pindx);
     for (int i = 0; i < listdocs.size(); ++i)
     {
-        if (listdocs.at(i) != Q_NULLPTR)
+        if (listdocs.at(i) != nullptr)
         {
             if (msg != "")
                 msg += "\n";
@@ -270,7 +270,7 @@ QList<DocExterne*> dlg_multiimageviewer::getListDocsfromIndexInTableView(QModelI
 {
     QList<DocExterne*>listdocs  = QList<DocExterne*>();
     UpStandardItem *upitem      = dynamic_cast<UpStandardItem *>(m_Xmodel->itemFromIndex(idx));
-    if (upitem == Q_NULLPTR)
+    if (upitem == nullptr)
         return listdocs;
     if (upitem->listids() == QList<int>())
         return listdocs;
@@ -303,7 +303,7 @@ QList<UpStandardItem*> dlg_multiimageviewer::listcheckabledItems()
         for (int j = 0; j<m_Xmodel->columnCount(); j++)
         {
             UpStandardItem * item = dynamic_cast<UpStandardItem*>(m_Xmodel->item(i,j));
-            if (item != Q_NULLPTR)
+            if (item != nullptr)
             {
                 QVariant value = item->data(Qt::CheckStateRole);
                 if (value.isValid())
@@ -361,7 +361,7 @@ void dlg_multiimageviewer::checkHorizontalHeader(int idx)
         m_Xmodel->setHeaderData(idx, Qt::Horizontal, Icons::pxCheck(), Qt::DecorationRole);
         addItemsToTreeWidget(litemstocheck);
         UpStandardItem *upitem      = litemstocheck.at(0);
-        if (upitem == Q_NULLPTR)
+        if (upitem == nullptr)
             return;
         if(upitem->listids().size())
         {
@@ -421,7 +421,7 @@ void dlg_multiimageviewer::controlChecks() //! After a check on an upstandardite
         for (int j=0; j < m_Xmodel->columnCount(); j++)
         {
             UpStandardItem *item= dynamic_cast<UpStandardItem*>(m_Xmodel->item(i,j));
-            if (item != Q_NULLPTR)
+            if (item != nullptr)
                 if (item->hascheckBox())
                 {
                     if (item->checkState() == Qt::Checked)
@@ -455,7 +455,7 @@ void dlg_multiimageviewer::controlChecks() //! After a check on an upstandardite
         for (int j=0; j < m_Xmodel->rowCount(); j++)
         {
             UpStandardItem *item= dynamic_cast<UpStandardItem*>(m_Xmodel->item(j,i));
-            if (item != Q_NULLPTR)
+            if (item != nullptr)
                 if (item->hascheckBox())
                 {
                     if (item->checkState() == Qt::Checked)
@@ -528,7 +528,7 @@ void dlg_multiimageviewer::removeItemsFromtTreeWidget(QList<UpStandardItem *> li
                 {
                     QList<QStandardItem*> lisdelit = m_treemodel->takeRow(i);
                     foreach (QStandardItem *itm, lisdelit)
-                        if (itm != Q_NULLPTR) delete itm;
+                        if (itm != nullptr) delete itm;
                     i--;
                 }
             }
@@ -549,7 +549,7 @@ QList<DocExterne*> dlg_multiimageviewer::listdocsToDisplay()
             for (int j=0; j <ids.size(); j++)
             {
                 DocExterne *doc = Datas::I()->docsexternes->getById(ids.at(j));
-                if (doc != Q_NULLPTR)
+                if (doc != nullptr)
                     if (!listdocs.contains(doc))
                         listdocs << doc;
             }
@@ -572,7 +572,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
             * if the function has received one document, the dockwidget is created with one pict surrounded by two QSpacerItems
     */
 
-    QWidget * widg = Q_NULLPTR;
+    QWidget * widg = nullptr;
     if (listdocs.size() == 0 || listdocs.size() >2)
         return widg;
     QHBoxLayout *glay   = new QHBoxLayout();
@@ -585,7 +585,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
     for (int it = 0; it < listdocs.size() ; ++it)
     {
         DocExterne * doc = listdocs.at(it);
-        if (doc == Q_NULLPTR)
+        if (doc == nullptr)
             glay->addItem(new QSpacerItem(5,5,QSizePolicy::Expanding));
         else
         {
@@ -594,8 +594,8 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
             if (type == QString())
                 type = doc->typedoc();
             Procedures::I()->CalcImageDocument(doc);
-            QWidget *glaywidg = Q_NULLPTR;
-            DisplayWidget *wdg_display = Q_NULLPTR;
+            QWidget *glaywidg = nullptr;
+            DisplayWidget *wdg_display = nullptr;
             if (doc->isVideo())  //! le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
             {
                 QString filepath = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + doc->lienversfichier();
@@ -604,13 +604,13 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                     if (Procedures::I()->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Videos).toString() == "" || !qFile.exists())
                     {
                         UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
-                        return Q_NULLPTR;
+                        return nullptr;
                     }
                 if (!qFile.open(QIODevice::ReadOnly))
                 {
                     QString msg = tr("Erreur d'accès au fichier:") + " " + filepath;
                     UpMessageBox::Watch(this,msg);
-                    return Q_NULLPTR;
+                    return nullptr;
                 }
                 wdg_display                 = new DisplayWidget;
                 wdg_display                 ->setVideo(filepath, sizeforunit());
@@ -623,7 +623,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                 if (listimg.size() == 0)
                 {
                     UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                    return Q_NULLPTR;
+                    return nullptr;
                 }
                 QImage image    = listimg.at(0);
                 displaysize     = finalsize(sizeforunit().width(), image);
@@ -647,7 +647,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
 
     QVariantList listid = QVariantList();
     for (int i=0; i<listdocs.size(); ++i)
-        if (listdocs.at(i) != Q_NULLPTR)
+        if (listdocs.at(i) != nullptr)
             listid << listdocs.at(i)->id();
 
     widg->setProperty(M_DATE, date);
@@ -658,7 +658,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
 
 void dlg_multiimageviewer::scrollTreeViewToDocument(DocExterne* doc)
 {
-    if (doc == Q_NULLPTR)
+    if (doc == nullptr)
         return;
     QDate datedoc = doc->date();
     QList<QStandardItem*> litems = m_treemodel->findItems(datedoc.toString(m_formatdate));
@@ -724,7 +724,7 @@ void dlg_multiimageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupit
         if (image == Icons::pxCheck().toImage() || image == Icons::pxblockCheck().toImage())
             listdates << QDate::fromString(m_Xmodel->headerData(i, Qt::Vertical, Qt::DisplayRole).value<QString>(), m_formatdate);
     }
-    if (m_treemodel == Q_NULLPTR)
+    if (m_treemodel == nullptr)
     {
         m_treemodel                 = new UpStandardItemModel();
         wdg_treeview                ->setModel(m_treemodel);
@@ -770,7 +770,7 @@ void dlg_multiimageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupit
         for (int j=0; j <ids.size(); j++)
         {
             DocExterne *doc = Datas::I()->docsexternes->getById(ids.at(j));
-            if (doc != Q_NULLPTR)
+            if (doc != nullptr)
             {
                 if (doc->cote()>0)
                 {
@@ -815,17 +815,17 @@ void dlg_multiimageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupit
                 if (listdocsR.size() >0)
                     listrow  << listdocsR.takeFirst();
                 else
-                    listrow  << Q_NULLPTR;
+                    listrow  << nullptr;
                 if (listdocsL.size() >0)
                     listrow  << listdocsL.takeFirst();
                 else
-                    listrow  << Q_NULLPTR;
+                    listrow  << nullptr;
                 QStandardItem *item                     = new QStandardItem;
                 QStandardItem *pitemsortdate            = new QStandardItem(date.toString("yyyyMMddHHmmss"));
 
                 //listitemsdate << m_treemodel->item(i);
                 QList<QStandardItem *> listitemsdate    = m_treemodel->findItems(datestring);
-                if (listitemsdate.size()>0 && listitemsdate.at(0)!=Q_NULLPTR)
+                if (listitemsdate.size()>0 && listitemsdate.at(0)!=nullptr)
                 {
                     listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << item << pitemsortdate);
                     listitemsdate.at(0)->sortChildren(1);
@@ -837,8 +837,8 @@ void dlg_multiimageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupit
 //!-----not sided docs -> 2 images by row and the last center if number of pics is odd
         while (listdocsboth.size() > 0)
         {
-            DocExterne *firstdoc    = Q_NULLPTR;
-            DocExterne *scnddoc     = Q_NULLPTR;
+            DocExterne *firstdoc    = nullptr;
+            DocExterne *scnddoc     = nullptr;
             firstdoc = listdocsboth.takeFirst();
             if (listdocsboth.size() >0)
                 scnddoc = listdocsboth.takeFirst();
@@ -852,7 +852,7 @@ void dlg_multiimageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupit
             }
             QList<DocExterne*> listdcs = QList<DocExterne*>();
             listdcs << firstdoc;
-            if (scnddoc != Q_NULLPTR)
+            if (scnddoc != nullptr)
                 listdcs << scnddoc;
             wdg_treeview->setIndexWidget(item->index(), DockWidget(listdcs));
         }
@@ -865,7 +865,7 @@ void dlg_multiimageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupit
 bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
 {
     QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
-    if (rszevent != Q_NULLPTR)
+    if (rszevent != nullptr)
     {
         if (obj == this)
         for (int i = 0; i < m_treemodel->rowCount(); ++i)
@@ -874,13 +874,13 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
                 for (int j = 0; j< m_treemodel->item(i)->rowCount() ; ++j)
                 {
                     QStandardItem* item = m_treemodel->item(i)->child(j,0);                                                     //! -> search for childitem
-                    if (item != Q_NULLPTR)
+                    if (item != nullptr)
                     {
                         QWidget * rwidg = wdg_treeview->indexWidget(item->index());                                             //! -> search if childitem is DockWidget
-                        if (rwidg != Q_NULLPTR)
+                        if (rwidg != nullptr)
                         {
                             QHBoxLayout *glay = qobject_cast<QHBoxLayout*>(rwidg->layout());                                    //! -> search for layout of DockWidget
-                            if (glay != Q_NULLPTR)
+                            if (glay != nullptr)
                             {
                                 for (int k= 0; k < glay->count(); k++)
                                 {
@@ -888,7 +888,7 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
                                     if (layit)
                                     {
                                         QWidget* widg = layit->widget();                                                        //! -> search for QWidget of QLayoutItem of DockWidget
-                                        if (widg != Q_NULLPTR)
+                                        if (widg != nullptr)
                                         {
                                             QSize size = sizeforunit();
                                             DisplayWidget* wdgdisplay = dynamic_cast<DisplayWidget*>(widg);
@@ -929,9 +929,9 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
 {
-    dlg_singleimageviewer *imgzoom = Q_NULLPTR;
-    DocExterne *doc = Q_NULLPTR;
-    if (dynamic_cast<DisplayWidget*>(widg) != Q_NULLPTR)
+    dlg_singleimageviewer *imgzoom = nullptr;
+    DocExterne *doc = nullptr;
+    if (dynamic_cast<DisplayWidget*>(widg) != nullptr)
     {
         DisplayWidget *wdg = dynamic_cast<DisplayWidget*>(widg);
         doc = qobject_cast<DocExterne*>(wdg->rufusitem());

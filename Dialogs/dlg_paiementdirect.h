@@ -39,7 +39,7 @@ class dlg_paiementdirect : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *parent = nullptr);
     ~dlg_paiementdirect();
     bool                    initOK() const;
     enum Mode               {Accueil, EnregistrePaiement, VoirListeActes};   Q_ENUM(Mode)
@@ -79,7 +79,7 @@ private:
     QMap<int, Banque*>          *map_banques;
     QList<TypeTiers*>           *m_typestiers;
     User*                       currentuser() { return Datas::I()->users->userconnected(); }
-    User                        *m_useracrediter = Q_NULLPTR;
+    User                        *m_useracrediter = nullptr;
 
     QBrush                      m_textureGray;
     QTimer                      *t_timerrecord, *t_timerafficheacteverrouille, *t_timerafficheacteverrouilleclignotant;

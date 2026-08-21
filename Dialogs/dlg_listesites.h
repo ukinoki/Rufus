@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DLG_LISTELIEUX_H
-#define DLG_LISTELIEUX_H
+#ifndef DLG_LISTESITES_H
+#define DLG_LISTESITES_H
 
 #include <QColorDialog>
 #include <QHeaderView>
@@ -27,54 +27,39 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptableview.h"
 #include "widgetbuttonframe.h"
 #include "upsystemtrayicon.h"
+#include "dlg_identificationsite.h"
 
 class UpSystemTrayIcon;
 /* sert à gérer les lieux d'exercice
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
 
-class dlg_listelieux : public UpDialog
+class dlg_listesites : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_listelieux(QWidget *parent = Q_NULLPTR);
-    ~dlg_listelieux();
+    explicit dlg_listesites(QWidget *parent = nullptr);
+    ~dlg_listesites();
     enum Mode               {Modif, Nouv, Suppr}; Q_ENUM(Mode)
 
 private:
     DataBase                *db;
     UpTableView             *wdg_tblview;
-    UpDialog                *dlg_lieu;
     UpLabel                 *wdg_adressuplbl;
     UpPushButton            *wdg_couleurpushbutt;
-    UpPushButton            *wdg_nouvcouleurpushbutt;
-    UpLineEdit              *wdg_nomlineedit;
-    UpLineEdit              *wdg_adress1lineedit;
-    UpLineEdit              *wdg_adress2lineedit;
-    UpLineEdit              *wdg_adress3lineedit;
-    UpLineEdit              *wdg_CPlineedit;
-    UpLineEdit              *wdg_villelineedit;
-    UpLineEdit              *wdg_tellineedit;
-    UpLineEdit              *wdg_faxlineedit;
-    QString                 str_nouvcolor;
-    QHash<QString, QVariant>    m_listbinds;
 
-    QStandardItemModel      *m_model = Q_NULLPTR;
+    QStandardItemModel      *m_model = nullptr;
     WidgetButtonFrame       *wdg_buttonframe;
     int                     m_idlieuserveur;
     bool                    m_ok;
     void                    AfficheDetails(QModelIndex, QModelIndex);
     void                    ChoixButtonFrame();
     void                    CreerLieu();
-    void                    enregNouvLieu();
-    void                    enregModifLieu();
     int                     getRowFromSite(Site* sit);
     Site*                   getSiteFromIndex(QModelIndex idx);
     void                    ModifCouleur();
     void                    ModifLieu();
     void                    SupprLieu();
-    void                    ModifLieuxDialog(Mode mode);
     void                    ReconstruitModel();
-    bool                    ValidationFiche();
 };
 
-#endif // DLG_LISTELIEUX_H
+#endif // DLG_LISTESITES_H

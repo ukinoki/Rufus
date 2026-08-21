@@ -27,7 +27,7 @@ class dlg_listecommentaires : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_listecommentaires(QList<CommentLunet *> listecommentaires = QList<CommentLunet *>(), QWidget *parent = Q_NULLPTR);
+    dlg_listecommentaires(QList<CommentLunet *> listecommentaires = QList<CommentLunet *>(), QWidget *parent = nullptr);
     ~dlg_listecommentaires();
 
     QList<CommentLunet*>        ListeCommentaires() const   { return m_listcommentaires;}
@@ -42,8 +42,8 @@ private:
     UpTextEdit                  *wdg_comtxt;
     UpCheckBox                  *wdg_publicchkbox;
     WidgetButtonFrame           *wdg_buttonframe;
-    UpStandardItemModel         *m_model = Q_NULLPTR;
-    CommentLunet                *m_currentcomment = Q_NULLPTR;
+    UpStandardItemModel         *m_model = nullptr;
+    CommentLunet                *m_currentcomment = nullptr;
     QHash<QString, QVariant>    m_listbinds;
     QList<CommentLunet*>        m_listcommentaires = QList<CommentLunet*>();
     QString                     m_textdelegate = "";
@@ -55,10 +55,10 @@ private:
     bool                        ChercheDoublon(QString str, int row);
     void                        ChoixButtonFrame();
     void                        ChoixMenuContextuel(QString);
-    void                        ConfigMode(Mode mode, CommentLunet *com = Q_NULLPTR);
+    void                        ConfigMode(Mode mode, CommentLunet *com = nullptr);
     void                        dblClicktextEdit();
     void                        DisableLines();
-    void                        EnableButtons(CommentLunet* com = Q_NULLPTR);
+    void                        EnableButtons(CommentLunet* com = nullptr);
     void                        EnableLines();
     bool                        EnregistreCommentaire(CommentLunet *com);
     CommentLunet*               getCommentFromIndex(QModelIndex idx);

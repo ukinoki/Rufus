@@ -33,10 +33,10 @@ Refraction* Refractions::getById(int id)
     if( itref == map_all->constEnd() )
     {
         Refraction * ref = DataBase::I()->loadRefractionById(id);
-        if (ref != Q_NULLPTR)
+        if (ref != nullptr)
             add( map_all, ref );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<Refraction*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<Refraction*>(it.value()) : nullptr);
     }
     return itref.value();
 }
@@ -55,14 +55,14 @@ void Refractions::initListebyPatId(int id)
 }
 
 
-void Refractions::SupprimeRefraction(Refraction* ref)
+void Refractions::SupprimeRefraction(Refraction* ref, QWidget *parent)
 {
-    Supprime(map_all, ref);
+    Supprime(map_all, ref, parent);
 }
 
 Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
 {
-    Refraction *ref = Q_NULLPTR;
+    Refraction *ref = nullptr;
     int idrefraction = 0;
     DataBase::I()->locktables(QStringList() << TBL_REFRACTIONS);
     idrefraction = DataBase::I()->selectMaxFromTable(CP_ID_REFRACTIONS, TBL_REFRACTIONS, m_ok);
@@ -75,7 +75,7 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!m_ok)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cette refraction dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer cette refraction dans la base!"));
         return ref;
     }
 
@@ -132,7 +132,7 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
         else if (champ == CP_QUICKOG_REFRACTIONS)           data[champ] = (itset.value().toInt() == 1);
     }
     ref = new Refraction(data);
-    if (ref != Q_NULLPTR)
+    if (ref != nullptr)
     map_all->insert(ref->id(), ref);
     return ref;
 }

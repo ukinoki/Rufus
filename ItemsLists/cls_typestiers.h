@@ -38,7 +38,7 @@ private:
     void addList(QList<TypeTiers*> listTierss);
 
 public:
-    explicit TypesTiers(QObject *parent = Q_NULLPTR);
+    explicit TypesTiers(QObject *parent = nullptr);
     QList<TypeTiers *> *typestiers() const;
     void initListe();
 };

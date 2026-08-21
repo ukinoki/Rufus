@@ -76,7 +76,7 @@ bool dlg_autresmesures::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::KeyPress)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if (qobject_cast<QPushButton *>(obj) == Q_NULLPTR)
+        if (qobject_cast<QPushButton *>(obj) == nullptr)
         {
             // Fleche Gauche - -----------------------------------------
             if(keyEvent->key()==Qt::Key_Left)

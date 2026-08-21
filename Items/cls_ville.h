@@ -12,7 +12,7 @@ private:
     QString m_nom;          //!< le nom de la ville
 
 public:
-    explicit Ville(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Ville(QJsonObject data = {}, QObject *parent = nullptr);
 
     QString codepostal() const;
     QString nom() const;

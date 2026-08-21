@@ -35,9 +35,14 @@ private:
     QString m_fax = "";
     QString m_couleur = "";
     QByteArray m_logo = QByteArray();   //! le logo du site
+    //Envoi des mails
+    QString m_mail = "";
+    QString m_smtpserveur = "";
+    int     m_smtpport = 0;
+    QString m_smtplogin = "";
 
 public:
-    explicit Site(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Site(QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data) override;
     void resetdatas();
@@ -61,6 +66,16 @@ public:
     void settelephone(const QString &telephone);
     void setfax(const QString &fax);
     void setcouleur(const QString &couleur);
+
+    /*! envoi des mails - le mot de passe n'est pas en base, il est local au poste */
+    QString mail() const                            { return m_mail; }
+    QString smtpserveur() const                     { return m_smtpserveur; }
+    int     smtpport() const                        { return m_smtpport; }
+    QString smtplogin() const                       { return m_smtplogin; }
+    void    setmail(const QString &mail)            { m_mail = mail;                m_data[CP_MAIL_SITE] = mail; }
+    void    setsmtpserveur(const QString &serveur)  { m_smtpserveur = serveur;      m_data[CP_SMTPSERVEUR_SITE] = serveur; }
+    void    setsmtpport(int port)                   { m_smtpport = port;            m_data[CP_SMTPPORT_SITE] = port; }
+    void    setsmtplogin(const QString &login)      { m_smtplogin = login;          m_data[CP_SMTPLOGIN_SITE] = login; }
 };
 
 #endif // CLS_SITE_H

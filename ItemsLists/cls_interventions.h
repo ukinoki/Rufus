@@ -25,14 +25,14 @@ class Interventions : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Intervention*> *map_all = Q_NULLPTR;              //!< la liste des interventions
+    QMap<int, Intervention*> *map_all = nullptr;              //!< la liste des interventions
     int m_idsession = 0;                                        //!< l'id de la session concernée par la map
 
 public:
-    explicit Interventions(QObject *parent = Q_NULLPTR);
+    explicit Interventions(QObject *parent = nullptr);
 
     QMap<int, Intervention*> *interventions() const;
-    Intervention *m_currentintervention = Q_NULLPTR;            //!> l'intervention en cours
+    Intervention *m_currentintervention = nullptr;            //!> l'intervention en cours
     Intervention* currentintervention()                 { return m_currentintervention; }
     void setcurrentintervention(Intervention *interv);
     int idsession() const { return m_idsession ; }
@@ -42,7 +42,7 @@ public:
     void initListebySessionId(int id);
 
     //!> actions sur les enregistrements
-    void                SupprimeIntervention(Intervention *intervention);
+    void                SupprimeIntervention(Intervention *intervention, QWidget *parent = nullptr);
     Intervention*       CreationIntervention(QHash<QString, QVariant> sets);
 };
 
@@ -50,14 +50,14 @@ class SessionsOperatoires : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, SessionOperatoire*> *map_all = Q_NULLPTR;         //!< la liste des sessions
+    QMap<int, SessionOperatoire*> *map_all = nullptr;         //!< la liste des sessions
     int m_iduser = 0;                                           //!< l'id du user concerné par la map
 
 public:
-    explicit SessionsOperatoires(QObject *parent = Q_NULLPTR);
+    explicit SessionsOperatoires(QObject *parent = nullptr);
 
     QMap<int, SessionOperatoire*> *sessions() const;
-    SessionOperatoire *m_currentsession = Q_NULLPTR;            //!> la session en cours
+    SessionOperatoire *m_currentsession = nullptr;            //!> la session en cours
     SessionOperatoire* currentsession()               { return m_currentsession; }
     void setcurrentsession(SessionOperatoire *sess);
     int iduser() const                      { return m_iduser ; }
@@ -66,7 +66,7 @@ public:
     void initListebyUserId(int id);
 
     //!> actions sur les enregistrements
-    void                SupprimeSessionOperatoire(SessionOperatoire *session);
+    void                SupprimeSessionOperatoire(SessionOperatoire *session, QWidget *parent = nullptr);
     SessionOperatoire*  CreationSessionOperatoire(QHash<QString, QVariant> sets);
 };
 
@@ -79,12 +79,12 @@ class TypesInterventions : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, TypeIntervention*> *map_all = Q_NULLPTR;    //!< la liste des TypeInterventions
-    QCompleter *m_completer = Q_NULLPTR;
+    QMap<int, TypeIntervention*> *map_all = nullptr;    //!< la liste des TypeInterventions
+    QCompleter *m_completer = nullptr;
     UpStandardItemModel  *m_listetypesinterventionsmodel = new UpStandardItemModel;
 
 public:
-    explicit TypesInterventions(QObject *parent = Q_NULLPTR);
+    explicit TypesInterventions(QObject *parent = nullptr);
 
     QMap<int, TypeIntervention*> *typeinterventions() const;
     QCompleter*         completer();
@@ -95,7 +95,7 @@ public:
     void                initListe();
 
     //!> actions sur les enregistrements
-    void                SupprimeTypeIntervention(TypeIntervention *typeintervention);
+    void                SupprimeTypeIntervention(TypeIntervention *typeintervention, QWidget *parent = nullptr);
     TypeIntervention*   CreationTypeIntervention(QHash<QString, QVariant> sets);
     bool                isThisTypUsed(TypeIntervention* typ);
 };

@@ -42,7 +42,7 @@ class dlg_initbase : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit            dlg_initbase(QString langue, QWidget *parent = Q_NULLPTR);
+    explicit            dlg_initbase(QString langue, QWidget *parent = nullptr);
     static void         RemplitComboLangues(QComboBox *combo, QString langue = "FR");   //!< les 7 langues traduites, avec leur drapeau
     DataBase::compta    compta() const           { return wdg_comptareduitecheck->isChecked()? DataBase::Reduite
                                                         : wdg_sanscomptacheck->isChecked()?    DataBase::NoCompta

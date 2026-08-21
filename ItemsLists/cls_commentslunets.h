@@ -25,10 +25,10 @@ class CommentsLunets : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, CommentLunet*> *map_all = Q_NULLPTR;    //!< la liste des comments
+    QMap<int, CommentLunet*> *map_all = nullptr;    //!< la liste des comments
 
 public:
-    explicit CommentsLunets(QObject *parent = Q_NULLPTR);
+    explicit CommentsLunets(QObject *parent = nullptr);
 
     QMap<int, CommentLunet*> *commentaires() const;
 
@@ -36,7 +36,7 @@ public:
     void initListe();
 
     //!> actions sur les enregistrements
-    void                SupprimeCommentLunet(CommentLunet *comment);
+    void                SupprimeCommentLunet(CommentLunet *comment, QWidget *parent = nullptr);
     CommentLunet*       CreationCommentLunet(QHash<QString, QVariant> sets);
 };
 

@@ -34,7 +34,7 @@ class dlg_depenses : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_depenses(QWidget *parent = Q_NULLPTR);
+    explicit dlg_depenses(QWidget *parent = nullptr);
     ~dlg_depenses();
     Ui::dlg_depenses            *ui;
     bool                        initOK() const;
@@ -45,7 +45,7 @@ private:
     DataBase                    *db             = DataBase::I();
     Procedures                  *proc           = Procedures::I();
     bool                        m_accesdistant  = (db->ModeAccesDataBase()==Utils::Distant);
-    User                        *m_userencours  = Q_NULLPTR;
+    User                        *m_userencours  = nullptr;
     QMap<int, User*>            *map_usersdepenses = Datas::I()->users->comptablesSaufActes();
     bool                        m_initok         = true;
     QString                     m_msgretour = "";
@@ -60,12 +60,12 @@ private:
     UpPushButton                *wdg_modifieruppushbutton;
     UpPushButton                *wdg_supprimeruppushbutton;
     QHBoxLayout                 *wdg_boxbuttlayout;
-    dlg_singleimageviewer               *dlg_imgviewer = Q_NULLPTR;
+    dlg_singleimageviewer               *dlg_imgviewer = nullptr;
 
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );
     void                        AfficheDetailsDepenses();                   //! Affiche la ventilation des dépenses en fonction des modes de paiement: espèces, banque1, banque2...etc...
-    void                        AfficheFacture(Depense *dep = Q_NULLPTR);
+    void                        AfficheFacture(Depense *dep = nullptr);
     void                        CalcImageFacture(Depense *dep);
     void                        CalculTotalDepenses();
     void                        CopieDepense();
@@ -74,7 +74,7 @@ private:
     void                        EnregistreFacture(QString typedoc);
     void                        EnregistreDocScanne(dlg_docsscanner::Mode);
     void                        ExportTable();
-    void                        PrintReport(bool pdf = false);
+    void                        PrintReport();
     void                        FiltreTable();
     Depense*                    getDepenseFromRow(int row);
     bool                        initializeUserSelected();

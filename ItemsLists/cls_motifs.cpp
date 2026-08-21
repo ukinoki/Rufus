@@ -31,7 +31,7 @@ Motif* Motifs::getById(int id)
 {
     QMap<int, Motif*>::const_iterator itcpt = map_all->constFind(id);
     if( itcpt == map_all->constEnd() )
-        return Q_NULLPTR;
+        return nullptr;
     return itcpt.value();
 }
 
@@ -43,7 +43,7 @@ Motif* Motifs::getMotifFromRaccourci(QString txt)
         if (mtf->raccourci() == txt)
             return mtf;
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 /*!
@@ -60,7 +60,7 @@ void Motifs::initListe()
 
 void Motifs::SupprimeMotif(Motif *mf)
 {
-    if (mf == Q_NULLPTR)
+    if (mf == nullptr)
         return;
     DataBase::I()->SupprRecordFromTable(mf->id(), "idMotifsRDV", TBL_MOTIFSRDV);
     remove(map_all, mf);
@@ -68,7 +68,7 @@ void Motifs::SupprimeMotif(Motif *mf)
 
 Motif*  Motifs::CreationMotif(QString Motf, QString Raccourci, QString Couleur, int Duree, bool ParDefaut, bool Utiliser, int NoOrdre)
 {
-    Motif *motf = Q_NULLPTR;
+    Motif *motf = nullptr;
     QString motif           = (Motf == ""?              "null" : "'" + Utils::correctquoteSQL(Motf) + "'");
     QString raccourci       = (Raccourci == ""?         "null" : "'" + Utils::correctquoteSQL(Raccourci) + "'");
     QString couleur         = (Couleur == ""?           "null" : "'" + Utils::correctquoteSQL(Couleur) + "'");
@@ -90,14 +90,14 @@ Motif*  Motifs::CreationMotif(QString Motf, QString Raccourci, QString Couleur, 
     if (!DataBase::I()->StandardSQL(req, MsgErreur))
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     // Récupération de l'idMotif créé ------------------------------------
     int idmotif = DataBase::I()->selectMaxFromTable("idMotifsRDV", TBL_MOTIFSRDV, m_ok, tr("Impossible de sélectionner les enregistrements"));
     if (!m_ok)
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     DataBase::I()->unlocktables();
     QJsonObject jmotif{};

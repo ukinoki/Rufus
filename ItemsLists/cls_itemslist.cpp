@@ -7,34 +7,34 @@ ItemsList::ItemsList(QObject *parent) : QObject(parent)
 
 bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *lot)
 {
-    if (item == Q_NULLPTR)
+    if (item == nullptr)
         return false;
     QString table = "";
     QString clause;
-    Acte *act                   = Q_NULLPTR;
-    Banque *bq                  = Q_NULLPTR;
-    CommentLunet *comment       = Q_NULLPTR;
-    Commercial *com             = Q_NULLPTR;
-    Cotation *cot               = Q_NULLPTR;
-    Depense *dep                = Q_NULLPTR;
-    DocExterne *doc             = Q_NULLPTR;
-    DossierImpression *dossier  = Q_NULLPTR;
-    Impression *impr            = Q_NULLPTR;
-    Intervention *interv        = Q_NULLPTR;
-    IOL *iol                    = Q_NULLPTR;
-    Manufacturer *man           = Q_NULLPTR;
-    Message *msg                = Q_NULLPTR;
-    MotCle *motcle              = Q_NULLPTR;
-    Patient *pat                = Q_NULLPTR;
-    PatientEnCours *patcrs      = Q_NULLPTR;
-    PosteConnecte *post         = Q_NULLPTR;
-    Tiers *tiers                = Q_NULLPTR;
-    Session *session            = Q_NULLPTR;
-    SessionOperatoire *sessionop= Q_NULLPTR;
-    Site *sit                   = Q_NULLPTR;
-    TypeIntervention *typinterv = Q_NULLPTR;
-    User *usr                   = Q_NULLPTR;
-    Ville *ville                = Q_NULLPTR;
+    Acte *act                   = nullptr;
+    Banque *bq                  = nullptr;
+    CommentLunet *comment       = nullptr;
+    Commercial *com             = nullptr;
+    Cotation *cot               = nullptr;
+    Depense *dep                = nullptr;
+    DocExterne *doc             = nullptr;
+    DossierImpression *dossier  = nullptr;
+    Impression *impr            = nullptr;
+    Intervention *interv        = nullptr;
+    IOL *iol                    = nullptr;
+    Manufacturer *man           = nullptr;
+    Message *msg                = nullptr;
+    MotCle *motcle              = nullptr;
+    Patient *pat                = nullptr;
+    PatientEnCours *patcrs      = nullptr;
+    PosteConnecte *post         = nullptr;
+    Tiers *tiers                = nullptr;
+    Session *session            = nullptr;
+    SessionOperatoire *sessionop= nullptr;
+    Site *sit                   = nullptr;
+    TypeIntervention *typinterv = nullptr;
+    User *usr                   = nullptr;
+    Ville *ville                = nullptr;
     bool ok = false;
     bool loop = false;
     const QVariant brut = newvalue;             /*!< la valeur avant conversion en littéral SQL, seule utilisable en bind */
@@ -85,6 +85,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *
             else if (field == CP_COTE_DOCSEXTERNES)
             {
                 doc->setCote(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_IDLIEU_DOCSEXTERNES)
+            {
+                doc->setidsite(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
             else
@@ -722,6 +727,26 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *
             else if (field == CP_COULEUR_SITE)
             {
                 sit->setcouleur(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_MAIL_SITE)
+            {
+                sit->setmail(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_SMTPSERVEUR_SITE)
+            {
+                sit->setsmtpserveur(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_SMTPPORT_SITE)
+            {
+                sit->setsmtpport(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_SMTPLOGIN_SITE)
+            {
+                sit->setsmtplogin(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
             else
@@ -1501,7 +1526,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *
             }
             else if (field == CP_IDLIEU_SESSIONS )
             {
-                session->setidlieu(newvalue.toInt());
+                session->setidsite(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
             else if (field == CP_IDUSER_SESSIONS )
@@ -1588,7 +1613,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *
         }
     }
     if (!ok && !lot)                            /*! en mode groupé, c'est updateFields qui avertit */
-        UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
+        UpMessageBox::Watch(nullptr, tr("Enregistrement impossible"),
                             tr("La modification n'a pas pu être enregistrée dans la base de données "
                                "(le serveur est peut-être momentanément indisponible)."));
     return ok;
@@ -1603,7 +1628,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue, LotUpdate *
  */
 bool ItemsList::updateFields(Item* item, const QHash<QString, QVariant> &champs)
 {
-    if (item == Q_NULLPTR || champs.isEmpty())
+    if (item == nullptr || champs.isEmpty())
         return false;
     QJsonObject saved = item->datas();
     LotUpdate lot;
@@ -1623,7 +1648,7 @@ bool ItemsList::updateFields(Item* item, const QHash<QString, QVariant> &champs)
     if (ok)
         return true;
     item->setData(saved);
-    UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
+    UpMessageBox::Watch(nullptr, tr("Enregistrement impossible"),
                         tr("La modification n'a pas pu être enregistrée dans la base de données "
                            "(le serveur est peut-être momentanément indisponible)."));
     return false;
@@ -1638,7 +1663,7 @@ bool ItemsList::updateFields(Item* item, const QHash<QString, QVariant> &champs)
  */
 bool ItemsList::updateBlob(Item* item, QString field, QByteArray blob)
 {
-    if (item == Q_NULLPTR)
+    if (item == nullptr)
         return false;
 
     /*! instantané des attributs AVANT modification : permet, en cas d'échec de l'écriture
@@ -1672,7 +1697,7 @@ bool ItemsList::updateBlob(Item* item, QString field, QByteArray blob)
     {
         /*! échec base -> on régénère l'ancienne valeur de l'attribut (restauration générique) */
         item->setData(saved);
-        UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
+        UpMessageBox::Watch(nullptr, tr("Enregistrement impossible"),
             tr("La modification n'a pas pu être enregistrée dans la base de données "
                "(le serveur est peut-être momentanément indisponible)."));
     }

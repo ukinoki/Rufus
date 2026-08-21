@@ -88,11 +88,11 @@ void DisplayWidget::setListimg(const QList<QImage> &newListimg, QSize size)
     m_listgraphicsItem.clear();
     if (m_scene->items().size() >0)
         m_scene->clear();             /*! QGraphicsScene::clear() -> "Removes and deletes all items from the scene..." */
-    m_vidItem = Q_NULLPTR;            //! détruit par m_scene->clear() (item de la scène) : ne pas garder un pointeur mort (lu par resizeEvent)
-    if (m_mediaPlayer != Q_NULLPTR)
+    m_vidItem = nullptr;            //! détruit par m_scene->clear() (item de la scène) : ne pas garder un pointeur mort (lu par resizeEvent)
+    if (m_mediaPlayer != nullptr)
     {
         delete m_mediaPlayer;
-        m_mediaPlayer = Q_NULLPTR;
+        m_mediaPlayer = nullptr;
     }
     int h=0;
     foreach (QImage img, newListimg)
@@ -119,8 +119,8 @@ void DisplayWidget::setVideo(const QString filename, QSize size)
     m_listgraphicsItem.clear();       //! nos pointeurs d'abord (cf. setListimg), puis la scène
     if (m_scene->items().size() >0)
         m_scene->clear();             /*! QGraphicsScene::clear() -> "Removes and deletes all items from the scene..." */
-    m_vidItem = Q_NULLPTR;            //! l'ancien item vidéo vient d'être détruit par clear() : pas de pointeur mort
-    if (m_mediaPlayer == Q_NULLPTR)
+    m_vidItem = nullptr;            //! l'ancien item vidéo vient d'être détruit par clear() : pas de pointeur mort
+    if (m_mediaPlayer == nullptr)
         m_mediaPlayer           = new UpMediaPlayer(filename, this);
     else
         m_mediaPlayer           ->init(filename);
@@ -209,7 +209,7 @@ void DisplayWidget::fitImage(QSize size)
 
 void DisplayWidget::fitVideo(QSize size)
 {
-    if (m_vidItem != Q_NULLPTR)
+    if (m_vidItem != nullptr)
     {
         m_ScaleFactor = videoScaleFactor(size, QSize(m_vidItem->size().width(), m_vidItem->size().height()));
         resetTransform();
@@ -282,7 +282,7 @@ void DisplayWidget::resizeEvent(QResizeEvent* event) {
         fitImage(viewport()->size());
         checkSize();
     }
-    else if (m_vidItem != Q_NULLPTR)
+    else if (m_vidItem != nullptr)
         fitVideo(viewport()->size());
     m_inResize = false;
 }

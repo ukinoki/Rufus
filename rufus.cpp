@@ -1383,7 +1383,7 @@ void Rufus::BasculerMontantActe()
 {
     m_montantActe = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
     Cotation *cot = cotationcombo();
-    if (cot != Q_NULLPTR)
+    if (cot != nullptr)
     {
         const double MontantActe = QLocale().toDouble(ui->ActeMontantlineEdit->text());
         if (fabs(MontantActe) != fabs(cot->montantpratique()))
@@ -3036,7 +3036,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        bool     AvecDupli   = false;
        bool     AvecNumPage = true;
        aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                              proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                              QMap<QString,QString>(),
                               AvecDupli, AvecNumPage);
    }
    if (aa)
@@ -3628,7 +3628,7 @@ void Rufus::ImprimeListPatients(QVariant var)
      }
 
     proc->Imprime_Etat(this, textecorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
 }
 
@@ -4458,7 +4458,7 @@ void Rufus::RetrouveMontantActe()
         return;
     ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->currentText() != "");
     Cotation *cot = cotationcombo();
-    const double montant = (cot == Q_NULLPTR? 0.0
+    const double montant = (cot == nullptr? 0.0
                             : currentpatient()->iscmu()?
                             cot->montantconventionnel() : cot->montantpratique());
     ui->ActeMontantlineEdit->setText(QLocale().toString(montant, 'f', 2));
@@ -8118,7 +8118,7 @@ void Rufus::SupprimeActesVides(Patient *patient)
          || !estvide(act->conclusion()) || !estvide(act->cotation()))
             continue;
         db              ->SupprRecordFromTable(act->id(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
-        m_listeactes    ->SupprimeActe(act);
+        m_listeactes    ->SupprimeActe(act, this);
         ++nbsuppr;
     }
     if (nbsuppr == 0)
@@ -8900,11 +8900,17 @@ void    Rufus::ImprimeDocument(Patient *pat)
         QDate DateDoc = Dlg_Imprs->ui->dateImpressiondateEdit->date();
 
         bool ALD;
-        QString imprimante = "";
         QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> listdocs = Dlg_Imprs->mapdocsaimprimer();
         QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
-        if (Dlg_Imprs->printPdf())
+        Procedures::typeEnvoi typenvoi = Dlg_Imprs->modeEnvoi();
+        if (typenvoi == Procedures::noEMISSION)
+        {
+            delete Dlg_Imprs;
+            return;
+        }
+        if (typenvoi == Procedures::createPDF)
             proc->setDirnamepdf(tr("Documents") + " - " + userEntete->prenom() + " " + userEntete->nom() + " - " + QLocale::system().toString(QDate::currentDate(),"dd MMM yyyy"));
+        QList<Procedures::DocAEnvoyer> docsamailer;   /*!< en mode mail, tous les documents partent dans un seul envoi */
         foreach (mapdoc, listdocs)
         {
             bool Prescription           = (mapdoc.find(dlg_impressions::d_Prescription).value() == "1");
@@ -8912,19 +8918,26 @@ void    Rufus::ImprimeDocument(Patient *pat)
             bool Administratif          = (mapdoc.find(dlg_impressions::d_Administratif).value() == "1");
             QString Titre               =  mapdoc.find(dlg_impressions::d_Titre).value();
             QString TxtDocument         =  mapdoc.find(dlg_impressions::d_Texte).value();
-            QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdocfirst = listdocs.first();
-            bool AvecChoixImprimante    = (mapdoc == mapdocfirst);            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
             QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
-            proc                        ->setNomImprimante(imprimante);
-            success                     = proc->Imprimer_Document(this, pat, userEntete, Titre,
+            if (typenvoi == Procedures::SendMAIL)
+            {
+                Procedures::DocAEnvoyer doc;
+                success                 = proc->PrepareDocExterne(pat, userEntete, Titre, TxtDocument, DateDoc,
+                                                                 Prescription, ALD, Administratif, signature, doc);
+                if (success)
+                    docsamailer << doc;
+            }
+            else
+                success                 = proc->Imprimer_DocExterne(this, pat, userEntete, Titre,
                                                                   TxtDocument, DateDoc, Prescription, ALD,
-                                                                  AvecDupli, Dlg_Imprs->printPdf(), AvecChoixImprimante, Administratif, signature);
+                                                                  AvecDupli, typenvoi, Administratif, signature);
             if (!success)
                 break;
-            imprimante = proc->nomImprimante();
         }
+        if (success && typenvoi == Procedures::SendMAIL)
+            success = proc->EnvoiGroupeDocExternes(this, docsamailer, Datas::I()->sites->idcurrentsite(), pat);
     }
     delete Dlg_Imprs;
     if (currentpatient() != nullptr)
@@ -9122,7 +9135,7 @@ Cotation* Rufus::cotationcombo()
 void Rufus::AfficheBasculerMontant(double montantacte)
 {
     Cotation *cot = cotationcombo();
-    if (cot == Q_NULLPTR)
+    if (cot == nullptr)
     {
         ui->BasculerMontantpushButton->setVisible(false);
         return;
@@ -10225,7 +10238,7 @@ void Rufus::SupprimerActe(Acte *act)
     }
 
     // on supprime l'acte -------------------------------------------------------------------------------------------------
-    m_listeactes->SupprimeActe(act);
+    m_listeactes->SupprimeActe(act, this);
     if (m_listeactes->actes()->size() == 0)
     {
         ui->Acteframe->setVisible(false);

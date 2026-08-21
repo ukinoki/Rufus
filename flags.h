@@ -96,7 +96,7 @@ class Flags : public QObject
     Q_OBJECT
 public:
     static Flags            *I();
-    explicit                Flags(QObject *parent = Q_NULLPTR);
+    explicit                Flags(QObject *parent = nullptr);
     ~Flags();
     enum Flag               {Correspondants, Messages, SalleDattente, UserDistant}; Q_ENUM(Flag)
 

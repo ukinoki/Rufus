@@ -37,8 +37,8 @@ class UpTextEdit : public QTextEdit
 {
     Q_OBJECT
 public:
-    explicit    UpTextEdit(QWidget *parent = Q_NULLPTR);
-    explicit    UpTextEdit(QString txt, QWidget *parent = Q_NULLPTR);
+    explicit    UpTextEdit(QWidget *parent = nullptr);
+    explicit    UpTextEdit(QString txt, QWidget *parent = nullptr);
     void        setiD(int id);
     int         iD() const;
     void        setIdUser(int m_id);

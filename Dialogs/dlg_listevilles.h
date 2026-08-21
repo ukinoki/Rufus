@@ -27,7 +27,7 @@ class dlg_listevilles : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_listevilles(QWidget *parent = Q_NULLPTR);
+    dlg_listevilles(QWidget *parent = nullptr);
     ~dlg_listevilles();
 
 private:
@@ -36,16 +36,16 @@ private:
     UpTableView                 *wdg_tblview;
 
     WidgetButtonFrame           *wdg_buttonframe;
-    UpStandardItemModel         *m_model = Q_NULLPTR;
-    Ville                       *m_currentville = Q_NULLPTR;
+    UpStandardItemModel         *m_model = nullptr;
+    Ville                       *m_currentville = nullptr;
     QHash<QString, QVariant>    m_listbinds;
     QMap<int, Ville*>           *m_mapvilles = Datas::I()->villes->villes();
-    QSortFilterProxyModel       *m_listnomsproxymodel  = Q_NULLPTR;
-    QSortFilterProxyModel       *m_listCPsproxymodel    = Q_NULLPTR;
-    QCompleter                  *m_complListVilles      = Q_NULLPTR;
-    UpDialog                    *dlg_ask                = Q_NULLPTR;
-    UpLineEdit                  *cpline                 = Q_NULLPTR;
-    UpLineEdit                  *nomline                = Q_NULLPTR;
+    QSortFilterProxyModel       *m_listnomsproxymodel  = nullptr;
+    QSortFilterProxyModel       *m_listCPsproxymodel    = nullptr;
+    QCompleter                  *m_complListVilles      = nullptr;
+    UpDialog                    *dlg_ask                = nullptr;
+    UpLineEdit                  *cpline                 = nullptr;
+    UpLineEdit                  *nomline                = nullptr;
     bool                        ChercheDoublon(QString cp, QString nom);
     void                        ChoixButtonFrame();
     void                        ChoixMenuContextuel(QString);
@@ -59,7 +59,7 @@ private:
     void                        SupprimmVille(Ville *ville);
     void                        EnregistreNouvelleVille();
     void                        ModifieVille(Ville *ville);
-    void                        actualiserListeVillesEtFocus(Ville *focusVille = Q_NULLPTR);
+    void                        actualiserListeVillesEtFocus(Ville *focusVille = nullptr);
     void                        dialogville(QString cp, QString nom);
 };
 

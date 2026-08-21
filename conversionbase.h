@@ -26,7 +26,7 @@ class conversionbase : public QObject
 {
     Q_OBJECT
 public:
-    explicit conversionbase(QObject *parent = Q_NULLPTR);
+    explicit conversionbase(QObject *parent = nullptr);
     DataBase    *db;
     Procedures  *proc;
     bool        ok;

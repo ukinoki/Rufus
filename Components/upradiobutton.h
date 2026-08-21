@@ -29,8 +29,8 @@ class UpRadioButton : public QRadioButton
 {
     Q_OBJECT
 public:
-    explicit    UpRadioButton(QWidget *parent = Q_NULLPTR);
-    explicit    UpRadioButton(const QString Title, QWidget *parent = Q_NULLPTR);
+    explicit    UpRadioButton(QWidget *parent = nullptr);
+    explicit    UpRadioButton(const QString Title, QWidget *parent = nullptr);
     void        setImmediateToolTip(QString);
     void        setToggleable(bool val);
             // cette propriété permet de bloquer la modification d'état du RadioButton
@@ -43,7 +43,7 @@ public:
 
 
 private:
-    Item        *m_rufusitem = Q_NULLPTR;
+    Item        *m_rufusitem = nullptr;
     int         m_id         = 0;
     QString     m_tooltipmsg = "";
     bool        eventFilter(QObject *obj, QEvent *event)  ;

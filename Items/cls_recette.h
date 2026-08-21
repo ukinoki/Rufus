@@ -59,7 +59,7 @@ private:
     bool m_isautrerecette;              //! la  recette est une autre recette
 
 public:
-    explicit Recette(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Recette(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     int idacte() const;

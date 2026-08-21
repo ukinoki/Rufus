@@ -29,14 +29,14 @@ class PostesConnectes : public ItemsList
      */
     Q_OBJECT
 public:
-    QMap<QString, PosteConnecte*> *map_postesconnectes = Q_NULLPTR;  //!< la liste de tous les postesconnectes
+    QMap<QString, PosteConnecte*> *map_postesconnectes = nullptr;  //!< la liste de tous les postesconnectes
 
 private:
-    PosteConnecte   *m_admin = Q_NULLPTR;
+    PosteConnecte   *m_admin = nullptr;
     bool            adminset = false;
 
 public:
-    explicit PostesConnectes(QObject *parent = Q_NULLPTR);
+    explicit PostesConnectes(QObject *parent = nullptr);
     ~PostesConnectes();
 
     QMap<QString, PosteConnecte*>* postesconnectes() const;

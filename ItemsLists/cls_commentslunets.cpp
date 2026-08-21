@@ -33,10 +33,10 @@ CommentLunet* CommentsLunets::getById(int id, bool reload)
     if( itref == map_all->constEnd() )
     {
         CommentLunet * itm = DataBase::I()->loadCommentLunetById(id);
-        if (itm != Q_NULLPTR)
+        if (itm != nullptr)
             add( map_all, itm );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<CommentLunet*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<CommentLunet*>(it.value()) : nullptr);
     }
     else if (reload)
     {
@@ -62,14 +62,14 @@ void CommentsLunets::initListe()
     addList(map_all, &listCommentsLunets, Item::Update);
 }
 
-void CommentsLunets::SupprimeCommentLunet(CommentLunet* comment)
+void CommentsLunets::SupprimeCommentLunet(CommentLunet* comment, QWidget *parent)
 {
-    Supprime(map_all, comment);
+    Supprime(map_all, comment, parent);
 }
 
 CommentLunet* CommentsLunets::CreationCommentLunet(QHash<QString, QVariant> sets)
 {
-    CommentLunet *comment = Q_NULLPTR;
+    CommentLunet *comment = nullptr;
     int idcomment = 0;
     DataBase::I()->locktables(QStringList() << TBL_COMMENTAIRESLUNETTES);
     idcomment = DataBase::I()->selectMaxFromTable(CP_ID_COMLUN, TBL_COMMENTAIRESLUNETTES, m_ok);
@@ -83,7 +83,7 @@ CommentLunet* CommentsLunets::CreationCommentLunet(QHash<QString, QVariant> sets
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce commentaire dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce commentaire dans la base!"));
         return comment;
     }
     QJsonObject  data = QJsonObject{};
@@ -99,7 +99,7 @@ CommentLunet* CommentsLunets::CreationCommentLunet(QHash<QString, QVariant> sets
         else if (champ == CP_PARDEFAUT_COMLUN)      data[champ] = itset.value().toBool();
     }
     comment = new CommentLunet(data);
-    if (comment != Q_NULLPTR)
+    if (comment != nullptr)
         map_all->insert(comment->id(), comment);
     return comment;
 }

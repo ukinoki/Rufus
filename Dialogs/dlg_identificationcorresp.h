@@ -32,7 +32,7 @@ class dlg_identificationcorresp : public UpDialog
     Q_OBJECT
 public:
     enum Mode   {Creation, Modification};    Q_ENUM(Mode)
-    explicit dlg_identificationcorresp(enum Mode mode, bool quelesmedecins, Correspondant *cor = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationcorresp(enum Mode mode, bool quelesmedecins, Correspondant *cor = nullptr, QWidget *parent = nullptr);
     Ui::dlg_identificationcorresp *ui;
     ~dlg_identificationcorresp();
     bool                identcorrespondantmodifiee() const;
@@ -40,7 +40,7 @@ public:
 
 private:
     DataBase            *db                 = DataBase::I();
-    Correspondant       *m_currentcorrespondant    = Q_NULLPTR;
+    Correspondant       *m_currentcorrespondant    = nullptr;
 
     bool                m_onlydoctors;
     bool                m_modifdatascor;

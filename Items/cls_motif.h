@@ -34,7 +34,7 @@ private:
     bool m_pardefaut, m_utiliser;
 
 public:
-    explicit Motif(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Motif(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     QString motif() const;

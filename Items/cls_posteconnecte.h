@@ -32,7 +32,7 @@ class PosteConnecte : public Item
      */
     Q_OBJECT
 public:
-    explicit PosteConnecte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit PosteConnecte(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
 private:

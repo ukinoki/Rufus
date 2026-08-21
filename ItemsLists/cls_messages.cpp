@@ -48,10 +48,10 @@ Message* Messages::getById(int id)
     Message * itm = DataBase::I()->loadMessageById(id);
     if( itref == map_all->constEnd() )
     {
-        if (itm != Q_NULLPTR)
+        if (itm != nullptr)
             add( map_all, itm );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<Message*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<Message*>(it.value()) : nullptr);
     }
     else
     {
@@ -103,9 +103,9 @@ void Messages::initListeAllMsgsByIdUser(int iduser)
     m_listallmsgs = listmessages;
 }
 
-void Messages::SupprimeMessage(Message* msg)
+void Messages::SupprimeMessage(Message* msg, QWidget *parent)
 {
-    Supprime(map_all, msg);
+    Supprime(map_all, msg, parent);
 }
 
 bool Messages::CreationMessage(QHash<QString, QVariant> sets,  QList<int> listdestinataires)
@@ -124,13 +124,13 @@ bool Messages::CreationMessage(QHash<QString, QVariant> sets,  QList<int> listde
         if (!result)
         {
             DataBase::I()->rollback();
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce message dans la base!"));
+            UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce message dans la base!"));
             return false;
         }
         if (!EnregistreDestinataires(idmsg, listdestinataires))
         {
             DataBase::I()->rollback();
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce message dans la base!"));
+            UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce message dans la base!"));
             return false;
         }
         DataBase::I()->commit();
@@ -149,7 +149,7 @@ bool Messages::UpdateMessage(int idmsg, QHash<QString, QVariant> sets,  QList<in
     if (!EnregistreDestinataires(idmsg, listdestinataires))
     {
         DataBase::I()->rollback();
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce message dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce message dans la base!"));
         return false;
     }
     DataBase::I()->commit();
@@ -168,7 +168,7 @@ bool Messages::EnregistreDestinataires(int idmsg, QList<int> listdestinataires)
     if (!DataBase::I()->StandardSQL(req, tr("Impossible d'enregistrer le message")))
     {
         DataBase::I()->rollback();
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce message dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce message dans la base!"));
         return false;
     }
     return true;

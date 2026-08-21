@@ -298,7 +298,7 @@ void UpDialog::AjouteWidgetLayButtons(QWidget *widg, bool ALaFin)
     else
         wdg_buttonslayout->insertWidget(0,widg);
     UpSmallButton *but = qobject_cast<UpSmallButton*>(widg);
-    if (but != Q_NULLPTR)
+    if (but != nullptr)
     {
         if (but->ButtonStyle() == UpSmallButton::CANCELBUTTON)
             but    ->setShortcut(QKeySequence("F12"));
@@ -343,14 +343,14 @@ void UpDialog::TuneSize(bool fixh, bool fixw)
     {
         for (int i=0; i<listwidg.size(); i++)
         {
-            if (qobject_cast<UpSmallButton*>(listwidg.at(i)) == Q_NULLPTR && qobject_cast<UpPushButton*>(listwidg.at(i)))
+            if (qobject_cast<UpSmallButton*>(listwidg.at(i)) == nullptr && qobject_cast<UpPushButton*>(listwidg.at(i)))
             {
                 stages = 0.0;
                 break;
             }
-            if (qobject_cast<UpPushButton*>(listwidg.at(i)) != Q_NULLPTR)
+            if (qobject_cast<UpPushButton*>(listwidg.at(i)) != nullptr)
                 stages = 1;
-            if (qobject_cast<UpSmallButton*>(listwidg.at(i)) != Q_NULLPTR && stages < 1)
+            if (qobject_cast<UpSmallButton*>(listwidg.at(i)) != nullptr && stages < 1)
             {
                 if (qobject_cast<UpSmallButton*>(listwidg.at(i))->text() =="")
                     stages = 0.7;

@@ -37,7 +37,7 @@ PosteConnecte* PostesConnectes::getByStringId(QString stringid)
 {
     // Logs::LogSktMessage("PosteConnecte* PostesConnectes::getByStringId(QString stringid) ----------------------> " + stringid);
     // qDebug() << "PosteConnecte* PostesConnectes::getByStringId(QString stringid)" << stringid;
-    PosteConnecte *post = Q_NULLPTR;
+    PosteConnecte *post = nullptr;
     if (stringid.split(" - ").size() < 2)
     {
         // qDebug() << "stringid invalide";
@@ -80,7 +80,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
     if (adminset && upd == Item::NoUpdate)
         return m_admin;
     initListe();
-    m_admin = Q_NULLPTR;
+    m_admin = nullptr;
     if (DataBase::I()->ModeAccesDataBase() != Utils::Distant)
     {
         foreach (PosteConnecte *post, *map_postesconnectes)
@@ -116,7 +116,7 @@ void PostesConnectes::MAJlistePostesConnectes()
 
 void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
 {
-    if (post == Q_NULLPTR)
+    if (post == nullptr)
         return;
     bool canremoveverrouactes = true;
     QString req = "delete from " TBL_USERSCONNECTES " where " CP_IDUSER_USRCONNECT " = " + QString::number(post->iduser()) + " and " CP_MACADRESS_USRCONNECT " = '" + post->macadress() + "'";
@@ -131,8 +131,8 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
         DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(post->iduser()));
     if (post->isadmin()) {
         adminset = true;
-        if (m_admin != Q_NULLPTR)
-            m_admin = Q_NULLPTR;
+        if (m_admin != nullptr)
+            m_admin = nullptr;
     }
     remove(map_postesconnectes, post);
 }
@@ -140,7 +140,7 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
 PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
 {
     if (Utils::IPAdress() == "" || Utils::MACAdress() == "")
-        return Q_NULLPTR;
+        return nullptr;
     QString macadressid =  Utils::MACAdress() + " - " + QString::number(usr->id());
     QString macadress = Utils::MACAdress() +  (usr->login() == NOM_ADMINISTRATEUR? " - " + usr->login() : "");
     QString MAJConnexionRequete = "insert into " TBL_USERSCONNECTES " (" CP_HEUREDERNIERECONNECTION_USRCONNECT ", "

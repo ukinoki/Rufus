@@ -36,7 +36,7 @@ Intervention* Interventions::getById(int id, bool reload)
         if (itm)
             add( map_all, itm );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<Intervention*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<Intervention*>(it.value()) : nullptr);
     }
     else
     {
@@ -77,14 +77,14 @@ void Interventions::setcurrentintervention(Intervention *interv)
     m_currentintervention = interv;
 }
 
-void Interventions::SupprimeIntervention(Intervention* intervention)
+void Interventions::SupprimeIntervention(Intervention* intervention, QWidget *parent)
 {
-    Supprime(map_all, intervention);
+    Supprime(map_all, intervention, parent);
 }
 
 Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
 {
-    Intervention *intervention = Q_NULLPTR;
+    Intervention *intervention = nullptr;
     int idintervention = 0;
     DataBase::I()->locktables(QStringList() << TBL_LIGNESPRGOPERATOIRES);
     idintervention = DataBase::I()->selectMaxFromTable(CP_ID_LIGNPRGOPERATOIRE, TBL_LIGNESPRGOPERATOIRES, m_ok);
@@ -98,7 +98,7 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cette intervention dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer cette intervention dans la base!"));
         return intervention;
     }
     QJsonObject  data = QJsonObject{};
@@ -120,7 +120,7 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
         else if (champ == CP_OBSERV_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toString();
     }
     intervention = new Intervention(data);
-    if (intervention != Q_NULLPTR)
+    if (intervention != nullptr)
         map_all->insert(intervention->id(), intervention);
     return intervention;
 }
@@ -141,10 +141,10 @@ SessionOperatoire* SessionsOperatoires::getById(int id, bool reload)
     if( itref == map_all->constEnd() )
     {
         SessionOperatoire * itm = DataBase::I()->loadSessionOpById(id);
-        if (itm != Q_NULLPTR)
+        if (itm != nullptr)
             add( map_all, itm );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<SessionOperatoire*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<SessionOperatoire*>(it.value()) : nullptr);
     }
     else if (reload)
     {
@@ -176,14 +176,14 @@ void SessionsOperatoires::setcurrentsession(SessionOperatoire *sess)
     m_currentsession = sess;
 }
 
-void SessionsOperatoires::SupprimeSessionOperatoire(SessionOperatoire *session)
+void SessionsOperatoires::SupprimeSessionOperatoire(SessionOperatoire *session, QWidget *parent)
 {
-    Supprime(map_all, session);
+    Supprime(map_all, session, parent);
 }
 
 SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString, QVariant> sets)
 {
-    SessionOperatoire *session = Q_NULLPTR;
+    SessionOperatoire *session = nullptr;
     int idsession = 0;
     DataBase::I()->locktables(QStringList() << TBL_SESSIONSOPERATOIRES);
     idsession = DataBase::I()->selectMaxFromTable(CP_ID_SESSIONOPERATOIRE, TBL_SESSIONSOPERATOIRES, m_ok);
@@ -197,7 +197,7 @@ SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString,
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cette session opératoire dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer cette session opératoire dans la base!"));
         return session;
     }
     QJsonObject  data = QJsonObject{};
@@ -212,7 +212,7 @@ SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString,
         else if (champ == CP_IDAIDE_SESSIONOPERATOIRE)  data[champ] = itset.value().toInt();
     }
     session = new SessionOperatoire(data);
-    if (session != Q_NULLPTR)
+    if (session != nullptr)
         map_all->insert(session->id(), session);
     return session;
 }
@@ -233,10 +233,10 @@ TypeIntervention* TypesInterventions::getById(int id, bool reload)
     if( itref == map_all->constEnd() )
     {
         TypeIntervention* itm = DataBase::I()->loadTypeInterventionById(id);
-        if (itm != Q_NULLPTR)
+        if (itm != nullptr)
             add( map_all, itm );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<TypeIntervention*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<TypeIntervention*>(it.value()) : nullptr);
     }
     else if (reload)
     {
@@ -260,7 +260,7 @@ QCompleter* TypesInterventions::completer()
             model->appendRow(new QStandardItem(typ->typeintervention()));
     }
     model->sort(0);
-    if (m_completer != Q_NULLPTR)
+    if (m_completer != nullptr)
         delete m_completer;
     m_completer = new QCompleter();
     m_completer->setModel(model);
@@ -284,15 +284,15 @@ void TypesInterventions::initListe()
 }
 
 
-void TypesInterventions::SupprimeTypeIntervention(TypeIntervention *typeintervention)
+void TypesInterventions::SupprimeTypeIntervention(TypeIntervention *typeintervention, QWidget *parent)
 {
-    Supprime(map_all, typeintervention);
+    Supprime(map_all, typeintervention, parent);
     UpdateModel();
 }
 
 TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QVariant> sets)
 {
-    TypeIntervention *typ = Q_NULLPTR;
+    TypeIntervention *typ = nullptr;
     int idtypeintervention = 0;
     DataBase::I()->locktables(QStringList() << TBL_TYPESINTERVENTIONS);
     idtypeintervention = DataBase::I()->selectMaxFromTable(CP_ID_TYPINTERVENTION, TBL_TYPESINTERVENTIONS, m_ok);
@@ -306,7 +306,7 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce type d'intervention dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce type d'intervention dans la base!"));
         return typ;
     }
     QJsonObject  data = QJsonObject{};
@@ -320,7 +320,7 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
         else if (champ == CP_DUREE_TYPINTERVENTION)         data[champ] = itset.value().toString();
     }
     typ = new TypeIntervention(data);
-    if (typ != Q_NULLPTR)
+    if (typ != nullptr)
         map_all->insert(typ->id(), typ);
     UpdateModel();
     return typ;

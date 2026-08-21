@@ -116,7 +116,7 @@ void dlg_fontdialog::FermeFiche()
 
 void dlg_fontdialog::Redessinelabel(QTreeWidgetItem *item)
 {
-    if (item->parent() == Q_NULLPTR)
+    if (item->parent() == nullptr)
     {
         if (item->childCount()>0)
             wdg_treewidget->setCurrentItem(item->child(0));
@@ -126,7 +126,7 @@ void dlg_fontdialog::Redessinelabel(QTreeWidgetItem *item)
     QString child = item->text(0);
     fontlabel.setStyle(QFont::StyleNormal);
     fontlabel.setWeight(QFont::Normal);
-    if (item->parent() != Q_NULLPTR)
+    if (item->parent() != nullptr)
     {
         fontlabel.setFamily(item->parent()->text(0));
         if (!child.contains("Regular",Qt::CaseInsensitive))

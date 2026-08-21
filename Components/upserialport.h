@@ -34,7 +34,7 @@ signals:
 private:
     QString     m_nomapp = "";
     QString     m_repons = "";
-    QTimer      *t_timer = Q_NULLPTR;;
+    QTimer      *t_timer = nullptr;;
     void        readDataPort();
     void        readdatas();
 };

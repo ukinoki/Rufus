@@ -34,7 +34,7 @@ class dlg_autresmesures : public UpDialog
 public:
     ~dlg_autresmesures();
     enum Mode {TONO, PACHY};    Q_ENUM(Mode)
-    explicit            dlg_autresmesures(enum Mode mod = TONO, QWidget *parent = Q_NULLPTR);
+    explicit            dlg_autresmesures(enum Mode mod = TONO, QWidget *parent = nullptr);
     QWidget*            Widget() const;
 
 private:

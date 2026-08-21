@@ -107,7 +107,7 @@ void dlg_remisecheques::reject()
     if (ui->ListeChequesupTableWidget->currentColumn() == 4)
     {
         QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(ui->ListeChequesupTableWidget->currentRow(),4));
-        if (Line == Q_NULLPTR)
+        if (Line == nullptr)
             return;
         QString b ;
         b.setNum(Line->text().toDouble(),'f',2);
@@ -224,7 +224,7 @@ void dlg_remisecheques::ImprimepushButton()
         for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
         {
             QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
-            if (Line == Q_NULLPTR)
+            if (Line == nullptr)
                 continue;
             Total = Total + QLocale().toDouble(Line->text());
         }
@@ -530,7 +530,7 @@ void dlg_remisecheques::MiseEnFormeMontant(int A, int B, int C, int D)
     if (D == 4)   // on quitte une case montant et on valide le montant qui y figure sinon, on remet l'ancien
     {
         QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(C,4));
-        if (Line == Q_NULLPTR)
+        if (Line == nullptr)
             return;
         QString b ;
         b = QLocale().toString(QLocale().toDouble(Line->text()),'f',2);
@@ -554,7 +554,7 @@ void dlg_remisecheques::ChangeCompte()
 void dlg_remisecheques::ChangeUser()
 {
     User *usr = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
-    if (usr == Q_NULLPTR)
+    if (usr == nullptr)
         return;
     m_userencours = usr;
     proc->MAJComptesBancaires(m_userencours);
@@ -570,7 +570,7 @@ void dlg_remisecheques::RemplirRemisesPrecs(int id)
 {
     QFontMetrics        fm(qApp->font());
     QString A;
-    disconnect (ui->ListeChequesupTableWidget,     SIGNAL(itemEntered(QTableWidgetItem*)), Q_NULLPTR, Q_NULLPTR);
+    disconnect (ui->ListeChequesupTableWidget,     SIGNAL(itemEntered(QTableWidgetItem*)), nullptr, nullptr);
     QToolTip::showText(cursor().pos(),"");
     ui->ListeChequesupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->ListeChequesupTableWidget->clearContents();
@@ -662,7 +662,7 @@ void dlg_remisecheques::RecalculeMontant()
     for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
     {
         QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
-        if (Line == Q_NULLPTR)
+        if (Line == nullptr)
             continue;
         Total = Total + QLocale().toDouble(Line->text());
     }
@@ -731,13 +731,13 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     ui->RemisesPrecsPushButton          ->setText(tr("Supprimer"));
     ui->RemisesPrecsPushButton          ->setIcon(Icons::icPoubelle());
 
-    disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(cellClicked(int, int)),                  Q_NULLPTR, Q_NULLPTR);
-    disconnect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellClicked(int, int)),                  Q_NULLPTR, Q_NULLPTR);
-    disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(currentCellChanged(int,int,int,int)),    Q_NULLPTR, Q_NULLPTR);
-    disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(cellChanged(int,int)),                   Q_NULLPTR, Q_NULLPTR);
-    disconnect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellChanged(int,int)),                   Q_NULLPTR, Q_NULLPTR);
-    disconnect (ui->RemisePrecsupComboBox,                     SIGNAL(currentIndexChanged(int)),               Q_NULLPTR, Q_NULLPTR);
-    disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              Q_NULLPTR, Q_NULLPTR);
+    disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(cellClicked(int, int)),                  nullptr, nullptr);
+    disconnect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellClicked(int, int)),                  nullptr, nullptr);
+    disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(currentCellChanged(int,int,int,int)),    nullptr, nullptr);
+    disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(cellChanged(int,int)),                   nullptr, nullptr);
+    disconnect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellChanged(int,int)),                   nullptr, nullptr);
+    disconnect (ui->RemisePrecsupComboBox,                     SIGNAL(currentIndexChanged(int)),               nullptr, nullptr);
+    disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              nullptr, nullptr);
 
     QString idlist;
     QList<int> listcpt = m_userencours->listecomptesbancaires();
@@ -929,13 +929,13 @@ bool dlg_remisecheques::VoirNouvelleRemise()
             return false;
         }
 
-        disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(cellClicked(int, int)),                  Q_NULLPTR, Q_NULLPTR);
-        disconnect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellClicked(int, int)),                  Q_NULLPTR, Q_NULLPTR);
-        disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(currentCellChanged(int,int,int,int)),    Q_NULLPTR, Q_NULLPTR);
-        disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(cellChanged(int,int)),                   Q_NULLPTR, Q_NULLPTR);
-        disconnect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellChanged(int,int)),                   Q_NULLPTR, Q_NULLPTR);
-        disconnect (ui->RemisePrecsupComboBox,                     SIGNAL(currentIndexChanged(int)),               Q_NULLPTR, Q_NULLPTR);
-        disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              Q_NULLPTR, Q_NULLPTR);
+        disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(cellClicked(int, int)),                  nullptr, nullptr);
+        disconnect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellClicked(int, int)),                  nullptr, nullptr);
+        disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(currentCellChanged(int,int,int,int)),    nullptr, nullptr);
+        disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(cellChanged(int,int)),                   nullptr, nullptr);
+        disconnect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellChanged(int,int)),                   nullptr, nullptr);
+        disconnect (ui->RemisePrecsupComboBox,                     SIGNAL(currentIndexChanged(int)),               nullptr, nullptr);
+        disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              nullptr, nullptr);
 
         QTableWidgetItem    *pItem1, *pItem2, *pItem3, *pItem4, *pItem5;
         QString             A;
@@ -1052,7 +1052,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
         {
             QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
-            if (Line == Q_NULLPTR)
+            if (Line == nullptr)
                 continue;
             Total = Total + QLocale().toDouble(Line->text());
         }
@@ -1108,7 +1108,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     textentete = proc->CalcEnteteImpression(date, userEntete, false).value(NORMHeader);
     if (textentete == "") return false;
 
-    textentete.replace("{{TITRE1}}"            , (Datas::I()->banques->getById(cpt->idBanque()) != Q_NULLPTR? Datas::I()->banques->getById(cpt->idBanque())->nomabrege().toUpper() : ""));
+    textentete.replace("{{TITRE1}}"            , (Datas::I()->banques->getById(cpt->idBanque()) != nullptr? Datas::I()->banques->getById(cpt->idBanque())->nomabrege().toUpper() : ""));
     textentete.replace("{{PRENOM PATIENT}}"    , "");
     textentete.replace("{{NOM PATIENT}}"       , cpt->intitulecompte());
     textentete.replace("{{TITRE}}"             , "Compte " + cpt->iban());
@@ -1141,7 +1141,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
         }
         else if (m_mode == NouvelleRemise) {
             QLineEdit *line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
-            if (line == Q_NULLPTR)
+            if (line == nullptr)
                 continue;
             LigneChq.replace("{{MONT REGLT}}", line->text());
             gtotalMontRemise += QLocale().toDouble(line->text());
@@ -1161,7 +1161,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     textcorps += "</body></html>";
 
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
     return a;
 }
@@ -1214,7 +1214,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
         idcomptable = map_comptablesavecchequesenattente->firstKey();
     m_userencours = Datas::I()->users->getById(idcomptable);
     bool a = false;
-    if (m_userencours != Q_NULLPTR)
+    if (m_userencours != nullptr)
     {
         auto itusr = map_comptablesavecchequesenattente->find(m_userencours->id());
         if(itusr != map_comptablesavecchequesenattente->end())

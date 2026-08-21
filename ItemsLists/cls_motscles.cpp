@@ -33,10 +33,10 @@ MotCle* MotsCles::getById(int id, bool reload)
     if( itref == map_all->constEnd() )
     {
         MotCle * itm = DataBase::I()->loadMotCleById(id);
-        if (itm != Q_NULLPTR)
+        if (itm != nullptr)
             add( map_all, itm );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<MotCle*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<MotCle*>(it.value()) : nullptr);
     }
     else if (reload)
     {
@@ -77,14 +77,14 @@ QCompleter* MotsCles::completer()
     return m_completer;
 }
 
-void MotsCles::SupprimeMotCle(MotCle* motcle)
+void MotsCles::SupprimeMotCle(MotCle* motcle, QWidget *parent)
 {
-    Supprime(map_all, motcle);
+    Supprime(map_all, motcle, parent);
 }
 
 MotCle* MotsCles::CreationMotCle(QHash<QString, QVariant> sets)
 {
-    MotCle *motcle = Q_NULLPTR;
+    MotCle *motcle = nullptr;
     int idmotcle = 0;
     DataBase::I()->locktables(QStringList() << TBL_MOTSCLES);
     idmotcle = DataBase::I()->selectMaxFromTable(CP_ID_MOTCLE, TBL_MOTSCLES, m_ok);
@@ -98,7 +98,7 @@ MotCle* MotsCles::CreationMotCle(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce mot-clé dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce mot-clé dans la base!"));
         return motcle;
     }
     QJsonObject  data = QJsonObject{};
@@ -110,7 +110,7 @@ MotCle* MotsCles::CreationMotCle(QHash<QString, QVariant> sets)
         if (champ == CP_TEXT_MOTCLE)              data[champ] = itset.value().toString();
     }
     motcle = new MotCle(data);
-    if (motcle != Q_NULLPTR)
+    if (motcle != nullptr)
         map_all->insert(motcle->id(), motcle);
     return motcle;
 }

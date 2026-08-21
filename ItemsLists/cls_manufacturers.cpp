@@ -33,10 +33,10 @@ Manufacturer* Manufacturers::getById(int id, bool reload)
     if( itman == map_all->constEnd() )
     {
         Manufacturer * man = DataBase::I()->loadManufacturerById(id);
-        if (man != Q_NULLPTR)
+        if (man != nullptr)
             add( map_all, man, Item::Update );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<Manufacturer*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<Manufacturer*>(it.value()) : nullptr);
     }
     else if (reload)
     {
@@ -64,14 +64,14 @@ void Manufacturers::initListe()
             map_all->insert(man->id(), man);
 }
 
-void Manufacturers::SupprimeManufacturer(Manufacturer* man)
+void Manufacturers::SupprimeManufacturer(Manufacturer* man, QWidget *parent)
 {
-    Supprime(map_all, man);
+    Supprime(map_all, man, parent);
 }
 
 Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
 {
-    Manufacturer *man = Q_NULLPTR;
+    Manufacturer *man = nullptr;
     int idManufacturer = 0;
     DataBase::I()->locktables(QStringList() << TBL_MANUFACTURERS);
     idManufacturer = DataBase::I()->selectMaxFromTable(CP_ID_MANUFACTURER, TBL_MANUFACTURERS, m_ok);
@@ -85,7 +85,7 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce fabricant dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce fabricant dans la base!"));
         return man;
     }
     QJsonObject  data = QJsonObject{};
@@ -110,7 +110,7 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
         else if (champ == CP_IDRUFUS_MANUFACTURER)                  data[champ] = itset.value().toInt();
     }
     man = new Manufacturer(data);
-    if (man != Q_NULLPTR)
+    if (man != nullptr)
         map_all->insert(man->id(), man);
     return man;
 }

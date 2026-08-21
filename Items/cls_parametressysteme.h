@@ -53,7 +53,7 @@ private:
     QString m_country = QLocale::territoryToCode(QLocale::system().territory());               //!> le pays où s'éxécute le programme - code pays ISO 3166-1 alpha-2 (FR, ES, MX, CL...)
 
 public:
-    explicit ParametresSysteme(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit ParametresSysteme(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     QString mdpadmin() const;

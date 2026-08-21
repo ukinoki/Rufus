@@ -27,7 +27,7 @@ class dlg_listemotscles : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_listemotscles(QWidget *parent = Q_NULLPTR);
+    explicit dlg_listemotscles(QWidget *parent = nullptr);
     ~dlg_listemotscles();
     QList<int>          listMCDepart() const;
     enum Mode           {Selection, Modification, Creation};     Q_ENUM(Mode)
@@ -41,9 +41,9 @@ private:
     WidgetButtonFrame   *wdg_buttonframe;
     QHBoxLayout         *wdg_editlayout;
     UpDialog            *dlg_ask;
-    UpStandardItemModel *m_model = Q_NULLPTR;
+    UpStandardItemModel *m_model = nullptr;
     QHash<QString, QVariant>    m_listbinds;
-    MotCle              *m_currentmotcle = Q_NULLPTR;
+    MotCle              *m_currentmotcle = nullptr;
     QString             m_textdelegate = "";
 
     void                keyPressEvent   (QKeyEvent * event );
@@ -51,9 +51,9 @@ private:
     bool                ChercheDoublon(QString str, int row);
     void                ChoixButtonFrame();
     void                ChoixMenuContextuel(QString);
-    void                ConfigMode(Mode mode, MotCle *mc = Q_NULLPTR);
+    void                ConfigMode(Mode mode, MotCle *mc = nullptr);
     void                DisableLines();
-    void                EnableButtons(MotCle *mc = Q_NULLPTR);
+    void                EnableButtons(MotCle *mc = nullptr);
     void                EnableLines(int row = -1);
     bool                EnregistreMotCle(MotCle *mc);
     MotCle*             getMotCleFromIndex(QModelIndex idx);

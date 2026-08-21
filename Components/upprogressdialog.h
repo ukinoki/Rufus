@@ -28,7 +28,7 @@ class UpProgressDialog : public QProgressDialog
 {
     Q_OBJECT
 public:
-    explicit    UpProgressDialog(int n, int t, QWidget *parent = Q_NULLPTR, Qt::WindowFlags f = Qt::Popup);
+    explicit    UpProgressDialog(int n, int t, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::Popup);
     ~UpProgressDialog();
     void show() {forceShow();};
 

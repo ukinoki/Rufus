@@ -32,14 +32,14 @@ public:
     QMap<int, Correspondant *> *correspondants()     const;
     enum   TYPECORRESPONDANT {TousLesCorrespondants, QueLesGeneralistes};   Q_ENUM(TYPECORRESPONDANT)
 
-    Correspondants(QObject *parent = Q_NULLPTR);
+    Correspondants(QObject *parent = nullptr);
 
     Correspondant* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, ItemsList::ADDTOLIST addToList = ItemsList::AddToList);
     void loadAllData(Correspondant *cor, Item::UPDATE upd = Item::Update);                 /*! charge toutes les données d'un correspondant
                                                                                              * \param upd force ou non la recharge depuis la BDD si elles sont déjà chargées
                                                                                              */
     void initListe(bool all = false);
-    void SupprimeCorrespondant(Correspondant* cor);
+    void SupprimeCorrespondant(Correspondant* cor, QWidget *parent = nullptr);
 
     QStringList autresprofessions();                                                        /*! la liste de toutes les professions nonmedicales enregistrées dans la base */
 };

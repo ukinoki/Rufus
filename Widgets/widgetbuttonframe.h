@@ -64,7 +64,7 @@ class WidgetButtonFrame : public QFrame
 {
     Q_OBJECT
 public:
-    WidgetButtonFrame(QAbstractItemView *proprio=Q_NULLPTR);
+    WidgetButtonFrame(QAbstractItemView *proprio=nullptr);
     enum Bouton {
                 Plus             = 0x1,
                 Moins            = 0x2,

@@ -590,26 +590,23 @@ static QString cleModeCourant()
  */
 static QHash<QString,QString> lireDBKey()
 {
+    QHash<QString,QString> lues = Utils::lireKeyFile(PATH_FILE_DBKEY);
     QHash<QString,QString> table;
-    QFile f(PATH_FILE_DBKEY);
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
-        return table;
-    const QStringList lignes = QString::fromUtf8(f.readAll()).split('\n');
-    f.close();
-    for (const QString &ligne : lignes) {
-        const QString l = ligne.trimmed();
-        if (l.isEmpty() || l.startsWith('['))     /*!< ignore lignes vides et sections INI */
-            continue;
-        const int eq = l.indexOf('=');
-        if (eq > 0) {
-            QString cle = l.left(eq).trimmed().toUpper();
-            const QString val = l.mid(eq + 1).trimmed();
-            if (cle == "MDPSQL")                  /*!< ancien format INI → monoposte */
-                cle = "MONO";
-            if ((cle == "MONO" || cle == "LAN" || cle == "WAN") && !val.isEmpty())
-                table.insert(cle, val);
-        } else if (!table.contains("MONO")) {
-            table.insert("MONO", l);              /*!< ancienne ligne brute = monoposte */
+    for (auto it = lues.cbegin(); it != lues.cend(); ++it)
+    {
+        const QString cle = (it.key() == "MDPSQL"? "MONO" : it.key());   /*!< ancien format INI → monoposte */
+        if (cle == "MONO" || cle == "LAN" || cle == "WAN")
+            table.insert(cle, it.value());
+    }
+    if (!table.contains("MONO"))                  /*!< ancienne ligne brute, sans clé = monoposte */
+    {
+        QFile f(PATH_FILE_DBKEY);
+        if (f.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            const QString l = QString::fromUtf8(f.readAll()).split('\n').first().trimmed();
+            f.close();
+            if (!l.isEmpty() && !l.contains('=') && !l.startsWith('['))
+                table.insert("MONO", l);
         }
     }
     return table;
@@ -666,14 +663,7 @@ QStringList MySQLInstaller::motsDePasseSQLCandidats()
  */
 static void ecrireDBKey(const QHash<QString,QString>& table)
 {
-    QDir().mkpath(PATH_DIR_RUFUSKEY);             /*!< dossier caché ~/.rufus (créé au besoin) */
-    QFile f(PATH_FILE_DBKEY);
-    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
-        for (const QString &k : { QStringLiteral("MONO"), QStringLiteral("LAN"), QStringLiteral("WAN") })
-            if (table.contains(k))
-                f.write(QString("%1=%2\n").arg(k, table.value(k)).toUtf8());
-        f.close();
-    }
+    Utils::ecrireKeyFile(PATH_FILE_DBKEY, table);
 }
 
 /*!

@@ -25,10 +25,10 @@ class Commercials : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Commercial*> *map_all = Q_NULLPTR;      //!< la liste de tous les commerciaux
+    QMap<int, Commercial*> *map_all = nullptr;      //!< la liste de tous les commerciaux
 
 public:
-    explicit Commercials(QObject *parent = Q_NULLPTR);
+    explicit Commercials(QObject *parent = nullptr);
 
     QMap<int, Commercial*> *commercials() const;
 
@@ -37,7 +37,7 @@ public:
     void initListebyidManufacturer(int idmanufacturer);
 
     //!> actions sur les enregistrements
-    void                SupprimeCommercial(Commercial *Commercial);
+    void                SupprimeCommercial(Commercial *Commercial, QWidget *parent = nullptr);
     Commercial*         CreationCommercial(QHash<QString, QVariant> sets);
 };
 

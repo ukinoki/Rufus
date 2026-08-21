@@ -89,7 +89,7 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
     }
     OKButton->setEnabled(false);
     ui->MsgtextEdit->setVisible(false);
-    if (m_patcrs != Q_NULLPTR)
+    if (m_patcrs != nullptr)
         ui->MsgtextEdit->setText(m_patcrs->messageretour());
     ui->Msglabel->setVisible(false);
     ui->RetourAccueilradioButton->setText(tr("Examen terminé, en attente des informations de paiement"));
@@ -127,7 +127,7 @@ void dlg_salledattente::OKButtonClicked()
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
     }
-    if (m_patcrs == Q_NULLPTR)
+    if (m_patcrs == nullptr)
         Datas::I()->patientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                                  //! idPat
                                                  Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur()),   //! User
                                                  Statut,                                                                            //! Statut
@@ -158,7 +158,7 @@ void dlg_salledattente::EnableOKButton()
 {
     OKButton            ->setEnabled(true);
     QRadioButton *btu   = qobject_cast<QRadioButton*>(sender());
-    if (btu != Q_NULLPTR)
+    if (btu != nullptr)
     {
         ui->MsgtextEdit ->setVisible(btu==ui->RetourAccueilradioButton);
         ui->Msglabel    ->setVisible(btu==ui->RetourAccueilradioButton);

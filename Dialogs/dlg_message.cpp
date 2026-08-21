@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_message.h"
 
-ShowMessage* ShowMessage::instance = Q_NULLPTR;
+ShowMessage* ShowMessage::instance = nullptr;
 ShowMessage* ShowMessage::I()
 {
     if( !instance )
@@ -188,14 +188,14 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
     prioritydlg         ->show();
     prioritydlg         ->raise();
     prioritydlg         ->activateWindow();
-    if (parent != Q_NULLPTR)
+    if (parent != nullptr)
         parent->setEnabled(false);
     int msec = 500;
     QTime dieTime = QTime::currentTime().addMSecs(msec);
     while (QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
     connect(this,   &ShowMessage::closeprioiritydlg, prioritydlg, [=](qintptr a) { if (idmessage == a) {
-            if (prioritydlg->parent() != Q_NULLPTR)
+            if (prioritydlg->parent() != nullptr)
                 qobject_cast<QWidget*>(prioritydlg->parent())->setEnabled(true);
             prioritydlg->reject();
             delete prioritydlg;

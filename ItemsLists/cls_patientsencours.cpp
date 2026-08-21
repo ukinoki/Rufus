@@ -39,15 +39,15 @@ QMap<int,  PatientEnCours *>* PatientsEnCours::patientsencours() const
  */
 PatientEnCours* PatientsEnCours::getById(int id)
 {
-    PatientEnCours *pat = Q_NULLPTR;
+    PatientEnCours *pat = nullptr;
     QMap<int, PatientEnCours*>::const_iterator itpat = map_all->constFind(id);
     if (itpat == map_all->constEnd())
     {
         pat = DataBase::I()->loadPatientEnCoursById(id);
-        if (pat != Q_NULLPTR)
+        if (pat != nullptr)
             add(map_all, pat);
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<PatientEnCours*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<PatientEnCours*>(it.value()) : nullptr);
     }
     else
         return itpat.value();
@@ -60,14 +60,14 @@ void PatientsEnCours::initListeAll()
     addList(map_all, &listpatencours, Item::Update);
 }
 
-void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat)
+void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat, QWidget *parent)
 {
-    Supprime(map_all, pat);
+    Supprime(map_all, pat, parent);
 }
 
 void PatientsEnCours::updatePatientEnCours(PatientEnCours *pat)
 {
-    if (pat == Q_NULLPTR)
+    if (pat == nullptr)
         return;
     pat->setData(DataBase::I()->loadPatientEnCoursDataById(pat->id()));
 }
@@ -126,7 +126,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString 
     if (!DataBase::I()->StandardSQL(req, MsgErreur))
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     DataBase::I()->unlocktables();
 

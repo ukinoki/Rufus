@@ -40,14 +40,14 @@ Depenses::Depenses(QObject *parent) : ItemsList(parent)
 /*!
  * \brief Depenses::getById
  * \param id l'id du Depense recherché
- * \return Q_NULLPTR si aucune Depense trouvée
+ * \return nullptr si aucune Depense trouvée
  * \return Depense* le Depense Depense à l'id
  */
 Depense* Depenses::getById(int id)
 {
     QMap<int, Depense*>::const_iterator Depense = map_depenses->constFind(id);
     if( Depense == map_depenses->constEnd() )
-        return Q_NULLPTR;
+        return nullptr;
     return Depense.value();
 }
 
@@ -68,15 +68,15 @@ void Depenses::initListeByUser(int iduser)
     addList(map_depenses, &listdepenses);
 }
 
-void Depenses::SupprimeDepense(Depense *dep)
+void Depenses::SupprimeDepense(Depense *dep, QWidget *parent)
 {
-    Supprime(map_depenses, dep);
+    Supprime(map_depenses, dep, parent);
 }
 
 Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale, QString Objet, double Montant, QString FamFiscale,
                                    QString Monnaie, int idRec, QString ModePaiement, int Compte, int Nocheque, int  idFacture)
 {
-    Depense *dep = Q_NULLPTR;
+    Depense *dep = nullptr;
     QString idusr           = (idUser == 0?                 "null" : QString::number(idUser));
     QString date            = (!DateDep.isValid()?          "NOW()" : "'" + DateDep.toString("yyyy-MM-dd") + "'");
     QString ref             = (RefFiscale == ""?            "" : "'" + Utils::correctquoteSQL(RefFiscale) + "'");
@@ -122,14 +122,14 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
     if (!DataBase::I()->StandardSQL(req, MsgErreur))
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     // Récupération de l'idMotif créé ------------------------------------
     int iddep = DataBase::I()->selectMaxFromTable(CP_ID_DEPENSES, TBL_DEPENSES, m_ok, tr("Impossible de sélectionner les enregistrements"));
     if (!m_ok)
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     DataBase::I()->unlocktables();
     dep = new Depense();

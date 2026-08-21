@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "tomey.h"
 
-Tomey* Tomey::instance = Q_NULLPTR;
+Tomey* Tomey::instance = nullptr;
 
 Tomey* Tomey::I()
 {

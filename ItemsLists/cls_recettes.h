@@ -25,10 +25,10 @@ class Recettes : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Recette*> *map_recettes = Q_NULLPTR; //!< la liste des recettes
+    QMap<int, Recette*> *map_recettes = nullptr; //!< la liste des recettes
 
 public:
-    explicit Recettes(QObject *parent = Q_NULLPTR);
+    explicit Recettes(QObject *parent = nullptr);
 
     QMap<int, Recette *> *recettes() const;
 

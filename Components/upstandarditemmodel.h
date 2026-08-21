@@ -24,7 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class UpStandardItemModel : public QStandardItemModel
 {
 public:
-    UpStandardItemModel(QObject *parent = Q_NULLPTR);
+    UpStandardItemModel(QObject *parent = nullptr);
     int         getRowFromItem(Item* itm);
 };
 

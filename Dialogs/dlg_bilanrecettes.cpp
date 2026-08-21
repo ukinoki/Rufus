@@ -31,7 +31,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     wdg_totalrecetteslbl    = new UpLabel();
     wdg_totalapportslbl     = new UpLabel();
     wdg_grandtotallbl       = new UpLabel();
-    QWidget* wdg = Q_NULLPTR;
+    QWidget* wdg = nullptr;
     wdg_label               = new UpLabel(wdg ,tr("Actes effectués par "));
     wdg_hboxsup             = new QHBoxLayout();
     QHBoxLayout *hboxinf    = new QHBoxLayout();
@@ -113,11 +113,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     CalcSuperviseursEtComptables();
     FiltreTable(-1);
     connect(CloseButton,                &QPushButton::clicked,                                  this, [=, this] {close();});
-    connect(PrintButton,                &QPushButton::clicked,                                  this, [&] {
-                                                                                                            bool ok;
-                                                                                                            if (proc->QuestionPdfOrPrint(this, ok))
-                                                                                                                PrintReport(ok);
-                                                                                                          });
+    connect(PrintButton,                &QPushButton::clicked,                                  this, &dlg_bilanrecettes::PrintReport);
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=, this] {NouvPeriode();});
     connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=, this] {ExportTable();});
     connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=, this] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
@@ -169,7 +165,7 @@ void dlg_bilanrecettes::FiltreTable(int idx)
             for(int i=0; i<m_recettesmodel->rowCount(); i++)
             {
                 Recette* rec = getRecetteFromRow(i);
-                if (rec == Q_NULLPTR)
+                if (rec == nullptr)
                     wdg_bigtable->setRowHidden(i,true);
                 else
                     wdg_bigtable->setRowHidden(i, rec->idacte() == -1);
@@ -183,7 +179,7 @@ void dlg_bilanrecettes::FiltreTable(int idx)
                 for(int i=0; i<m_recettesmodel->rowCount(); i++)
                 {
                     Recette* rec = getRecetteFromRow(i);
-                    if (rec == Q_NULLPTR)
+                    if (rec == nullptr)
                         wdg_bigtable->setRowHidden(i,true);
                     else
                         wdg_bigtable->setRowHidden(i, rec->iduser() != idx || rec->idacte() == -1);
@@ -202,7 +198,7 @@ void dlg_bilanrecettes::FiltreTable(int idx)
                 for(int i=0; i<m_recettesmodel->rowCount(); i++)
                 {
                     Recette* rec = getRecetteFromRow(i);
-                    if (rec == Q_NULLPTR)
+                    if (rec == nullptr)
                         wdg_bigtable->setRowHidden(i,true);
                     else
                     {
@@ -226,10 +222,10 @@ void dlg_bilanrecettes::FiltreTable(int idx)
 Recette* dlg_bilanrecettes::getRecetteFromIndex(QModelIndex idx)
 {
     UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_recettesmodel->itemFromIndex(idx));
-    if (upitem != Q_NULLPTR)
+    if (upitem != nullptr)
         return qobject_cast<Recette *>(upitem->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 Recette* dlg_bilanrecettes::getRecetteFromRow(int row)
@@ -242,16 +238,16 @@ Recette* dlg_bilanrecettes::getRecetteFromRow(int row)
 Recette* dlg_bilanrecettes::getRecetteFromSelectionInTable()
 {
     if (wdg_bigtable->selectionModel()->selectedIndexes().size() == 0)
-        return Q_NULLPTR;
+        return nullptr;
     QModelIndex idx  = wdg_bigtable->selectionModel()->selectedIndexes().at(0);
     return getRecetteFromIndex(idx);
 }
 
-void dlg_bilanrecettes::PrintReport(bool pdf)
+void dlg_bilanrecettes::PrintReport()
 {
     QString            textentete, textpied;
 
-    User *userEntete = Q_NULLPTR;
+    User *userEntete = nullptr;
 
     //création de l'entête
     if (m_mode==SUPERVISEUR)
@@ -259,14 +255,13 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
     else
         userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->id());
 
-    if(userEntete == Q_NULLPTR)
+    if(userEntete == nullptr)
     {
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
     }
     textentete = proc->CalcEnteteImpression(db->ServerDate(), userEntete, false).value(NORMHeader);
     if (textentete == "") return;
-
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
     // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
     // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
@@ -297,7 +292,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
             if (m_mode == SUPERVISEUR)
             {
                 Recette* rec = getRecetteFromRow(i);
-                if (rec != Q_NULLPTR)
+                if (rec != nullptr)
                     if (rec->cotationacte() != "")
                     {
                         textcorps += "<tr>"
@@ -314,7 +309,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
             {
                 textcorps += "<tr>";
                 Recette* rec = getRecetteFromRow(i);
-                if (rec != Q_NULLPTR)
+                if (rec != nullptr)
                 {
                     if (rec->isapportpraticien())                                      //! ----   c'est un apport praticien
                     {
@@ -384,26 +379,35 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
     }
     textcorps += "</body></html>";
 
-    if (pdf)
+    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sessions->currentsession()->idsite());
+
+    if (typenvoi == Procedures::createPDF)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + tr("Comptabilité");
         QString filename    = userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf";
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité");
         bool a = proc->Cree_pdffile(textcorps, textentete, textpied,
-                            filename, Q_NULLPTR,
+                            filename, nullptr,
                             false,
                             dirname);
         UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")),
                                    a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
     }
-    else
+    else if (typenvoi == Procedures::printDOC)
     {
         bool AvecDupli   = false;
         bool AvecNumPage = false;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
+                       QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
+    }
+    else if (typenvoi == Procedures::SendMAIL)
+    {
+        QString destinataire;
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(windowTitle() + ".pdf", proc->Cree_pdfByteArray(textcorps, textentete, textpied));
+        proc->EnvoiMail(this, pieces, Datas::I()->sessions->currentsession()->idsite(), nullptr, destinataire);
     }
 }
 
@@ -419,7 +423,7 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
     for (int i=0; i< m_recettesmodel->rowCount(); i++)
     {
         Recette* rec = getRecetteFromRow(i);
-        if (rec == Q_NULLPTR)
+        if (rec == nullptr)
             continue;
         else
         {
@@ -432,7 +436,7 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
     if( listiD.size() > 1 )
         wdg_supervcombobox->addItem(tr("Tout le monde"),-1);
     for( int i=0; i<listiD.size(); i++)
-        if (Datas::I()->users->getById(listiD.at(i)) != Q_NULLPTR)
+        if (Datas::I()->users->getById(listiD.at(i)) != nullptr)
             wdg_supervcombobox->addItem(Datas::I()->users->getById( listiD.at(i))->login(), QString::number(listiD.at(i)) );
 
     if (idcomptabletrouve)
@@ -631,7 +635,7 @@ void dlg_bilanrecettes::NouvPeriode()
 void dlg_bilanrecettes::RemplitLaTable()
 {
     UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4, *pitem5,*pitem6,*pitem7;
-    if (m_recettesmodel != Q_NULLPTR)
+    if (m_recettesmodel != nullptr)
         delete m_recettesmodel;
     m_recettesmodel = new QStandardItemModel(this);
     foreach (Recette *rec, *Datas::I()->recettes->recettes())

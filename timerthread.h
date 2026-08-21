@@ -46,7 +46,7 @@ public:
         TimerThread.quit();
         TimerThread.wait();
     }
-    TimerController(QObject * parent = Q_NULLPTR) : QObject(parent)
+    TimerController(QObject * parent = nullptr) : QObject(parent)
     {
         TimerThread.disconnect();
         m_timer.moveToThread(&TimerThread);

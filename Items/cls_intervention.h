@@ -33,7 +33,7 @@ class Intervention : public Item
     Q_OBJECT
 public:
     enum                    ModeAnesthesie {Locale, LocoRegionale, Generale, NoLoSo};      Q_ENUM(ModeAnesthesie)
-    explicit                Intervention(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit                Intervention(QJsonObject data = {}, QObject *parent = nullptr);
     void                    setData(QJsonObject data = QJsonObject{}) override;
     static ModeAnesthesie   ConvertModeAnesthesie(QString mode);
     static QString          ConvertModeAnesthesie(ModeAnesthesie mode);
@@ -100,7 +100,7 @@ class SessionOperatoire : public Item
 {
     Q_OBJECT
 public:
-    explicit SessionOperatoire(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit SessionOperatoire(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data = QJsonObject{}) override
     {
         if( data.isEmpty() )
@@ -125,7 +125,7 @@ private: //Données de la session
 
 public:
     QDate date() const                      { return m_date; }
-    int idlieu() const                      { return m_idlieu; }
+    int idsite() const                      { return m_idlieu; }
     int iduser() const                      { return m_iduser; }
     int idaide() const                      { return m_idaide; }
     QString incident() const                { return m_incident; }
@@ -164,7 +164,7 @@ class TypeIntervention : public Item
 {
 Q_OBJECT
 public:
-    explicit TypeIntervention(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit TypeIntervention(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data = QJsonObject{}) override;
 
 private: //Données de l'intervention

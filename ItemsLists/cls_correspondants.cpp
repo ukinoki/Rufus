@@ -39,7 +39,7 @@ Correspondants::Correspondants(QObject *parent) : ItemsList(parent)
  * \param id l'id du correspondant recherché
  * \param loadDetails   -> charge les détails si ce n'est pas déjà fait
  * \param addToList     -> ajoute à la liste des correspondants s'il ne s'y trouve pas encore
- * \return Q_NULLPTR si aucun correspondant trouvé
+ * \return nullptr si aucun correspondant trouvé
  * \return Correspondant* le correspondant correspondant à l'id
  */
 Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, ADDTOLIST addToList)
@@ -62,7 +62,7 @@ Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, AD
         if( jsonCorrespondant.isEmpty() )
         {
             delete result;
-            return Q_NULLPTR;
+            return nullptr;
         }
         else
             result->setData(jsonCorrespondant);
@@ -81,7 +81,7 @@ Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, AD
  */
 void Correspondants::loadAllData(Correspondant *cor, Item::UPDATE upd)
 {
-    if (cor == Q_NULLPTR)
+    if (cor == nullptr)
         return;
     if (!cor->isallloaded() || upd == Item::Update)
     {
@@ -121,12 +121,12 @@ QStringList Correspondants::autresprofessions()
     return listprof;
 }
 
-void Correspondants::SupprimeCorrespondant(Correspondant *cor)
+void Correspondants::SupprimeCorrespondant(Correspondant *cor, QWidget *parent)
 {
-    if (cor == Q_NULLPTR)
+    if (cor == nullptr)
         return;
     QString id = QString::number(cor->id());
-    Supprime(map_all, cor);
+    Supprime(map_all, cor, parent);
     DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg  = null where idcormedmg  = " + id);
     DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = null where idcormedspe1 = " + id);
     DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = null where idcormedspe2 = " + id);

@@ -71,7 +71,7 @@
         * l'entête avec setHeaderText(const QString &text) où text est du texte en html
         * le pied de page avec setFooterText(const QString &text) où text est du texte en html
         * le corps du texte est fourni au moment de lancer l'impression, la conversion en pdf ou la prévisualisation avec
-            * print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true, bool QueLePdf = false)
+            * print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString())
             * exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString());
             * preview(const QTextDocument *document, QString ficpdf = QString(), const QString &caption=QString());
         * d'autres fonctions moins importantes
@@ -92,7 +92,7 @@ class TextPrinter : public QObject
     Q_OBJECT
 
 public:
-    explicit                TextPrinter(QObject *parent = Q_NULLPTR);
+    explicit                TextPrinter(QObject *parent = nullptr);
     enum Unit {Point, Inch, Millimeter}; Q_ENUM(Unit)    /*! +++ pour les distraits un point n'est pas un pixel mais une dimension de 1/72 inch et ne varie donc pas avec la résolution de l'imprimante */
     ~TextPrinter();
 
@@ -100,7 +100,7 @@ public:
     //added by Javier
     QByteArray              getPDFByteArray(const QTextDocument *document);
 
-    bool                    print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true);   // Print the document
+    bool                    print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString());   // Print the document
     void                    exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString());                              // Export the document to PDF
     bool                    preview(const QTextDocument *document, const QString &caption=QString());                                       // Display the document in a preview dialog
 
@@ -175,9 +175,9 @@ private:
     QRectF                  footerRect(QPaintDevice *device);
     QRectF                  adjustedContentRect(QPainter *painter);
 
-    QWidget                 *parent_        = Q_NULLPTR;
+    QWidget                 *parent_        = nullptr;
     QPrinter                *printer_       = new QPrinter(QPrinter::HighResolution);
-    QTextDocument           *tempdoc_       = Q_NULLPTR;
+    QTextDocument           *tempdoc_       = nullptr;
 
     // all margins in units_ (default = millimeter)
     double                  leftmargin_     = 10;

@@ -34,7 +34,7 @@ void ImportDocsExternes::RapatrieDocuments(AppareilImagerie *appareil, QString n
 {
     if (m_encours)
         return;
-    if (appareil == Q_NULLPTR)
+    if (appareil == nullptr)
     {
         m_encours = false;
         return;
@@ -630,7 +630,7 @@ void ImportDocsExternes::RapatrieDocuments(AppareilImagerie *appareil, QString n
         if (side>0)
             listbinds[CP_COTE_DOCSEXTERNES]     = side;
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        if(doc != Q_NULLPTR)
+        if(doc != nullptr)
         {
             delete doc;
             if (jnaltrsferfile.open(QIODevice::Append))

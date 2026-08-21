@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_GESTIONUSERS_H
 
 #include "dlg_gestioncomptes.h"
-#include "dlg_listelieux.h"
+#include "dlg_listesites.h"
 #include "upheaderview.h"
 #include <QPainter>
 #include "procedures.h"
@@ -43,7 +43,7 @@ public:
      * MODIFUSER   -> appelé par l'utilisateur dans le premier onglet de la fiche dlg_param -> on ne peut modifier que les données d'identité, geographiques et bancaires
      * ADMIN       -> appelé par l'administrateur, on peut tout modidier, y compris le statut, de chaque utilisateur, sauf les données bancaires
     */
-    explicit dlg_gestionusers(int idlieu, UserMode  mode, bool mdpverified=true, QWidget *parent = Q_NULLPTR);
+    explicit dlg_gestionusers(int idlieu, UserMode  mode, bool mdpverified=true, QWidget *parent = nullptr);
     /*
      * la variable mdpverified est utilisée pour l'appel de la fiche dlg_gestionlieux
      * Cette fiche est parfois appelée alors que le mdp administrateur a déjà eté vérifié, parfois non

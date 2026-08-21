@@ -25,10 +25,10 @@ class Banques : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Banque*> *map_banques = Q_NULLPTR; //!< la liste des Banques
+    QMap<int, Banque*> *map_banques = nullptr; //!< la liste des Banques
 
 public:
-    explicit Banques(QObject *parent = Q_NULLPTR);
+    explicit Banques(QObject *parent = nullptr);
 
     QMap<int, Banque *> *banques() const;
 
@@ -36,7 +36,7 @@ public:
     void    initListe();
 
     //!> actions sur les enregistrements
-    void        SupprimeBanque(Banque *bq);
+    void        SupprimeBanque(Banque *bq, QWidget *parent = nullptr);
     Banque*     CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque = 0);
     void        UpdateBanque(Banque *banq, QHash<QString, QVariant> sets);
 };

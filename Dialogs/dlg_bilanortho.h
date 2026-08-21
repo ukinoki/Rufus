@@ -28,7 +28,7 @@ class dlg_bilanortho : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent = Q_NULLPTR);
+    explicit dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent = nullptr);
     ~dlg_bilanortho();
     Ui::dlg_bilanortho      *ui;
     QString                 calcReponsehTml(QString textorigin ="");

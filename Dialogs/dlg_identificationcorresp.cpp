@@ -27,7 +27,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des correspondants"));
 
-    if (cor != Q_NULLPTR)
+    if (cor != nullptr)
     {
         m_currentcorrespondant  = cor;
         if (!m_currentcorrespondant->isallloaded())
@@ -185,7 +185,7 @@ void    dlg_identificationcorresp::OKpushButtonClicked()
         return;
     }
     UpLineEdit* line = qobject_cast<UpLineEdit*>(focusWidget());
-    if (line != Q_NULLPTR)
+    if (line != nullptr)
         if (line == ui->PrenomlineEdit || line == ui->NomlineEdit || line == ui->Adresse1lineEdit || line == ui->Adresse2lineEdit || line == ui->Adresse3lineEdit || line == ui->AutreupLineEdit)
             line->setText(Utils::trimcapitilize(line->text()));
 
@@ -342,7 +342,7 @@ bool dlg_identificationcorresp::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
-    if (event->type() == QEvent::KeyPress && qobject_cast<QPushButton *>(obj) == Q_NULLPTR )
+    if (event->type() == QEvent::KeyPress && qobject_cast<QPushButton *>(obj) == nullptr )
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // Return ou Enter - On va au Tab Suivant -----------------------------------------------------------------------------------------------------------------------------

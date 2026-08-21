@@ -17,13 +17,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedures.h"
 #include "dlg_initbase.h"
+#include "dlg_identificationsite.h"
+#include "smtpclient.h"
 #include "mysqlinstaller.h"
 #include <QBuffer>
 #include <QPdfWriter>
 #include <QElapsedTimer>
 #include <QEventLoop>
 
-Procedures* Procedures::instance =  Q_NULLPTR;
+Procedures* Procedures::instance =  nullptr;
 Procedures* Procedures::I()
 {
     if( !instance )
@@ -204,7 +206,7 @@ Procedures::Procedures(QObject *parent) :
         défaut et, si c'est une imprimante réseau éteinte, gèle le démarrage plusieurs dizaines de
         secondes (« tentative de connexion à l'imprimante »). Le QPrinter n'est utile qu'à
         l'impression d'images (Print()) : on l'y crée à la demande. */
-    m_printer             = Q_NULLPTR;
+    m_printer             = nullptr;
 }
 
 void Procedures::CleanIniFile()
@@ -321,7 +323,7 @@ bool Procedures::AutresPostesConnectes(bool msg)
         Datas::I()->users       ->initListe();
     Datas::I()->postesconnectes->initListe();
     int id = 0;
-    if (Datas::I()->users->userconnected() != Q_NULLPTR)
+    if (Datas::I()->users->userconnected() != nullptr)
         id = Datas::I()->users->userconnected()->id();
     QString stringid = Utils::MACAdress() + " - " + QString::number(id);
     for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
@@ -1106,7 +1108,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
 
     if (dirdestination == "")
     {
-        QString dirSauv = QFileDialog::getExistingDirectory(Q_NULLPTR,
+        QString dirSauv = QFileDialog::getExistingDirectory(nullptr,
                                                             tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base"),
                                                             (QDir(m_parametres->dirbkup()).exists()? m_parametres->dirbkup() : QDir::homePath()));
         if (dirSauv == "")
@@ -1406,7 +1408,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, 
                         if (listbutt.at(j)->isChecked())
                             idparent = listbutt.at(j)->iD();
                     delete dlg_askUser;
-                    dlg_askUser = Q_NULLPTR;
+                    dlg_askUser = nullptr;
                 }
             }
         }
@@ -1542,7 +1544,7 @@ bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString tex
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
     TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
-    if (usr != Q_NULLPTR && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
+    if (usr != nullptr && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
         TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
 
@@ -1582,7 +1584,7 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
     TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
-    if (usr != Q_NULLPTR && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
+    if (usr != nullptr && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
         TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
     QByteArray ba = TexteAImprimer->getPDFByteArray(Etat->document());
@@ -1604,29 +1606,26 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
  * \param m_mapbarcodes                   si un m_mapbarcodes est précisé les barcodes de cet utilisateur seront imprimés
  * \param AvecDupli
  * \param AvecNumPage
- * \param AvecChoixImprimante
  * \return
  */
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
-                              int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString, QString> mapbarcodes,
-                              bool AvecDupli, bool AvecNumPage, bool AvecChoixImprimante, QImage signature)
+                              QMap<QString, QString> mapbarcodes,
+                              bool AvecDupli, bool AvecNumPage, QImage signature)
 {
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QTextEdit *Etat = new QTextEdit;
     Etat->setHtml(textcorps);
     QString PiedDepart = textpied;
-    TexteAImprimer->setFooterSize(TaillePieddePage);
+    TexteAImprimer->setFooterSize(TaillePieddePage());
     TexteAImprimer->setHeaderText(textentete);
 
-    if (TailleEnTete > 0)
-        TexteAImprimer->setHeaderSize(TailleEnTete);
-    else
-        TexteAImprimer->setHeaderSize(25);
+    int tailleentete = (m_ALD? TailleEnTeteALD() : TailleEnTete());
+    TexteAImprimer->setHeaderSize(tailleentete > 0? tailleentete : 25);   /*!< le réglage peut être absent de rufus.ini */
     textpied.replace("{{DUPLI}}","");
     if (!AvecNumPage)
         textpied.replace("&page;","");
     TexteAImprimer->setFooterText(textpied);
-    TexteAImprimer->setTopMargin(TailleTopMarge);
+    TexteAImprimer->setTopMargin(TailleTopMarge());
     if (db->parametres()->cotationsfrance())            //! codes barres (n° AM, RPPS) : franco-français
         TexteAImprimer->setmapBarcodes(mapbarcodes);
     TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
@@ -1638,9 +1637,8 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
         a = TexteAImprimer->preview(Etat->document());
     else
     {
-        if (!AvecChoixImprimante)
-            TexteAImprimer->setPrinterName(m_nomImprimante);
-        a = TexteAImprimer->print(Etat->document(), "", "", AvecChoixImprimante);
+        TexteAImprimer->setPrinterName(m_nomImprimante);
+        a = TexteAImprimer->print(Etat->document(), "", "");
     }
     if (a)
         if (AvecDupli)
@@ -1651,7 +1649,7 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
                 textpied.replace("&page;","");
             TexteAImprimer->setFooterText(textpied);
             TexteAImprimer->setFooterSize(TexteAImprimer->footerSize() + 20);
-            TexteAImprimer->print(Etat->document(),"","",false);
+            TexteAImprimer->print(Etat->document(),"","");
         }
     m_nomImprimante = TexteAImprimer->getPrinterName();
     delete TexteAImprimer;
@@ -1663,31 +1661,302 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
 //!    -- Choice printing : pdf or print ------------------------------------------------------------------------
 //  --------------------------------------------------------------------------------------------------------------
 
-bool Procedures::QuestionPdfOrPrint(QWidget *parent, bool &pdf)
+/*!
+ * \brief Procedures::MailPdfOrPrint
+ * Demande ce qu'il faut faire du document : l'imprimer, en faire un pdf, l'envoyer par mail.
+ * \param parent  la fiche appelante
+ * \param pdf     reçoit l'état de la case pdf
+ * \param print   reçoit l'état de la case imprimer, si l'appelant le gère
+ * \param mail    reçoit l'état de la case mail, si l'appelant le gère
+ * \param idlieu  le lieu dont on utilise les coordonnées d'envoi, -1 = le lieu en cours
+ * \param imprimante reçoit l'imprimante choisie, vide si le poste n'en a qu'une
+ * \param mailprecoche coche la case mail plutôt que la case imprimer à l'ouverture
+ */
+
+/*!
+ * \brief Procedures::ManqueEnvoiMail
+ * Liste les coordonnées d'envoi de mail absentes du lieu d'exercice.
+ * \param idlieu  le lieu concerné, -1 = le lieu en cours
+ */
+QStringList Procedures::ManqueEnvoiMail(int idlieu)
 {
-    UpMessageBox *msgbox            = new UpMessageBox(parent);
-    msgbox                          ->setText(tr("Imprimer ou créer un pdf?"));
-    msgbox                          ->setIcon(UpMessageBox::Quest);
-    UpPushButton *wdg_annulbouton   = new UpPushButton(tr("Annuler"));
-    UpPushButton *wdg_printbouton   = new UpPushButton(tr("Imprimer"));
-    UpPushButton *wdg_pdfbouton     = new UpPushButton(tr("Créer un pdf"));
-    wdg_annulbouton                 ->setIcon(Icons::icAnnuler());
-    wdg_printbouton                 ->setIcon(Icons::icImprimer());
-    wdg_pdfbouton                   ->setIcon(Icons::icPdf());
+    /*! le mot de passe n'est pas en base, il est local au poste - on ne vérifie que ce qui est en base */
+    QStringList manque;
+    int id = (idlieu < 0? Datas::I()->sites->idcurrentsite() : idlieu);
+    Site *sit = (id > 0? Datas::I()->sites->getById(id) : nullptr);
+    if (sit == nullptr)
+        return manque << tr("le lieu d'exercice du document est inconnu");
+    if (sit->mail() == "")          manque << tr("l'adresse mail du lieu");
+    if (sit->smtpserveur() == "")   manque << tr("le serveur d'envoi");
+    if (sit->smtpport() <= 0)       manque << tr("le port du serveur d'envoi");
+    if (sit->smtplogin() == "")     manque << tr("le login du compte mail");
+    return manque;
+}
 
-    wdg_annulbouton                 ->setData(UpPushButton::ANNULBUTTON);
+/*!
+ * \brief Procedures::CompleteCoordonneesMail
+ * Propose de compléter les coordonnées d'envoi du lieu et renvoie ce qui manque encore.
+ * \param parent  la fiche appelante
+ * \param idsite  le lieu concerné, -1 = le lieu en cours
+ * \param manque  ce qui manque avant la proposition
+ */
+QStringList Procedures::CompleteCoordonneesMail(QWidget *parent, int idsite, QStringList manque)
+{
+    if (UpMessageBox::Question(parent, tr("Envoi par mail impossible, il manque:") + "<br>- " + manque.join("<br>- "),
+                               tr("Voulez-vous compléter les coordonnées d'envoi de ce lieu?")) != UpSmallButton::STARTBUTTON)
+        return manque;
+    Site *sit = Datas::I()->sites->getById(idsite < 0? Datas::I()->sites->idcurrentsite() : idsite);
+    if (sit == nullptr)
+        return manque;
+    dlg_identificationsite dlg(sit, dlg_identificationsite::Complement, parent);
+    if (dlg.exec() != QDialog::Accepted)
+        return manque;
+    db                      ->UpdateTable(TBL_LIEUXEXERCICE, dlg.listbinds(), " where " CP_ID_SITE " = " + QString::number(sit->id()), tr("Impossible de modifier le site"));
+    Datas::I()->sites       ->getById(sit->id(), true);
+    return ManqueEnvoiMail(idsite);
+}
 
-    msgbox                          ->addButton(wdg_pdfbouton);
-    msgbox                          ->addButton(wdg_printbouton);
-    msgbox                          ->addButton(wdg_annulbouton);
+/*!
+ * \brief Procedures::EnvoiMail
+ * Demande le destinataire, envoie le pdf par le serveur du lieu et renvoie true si le serveur l'a accepté.
+ * \param parent       la fiche appelante
+ * \param pieces       les documents à joindre, nom de fichier -> pdf
+ * \param idsite       le lieu dont on utilise les coordonnées d'envoi, -1 = le lieu en cours
+ * \param mailpatient  l'adresse proposée par défaut
+ * \param destinataire reçoit l'adresse réellement utilisée
+ */
+bool Procedures::EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, int idsite, Patient *pat, QString &destinataire)
+{
+    Site *sit = Datas::I()->sites->getById(idsite < 0? Datas::I()->sites->idcurrentsite() : idsite);
+    if (sit == nullptr)
+        return false;
+    const QString clesite = QString::number(sit->id());
+    const QString clejamais = "NOSAVE" + clesite;   /*!< l'utilisateur a demandé qu'on n'enregistre pas le mot de passe de ce lieu */
+    QHash<QString,QString> cles = Utils::lireKeyFile(PATH_FILE_MAILKEY);
+    QString mdp = cles.value(clesite);
 
-    wdg_printbouton                 ->setFocus();
+    UpDialog *dlg           = new UpDialog(parent);
+    dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg                     ->setModal(true);
+    dlg                     ->setWindowTitle(tr("Envoyer par mail"));
 
-    bool initok = (msgbox->exec() == QDialog::Accepted && msgbox->clickedpushbutton() != wdg_annulbouton);
-    if (initok)
-        pdf = (msgbox->clickedpushbutton() == wdg_pdfbouton);
-    delete msgbox;
-    return initok;
+    UpLineEdit *destled     = new UpLineEdit(dlg);
+    destled                 ->setFixedWidth(300);
+    destled                 ->setMaxLength(150);
+    destled                 ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail));
+    destled                 ->setText(pat != nullptr? pat->mail() : "");
+
+    UpLineEdit *mdpled      = new UpLineEdit(dlg);
+    mdpled                  ->setFixedWidth(300);
+    mdpled                  ->setEchoMode(QLineEdit::Password);
+    mdpled                  ->setText(mdp);
+
+    UpSmallButton *mdpbutt  = new UpSmallButton();
+    mdpbutt                 ->setIconSize(QSize(18, 18));
+    auto majmdpbutt = [=, &cles] {
+        const bool enregistre = cles.contains(clesite);
+        mdpbutt             ->setVisible(enregistre || cles.contains(clejamais));
+        mdpbutt             ->setIcon(enregistre? Icons::icPoubelle() : Icons::icSauvegarder());
+        mdpbutt             ->setImmediateToolTip(enregistre? tr("Effacer le mot de passe de cet ordinateur")
+                                                            : tr("Enregistrer le mot de passe sur cet ordinateur"));
+    };
+    majmdpbutt();
+    connect (mdpbutt,           &QPushButton::clicked,  dlg,    [=, &cles] {
+        if (cles.contains(clesite))
+        {
+            cles.remove(clesite);
+            cles.insert(clejamais, "1");
+            mdpled          ->clear();
+        }
+        else
+        {
+            cles.remove(clejamais);
+            cles.insert(clesite, mdpled->text());
+        }
+        Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
+        majmdpbutt();
+        mdpled              ->setFocus();
+    });
+
+    QHBoxLayout *laymdp = new QHBoxLayout();
+    laymdp                  ->addWidget(mdpled);
+    laymdp                  ->addWidget(mdpbutt);
+
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg->layout());
+    lay                     ->insertWidget(0, new UpLabel(dlg, tr("Adresse du destinataire")));
+    lay                     ->insertWidget(1, destled);
+    lay                     ->insertWidget(2, new UpLabel(dlg, tr("Mot de passe du compte ") + sit->smtplogin()));
+    lay                     ->insertLayout(3, laymdp);
+    lay                     ->setSizeConstraint(QLayout::SetFixedSize);
+    destled                 ->setFocus();
+    connect (dlg->OKButton,     &QPushButton::clicked,  dlg,    &QDialog::accept);
+
+    bool valide = (dlg->exec() == QDialog::Accepted);
+    if (valide)
+    {
+        destinataire = Utils::trim(destled->text());
+        mdp = mdpled->text();
+    }
+    delete dlg;
+    if (!valide || destinataire == "" || mdp == "")
+        return false;
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    SmtpClient smtp;
+    bool ok = smtp.envoie(sit->smtpserveur(), sit->smtpport(), sit->smtplogin(), mdp,
+                          sit->mail(), destinataire, sit->mail(),
+                          tr("Document ") + sit->nom(),
+                          tr("Veuillez trouver ci-joint le document annoncé.") + "\n\n" + sit->nom(),
+                          pieces);
+    QApplication::restoreOverrideCursor();
+
+    if (!ok)
+    {
+        if (smtp.refusIdentifiants())              /*!< mot de passe périmé : on le réclamera au prochain envoi */
+        {
+            cles.remove(clesite);
+            Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
+        }
+        UpMessageBox::Watch(parent, tr("Le mail n'est pas parti"), smtp.erreur());
+        return false;
+    }
+
+    if (!cles.contains(clesite) && !cles.contains(clejamais))
+    {
+        UpSmallButton::StyleBouton rep = UpMessageBox::Question(parent, tr("Enregistrer le mot de passe sur cet ordinateur?"), "",
+                                            UpDialog::ButtonCancel | UpDialog::ButtonOups | UpDialog::ButtonOK,
+                                            QStringList() << tr("Ne pas enregistrer") << tr("Ne jamais enregistrer") << tr("Enregistrer"));
+        if (rep == UpSmallButton::STARTBUTTON)
+            cles.insert(clesite, mdp);
+        else if (rep == UpSmallButton::OUPSBUTTON)
+            cles.insert(clejamais, "1");
+        if (rep == UpSmallButton::STARTBUTTON || rep == UpSmallButton::OUPSBUTTON)
+            Utils::ecrireKeyFile(PATH_FILE_MAILKEY, cles);
+    }
+
+    if (pat != nullptr && destinataire != pat->mail())
+        if (UpMessageBox::Question(parent, tr("Enregistrer cette adresse comme mail du patient?"), destinataire,
+                                   UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                   QStringList() << tr("Ne pas enregistrer") << tr("Enregistrer")) == UpSmallButton::STARTBUTTON)
+            ItemsList::update(pat, CP_MAIL_DSP, destinataire);
+
+    UpMessageBox::Watch(parent, tr("Mail envoyé"), destinataire);
+    return true;
+}
+
+Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ, int idsite)
+{
+    UpDialog *dlg           = new UpDialog(parent);
+    dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg                     ->setModal(true);
+    dlg                     ->setWindowTitle(tr("Que faire de ce document?"));
+
+    UpCheckBox *printchk    = new UpCheckBox(tr("Imprimer"), dlg);
+    UpCheckBox *pdfchk      = new UpCheckBox(tr("Créer un pdf"), dlg);
+    UpCheckBox *mailchk     = new UpCheckBox(tr("Envoyer par mail"), dlg);
+    QButtonGroup *grp       = new QButtonGroup(dlg);
+    grp                     ->setExclusive(true);
+    grp                     ->addButton(printchk);
+    grp                     ->addButton(pdfchk);
+    grp                     ->addButton(mailchk);
+    QStringList manque = ManqueEnvoiMail(idsite);
+    if (manque.size() > 0 && typ == SendMAIL)
+        manque = CompleteCoordonneesMail(parent, idsite, manque);
+    mailchk                 ->setEnabled(manque.size() == 0);
+    if (manque.size() > 0)
+    {
+        mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "<br>- " + manque.join("<br>- "), true);
+        if (typ == SendMAIL)
+            typ = printDOC;
+    }
+
+    switch (typ) {
+    case printDOC:
+        printchk->setChecked(true);
+        break;
+    case SendMAIL:
+        mailchk->setChecked(true);
+        break;
+    case createPDF:
+        pdfchk->setChecked(true);
+        break;
+    default:
+        break;
+    }
+
+    /*! les imprimantes virtuelles (pdf, xps, fax) ne sont pas distinguables par Qt, on les écarte par leur nom */
+    QStringList imprimantes;
+    foreach (QString nom, QPrinterInfo::availablePrinterNames())
+        if (!nom.contains(QRegularExpression("pdf|xps|fax|onenote|document writer", QRegularExpression::CaseInsensitiveOption)))
+            imprimantes << nom;
+
+    UpTableView *tblimprimantes = new UpTableView(dlg);
+    tblimprimantes          ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tblimprimantes          ->setSelectionMode(QAbstractItemView::SingleSelection);
+    tblimprimantes          ->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tblimprimantes          ->setGridStyle(Qt::NoPen);
+    tblimprimantes          ->verticalHeader()->setVisible(false);
+
+    QStandardItemModel *modelimprimantes = new QStandardItemModel(dlg);
+    modelimprimantes        ->setHorizontalHeaderItem(0, new QStandardItem(tr("Imprimante")));
+    foreach (QString nom, imprimantes)
+    {
+        QStandardItem *itm = new QStandardItem(nom);
+        itm                 ->setEditable(false);
+        modelimprimantes    ->appendRow(itm);
+    }
+    tblimprimantes          ->setModel(modelimprimantes);
+    tblimprimantes          ->setColumnWidth(0, 200);
+    tblimprimantes          ->FixLargeurTotale();
+    int rowdefaut = imprimantes.indexOf(m_nomImprimante != ""? m_nomImprimante : QPrinterInfo::defaultPrinterName());
+    tblimprimantes          ->selectRow(rowdefaut < 0? 0 : rowdefaut);
+    if (imprimantes.size() == 0)
+    {
+        UpLabel *lblvide = new UpLabel(tblimprimantes->viewport(), tr("Pas d'imprimante enregistrée sur ce poste"));
+        lblvide             ->setAlignment(Qt::AlignCenter);
+        lblvide             ->setWordWrap(true);
+        (new QVBoxLayout(tblimprimantes->viewport()))->addWidget(lblvide);
+    }
+
+    tblimprimantes          ->setEnabled(printchk->isChecked());
+    connect (printchk,          &QCheckBox::toggled,    dlg,    [=] (bool coche) {tblimprimantes->setEnabled(coche);});
+    connect (dlg->OKButton,     &QPushButton::clicked,  dlg,    &QDialog::accept);
+
+    QVBoxLayout *laychk = new QVBoxLayout();
+    laychk                  ->addWidget(printchk);
+    laychk                  ->addWidget(pdfchk);
+    laychk                  ->addWidget(mailchk);
+    laychk                  ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
+
+    QHBoxLayout *laycom = new QHBoxLayout();
+    laycom                  ->addLayout(laychk);
+    laycom                  ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed));
+    laycom                  ->addWidget(tblimprimantes);
+
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg->layout());
+    lay                     ->insertLayout(0, laycom);
+    lay                     ->setSizeConstraint(QLayout::SetFixedSize);
+
+    /*! toujours au centre de l'écran, l'utilisateur n'a pas à chercher la fiche */
+    dlg                     ->adjustSize();
+    const QRect ecran = QGuiApplication::primaryScreen()->availableGeometry();
+    dlg                     ->move(ecran.center().x() - dlg->width()/2, ecran.center().y() - dlg->height()/2);
+
+    typ = noEMISSION;
+    if (dlg->exec() == QDialog::Accepted)
+    {
+        if (pdfchk->isChecked())
+            typ = createPDF;
+        else if (printchk->isChecked())
+        {
+            m_nomImprimante = (tblimprimantes->currentIndex().isValid()? tblimprimantes->currentIndex().data().toString() : "");
+            typ = printDOC;
+        }
+        else if (mailchk->isChecked())
+            typ = SendMAIL;
+    }
+    delete dlg;
+    return typ;
 }
 
 // Get file content from SQL table
@@ -1696,8 +1965,8 @@ QByteArray Procedures::getFileFromSQL(Item *item)
     QByteArray ba       = QByteArray();
     DocExterne *docmt   = qobject_cast<DocExterne*>(item);
     Depense *dep        = qobject_cast<Depense*>(item);
-    bool isdocument     = (docmt != Q_NULLPTR);
-    bool isfacture      = (dep != Q_NULLPTR);
+    bool isdocument     = (docmt != nullptr);
+    bool isfacture      = (dep != nullptr);
     if (!isdocument && ! isfacture)
         return ba;
     QString sQuery;
@@ -1817,109 +2086,218 @@ void Procedures::EditHtml(QString txt, QWidget *parent)
 }
 
 
-bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
-                                   bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante, bool Administratif,
-                                   QImage signature)
+/*!
+ * \brief Procedures::PrepareDocExterne
+ * Fabrique les textes et le pdf d'un document, sans rien émettre ni enregistrer.
+ * \param doc  reçoit les textes, le pdf, le nom de fichier et les champs de la table des documents
+ */
+bool Procedures::PrepareDocExterne(Patient *pat, User *user, QString titre, QString textorigine, QDate date,
+                                   bool Prescription, bool ALD, bool Administratif, QImage signature, DocAEnvoyer &doc)
 {
-    if (pat == Q_NULLPTR || user == Q_NULLPTR)
+    if (pat == nullptr || user == nullptr)
         return false;
-    QString     textcorps, textpied, textentete;
-    bool        AvecNumPage = false;
-    bool        aa;
+    setImpressionALD(ALD);
 
-    //création de l'entête
     QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user, Prescription);
     if (EnteteMap.value(NORMHeader) == "")
         return false;
-    textentete                      = (ALD? EnteteMap.value(ALDHeader) : EnteteMap.value(NORMHeader));
-    if (textentete == "") return false;
-    textentete.replace("{{TITRE1}}"        , "");
-    textentete.replace("{{TITRE}}"         , "");
-    textentete.replace("{{DDN}}"           , "");
+    doc.textentete = (m_ALD? EnteteMap.value(ALDHeader) : EnteteMap.value(NORMHeader));
+    if (doc.textentete == "")
+        return false;
+    doc.textentete.replace("{{TITRE1}}", "");
+    doc.textentete.replace("{{TITRE}}" , "");
+    doc.textentete.replace("{{DDN}}"   , "");
 
-    //création du pied
-    textpied = CalcPiedImpression(user);
-    if (textpied == "")
+    doc.textpied = CalcPiedImpression(user);
+    if (doc.textpied == "")
         return false;
 
-    // creation du corps
-    textcorps = CalcCorpsImpression(textorigine, ALD);
-    if (ALD)
+    doc.textcorps = CalcCorpsImpression(textorigine, m_ALD);
+    if (m_ALD)
     {
-        textcorps.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
-        textcorps.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
-        textcorps.replace("{{DATE}}", tr("le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
+        doc.textcorps.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
+        doc.textcorps.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
+        doc.textcorps.replace("{{DATE}}", tr("le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
     }
     else
     {
-        textentete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
-        textentete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
+        doc.textentete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
+        doc.textentete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
     }
-    if (textcorps == "")
+    if (doc.textcorps == "")
         return false;
-    QTextEdit   Etat_textEdit;
-    Etat_textEdit.setHtml(textcorps);
+    QTextEdit Etat_textEdit;
+    Etat_textEdit.setHtml(doc.textcorps);
     if (Etat_textEdit.toPlainText() == "")
         return false;
-    if (pdf)
+
+    doc.titre       = titre;
+    doc.nomfichier  = titre + ".pdf";
+    doc.pdf         = Cree_pdfByteArray(doc.textcorps, doc.textentete, doc.textpied, (Prescription? user : nullptr), ALD, signature);
+
+    QString corpsnettoye = doc.textcorps;
+    Utils::nettoieHTML(corpsnettoye, 9);
+    doc.listbinds[CP_IDUSER_DOCSEXTERNES]        = user->id();
+    doc.listbinds[CP_IDPAT_DOCSEXTERNES]         = pat->id();
+    doc.listbinds[CP_TYPEDOC_DOCSEXTERNES]       = (Prescription? "Prescription" : "Courrier");
+    doc.listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = titre;
+    doc.listbinds[CP_TITRE_DOCSEXTERNES]         = titre;
+    doc.listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = doc.textentete;
+    doc.listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = corpsnettoye;
+    doc.listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = textorigine;
+    doc.listbinds[CP_TEXTPIED_DOCSEXTERNES]      = QString(doc.textpied).replace("{{DUPLI}}","");
+    doc.listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+    doc.listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = Datas::I()->users->userconnected()->id();
+    doc.listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QString()));
+    doc.listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
+    doc.listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
+    doc.listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
+    doc.listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
+    doc.listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = doc.pdf;
+    return true;
+}
+
+/*!
+ * \brief Procedures::EnregistreDocExterne
+ * Enregistre le document dans la table des documents et renvoie son id, 0 si l'enregistrement échoue.
+ */
+int Procedures::EnregistreDocExterne(const DocAEnvoyer &doc)
+{
+    DocExterne *docmt = DocsExternes::CreationDocumentExterne(doc.listbinds);
+    if (docmt == nullptr)
+        return 0;
+    int id = docmt->id();
+    delete docmt;
+    return id;
+}
+
+bool Procedures::Imprimer_DocExterne(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
+                                   bool Prescription, bool ALD, bool AvecDupli, typeEnvoi typ, bool Administratif,
+                                   QImage signature)
+{
+    if (typ == noEMISSION)
+        return false;
+    DocAEnvoyer doc;
+    if (!PrepareDocExterne(pat, user, titre, textorigine, date, Prescription, ALD, Administratif, signature, doc))
+        return false;
+    QString destinataire;
+    bool    aa = false;
+    if (typ == createPDF)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + m_dirnamepdf;
         QString filename    = pat->prenom() + " " + pat->nom()  + " - " + titre + ".pdf";
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                               m_dirnamepdf;
-        Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? user : Q_NULLPTR), ALD, dirname, signature);
+        Cree_pdffile(doc.textcorps, doc.textentete, doc.textpied, filename, (Prescription? user : nullptr), ALD, dirname, signature);
         QFile file          = QFile(dirname + "/" + filename);
         aa                  = file.exists();
         UpMessageBox::Watch(parent,
                             aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
                             aa? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
     }
-    else
+    else if (typ == printDOC)
+        aa = Imprime_Etat(parent, doc.textcorps, doc.textentete, doc.textpied,
+                          (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
+                          AvecDupli, false, signature);
+    else if (typ == SendMAIL)
     {
-        int tailleEnTete = TailleEnTete();
-        if (ALD) tailleEnTete = TailleEnTeteALD();
-        aa = Imprime_Etat(parent, textcorps, textentete, textpied,
-                            TaillePieddePage(), tailleEnTete, TailleTopMarge(), (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
-                            AvecDupli, AvecNumPage, AvecChoixImprimante, signature);
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(doc.nomfichier, doc.pdf);
+        aa = EnvoiMail(parent, pieces, Datas::I()->sites->idcurrentsite(), pat, destinataire);
     }
-
-    // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        Utils::nettoieHTML(textcorps, 9);
-        QByteArray ba = Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : Q_NULLPTR), ALD, signature);
-
-        int idpat = 0;
-        idpat = pat->id();
-
-        QHash<QString, QVariant> listbinds;
-        // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-        listbinds[CP_IDUSER_DOCSEXTERNES]        = user->id();
-        listbinds[CP_IDPAT_DOCSEXTERNES]         = idpat;
-        listbinds[CP_TYPEDOC_DOCSEXTERNES]       = (Prescription? "Prescription" : "Courrier");
-        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = titre;
-        listbinds[CP_TITRE_DOCSEXTERNES]         = titre;
-        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = textentete;
-        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = textcorps;
-        listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = textorigine;
-        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = textpied.replace("{{DUPLI}}","");
-        listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = Datas::I()->users->userconnected()->id();
-        listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QString()));
-        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
-        listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
-        listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
-        listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
-        listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = ba;
-        DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        if(doc != Q_NULLPTR)
-            delete doc;
+        int id = EnregistreDocExterne(doc);
+        if (id > 0 && typ == SendMAIL)
+            EnregistreEnvoiMail(QList<int>() << id, destinataire);
+        m_ALD = false;
     }
     return aa;
 }
 
-bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map, QWidget *parent)
+/*!
+ * \brief Procedures::EnvoiGroupeDocExternes
+ * Envoie plusieurs documents dans un seul mail et ne les enregistre que si le serveur l'a accepté.
+ * \param docs    les documents préparés par PrepareDocExterne
+ * \param idsite  le lieu dont on utilise les coordonnées d'envoi
+ * \param pat     le patient concerné, pour l'adresse proposée par défaut
+ */
+bool Procedures::EnvoiGroupeDocExternes(QWidget *parent, QList<DocAEnvoyer> docs, int idsite, Patient *pat)
+{
+    if (docs.size() == 0)
+        return false;
+    QMap<QString, QByteArray> pieces;
+    foreach (DocAEnvoyer doc, docs)
+        pieces.insert(doc.nomfichier, doc.pdf);
+    QString destinataire;
+    if (!EnvoiMail(parent, pieces, idsite, pat, destinataire))
+        return false;
+    QList<int> ids;
+    foreach (DocAEnvoyer doc, docs)
+    {
+        int id = EnregistreDocExterne(doc);
+        if (id > 0)
+            ids << id;
+    }
+    EnregistreEnvoiMail(ids, destinataire);
+    m_ALD = false;
+    return true;
+}
+
+/*!
+ * \brief Procedures::EnregistreEnvoiMail
+ * Trace un mail parti : une ligne d'envoi et une jointure par document joint.
+ * \param iddocuments  les documents joints au mail
+ * \param destinataire l'adresse telle qu'elle a servi
+ */
+void Procedures::EnregistreEnvoiMail(QList<int> iddocuments, QString destinataire)
+{
+    QHash<QString, QVariant> listbinds;
+    listbinds[CP_DESTINATAIRE_MAILSENVOYES] = destinataire;
+    listbinds[CP_DATEENVOI_MAILSENVOYES]    = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    listbinds[CP_IDUSER_MAILSENVOYES]       = Datas::I()->users->userconnected()->id();
+    db                      ->locktables(QStringList() << TBL_MAILSENVOYES);
+    int idmail = db->selectMaxFromTable(CP_ID_MAILSENVOYES, TBL_MAILSENVOYES, m_ok) + 1;
+    listbinds[CP_ID_MAILSENVOYES]           = idmail;
+    bool enreg = db->InsertSQLByBinds(TBL_MAILSENVOYES, listbinds);
+    db                      ->unlocktables();
+    if (!enreg)
+        return;
+    foreach (int iddocument, iddocuments)
+        db                  ->StandardSQL("insert into " TBL_JOINTURESMAILS " (" CP_IDMAIL_JOINTMAIL ", " CP_IDIMPRESSION_JOINTMAIL ")"
+                                          " values (" + QString::number(idmail) + ", " + QString::number(iddocument) + ")");
+}
+
+/*!
+ * \brief Procedures::calcPdfFromListImage
+ * Rend la liste d'images sous forme de pdf en mémoire, sans passer par un fichier.
+ * \param listimage  les pages à rendre
+ */
+QByteArray Procedures::calcPdfFromListImage(QList<QImage> listimage)
+{
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    QPrinter printer(QPrinter::HighResolution);
+    printer             .setOutputFormat(QPrinter::PdfFormat);
+    printer             .setOutputFileName("");
+    QPdfWriter pdf(&buffer);
+    pdf                 .setResolution(printer.resolution());
+    QPainter peintre(&pdf);
+    for (int i=0; i<listimage.size(); ++i)
+    {
+        if (i > 0)
+            pdf.newPage();
+        QImage page = listimage.at(i).scaled(pdf.pageLayout().pageSize().sizePixels(pdf.resolution()), Qt::KeepAspectRatio);
+        peintre.drawImage(QPoint(0,0), page);
+    }
+    peintre.end();
+    buffer.close();
+    return ba;
+}
+
+bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf, QWidget *parent)
 {
     auto creepdf = [=] (QPrinter &printer)
     {
@@ -1938,9 +2316,9 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
     };
     QPrinter printer(QPrinter::HighResolution);
     printer             .setOutputFormat(QPrinter::PdfFormat);
-    QString dirname     = map.value("dir");
-    QString filename    = map.value("file");
-    QString msgOK       = map.value("msg");
+    QString dirname     = infofilepdf.value("dir");
+    QString filename    = infofilepdf.value("file");
+    QString msgOK       = infofilepdf.value("msg");
     if (Utils::mkpath(dirname))
     {
         printer             .setOutputFileName(dirname + "/" + filename);
@@ -1954,21 +2332,30 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
     return true;
 }
 
-void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map)
+void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEnvoi typ, QMap<QString, QString> map, int idsite)
 {
-    bool pdf = false;
-    if (QuestionPdfOrPrint(parent, pdf))
+    switch (QuestionMailPdfOrPrint(parent, typ, idsite))
     {
-        if (pdf)
-            createPdfFromListImage(listimage, map, parent);
-        else
-            Print(listimage);
+    case printDOC:
+        Print(listimage);
+        break;
+    case SendMAIL: {
+        QString destinataire;
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(map.value("file"), calcPdfFromListImage(listimage));
+        EnvoiMail(parent, pieces, idsite, nullptr, destinataire);
+        break; }
+    case createPDF:
+        createPdfFromListImage(listimage, map, parent);
+        break;
+    default:
+        break;
     }
 }
 
 bool Procedures::Print(QList<QImage> listimage, QWidget *parent)
 {
-    if (m_printer == Q_NULLPTR)                      /*! création différée (voir constructeur) */
+    if (m_printer == nullptr)                      /*! création différée (voir constructeur) */
     {
         m_printer             = new QPrinter(QPrinter::HighResolution);
         m_printer             ->setFullPage(true);
@@ -2127,7 +2514,7 @@ QString Procedures::SessionStatus()
             if (cptencaissement)
             {
                 txtliberal +=  "\n" + tr("Honoraires encaissés sur le compte :") + "\t" + cptencaissement->nomabrege();
-                if (Datas::I()->users->getById(currentuser()->idcomptableactes()) != Q_NULLPTR)
+                if (Datas::I()->users->getById(currentuser()->idcomptableactes()) != nullptr)
                     txtliberal += " " + tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptableactes())->login();
             }
             txtstatut += txtliberal;
@@ -2226,9 +2613,9 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, Correspondants::
 
 QString Procedures::MDPAdmin()
 {
-    if (m_parametres == Q_NULLPTR)
+    if (m_parametres == nullptr)
         m_parametres = db->parametres();
-    if (m_parametres == Q_NULLPTR)
+    if (m_parametres == nullptr)
         return Utils::calcSHA1(MDP_ADMINISTRATEUR);
     if (m_parametres->mdpadmin() == "")
         db->setmdpadmin(Utils::calcSHA1(MDP_ADMINISTRATEUR));
@@ -2595,7 +2982,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
                 UpMessageBox::Information(parent, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
                 dir.removeRecursively();
                 emit ConnectTimers(true);
-                return "basevierge";
+                return "baseviergeOK";
             }
         }
         dir.removeRecursively();
@@ -2610,8 +2997,8 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         QDir dirtorestore = QDir();
         if (!cheminRestauration.isEmpty())
         {
-            //! Mode AUTOMATIQUE (migration de base) : dossier imposé par l'appelant, aucune
-            //! interaction (ni choix de dossier ni saisie de mot de passe).
+            /*! Mode AUTOMATIQUE (migration de base) : dossier imposé par l'appelant, aucune
+            * interaction (ni choix de dossier ni saisie de mot de passe). */
             QDate date = QDate::fromString(QDir(cheminRestauration).dirName().left(8), "yyyyMMdd");
             QString msgdate = "";
             if (date.isValid())
@@ -2944,7 +3331,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
             }
         }
         delete dlg_buprestore;
-        dlg_buprestore = Q_NULLPTR;
+        dlg_buprestore = nullptr;
         //qDebug() << msg;
         UpMessageBox::Watch(parent,tr("Restauration terminée"),msg);
         emit ConnectTimers(true);
@@ -2961,6 +3348,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         else
             return "";
     }
+    return "";
 }
 
 /*!
@@ -3125,7 +3513,7 @@ bool Procedures::VerifVersionBase(QWidget* parent)
     int Version         = VERSION_BASE;
     m_parametres = db->parametres();
     int Versionencours = m_parametres->versionbase();
-
+    qDebug() << "Versionencours" << Versionencours << "Version" << Version;
     bool BupDone = false;
     if (Versionencours < Version)
     {
@@ -3161,7 +3549,7 @@ bool Procedures::VerifVersionBase(QWidget* parent)
                 BupDone = true;
                 Datas::I()->postesconnectes->initListe();
                 PosteConnecte* post = Datas::I()->postesconnectes->admin();
-                if (post != Q_NULLPTR)
+                if (post != nullptr)
                     UpMessageBox::Watch(parent,tr("RufusAdmin présent"), tr("Après la mise à jour de la base") + "\n" +
                                                                             tr("Il vous faudra installer une version de RufusAdmin correspondante à la nouvelle version de la base") + "\n" +
                                                                             tr("Il faudra relancer chaque poste du réseau après le redémarrage de RufusAdmin"));
@@ -3707,7 +4095,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     m_listbinds[CP_DATEDEBUT_SESSIONS]      = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
     Datas::I()->sessions->CreationSession(m_listbinds);
 
-    if (Datas::I()->sites->currentsite() == Q_NULLPTR && currentuser()->isSoignant())
+    if (Datas::I()->sites->currentsite() == nullptr && currentuser()->isSoignant())
         UpMessageBox::Watch(parent,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     m_connexionbaseOK = true;
 
@@ -3770,7 +4158,7 @@ void Procedures::CalcLieuExercice(QWidget *parent)
     for (auto it = mapEtab.cbegin(); it != mapEtab.cend(); ++it)
     {
         Site *sit = qobject_cast<Site*>(it.key());
-        if (sit != Q_NULLPTR)
+        if (sit != nullptr)
             mapid.insert(sit->id(), it.value());
     }
     currentuser()->setmapUserSites(mapid);
@@ -3798,7 +4186,7 @@ void Procedures::CalcLieuExercice(QWidget *parent)
         for (auto it = mapEtab.cbegin(); it != mapEtab.cend(); ++it)
         {
             Site *sit = qobject_cast<Site*>(it.key());
-            if (sit != Q_NULLPTR)
+            if (sit != nullptr)
             {
                 UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
                 pradiobutt->setText(sit->nom());
@@ -3828,7 +4216,7 @@ void Procedures::CalcLieuExercice(QWidget *parent)
         if (currentuser()->isRemplacant())
         {
             User *usr = Datas::I()->users->getById(currentuser()->idparent());
-            if (usr != Q_NULLPTR)
+            if (usr != nullptr)
             {
                 currentuser()->setusenum(usr->usenum());
                 if (usr->usenum())
@@ -3854,7 +4242,7 @@ void Procedures::VerifnumAM(QWidget *parent)
         return;
 
     int idsite = 0;
-    if (Datas::I()->sites->currentsite() != Q_NULLPTR)
+    if (Datas::I()->sites->currentsite() != nullptr)
     {
         idsite = Datas::I()->sites->currentsite()->id();
         currentuser()->setidSite(idsite);
@@ -3863,7 +4251,7 @@ void Procedures::VerifnumAM(QWidget *parent)
     if (currentuser()->isRemplacant() || !m_currentuser->ishisownsupervisor())
     {
         User* usr = Datas::I()->users->getById(currentuser()->idparent());
-        if (usr != Q_NULLPTR)
+        if (usr != nullptr)
         {
             currentuser()->setRPPSnumber(usr->NumPS());
             QMap<Site*,qlonglong> mapEtab = Datas::I()->sites->initListeByUser(usr->id());
@@ -3871,7 +4259,7 @@ void Procedures::VerifnumAM(QWidget *parent)
             for (auto it = mapEtab.cbegin(); it != mapEtab.cend(); ++it)
             {
                 Site *sit = qobject_cast<Site*>(it.key());
-                if (sit != Q_NULLPTR)
+                if (sit != nullptr)
                     mapidparent.insert(sit->id(), it.value());
             }
             QMap<int,qlonglong>::Iterator itr = mapidparent.find(Datas::I()->sites->currentsite()->id());
@@ -3924,7 +4312,7 @@ void Procedures::VerifnumAM(QWidget *parent)
             QCompleter *comp    = new QCompleter(listnumAM);
             comp                ->setCompletionMode(QCompleter::InlineCompletion);
             line                ->setCompleter(comp);
-            line                ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{9}"), Q_NULLPTR));
+            line                ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{9}"), nullptr));
             combo               ->addItems(listnumAM);
             combo               ->setLineEdit(line);
             combo               ->setEditable(true);
@@ -3989,7 +4377,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     Datas::I()->users->initListe();
     Datas::I()->comptes->initListe();
     User *user = currentuser();
-    if (user == Q_NULLPTR)
+    if (user == nullptr)
     {
         UpMessageBox::Watch(parent,tr("Impossible de créer l'utilisateur"),tr("Erreur de création de l'utilisateur"));
         return false;
@@ -4017,7 +4405,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP, QWidget *parent)
     db                  ->setcotationsfrance(dlg.cotationsfrance());
     db                  ->setVersion(m_version);
     db                  ->setPays(dlg.territoire());
-    if (m_settings != Q_NULLPTR)
+    if (m_settings != nullptr)
         m_settings      ->setValue(Param_Poste_Version, m_version);      //! la langue du poste vit dans rufus.ini
 
     //! le territoire ne pilote pour l'instant que la base des villes et codes postaux
@@ -4052,7 +4440,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
 
     int al = 0;
     QString iban = "FR";
-    srand(static_cast<uint>(time(Q_NULLPTR)));
+    srand(static_cast<uint>(time(nullptr)));
     al = rand() % 100;
     while (al<10)
         al = rand() % 100;
@@ -4353,7 +4741,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
             else if (msgbox.clickedButton() == &BaseViergeBouton)
             {
                 m_protoc = BaseVierge;
-                if (RestaureBase(BaseVierge, true, parent) == "")
+                if (RestaureBase(BaseVierge, true, parent) != "baseviergeOK")
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
@@ -4366,7 +4754,7 @@ bool Procedures::IdentificationUser(QWidget *parent)
         }
     }
     delete dlg_IdentUser;
-    return (currentuser() != Q_NULLPTR);
+    return (currentuser() != nullptr);
 }
 
 /*! --------------------------------------------------------------------------------------------------------------------------------------
@@ -4553,7 +4941,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
             if( dlg_askUser->exec() != QDialog::Accepted)
             {
                 delete dlg_askUser;
-                dlg_askUser = Q_NULLPTR;
+                dlg_askUser = nullptr;
                 return false;
             }
             foreach (QGroupBox *groupBox, dlg_askUser->findChildren<QGroupBox*>())
@@ -4582,7 +4970,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
                 }
             }
             delete dlg_askUser;
-            dlg_askUser = Q_NULLPTR;
+            dlg_askUser = nullptr;
         }
         if( currentuser()->idsuperviseur() == User::ROLE_INDETERMINE )
         {
@@ -4646,7 +5034,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
                                 if (dlg_askUser->exec() != QDialog::Accepted)
                                 {
                                     delete dlg_askUser;
-                                    dlg_askUser = Q_NULLPTR;
+                                    dlg_askUser = nullptr;
                                     return false;
                                 }
                                 else
@@ -4662,7 +5050,7 @@ bool Procedures::DefinitRoleUser(QWidget *parent) //NOTE : User Role Function
                                                 }
                                         }
                                     delete dlg_askUser;
-                                    dlg_askUser = Q_NULLPTR;
+                                    dlg_askUser = nullptr;
                                 }
                             }
                         }
@@ -4771,7 +5159,7 @@ void Procedures::CalcUserSuperviseur()
     User *user = qobject_cast<User *>(dlg_askUser->data());
     currentuser()->setidsuperviseur(User::ROLE_INDETERMINE);
     currentuser()->setidparent(User::ROLE_INDETERMINE);
-    QGroupBox *ptbox = Q_NULLPTR;
+    QGroupBox *ptbox = nullptr;
     QList<QGroupBox*> Listgroupbx   = dlg_askUser->findChildren<QGroupBox*>();
     for (int i=0; i<Listgroupbx.size(); i++)
     {
@@ -4856,7 +5244,7 @@ void Procedures::CalcUserParent()
     User *user = qobject_cast<User *>(dlg_askUser->data());
 
     user->setidsuperviseur( user->id() );
-    QGroupBox *ptbox = Q_NULLPTR;
+    QGroupBox *ptbox = nullptr;
     foreach (QGroupBox * box, dlg_askUser->findChildren<QGroupBox*>())
     {
         if (box->objectName() == "Superv")
@@ -5066,7 +5454,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         //! Tout est OK concernant le serveur -> on passe à la création/restauration de la table
 
 
-        if (m_settings != Q_NULLPTR)
+        if (m_settings != nullptr)
             delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
 
@@ -5088,7 +5476,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 delete installeurMySQL;
                 return;
             }
-            QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
+            ReconstruitIniMinimal();
             m_parametres = db->parametres();
             m_connexionbaseOK = CreerPremierUser(login, mdp, &dlg);
             Datas::I()->sites->initListe();
@@ -5168,7 +5556,7 @@ bool Procedures::InstallationRufus(QWidget *parent)
  */
 void Procedures::ReconstruitIniMinimal()
 {
-    if (m_settings != Q_NULLPTR)
+    if (m_settings != nullptr)
         delete m_settings;
     m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
@@ -5179,6 +5567,7 @@ void Procedures::ReconstruitIniMinimal()
     m_settings->setValue(Imprimante_TaillePieddePage,"20");
     m_settings->setValue(Imprimante_TailleTopMarge,"3");
     m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
+    /*! Sans participant, les blobs déposés par les postes distants ne sont jamais déversés sur le disque. */
     m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
     m_settings->setValue(Param_Poste_Version, m_version);
 }
@@ -5189,9 +5578,6 @@ void Procedures::ReconstruitIniMinimal()
 void Procedures::PremierParametrageMateriel()
 {
     ReconstruitIniMinimal();
-    /*! Sans participant, les blobs déposés par les postes distants ne sont jamais déversés sur le disque. */
-    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
-    m_settings->setValue(Param_Poste_Version, m_version);
 
     // Création des dossiers
     //!    on server
@@ -5293,7 +5679,7 @@ bool Procedures::EprouverConnexionApresSaisie(QWidget *parent)
                                    m_settings->value(base + Param_Port).toInt());
 
     //! Obtenu = mot de passe éprouvé ET enregistré dans .dbkey
-    if (MySQLInstaller::RecupererMotDePasseMySQL(Q_NULLPTR, tr("Mot de passe de la base du cabinet"),
+    if (MySQLInstaller::RecupererMotDePasseMySQL(nullptr, tr("Mot de passe de la base du cabinet"),
             tr("Indiquez le mot de passe de connexion à la base du cabinet.") + "\n" +
             tr("Il se récupère sur une clé USB depuis le poste qui héberge la base "
                "(menu Édition / Paramètres)."))
@@ -5338,7 +5724,7 @@ bool Procedures::EprouverConnexionApresSaisie(QWidget *parent)
 void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
 {
     auto Relectureini = [this]() -> bool {
-        if (m_settings != Q_NULLPTR)
+        if (m_settings != nullptr)
             delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
         return QFile::exists(PATH_FILE_INI) && iniContientModeValide(*m_settings);
@@ -5652,7 +6038,7 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
             }
         }
 
-        if (Datas::I()->actes->currentacte() != Q_NULLPTR)
+        if (Datas::I()->actes->currentacte() != nullptr)
         {
             if (Datas::I()->actes->currentacte()->date() == DataBase::I()->ServerDate()
             || (app != tr("le tonomètre")  // on peut faire plusieurs mesures de tonometrie sur la même consultation donc on ne vérifie pas dans ce cas si une mesure a déjà été faite pour cet acte
@@ -5925,7 +6311,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
         QString PortCom = "";
         QString DeviceName = "";
         Utils::SerialSettings sparamportserie = s_paramPortSerieFronto;
-        upSerialPort *serialport = Q_NULLPTR;
+        upSerialPort *serialport = nullptr;
         switch (appareil) {
         case Fronto:        sparamportserie = s_paramPortSerieFronto;       PortCom = m_portFronto;     DeviceName = tr("Fronto");      break;
         case Autoref:       sparamportserie = s_paramPortSerieAutoref;      PortCom = m_portAutoref;    DeviceName = tr("Autoref");     break;
@@ -5973,13 +6359,13 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             UpMessageBox::Watch(parent, tr("Erreur paramètrage connexion frontofocomètre"), tr("le port de comunication n'est pas configuré"));
         else
         {
-            if (sp_portFronto != Q_NULLPTR)
+            if (sp_portFronto != nullptr)
             {
                 sp_portFronto->close();
                 delete sp_portFronto;
             }
             sp_portFronto = loadserialsettings(Fronto);
-            if (sp_portFronto != Q_NULLPTR && sp_portFronto->isOpen())
+            if (sp_portFronto != nullptr && sp_portFronto->isOpen())
             {
                 if (!sp_portFronto->isOpen())
                     sp_portFronto->open(QIODevice::ReadWrite);
@@ -5993,17 +6379,17 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                     msg += (msg != ""? "<br/>" : "") + tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
                     UpMessageBox::Watch(parent, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
                     delete sp_portFronto;
-                    sp_portFronto = Q_NULLPTR;
+                    sp_portFronto = nullptr;
                 }
             }
             else
                 UpMessageBox::Watch(parent, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
         }
     }
-    else if (sp_portFronto != Q_NULLPTR)
+    else if (sp_portFronto != nullptr)
     {
         delete sp_portFronto;
-        sp_portFronto = Q_NULLPTR;
+        sp_portFronto = nullptr;
         m_settings->remove(Param_Poste_PortFronto_COM_baudrate);
         m_settings->remove(Param_Poste_PortFronto_COM_databits);
         m_settings->remove(Param_Poste_PortFronto_COM_parity);
@@ -6020,13 +6406,13 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             UpMessageBox::Watch(parent, tr("Erreur paramètrage connexion refracteur"), tr("le port de comunication n'est pas configuré"));
         else
         {
-            if (sp_portRefracteur != Q_NULLPTR)
+            if (sp_portRefracteur != nullptr)
             {
                 sp_portRefracteur->close();
                 delete sp_portRefracteur;
             }
             sp_portRefracteur = loadserialsettings(Refracteur);
-            if (sp_portRefracteur != Q_NULLPTR)
+            if (sp_portRefracteur != nullptr)
             {
                 if (!sp_portRefracteur->isOpen())
                     sp_portRefracteur->open(QIODevice::ReadWrite);
@@ -6040,17 +6426,17 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                     msg += (msg != ""? "<br/>" : "") + tr("Impossible de connecter le refracteur sur ") + m_portRefracteur;
                     UpMessageBox::Watch(parent, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
                     delete sp_portRefracteur;
-                    sp_portRefracteur = Q_NULLPTR;
+                    sp_portRefracteur = nullptr;
                 }
             }
             else
                 UpMessageBox::Watch(parent, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
         }
     }
-    else if (sp_portRefracteur != Q_NULLPTR)
+    else if (sp_portRefracteur != nullptr)
     {
         delete sp_portRefracteur;
-        sp_portRefracteur = Q_NULLPTR;
+        sp_portRefracteur = nullptr;
         m_settings->remove(Param_Poste_PortRefracteur_COM_baudrate);
         m_settings->remove(Param_Poste_PortRefracteur_COM_databits);
         m_settings->remove(Param_Poste_PortRefracteur_COM_parity);
@@ -6067,13 +6453,13 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             UpMessageBox::Watch(parent, tr("Erreur paramètrage connexion autorefractomètre"), tr("le port de comunication n'est pas configuré"));
         else
         {
-            if (sp_portAutoref != Q_NULLPTR)
+            if (sp_portAutoref != nullptr)
             {
                 sp_portAutoref->close();
                 delete sp_portAutoref;
             }
             sp_portAutoref = loadserialsettings(Autoref);
-            if (sp_portAutoref != Q_NULLPTR)
+            if (sp_portAutoref != nullptr)
             {
                 if (!sp_portAutoref->isOpen())
                     sp_portAutoref->open(QIODevice::ReadWrite);
@@ -6087,17 +6473,17 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                     msg += (msg != ""? "<br/>" : "") + tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref;
                     UpMessageBox::Watch(parent, tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref, listeports);
                     delete sp_portAutoref;
-                    sp_portAutoref = Q_NULLPTR;
+                    sp_portAutoref = nullptr;
                 }
             }
             else
                 UpMessageBox::Watch(parent, tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref, listeports);
         }
     }
-    else if (sp_portAutoref != Q_NULLPTR)
+    else if (sp_portAutoref != nullptr)
     {
         delete sp_portAutoref;
-        sp_portAutoref = Q_NULLPTR;
+        sp_portAutoref = nullptr;
         m_settings->remove(Param_Poste_PortAutoref_COM_baudrate);
         m_settings->remove(Param_Poste_PortAutoref_COM_databits);
         m_settings->remove(Param_Poste_PortAutoref_COM_parity);
@@ -6113,13 +6499,13 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             UpMessageBox::Watch(parent, tr("Erreur paramètrage connexion tonomomètre"), tr("le port de comunication n'est pas configuré"));
         else
         {
-            if (sp_portTono != Q_NULLPTR)
+            if (sp_portTono != nullptr)
             {
                 sp_portTono->close();
                 delete sp_portTono;
             }
             sp_portTono = loadserialsettings(Tonometre);
-            if (sp_portTono != Q_NULLPTR)
+            if (sp_portTono != nullptr)
             {
                 if (!sp_portTono->isOpen())
                     sp_portTono->open(QIODevice::ReadWrite);
@@ -6133,17 +6519,17 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                     msg += (msg != ""? "<br/>" : "") + tr("Impossible de connecter le tonomètre sur ") + m_portTono;
                     UpMessageBox::Watch(parent, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
                     delete sp_portTono;
-                    sp_portTono = Q_NULLPTR;
+                    sp_portTono = nullptr;
                 }
             }
             else
                 UpMessageBox::Watch(parent, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
         }
     }
-    else if (sp_portTono != Q_NULLPTR)
+    else if (sp_portTono != nullptr)
     {
         delete sp_portTono;
-        sp_portTono = Q_NULLPTR;
+        sp_portTono = nullptr;
         m_settings->remove(Param_Poste_PortTono_COM_baudrate);
         m_settings->remove(Param_Poste_PortTono_COM_databits);
         m_settings->remove(Param_Poste_PortTono_COM_parity);
@@ -6564,7 +6950,7 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
 
 void Procedures::RegleRefracteur(GenericProtocol::TypesMesures flag)
 {
-    if (sp_portRefracteur!=Q_NULLPTR) /*! par le port COM */
+    if (sp_portRefracteur!=nullptr) /*! par le port COM */
     {
         QString nompat = "";
         Patient *pat = Datas::I()->patients->currentpatient();
@@ -6941,7 +7327,7 @@ void Procedures::RegleRefracteurXML(GenericProtocol::TypesMesures flag)
 QString Procedures::currentuserstatus() const
 {
     const User *usr = Datas::I()->users->userconnected();
-    if (usr == Q_NULLPTR)
+    if (usr == nullptr)
         return "";
     QString str = "" +
             tr("utilisateur") + "\t\t= " + usr->login()  + "\n";
@@ -6999,7 +7385,7 @@ QString Procedures::currentuserstatus() const
 
 bool Procedures::isUserConnected(User *usr)
 {
-    if (Datas::I()->postesconnectes->admin(Item::NoUpdate) == Q_NULLPTR)
+    if (Datas::I()->postesconnectes->admin(Item::NoUpdate) == nullptr)
         Datas::I()->postesconnectes->MAJlistePostesConnectes();
     for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it !=  Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
     {
@@ -7012,10 +7398,10 @@ bool Procedures::isUserConnected(User *usr)
 
 void Procedures::saveDocumentToFile(DocExterne *doc, QWidget *parent)
 {
-    if (doc == Q_NULLPTR)
+    if (doc == nullptr)
         return;
     Patient *pat = Datas::I()->patients->getById(doc->idpatient());
-    if (pat == Q_NULLPTR)
+    if (pat == nullptr)
     {
         UpMessageBox::Watch(parent,  tr("Echec"), tr("Impossible de retrouver les données du patient pour ce document"));
         return;
@@ -7089,13 +7475,13 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
     bool a = true;
     if (a)
         return;
-    if (titre != "" && mesure != Q_NULLPTR)
+    if (titre != "" && mesure != nullptr)
         return;
 
     /*!
         qDebug() << titre;
     Pachymetrie *pachy = qobject_cast<Pachymetrie *>(mesure);
-    if (pachy != Q_NULLPTR)
+    if (pachy != nullptr)
     {
         qDebug() << "Pachymétrie";
         QString Formule = "OD : " + QString::number(pachy->pachyOD()) + "µ";
@@ -7106,7 +7492,7 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
         return;
     }
     Tonometrie *tono = qobject_cast<Tonometrie *>(mesure);
-    if (tono != Q_NULLPTR)
+    if (tono != nullptr)
     {
         qDebug() << "Tonométrie";
         QString Formule = "OD : " + QString::number(tono->TOD()) + "mmHg";
@@ -7120,7 +7506,7 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
         return;
     }
     Keratometrie *ker = qobject_cast<Keratometrie *>(mesure);
-    if (ker != Q_NULLPTR)
+    if (ker != nullptr)
     {
         qDebug() << "Keratométrie";
         QString Formule = "OD : " + QString::number(ker->K1OD()) + "/" + QString::number(ker->K2OD()) + " "  + QString::number(ker->axeKOD());
@@ -7130,7 +7516,7 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
         return;
     }
     MesureRefraction *ref = qobject_cast<MesureRefraction *>(mesure);
-    if (ref != Q_NULLPTR)
+    if (ref != nullptr)
     {
         qDebug() << Utils::EnumDescription(QMetaEnum::fromType<Refraction::Mesure>(), ref->typemesure());
         QString Formule = "OD : " + Utils::PrefixePlus(ref->sphereOD());
@@ -7181,15 +7567,15 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
     if (nameRF =="NIDEK RT-5100" || nameRF =="NIDEK RT-2100")
     {
         GenericProtocol::TypesMesures flag = GenericProtocol::MesureNone;
-        if (Mesure.contains("@LM") && PortFronto() == Q_NULLPTR && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
+        if (Mesure.contains("@LM") && PortFronto() == nullptr && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureFronto);
-        if (Mesure.contains("@KM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
+        if (Mesure.contains("@KM") && PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
             flag.setFlag(GenericProtocol::MesureKerato);
-        if (Mesure.contains("@RM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+        if (Mesure.contains("@RM") && PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureAutoref);
         if (Mesure.contains("@RT"))                                                          //!=> il y a une mesure de refraction
             flag.setFlag(GenericProtocol::MesureRefracteur);
-        if (Mesure.contains("@NT") && PortAutoref() == Q_NULLPTR &&  !m_LANAutoref )         //!=> il y a une mesure de tonometrie et l'autoref est branché sur la box du refracteur
+        if (Mesure.contains("@NT") && PortAutoref() == nullptr &&  !m_LANAutoref )         //!=> il y a une mesure de tonometrie et l'autoref est branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureTono);
         Nidek::I()->LectureDonneesCOMRefracteur(Mesure, flag);
         //debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
@@ -7281,7 +7667,7 @@ SOH*PC_RCV_EEOT                 -> end block
         }
 
         //! Données du FRONTO ---------------------------------------------------------------------------------------------------------------------
-        if (Mesure.contains("*LM") && PortFronto() == Q_NULLPTR && !m_LANFronto)        //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
+        if (Mesure.contains("*LM") && PortFronto() == nullptr && !m_LANFronto)        //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
         {
             /*!
             *LM
@@ -7345,7 +7731,7 @@ SOH*PC_RCV_EEOT                 -> end block
         }
 
         //! Données de l'AUTOREF ----------------------------------------------------------------------------------------------
-        if (Mesure.contains("*AR") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)      //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+        if (Mesure.contains("*AR") && PortAutoref() == nullptr && !m_LANAutoref)      //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
         {
             /*!
             *AR
@@ -7539,11 +7925,11 @@ SOH*PC_RCV_EEOT                 -> end block
     else if (nameRF =="SHIN-NIPPON DR-900")
     {
         GenericProtocol::TypesMesures flag = GenericProtocol::MesureNone;
-        if (Mesure.contains("LM") && PortFronto() == Q_NULLPTR && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
+        if (Mesure.contains("LM") && PortFronto() == nullptr && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureFronto);
-        if (Mesure.contains("KM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
+        if (Mesure.contains("KM") && PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
             flag.setFlag(GenericProtocol::MesureKerato);
-        if (Mesure.contains("RM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+        if (Mesure.contains("RM") && PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
             flag.setFlag(GenericProtocol::MesureAutoref);
         if (Mesure.contains("RT"))                                                          //!=> il y a une mesure de refraction
             flag.setFlag(GenericProtocol::MesureRefracteur);
@@ -7562,9 +7948,9 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
     else if (nameRF == "NIDEK RT-6100" || nameRF == "NIDEK Glasspop")
     {
         GenericProtocol::TypesMesures flag = GenericProtocol::MesureNone;
-        if (PortFronto() == Q_NULLPTR && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur)
+        if (PortFronto() == nullptr && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur)
             flag.setFlag(GenericProtocol::MesureFronto);
-        if (PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure pour l'autoref et l'autoref est directement branché sur la box du refracteur)
+        if (PortAutoref() == nullptr && !m_LANAutoref)           //!=> il y a une mesure pour l'autoref et l'autoref est directement branché sur la box du refracteur)
         {
             flag.setFlag(GenericProtocol::MesureAutoref);
             flag.setFlag(GenericProtocol::MesureKerato);
@@ -9060,9 +9446,9 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 //---------------------------------------------------------------------------------
 void Procedures::InsertMesure(GenericProtocol::TypeMesure typemesure)
 {
-    if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient() == nullptr)
         return;
-    if (Datas::I()->Datas::I()->actes->currentacte() == Q_NULLPTR)
+    if (Datas::I()->Datas::I()->actes->currentacte() == nullptr)
         return;
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
@@ -9478,7 +9864,7 @@ void Procedures::InsertMesure(GenericProtocol::TypeMesure typemesure)
 */
 void Procedures::CalcImageDocument(DocExterne *docmt)
 {
-    if (docmt == Q_NULLPTR )
+    if (docmt == nullptr )
         return;
     if (docmt->isVideo())
         return;

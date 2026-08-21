@@ -120,7 +120,7 @@ dlg_gestionbanques::~dlg_gestionbanques()
 void dlg_gestionbanques::AfficheBanque()
 {
     UpLabel* lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
-    if (lbl == Q_NULLPTR)                       //! aucune ligne courante (currentRow()==-1) → cellWidget nul
+    if (lbl == nullptr)                       //! aucune ligne courante (currentRow()==-1) → cellWidget nul
         return;
     int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
     auto itbq = Datas::I()->banques->banques()->constFind(idBanque);
@@ -196,7 +196,7 @@ void dlg_gestionbanques::ModifBanque()
 void dlg_gestionbanques::SupprBanque()
 {
     UpLabel* lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
-    if (lbl == Q_NULLPTR)                       //! aucune ligne courante (currentRow()==-1) → cellWidget nul
+    if (lbl == nullptr)                       //! aucune ligne courante (currentRow()==-1) → cellWidget nul
         return;
     int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
     UpMessageBox msgbox(this);
@@ -253,7 +253,7 @@ void dlg_gestionbanques::ValideModifBanque()
         }
         Banque *banq = Datas::I()->banques->CreationBanque(ui->NomAbregeupLineEdit->text(),   //! idBanqueAbrege
                                                             nombanque);                        //! NomBanque
-        if (banq == Q_NULLPTR)
+        if (banq == nullptr)
             return;
         if (m_fermeapresvalidation)
         {
@@ -266,7 +266,7 @@ void dlg_gestionbanques::ValideModifBanque()
     else if (m_mode == Modif)
     {
         UpLabel* lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
-        if (lbl == Q_NULLPTR)                   //! aucune ligne courante (currentRow()==-1) → cellWidget nul
+        if (lbl == nullptr)                   //! aucune ligne courante (currentRow()==-1) → cellWidget nul
             return;
         int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
         Banque * bqamodifier = Datas::I()->banques->getById(idBanque);
@@ -296,7 +296,7 @@ void dlg_gestionbanques::ValideModifBanque()
     for (int i=0; i<wdg_bigtable->rowCount(); i++)
     {
         lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(i,1));
-        if (lbl == Q_NULLPTR)
+        if (lbl == nullptr)
             continue;
         if (lbl->text() == nombanque)
         {

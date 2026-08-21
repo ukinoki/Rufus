@@ -1,6 +1,6 @@
 #include "ressources.h"
 
-Ressources* Ressources::instance = Q_NULLPTR;
+Ressources* Ressources::instance = nullptr;
 
 Ressources* Ressources::I()
 {

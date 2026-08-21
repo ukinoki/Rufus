@@ -30,14 +30,14 @@ class dlg_singleimageviewer : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_singleimageviewer(QWidget *parent = Q_NULLPTR);
+    dlg_singleimageviewer(QWidget *parent = nullptr);
     enum Mode               {Zoom, Normal};                                     Q_ENUM(Mode)
 
     UpMediaPlayer*          player() const;
     void                    setPlayer(UpMediaPlayer *newPlayer);            //! set sizes to maximum for QDialog & displaywidg depending on display widget ratio & screen resolution ratio
 
     QMap<QString,QVariant>  mapimg() const;
-    void                    setListDocuments (QList<DocExterne *> listdocs, DocExterne *doc = Q_NULLPTR);
+    void                    setListDocuments (QList<DocExterne *> listdocs, DocExterne *doc = nullptr);
     void                    setDepense (Depense *dep);
     void                    DisplayVideo(QString filepath);
 
@@ -68,14 +68,14 @@ private:
     Mode                    m_mode              = Normal;
 
     QList<DocExterne*>      m_ListDocs          = QList<DocExterne*>();
-    DocExterne*             m_currentDoc       = Q_NULLPTR;
-    UpLabel*                m_labwdg            = Q_NULLPTR;
+    DocExterne*             m_currentDoc       = nullptr;
+    UpLabel*                m_labwdg            = nullptr;
     UpLabel*                m_labinfowdg        = new UpLabel();
-    DisplayWidget         *m_imgwdg           = Q_NULLPTR;
-    QWidget*                m_parent            = Q_NULLPTR;
+    DisplayWidget         *m_imgwdg           = nullptr;
+    QWidget*                m_parent            = nullptr;
     QHBoxLayout*            m_mainlayout        = new QHBoxLayout();
-    PlayerControls*         m_controlplayer     = Q_NULLPTR;
-    UpToolBar*              wdg_toolbar         = Q_NULLPTR;
+    PlayerControls*         m_controlplayer     = nullptr;
+    UpToolBar*              wdg_toolbar         = nullptr;
 
     QMap<QString,QVariant>  m_mapimg            = QMap<QString,QVariant>();
 

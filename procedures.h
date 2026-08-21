@@ -68,6 +68,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <cls_appareilimagerie.h>
 
 #include "upprogressdialog.h"
+#include "uptableview.h"
 #include <uptoolbar.h>
 #include <upmessagebox.h>
 #include "ressources.h"
@@ -85,10 +86,10 @@ class Procedures : public QObject
     Q_OBJECT
 
 private:
-    explicit                Procedures(QObject *parent = Q_NULLPTR);
+    explicit                Procedures(QObject *parent = nullptr);
     static Procedures*      instance;
-    QSettings               *m_settings = Q_NULLPTR;
-    ParametresSysteme       *m_parametres = Q_NULLPTR;
+    QSettings               *m_settings = nullptr;
+    ParametresSysteme       *m_parametres = nullptr;
     OsTask                  m_ostask;
     QString                 m_version = ""; //! la version du  programme
 
@@ -96,6 +97,7 @@ public:
     static Procedures       *I();
     QSettings*              settings() const { return m_settings; }
     enum typeDoc {Text, Image}; Q_ENUM(typeDoc)   //! les 2 types de documents utilisés par Rufus: image (jpg ou pdf) ou texte
+    enum typeEnvoi {SendMAIL, createPDF, printDOC, noEMISSION}; Q_ENUM(typeEnvoi)   //! les 3 types d'émission de documents : mail, pdf ou impression
 
 /*! --------------------------------------------------------------------------------------------------------
 * opérations sur la base de données, le système et les datas
@@ -112,15 +114,15 @@ private:
     QString                 m_dirSQLExecutable = "";                                    //! le chemin vers les éxécutables mysql et mysqldump
     QString                 m_dirSSLkeys = "";                                          //! le chemin vers le dossier des clés SSL
     void                    ReconstruitListeModesAcces();
-    bool                    VerifVersionBase(QWidget *widg = Q_NULLPTR);
+    bool                    VerifVersionBase(QWidget *widg = nullptr);
     bool                    MettreAJourSocleMySQL(QWidget *parent = nullptr);                                    //! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL : sauvegarde validée -> désinstall/réinstall MySQL -> restauration -> relance
     bool                    SauvegardeBaseValide(QString dossier,                       //! true si le dump (rufus.sql) du dossier est complet (« Dump completed »)
                                                  QStringList manquants = QStringList());
     QString                 DerniereSauvegardeInstallation();                           //! dossier de la sauvegarde valide la plus récente dans PATH_DIR_MIGRATIONMYSQL, vide s'il n'y en a pas
     QString                 m_sauvegardeInstallation = "";                              //! dossier de la sauvegarde faite avant d'effacer le serveur (hors dossier figé si le disque manquait de place)
-    bool                    EprouverConnexionApresSaisie(QWidget *parent = Q_NULLPTR);  //! après reconstruction de Rufus.ini : mot de passe du cabinet, à défaut le générique
+    bool                    EprouverConnexionApresSaisie(QWidget *parent = nullptr);  //! après reconstruction de Rufus.ini : mot de passe du cabinet, à défaut le générique
     void                    VerifierIni(QTranslator *traducteur, QWidget *parent = nullptr);                      //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable ; le traducteur sert au sélecteur de langue de la fiche
-    bool                    propBackupMySQLBeforeErase(QWidget *parent = Q_NULLPTR);   //! prévient que les données du serveur vont disparaître ; false = renoncer
+    bool                    propBackupMySQLBeforeErase(QWidget *parent = nullptr);   //! prévient que les données du serveur vont disparaître ; false = renoncer
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
                                     bool proposerRestauration = false,
                                     QWidget *parent = nullptr);
@@ -146,10 +148,10 @@ public:
                                                                              * purge les champs jpg et pdf de la table Factures  */
 
 private:
-    User * m_currentuser = Q_NULLPTR;
+    User * m_currentuser = nullptr;
     User*                   currentuser()
     {
-        if (m_currentuser == Q_NULLPTR)
+        if (m_currentuser == nullptr)
             m_currentuser = Datas::I()->users->userconnected();
         return m_currentuser;
     }
@@ -168,15 +170,15 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     int                     m_protoc = NoBase;
-    bool                    CreerPremierUser(QString Login, QString MDP, QWidget *parent = Q_NULLPTR);
+    bool                    CreerPremierUser(QString Login, QString MDP, QWidget *parent = nullptr);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
-    bool                    InitialisationBaseEtDossiers(bool NouvelleBaseVierge = false, bool Restauration = false, QWidget *parent = Q_NULLPTR);   //! installe le socle du poste : serveur MySQL, base vierge ou restaurée, dossiers et paramètres
+    bool                    InitialisationBaseEtDossiers(bool NouvelleBaseVierge = false, bool Restauration = false, QWidget *parent = nullptr);   //! installe le socle du poste : serveur MySQL, base vierge ou restaurée, dossiers et paramètres
     void                    PremierParametrageMateriel();
-    bool                    InstallationRufus(QWidget *parent = Q_NULLPTR);             //! crée la base du poste : restauration d'une sauvegarde, sinon base vierge
+    bool                    InstallationRufus(QWidget *parent = nullptr);             //! crée la base du poste : restauration d'une sauvegarde, sinon base vierge
     void                    ReconstruitIniMinimal();                                    //! vérifie que le Rufus.ini récupéré est exploitable et sinon, le corrige avec un paramétrage minimal et s'il n'y en a pas en crée avec un paramétrage minimal (monoposte et pport3306)
 public:
     enum protoc {BaseExistante, BaseVierge, NoBase};
-    bool                    BackupRufusBaseBeforeInstall(QString loginSQL, QString mdpSQL, QWidget* parent = Q_NULLPTR);   //! dump de la base Rufus du serveur qui va être effacé, avec un compte admin MySQL
+    bool                    BackupRufusBaseBeforeInstall(QString loginSQL, QString mdpSQL, QWidget* parent = nullptr);   //! dump de la base Rufus du serveur qui va être effacé, avec un compte admin MySQL
     void                    setProtocoleRestauration(protoc protocole = BaseVierge) {m_protoc = protocole;};
 /*! fin première connection -------------------------------------------------------------------------------------------------------- */
 
@@ -223,7 +225,7 @@ public:
 
 
 /*! - DOCUMENTS ============================================================================================ */
-    void                    saveDocumentToFile(DocExterne *doc, QWidget *parent = Q_NULLPTR);
+    void                    saveDocumentToFile(DocExterne *doc, QWidget *parent = nullptr);
 /*! --------------------------------------------------------------------------------------------------------
 * les impressions
 * -------------------------------------------------------------------------------------------------------- */
@@ -231,7 +233,8 @@ private:
     QString                 m_nomImprimante;
     QString                 m_dirnamepdf = "";
     QString                 m_filenamepdf = "";
-    QPrinter                *m_printer = Q_NULLPTR;
+    QPrinter                *m_printer = nullptr;
+    bool                    m_ALD = false;
 
 public:
     QString dirnamepdf() const;
@@ -239,17 +242,33 @@ public:
     void                    CalcImageDocument(DocExterne *docmt);
 
     QPrinter*               printer() {return m_printer;}
-    void                    PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>());
+    void                    MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEnvoi typ = printDOC, QMap<QString, QString> map = QMap<QString, QString>(), int idsite = -1);
     bool                    Print(QList<QImage> listimage, QWidget *parent = nullptr);
-    bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>(), QWidget *parent = Q_NULLPTR);
+    bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf = QMap<QString, QString>(), QWidget *parent = nullptr);
+    QByteArray              calcPdfFromListImage(QList<QImage> listimage);   /*!< la même liste d'images, en pdf et sans fichier */
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
-    bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
-                                              bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante = false, bool Administratif = true,
-                                              QImage signature = QImage());   /*!< signature à apposer sous le corps (vide = pas de signature) */
+    /*! un document prêt à être émis : ses textes, son pdf et ses champs pour la table des documents */
+    struct DocAEnvoyer {
+        QString                 textcorps   = "";
+        QString                 textentete  = "";
+        QString                 textpied    = "";
+        QString                 titre       = "";
+        QString                 nomfichier  = "";
+        QByteArray              pdf         = QByteArray();
+        QHash<QString, QVariant> listbinds;
+    };
+    bool                    PrepareDocExterne(Patient *pat, User *user, QString titre, QString textorigine, QDate date,
+                           bool Prescription, bool ALD, bool Administratif, QImage signature, DocAEnvoyer &doc);
+    int                     EnregistreDocExterne(const DocAEnvoyer &doc);
+    bool                    EnvoiGroupeDocExternes(QWidget *parent, QList<DocAEnvoyer> docs, int idsite, Patient *pat);
+    bool                    Imprimer_DocExterne(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
+                           bool Prescription, bool ALD, bool AvecDupli, typeEnvoi typ, bool Administratif = true,
+                           QImage signature = QImage());   /*!< signature à apposer sous le corps (vide = pas de signature) */
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
 
   /*! 1 - Impression avec textprinter.h ---------------------------------------------------------------*/
+    void                    setImpressionALD(bool ALD) {m_ALD = ALD;}
     int                     TailleEnTete();
     int                     TailleEnTeteALD();
     int                     TaillePieddePage();
@@ -258,16 +277,19 @@ public:
     QString                 CalcCorpsImpression(QString text, bool ALD = false);
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes, QWidget *parent = nullptr);
     QString                 CalcPiedImpression(User* user);
-    bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
-                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>(),
-                      bool AvecDupli = false, bool AvecNumPage = false,
-                      bool AvecChoixImprimante = true, QImage signature = QImage());   /*!< signature dessinée sous le texte (vide = aucune) */
+    bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied, QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>(),
+                            bool AvecDupli = false, bool AvecNumPage = false,
+                            QImage signature = QImage());   /*!< signature dessinée sous le texte (vide = aucune) */
             /*! b - Création d'un pdf */
-    bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, User *usr = Q_NULLPTR, bool ALD = false, QString nomdossier = "", QImage signature = QImage(), QWidget *parent = nullptr);
+    bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, User *usr = nullptr, bool ALD = false, QString nomdossier = "", QImage signature = QImage(), QWidget *parent = nullptr);
             /*! c - Création d'un pdf QByteArray à stocker dans la base */
-    QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = Q_NULLPTR, bool ALD = false, QImage signature = QImage());
+    QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = nullptr, bool ALD = false, QImage signature = QImage());
             /*! d - Choice: print or pdf */
-    bool                    QuestionPdfOrPrint(QWidget *parent, bool &ok);
+    Procedures::typeEnvoi   QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ = printDOC, int idsite = -1);
+    QStringList             ManqueEnvoiMail(int idlieu = -1);   /*!< ce qui manque au lieu pour pouvoir envoyer un mail */
+    QStringList             CompleteCoordonneesMail(QWidget *parent, int idsite, QStringList manque);
+    bool                    EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, int idsite, Patient *pat, QString &destinataire);
+    void                    EnregistreEnvoiMail(QList<int> iddocuments, QString destinataire);
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */
 
@@ -305,8 +327,8 @@ public:
 
     QByteArray              getFileFromSQL(Item *item);
     QByteArray              getFileFromServer(QString filename);
-    QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
-    QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);
+    QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=nullptr);
+    QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = nullptr);
     void                    EditHtml(QString txt, QWidget *parent = nullptr);
     void                    ModifTailleFont(QWidget *widg, int siz, QFont font=qApp->font());
     static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
@@ -400,14 +422,14 @@ signals:
                                 * n'efface pas le paramètrage de sauvegarde (moment et emplacement) dans la base de données
                                 * suppression de rufus.bup.plist sous Mac et arrêt du timer t_timerbackup sous Linux
                                 */
-        bool                    ImmediateBackup(QString dirdestination = "", bool verifposteconnecte = true, bool full = false, QWidget *parent = Q_NULLPTR);
+        bool                    ImmediateBackup(QString dirdestination = "", bool verifposteconnecte = true, bool full = false, QWidget *parent = nullptr);
                                 /*! lance un backup immédiat */
         void                    ParamAutoBackup();
                                 /*! paramètre le moment et l'emplacement de la sauvegarde
                                  * sous Mac, crée le fichier xml rufus.bup.plist
                                  * sous Linux, lance le timer t_timerbackup
                                 */
-        QString                 RestaureBase(protoc protocole,bool PremierDemarrage = false, bool VerifPostesConnectes = true, QWidget *parent = Q_NULLPTR,
+        QString                 RestaureBase(protoc protocole,bool PremierDemarrage = false, bool VerifPostesConnectes = true, QWidget *parent = nullptr,
                                              QString cheminRestauration = "");      //! si non vide : restauration AUTOMATIQUE depuis ce dossier (pas de choix ni de mdp à saisir) — pour la migration de base
         bool                    ReinitBase(QWidget *parent = nullptr);
         enum                    BkupRestore { BackupOp, RestoreOp}; Q_ENUM(BkupRestore)
@@ -420,9 +442,9 @@ signals:
         TimerController         t_timerbackup;
         QString                 m_executable;
         QString                 m_dumpexecutable;
-        void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true, QWidget *parent = Q_NULLPTR);
+        void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true, QWidget *parent = nullptr);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
-        bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false, QWidget *parent = Q_NULLPTR,
+        bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false, QWidget *parent = nullptr,
                                        QString loginSQL = "", QString mdpSQL = "");   //! login/mdp du dump : vides = adminrufus, renseignés pour un serveur où adminrufus n'existe pas encore
                                 /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore()
                                 * et par le timer t_timerbackup pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
@@ -467,7 +489,7 @@ private:
     bool                    m_dlgrefractionouverte;
     QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
     QMap<QString,QString>   m_mapports{{"-1","-1"}};
-    upSerialPort            *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
+    upSerialPort            *sp_portAutoref = nullptr, *sp_portRefracteur = nullptr, *sp_portTono = nullptr, *sp_portFronto = nullptr;
     bool                    m_LANAutoref = false,  m_LANFronto = false, m_LANRefracteur = false, m_LANTono = false;
     bool                    m_hasappareilrefractionconnecte = false;
     void                    ResetSerialSettings(Utils::SerialSettings &set)                                            /*! reset settings of the serial port defined for a device */
@@ -582,9 +604,9 @@ public:
 
     // LES PORTS COM - LE RESEAU ------------------------------------------------
     void                    RegleSerialSettings(TypeAppareil appareil, QMap<QString, QString> map);        /*! règle les datas du port série pour l'appareil passé en paramètre */
-    bool                    Ouverture_Ports_Series(QWidget *parent = Q_NULLPTR);
+    bool                    Ouverture_Ports_Series(QWidget *parent = nullptr);
                                                                                     //! ouvre les ports séries des appareils connectés en  port COM
-    bool                    Ouverture_Fichiers_Echange(QWidget *parent = Q_NULLPTR);//! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
+    bool                    Ouverture_Fichiers_Echange(QWidget *parent = nullptr);//! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
 
 private:
     QString                 m_mesureSerie;

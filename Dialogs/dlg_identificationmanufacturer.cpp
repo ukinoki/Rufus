@@ -26,7 +26,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Gestion des fabricants"));
-    if (man != Q_NULLPTR)
+    if (man != nullptr)
         m_currentmanufacturer   = man;
     m_mode                      = mode;
     wdg_villeCP                 = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
@@ -145,7 +145,7 @@ void    dlg_identificationmanufacturer:: EnableOKpushButton()
 
 Commercial* dlg_identificationmanufacturer::getCommercialFromIndex(QModelIndex idx)
 {
-    Commercial *com = Q_NULLPTR;
+    Commercial *com = nullptr;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_commodel->itemFromIndex(idx));
     if(itm)
         com = qobject_cast<Commercial*>(itm->rufusitem());
@@ -172,7 +172,7 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked(bool acceptalafin)
     }
 
     UpLineEdit* line = qobject_cast<UpLineEdit*>(focusWidget());
-    if (line != Q_NULLPTR)
+    if (line != nullptr)
         if (line == ui->NomlineEdit || line == ui->Adresse1lineEdit || line == ui->Adresse2lineEdit || line == ui->Adresse3lineEdit)
             line->setText(Utils::trimcapitilize(line->text()));
 
@@ -259,7 +259,7 @@ bool dlg_identificationmanufacturer::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
-    if (event->type() == QEvent::KeyPress  && qobject_cast<QPushButton *>(obj) == Q_NULLPTR )
+    if (event->type() == QEvent::KeyPress  && qobject_cast<QPushButton *>(obj) == nullptr )
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // Return ou Enter - On va au Tab Suivant -----------------------------------------------------------------------------------------------------------------------------
@@ -272,7 +272,7 @@ bool dlg_identificationmanufacturer::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_identificationmanufacturer::ChoixButtonFrame()
 {
-    Commercial *com = Q_NULLPTR;
+    Commercial *com = nullptr;
     if (ui->commercialsupTableView->selectionModel())
         if (ui->commercialsupTableView->selectionModel()->selectedIndexes().size()>0)
             com = getCommercialFromIndex(ui->commercialsupTableView->selectionModel()->selectedIndexes().at(0));
@@ -404,8 +404,8 @@ void dlg_identificationmanufacturer::SupprimeCommercial(Commercial *com)
 void dlg_identificationmanufacturer::Enablebuttons(QModelIndex idx)
 {
     Commercial *com = getCommercialFromIndex(idx);
-    wdg_buttonframe->wdg_modifBouton->setEnabled(com != Q_NULLPTR);
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(com != Q_NULLPTR);
+    wdg_buttonframe->wdg_modifBouton->setEnabled(com != nullptr);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(com != nullptr);
 }
 
 /*--------------------------------------------------------------------------------------------
@@ -453,7 +453,7 @@ void dlg_identificationmanufacturer::reconstruitCommercialsModel()
     Datas::I()->commercials->initListebyidManufacturer(m_currentmanufacturer->id());
     QItemSelectionModel *m = ui->commercialsupTableView->selectionModel();
     delete m;
-    if (m_commodel != Q_NULLPTR)
+    if (m_commodel != nullptr)
         delete m_commodel;
     m_commodel = new QStandardItemModel(this);
     for (auto it = Datas::I()->commercials->commercials()->constBegin(); it != Datas::I()->commercials->commercials()->constEnd(); ++it)

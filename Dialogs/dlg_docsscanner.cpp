@@ -301,9 +301,9 @@ void dlg_docsscanner::ValideFiche()
     if ( m_mode != Document )                   //! il s'agit d'une facture ou d'un échéancier
     {
         int iduserdep = 0;
-        if (Datas::I()->depenses->getById(m_iditem) != Q_NULLPTR)
+        if (Datas::I()->depenses->getById(m_iditem) != nullptr)
             iduserdep = Datas::I()->depenses->getById(m_iditem)->iduser();
-        if (Datas::I()->users->getById(iduserdep) != Q_NULLPTR)
+        if (Datas::I()->users->getById(iduserdep) != nullptr)
             user = Datas::I()->users->getById(iduserdep)->login();
     }
 
@@ -392,7 +392,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->sites->idcurrentsite();
         }
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        b = (doc != Q_NULLPTR);
+        b = (doc != nullptr);
         delete doc;
     }
     else                        // c'est une facture ou un échéancier

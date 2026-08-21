@@ -24,14 +24,14 @@ class dlg_listecorrespondants : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit                dlg_listecorrespondants(QWidget *parent = Q_NULLPTR);
+    explicit                dlg_listecorrespondants(QWidget *parent = nullptr);
     ~dlg_listecorrespondants();
     bool                    listecorrespondantsmodifiee() const;
 
 private:
     bool                    m_listemodifiee = false;
 
-    QStandardItemModel      *m_correspondantsmodel = Q_NULLPTR;
+    QStandardItemModel      *m_correspondantsmodel = nullptr;
     QTreeView               *wdg_itemstree;
     WidgetButtonFrame       *wdg_buttonframe;
 

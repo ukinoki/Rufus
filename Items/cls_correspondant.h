@@ -72,7 +72,7 @@ public:
     int idspecialite() const;
     bool isallloaded() const;
 
-    explicit Correspondant(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Correspondant(QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data) override;
     void setid(int id)                      { m_id = id;

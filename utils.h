@@ -74,7 +74,7 @@ class UtilsMessageBox : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit                            UtilsMessageBox(QWidget *parent = Q_NULLPTR);
+    explicit                            UtilsMessageBox(QWidget *parent = nullptr);
     ~UtilsMessageBox();
     static void                         Show        (QWidget*, QString Text = "", QString InfoText = "");
     static void                         Information (QWidget*, QString Text = "", QString InfoText = "");
@@ -226,7 +226,7 @@ public:
     static void                     copyfolderrecursively(const QString origindirpath, const QString destdirpath,
                                                                 int &n,
                                                                 QString firstline = QString(),
-                                                                QProgressDialog *progress = Q_NULLPTR,
+                                                                QProgressDialog *progress = nullptr,
                                                                 QFileDevice::Permissions permissions = QFileDevice::ReadOther
                                                                                                        | QFileDevice::ReadGroup
                                                                                                        | QFileDevice::ReadOwner  | QFileDevice::WriteOwner | QFileDevice::ExeOwner
@@ -246,7 +246,7 @@ public:
     static void                     rendDossierAccessibleAuServeurSQL(const QString &dirpath);   // rend un dossier traversable+lisible par tous, dont le compte du serveur MySQL (cf. .cpp)
     static bool                     removeWithoutPermissions(QFile &file);      // efface le fichier file vers la destination path même s'il est enlecture seule
     static double                   mmToInches(double mm);
-    static QUrl                     getExistingDirectoryUrl(QWidget *parent = Q_NULLPTR, QString title = "", QUrl Dirdefaut = QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList listnomsaeliminer = QStringList());
+    static QUrl                     getExistingDirectoryUrl(QWidget *parent = nullptr, QString title = "", QUrl Dirdefaut = QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList listnomsaeliminer = QStringList());
     static QString                  ProvDir();
     static void                     RemoveProvDir();
     static QString                  EchecDir();
@@ -272,11 +272,13 @@ public:
                                                                     \result monoposte = BDD_POSTE, reseau local = BDD_LOCAL, distant = BDD_DISTANT
                                                                     \param le mode d'accès */
     static QString                  calcSHA1(QString mdp);              /*! renvoie la valeur de mdp codée en SHA */
-    static bool                     VerifMDP(QString MDP, QString Msg, QString &mdp, bool mdpverified = false, QWidget *parent = Q_NULLPTR);
-    static bool                     VerifMDPAdmin(QString MDP, bool mdpverified = false, QWidget *parent = Q_NULLPTR);
-    static bool                     SaisirMDP(QString Msg, QString &mdp, QWidget *parent = Q_NULLPTR);   /*! saisit un mot de passe sans le vérifier, l'appelant en juge */
-    static bool                     SaisirAdresseIP(QString Msg, QString &ip, QWidget *parent = Q_NULLPTR);   /*! saisit une IPv4 complète, sans vérifier qu'un poste y répond */
-    static bool                     SaisirNouvelUtilisateur(QString &login, QString &mdp, QWidget *parent = Q_NULLPTR);   /*! saisit l'identifiant du futur utilisateur Rufus, mot de passe confirmé */
+    static QHash<QString,QString>   lireKeyFile(const QString &path);                                   /*!< lit un fichier de mots de passe caché, une ligne CLE=valeur */
+    static void                     ecrireKeyFile(const QString &path, const QHash<QString,QString> &table);
+    static bool                     VerifMDP(QString MDP, QString Msg, QString &mdp, bool mdpverified = false, QWidget *parent = nullptr);
+    static bool                     VerifMDPAdmin(QString MDP, bool mdpverified = false, QWidget *parent = nullptr);
+    static bool                     SaisirMDP(QString Msg, QString &mdp, QWidget *parent = nullptr);   /*! saisit un mot de passe sans le vérifier, l'appelant en juge */
+    static bool                     SaisirAdresseIP(QString Msg, QString &ip, QWidget *parent = nullptr);   /*! saisit une IPv4 complète, sans vérifier qu'un poste y répond */
+    static bool                     SaisirNouvelUtilisateur(QString &login, QString &mdp, QWidget *parent = nullptr);   /*! saisit l'identifiant du futur utilisateur Rufus, mot de passe confirmé */
     // liste des hosts connus pour user (adminrufus / adminrufusSSL)
     static QStringList              hostsDuCompteSQL(const QString& user);
 
@@ -292,7 +294,7 @@ public:
     static void CalcFontSize(QFont &font);
 
     //! renvoie une couleur
-    static QColor   SelectCouleur(QColor colordep, QWidget *parent= Q_NULLPTR);
+    static QColor   SelectCouleur(QColor colordep, QWidget *parent= nullptr);
 
     //! bouton « ? » d'aide, qui déroule texte sous lui - il n'y a pas de « ? » de barre de titre sous macOS
     static UpSmallButton*   BoutonAide(QString texte, QString tip = "");
@@ -310,7 +312,7 @@ public:
     static double roundToNearestPointFifty(double number)  { return static_cast<double>(std::round(number*2)) / 2; }
 
     //! affiche la fiche enchantier
-    static void EnChantier(QWidget *parent = Q_NULLPTR, bool avecMsg = false);
+    static void EnChantier(QWidget *parent = nullptr, bool avecMsg = false);
 
     //! ratio w/h of QSize
     static double sizeratio(QSize);

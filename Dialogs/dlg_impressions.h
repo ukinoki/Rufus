@@ -64,30 +64,30 @@ public:
         DATEINTERVENTION, HEUREINTERVENTION, COTEINTERVENTION, SITEINTERVENTION et TYPEINTERVENTION seront complétés automatiquement
      * \param parent
      */
-    explicit                                    dlg_impressions(Patient *pat, Intervention* intervention = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit                                    dlg_impressions(Patient *pat, Intervention* intervention = nullptr, QWidget *parent = nullptr);
     ~dlg_impressions();
     Ui::dlg_impressions                         *ui;
     enum DATASAIMPRIMER                         {d_Texte, d_Titre, d_Prescription, d_Dupli, d_Administratif};                     Q_ENUM(DATASAIMPRIMER)
     enum Mode                                   {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS};  Q_ENUM(Mode)
     User*                                       userentete();
     QMap<int, QMap<DATASAIMPRIMER, QString> >   mapdocsaimprimer() const;
-    bool                                        printPdf() {return m_pdf;}
+    Procedures::typeEnvoi                       modeEnvoi() {return m_typeenvoi;}
 
 private:
     DataBase                                    *db             = DataBase::I();
     User*                                       currentuser() { return Datas::I()->users->userconnected(); }
     Procedures                                  *proc           = Procedures::I();
-    Impression                                  *m_currentdocument = Q_NULLPTR;
-    DossierImpression                           *m_currentdossier = Q_NULLPTR;
+    Impression                                  *m_currentdocument = nullptr;
+    DossierImpression                           *m_currentdossier = nullptr;
     Patient                                     *m_currentpatient;
-    Intervention                                *m_currentintervention = Q_NULLPTR;
-    User                                        *m_userentete = Q_NULLPTR;
+    Intervention                                *m_currentintervention = nullptr;
+    User                                        *m_userentete = nullptr;
     QList<Correspondant*>                       m_listedestinataires;
     QMap<int, QMap<DATASAIMPRIMER, QString> >   map_docsaimprimer;
     QDate                                       m_currentdate = db->ServerDate();
     Mode                        m_mode;
     int                         larg(int width) {return Utils::I()->correctedwidth(width);}
-    bool                        m_pdf = false;
+    Procedures::typeEnvoi       m_typeenvoi = Procedures::printDOC;
     double                      m_opacity;
     QMap<QString,QString>       map_champs;
     QStringList                 m_listtexts;   /*! pour un document donné, il peut y avoir plusieurs impressions s'il y a plusieurs destinataires
@@ -102,14 +102,14 @@ private:
     WidgetButtonFrame           *wdg_docsbuttonframe, *wdg_dossiersbuttonframe;
 
     QHash<QString, QVariant>    m_dossierlistbinds;
-    UpStandardItemModel         *m_dossiersmodel            = Q_NULLPTR;
+    UpStandardItemModel         *m_dossiersmodel            = nullptr;
     QHash<QString, QVariant>    m_docslistbinds;
-    UpStandardItemModel         *m_docsmodel                = Q_NULLPTR;
+    UpStandardItemModel         *m_docsmodel                = nullptr;
     QString                     m_textdocdelegate           = "";
     QString                     m_textdossierdelegate       = "";
-    QMenu                       *m_menucontextuel_doc       = Q_NULLPTR;
-    QMenu                       *m_menucontextuel_textdoc   = Q_NULLPTR;
-    QMenu                       *m_menucontextuel_dossier   = Q_NULLPTR;
+    QMenu                       *m_menucontextuel_doc       = nullptr;
+    QMenu                       *m_menucontextuel_textdoc   = nullptr;
+    QMenu                       *m_menucontextuel_dossier   = nullptr;
 
     void                        closeEvent      (QCloseEvent *event);
     bool                        eventFilter     (QObject *obj, QEvent *event);
@@ -132,8 +132,8 @@ private:
     QString                     DocumentToolTip(Impression *doc);
     QString                     DossierToolTip(DossierImpression *dossier);
     void                        EffaceWidget(QWidget* widg, bool AvecOuSansPause = true);
-    void                        EnableDocsButtons(Impression *doc = Q_NULLPTR);
-    void                        EnableDossiersButtons(DossierImpression *dossier = Q_NULLPTR);
+    void                        EnableDocsButtons(Impression *doc = nullptr);
+    void                        EnableDossiersButtons(DossierImpression *dossier = nullptr);
     void                        EnableLines();
     void                        EnableOKPushButton(QModelIndex idx = QModelIndex());
     void                        FiltreListe();

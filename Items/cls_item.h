@@ -37,7 +37,7 @@ public:
     enum Cote {Droit, Gauche, Les2, NoLoSo};
     enum LOADDETAILS    {LoadDetails, NoLoadDetails};       Q_ENUM(LOADDETAILS)
     enum UPDATE         {NoUpdate, Update};                 Q_ENUM(UPDATE)
-    explicit Item(QObject *parent = Q_NULLPTR) : QObject(parent)
+    explicit Item(QObject *parent = nullptr) : QObject(parent)
     {
         m_id = 0;
         m_stringid = "";

@@ -31,7 +31,7 @@ class PlayerControls : public QWidget
     Q_OBJECT
 
 public:
-    PlayerControls(QWidget *parent = Q_NULLPTR);
+    PlayerControls(QWidget *parent = nullptr);
     ~PlayerControls();
     void        setPlayer(QMediaPlayer*);
     void        startplay();
@@ -43,11 +43,11 @@ signals:
     void ctrl(PlayerControls::State);
 
 private:
-    QMediaPlayer    *m_ctrlplayer       = Q_NULLPTR;
-    QAbstractButton *wdg_playButton     = Q_NULLPTR;
-    QAbstractButton *wdg_stopButton     = Q_NULLPTR;
-    QSlider         *wdg_slider         = Q_NULLPTR;
-    QLabel          *wdg_labelDuration  = Q_NULLPTR;
+    QMediaPlayer    *m_ctrlplayer       = nullptr;
+    QAbstractButton *wdg_playButton     = nullptr;
+    QAbstractButton *wdg_stopButton     = nullptr;
+    QSlider         *wdg_slider         = nullptr;
+    QLabel          *wdg_labelDuration  = nullptr;
     QBoxLayout      *m_layout             = new QHBoxLayout;
 
     QString format(QMediaPlayer *plyr);

@@ -43,7 +43,7 @@ public:
     bool    isfull() const  { return m_isfull; }
 
     //!> actions sur les enregistrements
-    void    SupprimeIOL(IOL *iol);
+    void    SupprimeIOL(IOL *iol, QWidget *parent = nullptr);
     IOL*    CreationIOL(QHash<QString, QVariant> sets, QWidget *parent = nullptr);
 
     //! Met à jour la liste des implants à partir d'un export IOLCon (docxml). Toute la logique base

@@ -1,7 +1,7 @@
 #include "flags.h"
 
 
-Flags* Flags::instance =  Q_NULLPTR;
+Flags* Flags::instance =  nullptr;
 Flags* Flags::I()
 {
     if( !instance )

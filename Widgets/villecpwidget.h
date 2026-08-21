@@ -38,7 +38,7 @@ class VilleCPWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit VilleCPWidget(Villes *villes, QWidget *parent = Q_NULLPTR);
+    explicit VilleCPWidget(Villes *villes, QWidget *parent = nullptr);
     ~VilleCPWidget();
     Ui::VilleCPWidget       *ui;
 
@@ -58,12 +58,12 @@ private:
 
     QString         dialogList(QList<Ville*> &listvilles, VilleListModel::FieldName fieldName, QString headerName);
     void            Repons(QListView *lv, UpDialog *ud, QString &newValue);
-    QWidget         *wdg_parent         = Q_NULLPTR;
+    QWidget         *wdg_parent         = nullptr;
     QCompleter      *complListVilles    = new QCompleter(this);
     QCompleter      *complListCP        = new QCompleter(this);
-    QObject         *m_villeobject      = Q_NULLPTR;
-    QObject         *m_CPobject         = Q_NULLPTR;
-    QObject         *m_completerobject  = Q_NULLPTR;
+    QObject         *m_villeobject      = nullptr;
+    QObject         *m_CPobject         = nullptr;
+    QObject         *m_completerobject  = nullptr;
 
     void connectrecherche();
     void disconnectrecherche();

@@ -24,7 +24,7 @@ void UpTreeView::resizeEvent(QResizeEvent *e)
     //! https://forum.qt.io/topic/74514/automatic-row-height-in-qtreeview/2
     //! -> Automatic Row Height in QTreeView
 
-    if(model() != Q_NULLPTR){
+    if(model() != nullptr){
         emit model()->layoutChanged();
     }
     QTreeView::resizeEvent(e);

@@ -377,7 +377,7 @@ TypeIntervention* dlg_listetypesinterventions::getTypeFromIndex(QModelIndex idx)
     if (itm)
         return qobject_cast<TypeIntervention*>(itm->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 QList<int> dlg_listetypesinterventions::listtypDepart() const
@@ -420,7 +420,7 @@ void dlg_listetypesinterventions::RemplirTableView()
     for (auto it = Datas::I()->typesinterventions->typeinterventions()->constBegin(); it != Datas::I()->typesinterventions->typeinterventions()->constEnd() ;++it )
         if (it.value())
             m_listidtypesdepart << it.value()->id();
-    if (m_model != Q_NULLPTR)
+    if (m_model != nullptr)
         delete m_model;
     m_model = new UpStandardItemModel(this);
 

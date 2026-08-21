@@ -46,7 +46,7 @@ private:
     bool    m_isnorNGAPnorCCAM = false;
     double  m_montantoptam = 0, m_montantnonoptam = 0, m_montantpratique = 0, m_montantconventionnel = 0;
 public:
-    explicit Cotation(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Cotation(QJsonObject data = {}, QObject *parent = nullptr);
     void    setData(QJsonObject data) override;
 
     QString typeacte() const                { return m_typeacte; }

@@ -84,7 +84,7 @@ void Villes::initListe(TownsFrom from)
 
 bool Villes::add(Ville *ville)
 {
-    if (ville == Q_NULLPTR)
+    if (ville == nullptr)
         return false;
     map_villes.insert(ville->nom(), ville);
     map_codespostaux.insert(ville->codepostal(), ville);
@@ -95,7 +95,7 @@ bool Villes::add(Ville *ville)
 void Villes::addList(QList<Ville*> listvilles)
 {
     foreach (Ville* ville, listvilles)
-        if (ville != Q_NULLPTR)
+        if (ville != nullptr)
             add( ville );
 }
 
@@ -115,7 +115,7 @@ void Villes::ReinitMaps()
 
 Ville* Villes::enregistreNouvelleVille(QString CP, QString nomville)
 {
-    Ville *ville = Q_NULLPTR;
+    Ville *ville = nullptr;
     int id = 0;
     bool ok = DataBase::I()->EnregistreAutreVille(CP, nomville, id);
     if (ok)

@@ -25,7 +25,7 @@ class RefractionDevices : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, RefractionDevice*> *map_RefractionDevices = Q_NULLPTR; //!< la liste des RefractionDevices
+    QMap<int, RefractionDevice*> *map_RefractionDevices = nullptr; //!< la liste des RefractionDevices
 
 public:
     explicit                        RefractionDevices(QObject *parent = nullptr);

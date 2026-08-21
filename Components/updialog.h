@@ -40,7 +40,7 @@ class UpDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UpDialog(QWidget *parent = Q_NULLPTR);
+    explicit UpDialog(QWidget *parent = nullptr);
     enum Button {
                 NoButton                = 0x0,
                 ButtonPrint             = 0x1,
@@ -78,7 +78,7 @@ private:
     UpLineEdit      *wdg_chercheuplineedit;
     QRect           m_originalgeometry      = QRect();
     Buttons         m_Buttons               = NoButton;
-    QWidget         *m_voile                = Q_NULLPTR;    /*!< voile sombre, créé au premier blocage */
+    QWidget         *m_voile                = nullptr;    /*!< voile sombre, créé au premier blocage */
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton, *PdfButton, *OupsButton;

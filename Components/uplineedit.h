@@ -30,7 +30,7 @@ class UpLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    explicit    UpLineEdit(QWidget *parent = Q_NULLPTR);
+    explicit    UpLineEdit(QWidget *parent = nullptr);
     ~UpLineEdit();
     void        setRow(int val);
     int         Row() const;

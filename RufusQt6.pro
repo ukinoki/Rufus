@@ -106,6 +106,7 @@ SOURCES += main.cpp\
     importdocsexternes.cpp \
     utils.cpp \
     gbl_datas.cpp \
+    smtpclient.cpp \
     flags.cpp
 
 HEADERS += rufus.h \
@@ -120,6 +121,7 @@ HEADERS += rufus.h \
     icons.h \
     log.h \
     gbl_datas.h \
+    smtpclient.h \
     styles.h \
     flags.h
 

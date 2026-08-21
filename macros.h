@@ -26,7 +26,7 @@ class Macros: public QObject
 public:
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          83  // version de la base de données
+#define VERSION_BASE                          84  // version de la base de données
 // Seuil minimal de version du serveur MySQL exigé, COMMUN à tous les OS : 8.0.14, première version
 // qui gère le double mot de passe (RETAIN CURRENT PASSWORD), socle des fonctions de sécurité de
 // Rufus. L'OS du serveur n'entre PAS en jeu : seule compte la version MySQL. (Les installeurs posent
@@ -81,6 +81,7 @@ public:
 #define TBL_APPAREILSREFRACTION               "rufus.AppareilsRefraction"
 #define TBL_CCAM                              "rufus.ccam"
 #define TBL_COMMERCIALS                       "rufus.Commercials"
+#define TBL_COMMENTAIRESIMPRESSIONS           "rufus.commentairesimpressions"
 #define TBL_CORRESPONDANTS                    "rufus.correspondants"
 #define TBL_COTATIONS                         "rufus.cotations"
 #define TBL_DOSSIERSIMPRESSIONS               "rufus.Metadocuments"
@@ -89,6 +90,7 @@ public:
 #define TBL_DOCSEXTERNES                      "rufus.Impressions"
 #define TBL_IMPRESSIONS                       "rufus.courriers"
 #define TBL_JOINTURESIMPRESSIONS              "rufus.jointuresdocuments"
+#define TBL_JOINTURESMAILS                    "rufus.jointuresmails"
 #define TBL_JOINTURESAUTRESCOTATIONS          "rufus.jointuresautrescotations"
 #define TBL_JOINTURESASSOCIATIONS             "rufus.jointuresassociations"
 #define TBL_JOINTURESNGAP                     "rufus.jointuresNGAP"
@@ -97,6 +99,7 @@ public:
 #define TBL_LIEUXEXERCICE                     "rufus.LieuxExercice"
 #define TBL_LISTEAPPAREILS                    "rufus.listeappareils"
 #define TBL_LISTETIERS                        "rufus.listetiers"
+#define TBL_MAILSENVOYES                      "rufus.mailsenvoyes"
 #define TBL_MANUFACTURERS                     "rufus.Manufacturers"
 #define TBL_MESSAGES                          "rufus.Messagerie"
 #define TBL_MESSAGESJOINTURES                 "rufus.MessagerieJointures"
@@ -251,6 +254,21 @@ public:
 #define CP_FAX_SITE                                     "LieuFax"
 #define CP_COULEUR_SITE                                 "LieuCouleur"
 #define CP_SITELOGO_SITE                                "SiteLogo"
+#define CP_MAIL_SITE                                    "LieuMail"
+#define CP_SMTPSERVEUR_SITE                             "LieuSMTPServeur"
+#define CP_SMTPPORT_SITE                                "LieuSMTPPort"
+#define CP_SMTPLOGIN_SITE                               "LieuSMTPLogin"
+
+                            //! Table Rufus.mailsenvoyes
+#define CP_ID_MAILSENVOYES                              "idMail"
+#define CP_DESTINATAIRE_MAILSENVOYES                    "Destinataire"
+#define CP_DATEENVOI_MAILSENVOYES                       "DateEnvoi"
+#define CP_IDUSER_MAILSENVOYES                          "idUser"
+
+                            //! Table Rufus.jointuresmails
+#define CP_ID_JOINTMAIL                                 "idJointure"
+#define CP_IDMAIL_JOINTMAIL                             "idMail"
+#define CP_IDIMPRESSION_JOINTMAIL                       "idImpression"
 
                             //! Table Rufus.jointuresLieux
 #define CP_IDUSER_JOINTSITE                             "idUser"
@@ -836,6 +854,14 @@ public:
 #define CP_IDUSER_COMLUN                                "idUser"
 #define CP_PUBLIC_COMLUN                                "ComPublic"
 
+                            //! Table Rufus.commentairesimpressions
+#define CP_ID_COMIMPR                                   "idCommentImpr"
+#define CP_TEXT_COMIMPR                                 "TextComment"
+#define CP_RESUME_COMIMPR                               "ResumeComment"
+#define CP_PARDEFAUT_COMIMPR                            "ParDefautComment"
+#define CP_IDUSER_COMIMPR                               "idUser"
+#define CP_PUBLIC_COMIMPR                               "ComPublic"
+
                         //! Table Ophtalmologie.tonometries
 #define CP_ID_TONO                                      "idTono"
 #define CP_IDPAT_TONO                                   "idPat"
@@ -1044,9 +1070,11 @@ public:
 //! un peu plus à l'abri d'une suppression accidentelle. cf MySQLInstaller.
 #define NOM_DIR_RUFUSKEY                        "/.rufus"
 #define NOM_FILE_DBKEY                          "/.dbkey"
+#define NOM_FILE_MAILKEY                        "/.mlkey"                 /*!< mots de passe d'envoi de mail, par lieu - jamais en base */
 #define NOM_FILE_INI_BACKUP                     "/.rufus.ini"
 #define PATH_DIR_RUFUSKEY                       QDir::homePath() + NOM_DIR_RUFUSKEY
 #define PATH_FILE_DBKEY                         PATH_DIR_RUFUSKEY NOM_FILE_DBKEY
+#define PATH_FILE_MAILKEY                       PATH_DIR_RUFUSKEY NOM_FILE_MAILKEY
 //! Sauvegarde silencieuse de Rufus.ini, dans le dossier caché ~/.rufus (qui survit à
 //! la suppression de ~/Documents/Rufus). Écrite à chaque ouverture réussie, restaurée par ReparerIni().
 #define PATH_FILE_INI_BACKUP                   PATH_DIR_RUFUSKEY NOM_FILE_INI_BACKUP

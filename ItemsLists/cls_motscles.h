@@ -26,11 +26,11 @@ class MotsCles : ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, MotCle*> *map_all = Q_NULLPTR;    //!< la liste des motcles
+    QMap<int, MotCle*> *map_all = nullptr;    //!< la liste des motcles
     QCompleter *m_completer= new QCompleter();
 
 public:
-    explicit MotsCles(QObject *parent = Q_NULLPTR);
+    explicit MotsCles(QObject *parent = nullptr);
 
     QMap<int, MotCle*> *motscles() const;
 
@@ -39,7 +39,7 @@ public:
     QCompleter* completer();
 
     //!> actions sur les enregistrements
-    void          SupprimeMotCle(MotCle *motcle);
+    void          SupprimeMotCle(MotCle *motcle, QWidget *parent = nullptr);
     MotCle*       CreationMotCle(QHash<QString, QVariant> sets);
     bool          isThisMCusedForOtherPatients(MotCle* mc, int idpat);
 

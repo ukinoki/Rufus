@@ -158,7 +158,7 @@ Ville* dlg_listevilles::getVilleFromIndex(QModelIndex idx)
     if (itm)
         return qobject_cast<Ville*>(itm->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ Ville* dlg_listevilles::getVilleFromNom(QString nomVille, Qt::MatchFlag flags)
             return ville;
         }
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void dlg_listevilles::MenuContextuel()
@@ -212,8 +212,8 @@ void dlg_listevilles::ClickerVille(QModelIndex idx)
        wdg_buttonframe->searchline()->selectAll();
        wdg_buttonframe->searchline()->setFocus();
     }
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentville != Q_NULLPTR);
-    wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentville != Q_NULLPTR);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentville != nullptr);
+    wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentville != nullptr);
 }
 
 // ----------------------------------------------------------------------------------
@@ -222,9 +222,9 @@ void dlg_listevilles::ClickerVille(QModelIndex idx)
 void dlg_listevilles::RemplirTableView()
 {
     wdg_tblview->disconnect();
-    if (wdg_tblview->selectionModel() != Q_NULLPTR)
+    if (wdg_tblview->selectionModel() != nullptr)
         wdg_tblview->selectionModel()->disconnect();
-    if (m_model != Q_NULLPTR)
+    if (m_model != nullptr)
         delete m_model;
     m_model = new UpStandardItemModel();
     QStandardItem *pitem0   = new QStandardItem(Icons::icImprimer(),"");
@@ -246,13 +246,13 @@ void dlg_listevilles::RemplirTableView()
     QItemSelectionModel *m = wdg_tblview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
     delete m;
 
-    if (m_listCPsproxymodel != Q_NULLPTR)
+    if (m_listCPsproxymodel != nullptr)
         delete m_listCPsproxymodel;
     m_listCPsproxymodel = new QSortFilterProxyModel();
     m_listCPsproxymodel->setSourceModel(m_model);
     m_listCPsproxymodel->sort(0);
 
-    if (m_listnomsproxymodel != Q_NULLPTR)
+    if (m_listnomsproxymodel != nullptr)
         delete m_listnomsproxymodel;
     m_listnomsproxymodel = new QSortFilterProxyModel();
     m_listnomsproxymodel->setSourceModel(m_listCPsproxymodel);
@@ -276,7 +276,7 @@ void dlg_listevilles::RemplirTableView()
     });
     connect (wdg_tblview,    &QWidget::customContextMenuRequested,      this,   &dlg_listevilles::MenuContextuel);
     connect (wdg_tblview->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &dlg_listevilles::ClickerVille);
-    m_currentville = Q_NULLPTR;
+    m_currentville = nullptr;
     wdg_buttonframe->wdg_moinsBouton->setEnabled(m_mapvilles->size()>0);
     wdg_buttonframe->wdg_modifBouton->setEnabled(m_mapvilles->size()>0);
     wdg_buttonframe->wdg_plusBouton->setEnabled(true);
@@ -378,8 +378,8 @@ void dlg_listevilles::SupprimmVille(Ville* ville)
             QList<Ville*> listville = Datas::I()->villes->getVilleByCodePostalEtNom(cp, nom);
             if (listville.size() >0)
                 ville = listville.at(0);
-            actualiserListeVillesEtFocus(Q_NULLPTR);
-            if (ville != Q_NULLPTR)
+            actualiserListeVillesEtFocus(nullptr);
+            if (ville != nullptr)
                 selectcurrentVille(ville);
         }
     }
@@ -410,7 +410,7 @@ void dlg_listevilles::EnregistreNouvelleVille()
         QString cp = Utils::trimcapitilize(cpline->text());
         QString nom = Utils::trimcapitilize(nomline->text());
         Ville *ville = Datas::I()->villes->enregistreNouvelleVille(cp, nom);
-        if (ville != Q_NULLPTR)
+        if (ville != nullptr)
         {
             dlg_ask->close();
             actualiserListeVillesEtFocus(ville);
@@ -425,7 +425,7 @@ void dlg_listevilles::actualiserListeVillesEtFocus(Ville *focusVille)
     QStringListModel *model = qobject_cast<QStringListModel *>(m_complListVilles->model());
     if (model)
         model->setStringList(Datas::I()->villes->ListeNomsVilles());
-    if (focusVille != Q_NULLPTR)
+    if (focusVille != nullptr)
     {
         selectcurrentVille(focusVille);
         wdg_buttonframe->searchline()->setText(focusVille->nom());
@@ -436,7 +436,7 @@ void dlg_listevilles::actualiserListeVillesEtFocus(Ville *focusVille)
 
 void dlg_listevilles::dialogville(QString cp, QString nom)
 {
-    if (dlg_ask != Q_NULLPTR)
+    if (dlg_ask != nullptr)
         delete dlg_ask;
     dlg_ask                 = new UpDialog(this);
     dlg_ask                 ->setWindowModality(Qt::WindowModal);

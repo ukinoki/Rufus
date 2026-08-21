@@ -266,7 +266,7 @@ void    dlg_identificationpatient::OKpushButtonClicked()
             return;
         }
         UpLineEdit* line = qobject_cast<UpLineEdit*>(focusWidget());
-        if (line != Q_NULLPTR)
+        if (line != nullptr)
             if (line == ui->PrenomlineEdit || line == ui->NomlineEdit || line == ui->Adresse1lineEdit || line == ui->Adresse2lineEdit || line == ui->Adresse3lineEdit || line == ui->ProfessionlineEdit)
                 line->setText(Utils::trimcapitilize(line->text()));
 
@@ -302,7 +302,7 @@ void    dlg_identificationpatient::OKpushButtonClicked()
         listbinds[CP_DDN_PATIENTS]          = ui->DDNdateEdit->date().toString("yyyy-MM-dd");
         listbinds[CP_SEXE_PATIENTS]         = Sexe;
         m_currentpatient = Patients::CreationPatient(listbinds);
-        if (m_currentpatient == Q_NULLPTR)
+        if (m_currentpatient == nullptr)
             reject();
 
         // Mise à jour de donneessocialespatients
@@ -406,7 +406,7 @@ void dlg_identificationpatient::ModifCorrespondant()
     int idcor           = ui->MGupComboBox->currentData().toInt();
     bool onlydoctors = true;
     dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, Item::LoadDetails), this);
-    if (Datas::I()->correspondants->getById(idcor)==Q_NULLPTR)
+    if (Datas::I()->correspondants->getById(idcor)==nullptr)
         Dlg_IdentCorresp->ui->NomlineEdit   ->setText(ui->MGupComboBox->currentText());
     else
         Dlg_IdentCorresp->ui->NomlineEdit   ->setText(Datas::I()->correspondants->getById(idcor)->nom());
@@ -464,7 +464,7 @@ bool dlg_identificationpatient::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
-    if (event->type() == QEvent::KeyPress  && qobject_cast<QPushButton *>(obj) == Q_NULLPTR)
+    if (event->type() == QEvent::KeyPress  && qobject_cast<QPushButton *>(obj) == nullptr)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // Return ou Enter - On va au Tab Suivant -----------------------------------------------------------------------------------------------------------------------------
@@ -516,7 +516,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
         QString textcreateur (tr("Créé le ") + (m_currentpatient->datecreationdossier().isValid()?
                                                    m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")):"???"));
-        if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != Q_NULLPTR)
+        if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != nullptr)
             textcreateur += "\n" + tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login();
         ui->Createurlabel->setText(textcreateur);
         ui->Adresse1lineEdit->clear();
@@ -547,7 +547,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
         QString textcreateur (tr("Créé le ") + (m_currentpatient->datecreationdossier().isValid()?
                                                    m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")):"???"));
-        if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != Q_NULLPTR)
+        if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != nullptr)
             textcreateur += "\n" + tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login();
         ui->Createurlabel->setText(textcreateur);
         ui->Adresse1lineEdit->setText(m_currentpatient->adresse1());
@@ -581,7 +581,7 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
 {
     int idcor = -1;
     bool onlydoctors = true;
-    dlg_identificationcorresp *Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, Q_NULLPTR, this);
+    dlg_identificationcorresp *Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, nullptr, this);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(ui->MGupComboBox->currentText());
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);

@@ -1,6 +1,6 @@
 #include "nidek.h"
 
-Nidek* Nidek::instance = Q_NULLPTR;
+Nidek* Nidek::instance = nullptr;
 
 Nidek* Nidek::I()
 {
@@ -2526,7 +2526,7 @@ void Nidek::RegleRefracteurXML(TypesMesures flag, QString nameRF)
             xmlfiletimer.setSingleShot(true);
             xmlfiletimer.setInterval(3000);
             xmlfiletimer.start();
-            connect(&xmlfiletimer, &QTimer::timeout, Q_NULLPTR, [=, this] { EnregistreFileDatasXML(ARxml, MesureAutoref); });
+            connect(&xmlfiletimer, &QTimer::timeout, nullptr, [=, this] { EnregistreFileDatasXML(ARxml, MesureAutoref); });
         }
         else
             EnregistreFileDatasXML(ARxml, MesureAutoref);

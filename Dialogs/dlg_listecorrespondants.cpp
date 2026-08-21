@@ -66,14 +66,14 @@ dlg_listecorrespondants::~dlg_listecorrespondants()
 
 void dlg_listecorrespondants::Enablebuttons(QModelIndex idx)
 {
-    wdg_buttonframe->wdg_modifBouton->setEnabled(getCorrespondantFromIndex(idx) != Q_NULLPTR);
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(getCorrespondantFromIndex(idx) != Q_NULLPTR);
+    wdg_buttonframe->wdg_modifBouton->setEnabled(getCorrespondantFromIndex(idx) != nullptr);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(getCorrespondantFromIndex(idx) != nullptr);
 }
 
 
 void dlg_listecorrespondants::ChoixButtonFrame()
 {
-    Correspondant *cor = Q_NULLPTR;
+    Correspondant *cor = nullptr;
     if (wdg_itemstree->selectionModel()->selectedIndexes().size())
         cor = getCorrespondantFromIndex(wdg_itemstree->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
@@ -102,14 +102,14 @@ bool dlg_listecorrespondants::listecorrespondantsmodifiee() const
 void dlg_listecorrespondants::EnregistreNouveauCorresp()
 {
     bool onlydoctors    = false;
-    dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, Q_NULLPTR, this);
+    dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, nullptr, this);
     Dlg_IdentCorresp->setWindowModality(Qt::WindowModal);
     if (Dlg_IdentCorresp->exec() == QDialog::Accepted)
     {
         int idcor = Dlg_IdentCorresp->idcurrentcorrespondant();
          m_listemodifiee = true;
         ReconstruitTreeViewCorrespondants(true);
-        Correspondant *cor = Q_NULLPTR;
+        Correspondant *cor = nullptr;
         if (idcor>0)
             cor = Datas::I()->correspondants->getById(idcor);
         if (cor)
@@ -124,10 +124,10 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
 Correspondant* dlg_listecorrespondants::getCorrespondantFromIndex(QModelIndex idx )
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_correspondantsmodel->itemFromIndex(idx));
-    if (it != Q_NULLPTR)
+    if (it != nullptr)
         return qobject_cast<Correspondant *>(it->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 
@@ -136,7 +136,7 @@ Correspondant* dlg_listecorrespondants::getCorrespondantFromIndex(QModelIndex id
 // ------------------------------------------------------------------------------------------
 void dlg_listecorrespondants::ModifCorresp(Correspondant *cor)
 {
-    if (cor == Q_NULLPTR)
+    if (cor == nullptr)
         return;
     bool onlydoctors    = false;
     dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, cor, this);
@@ -155,7 +155,7 @@ void dlg_listecorrespondants::ModifCorresp(Correspondant *cor)
 
 void dlg_listecorrespondants::scrollToCorresp(Correspondant *cor)
 {
-    if (cor != Q_NULLPTR)
+    if (cor != nullptr)
     {
         for (int i=0; i < m_correspondantsmodel->rowCount(); ++i)
         {
@@ -244,7 +244,7 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
         Datas::I()->correspondants->initListe(true);
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
-    if (m_correspondantsmodel != Q_NULLPTR)
+    if (m_correspondantsmodel != nullptr)
         delete m_correspondantsmodel;
     m_correspondantsmodel = new QStandardItemModel(this);
 

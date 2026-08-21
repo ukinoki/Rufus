@@ -583,7 +583,7 @@ void dlg_impressions::FixDocUptableViewColumnWidth()
 
 void dlg_impressions::MenuContextuelTexteDocument()
 {
-    if (m_menucontextuel_textdoc == Q_NULLPTR)
+    if (m_menucontextuel_textdoc == nullptr)
         m_menucontextuel_textdoc= new QMenu(this);
     else
         m_menucontextuel_textdoc->clear();
@@ -710,14 +710,14 @@ void dlg_impressions::MenuContextuelDocuments()
     m_currentdocument = getDocumentFromIndex(idx);
     if (!m_currentdocument)
         return;
-    if (m_menucontextuel_doc == Q_NULLPTR)
+    if (m_menucontextuel_doc == nullptr)
         m_menucontextuel_doc= new QMenu(this);
     else
         m_menucontextuel_doc->clear();
     QAction *pAction_ModifDoc;
     QAction *pAction_SupprDoc;
     QAction *pAction_CreerDoc;
-    QAction *pAction_PublicDoc = Q_NULLPTR;
+    QAction *pAction_PublicDoc = nullptr;
     QAction *pAction_EditableDoc;
     QAction *pAction_AdminDoc;
     QAction *pAction_RecopierDoc;
@@ -782,7 +782,7 @@ void dlg_impressions::MenuContextuelDossiers()
     m_currentdossier = getDossierFromIndex(idx);
     if (!m_currentdossier)
         return;
-    if (m_menucontextuel_dossier == Q_NULLPTR)
+    if (m_menucontextuel_dossier == nullptr)
         m_menucontextuel_dossier= new QMenu(this);
     else
         m_menucontextuel_dossier->clear();
@@ -917,7 +917,7 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         connect(tabChamps,              &QTableWidget::doubleClicked,   ListChamps,     [=] {ListChamps->accept();});
         connect(tabChamps,              &QAbstractItemView::entered,    ListChamps,     [=, this] (QModelIndex idx) {
             UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_model->itemFromIndex(idx));
-            if (upitem != Q_NULLPTR)
+            if (upitem != nullptr)
             {
                 QString champ = upitem->data().toString();
                 MetAJour("{{" + champ + "}}", false, true);
@@ -931,7 +931,7 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
             {
                 QModelIndex idx  = tabChamps->selectionModel()->selectedIndexes().at(0);
                 UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_model->itemFromIndex(idx));
-                if (upitem != Q_NULLPTR)
+                if (upitem != nullptr)
                 {
                     QString champ = upitem->data().toString();
                     ui->upTextEdit->textCursor().insertText("{{" + champ + "}}");
@@ -1082,8 +1082,8 @@ void dlg_impressions::ChoixMenuContextuelDocument(QString choix)
             if(m_currentdocument->ispublic())
             {
                 itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
-                if (m_menucontextuel_doc != Q_NULLPTR)
-                    if (m_menucontextuel_doc->activeAction() != Q_NULLPTR)
+                if (m_menucontextuel_doc != nullptr)
+                    if (m_menucontextuel_doc->activeAction() != nullptr)
                         m_menucontextuel_doc->activeAction()->setEnabled(VerifDocumentPublic(m_currentdocument,false));
             }
             else
@@ -1200,12 +1200,11 @@ void dlg_impressions::OKpushButtonClicked()
     QStringList ExpARemplacer, Rempla;
     QString listsoignantsComboBox = "ListSoignants";
     userentete();
-    if (m_userentete == Q_NULLPTR)
+    if (m_userentete == nullptr)
     {
         UpMessageBox::Watch(this, tr("Pas d'émetteur pour ce document"),tr("Aucun émetteur n'est précisé pour l'impression"));
         return;
     }
-    int ndocs = 0;
     switch (m_mode) {
     case CreationDOC:
     case ModificationDOC:
@@ -1253,7 +1252,7 @@ void dlg_impressions::OKpushButtonClicked()
                     //! et la question sortait alors telle quelle, ((...)) compris, sur le document imprimé
                     QString questpattern    = "([(][(][^/()]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
                     questpattern            += "|" + COTEOEIL + "|" + COTEBRUT + "|" + YESNO + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
-                    if (m_currentintervention == Q_NULLPTR)
+                    if (m_currentintervention == nullptr)
                         questpattern        += "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION +
                                                "|" + TYPEINTERVENTION + "|" + IMPLANTINTERVENTION + "|" + SITEINTERVENTION +
                                                "|" + ANESTHINTERVENTION + "|" + SURGEONINTERVENTION;
@@ -1289,7 +1288,7 @@ void dlg_impressions::OKpushButtonClicked()
             }
         }
         // On a établi la liste de questions - on prépare la fiche qui va les poser
-        if (listQuestions.size()>0 || m_userentete == Q_NULLPTR)
+        if (listQuestions.size()>0 || m_userentete == nullptr)
         {
             dlg_ask = new UpDialog(this);
             dlg_ask->setWindowModality(Qt::WindowModal);
@@ -1304,8 +1303,8 @@ void dlg_impressions::OKpushButtonClicked()
             struct LigneQuestion {
                 QString question;                       //! le texte de la question, tel qu'il figure dans le marqueur ((question//TYPE))
                 QString type;                           //! le type de la réponse attendue (DATE, TEXTE, HEURE...)
-                QWidget *wdgreponse = Q_NULLPTR;        //! le widget de saisie de la réponse
-                QWidget *wdgpuissance = Q_NULLPTR;      //! uniquement pour l'implant : la spinbox de puissance
+                QWidget *wdgreponse = nullptr;        //! le widget de saisie de la réponse
+                QWidget *wdgpuissance = nullptr;      //! uniquement pour l'implant : la spinbox de puissance
             };
             QList<LigneQuestion> listlignesquestions;
 
@@ -1320,8 +1319,8 @@ void dlg_impressions::OKpushButtonClicked()
                 lay->addWidget(label);
                 QSpacerItem *spacer = new QSpacerItem(10,10,QSizePolicy::Expanding);
                 lay->addSpacerItem(spacer);
-                QWidget *wdgreponse = Q_NULLPTR;
-                QWidget *wdgpuissance = Q_NULLPTR;
+                QWidget *wdgreponse = nullptr;
+                QWidget *wdgpuissance = nullptr;
                 if (listtypeQuestions.at(m)  == "TEXTE")
                 {
                     UpLineEdit *Line = new UpLineEdit();
@@ -1544,7 +1543,7 @@ void dlg_impressions::OKpushButtonClicked()
                     foreach (IOL* iol, *Datas::I()->iols->iols())
                     {
                         Manufacturer* man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
-                        if (man != Q_NULLPTR)
+                        if (man != nullptr)
                         {
                             QList<QStandardItem *> items;
                             items << new QStandardItem(man->nom() + " " + iol->modele()) << new QStandardItem(QString::number(iol->id()));
@@ -1580,7 +1579,7 @@ void dlg_impressions::OKpushButtonClicked()
                     wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
-                if (wdgreponse != Q_NULLPTR)
+                if (wdgreponse != nullptr)
                 {
                     LigneQuestion ligne;
                     ligne.question      = listQuestions.at(m);
@@ -1604,7 +1603,7 @@ void dlg_impressions::OKpushButtonClicked()
             if (dlg_ask->exec() != QDialog::Accepted)
             {
                 delete dlg_ask;
-                dlg_ask = Q_NULLPTR;
+                dlg_ask = nullptr;
                 return;
             }
             else
@@ -1618,38 +1617,38 @@ void dlg_impressions::OKpushButtonClicked()
                     if (ligne.type == "TEXTE" || ligne.type == "MONTANT")
                     {
                         UpLineEdit *line = qobject_cast<UpLineEdit*>(ligne.wdgreponse);
-                        if (line != Q_NULLPTR)
+                        if (line != nullptr)
                             reponse = line->text();
                     }
                     else if (ligne.type == "DATE" || ligne.type == DATEINTERVENTION)
                     {
                         QDateEdit *date = qobject_cast<QDateEdit*>(ligne.wdgreponse);
-                        if (date != Q_NULLPTR)
+                        if (date != nullptr)
                             reponse = QLocale::system().toString(date->date(),tr("d MMMM yyyy"));
                     }
                     else if (ligne.type == "HEURE" || ligne.type == HEUREINTERVENTION)
                     {
                         QTimeEdit *time = qobject_cast<QTimeEdit*>(ligne.wdgreponse);
-                        if (time != Q_NULLPTR)
+                        if (time != nullptr)
                             reponse = time->time().toString("H'H'mm");
                     }
                     else if (ligne.type == "SOIGNANT")
                     {
                         UpComboBox *combo = qobject_cast<UpComboBox*>(ligne.wdgreponse);
-                        if (combo != Q_NULLPTR)
+                        if (combo != nullptr)
                         {
                             User* usr = Datas::I()->users->getById(combo->currentData().toInt());
-                            reponse = (usr != Q_NULLPTR? (usr->isMedecin()? usr->titre() + " " : "") + usr->prenom() + " " + usr->nom() : "");
+                            reponse = (usr != nullptr? (usr->isMedecin()? usr->titre() + " " : "") + usr->prenom() + " " + usr->nom() : "");
                         }
                     }
                     else if (ligne.type == IMPLANTINTERVENTION)
                     {
                         UpComboBox *combo = qobject_cast<UpComboBox*>(ligne.wdgreponse);
-                        if (combo != Q_NULLPTR)
+                        if (combo != nullptr)
                         {
                             reponse = combo->currentText();
                             UpDoubleSpinBox *spinbox = qobject_cast<UpDoubleSpinBox*>(ligne.wdgpuissance);
-                            if (spinbox != Q_NULLPTR)
+                            if (spinbox != nullptr)
                             {
                                 QString pos = (spinbox->value()>0? "+":"");
                                 reponse += " " + pos + spinbox->textFromValue(spinbox->value());
@@ -1659,7 +1658,7 @@ void dlg_impressions::OKpushButtonClicked()
                     else    // tous les autres types sont des combos dont on relit simplement le texte affiché
                     {
                         UpComboBox *combo = qobject_cast<UpComboBox*>(ligne.wdgreponse);
-                        if (combo != Q_NULLPTR)
+                        if (combo != nullptr)
                             reponse = combo->currentText();
                     }
                     ExpARemplacer   << "((" + ligne.question + "//" + ligne.type + "))";
@@ -1667,7 +1666,7 @@ void dlg_impressions::OKpushButtonClicked()
                 }
             }
             delete dlg_ask;
-            dlg_ask = Q_NULLPTR;
+            dlg_ask = nullptr;
         }
         for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
@@ -1682,6 +1681,7 @@ void dlg_impressions::OKpushButtonClicked()
              * ils sont déterminés par la fiche demandeuse de l'impression - rufus.cpp oudlg_programmationinterventions, en appelant les fonctions correspondantes dans procedures.cpp
              */
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            int ndocs = 0;
             if (itm)
             {
                 if (itm->ischecked())
@@ -1722,7 +1722,9 @@ void dlg_impressions::OKpushButtonClicked()
         }
         if (map_docsaimprimer.size() > 0)
         {
-            proc->QuestionPdfOrPrint(this, m_pdf);
+            m_typeenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite());
+            if (m_typeenvoi == Procedures::noEMISSION)
+                return;
             accept();
         }
         break;
@@ -1871,7 +1873,7 @@ QString dlg_impressions::AskDialog(QString titre)
      if (a>0)
          reponse = dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text();
      delete dlg_askdialog;
-     dlg_askdialog = Q_NULLPTR;
+     dlg_askdialog = nullptr;
      return reponse;
 }
 
@@ -1880,8 +1882,8 @@ QString dlg_impressions::AskDialog(QString titre)
 // ----------------------------------------------------------------------------------
 bool dlg_impressions::ChercheDoublon(QString str, int row)
 {
-    Impression *doc = Q_NULLPTR;
-    DossierImpression *dossier = Q_NULLPTR;
+    Impression *doc = nullptr;
+    DossierImpression *dossier = nullptr;
 
     if (m_mode == CreationDOC || m_mode == ModificationDOC)  {
         doc = getDocumentFromIndex(m_docsmodel->index(row,0));
@@ -2417,31 +2419,31 @@ Impression* dlg_impressions::getDocumentFromIndex(QModelIndex idx)
 {
     int row = idx.row();
     if (row < 0)
-        return Q_NULLPTR;
+        return nullptr;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,0));
-    if (itm != Q_NULLPTR)
+    if (itm != nullptr)
         return qobject_cast<Impression*>(itm->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 DossierImpression* dlg_impressions::getDossierFromIndex(QModelIndex idx)
 {
     int row = idx.row();
     if (row < 0)
-        return Q_NULLPTR;
+        return nullptr;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,0));
-    if (itm != Q_NULLPTR)
+    if (itm != nullptr)
         return qobject_cast<DossierImpression*>(itm->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 User* dlg_impressions::userentete()
 {
-    if (m_userentete != Q_NULLPTR)
+    if (m_userentete != nullptr)
         return m_userentete;
-    if (m_currentintervention == Q_NULLPTR)
+    if (m_currentintervention == nullptr)
     {
         if (currentuser()->ishisownsupervisor())
             m_userentete = currentuser();
@@ -2450,10 +2452,10 @@ User* dlg_impressions::userentete()
     {
         SessionOperatoire *session = Datas::I()->sessionsoperatoires->getById(m_currentintervention->idsession());
         //qDebug() << "idsession = " << session->id() << " - iduser = " << session->iduser();
-        if (session != Q_NULLPTR)
+        if (session != nullptr)
             m_userentete = Datas::I()->users->getById(session->iduser());
     }
-    if (m_userentete == Q_NULLPTR)
+    if (m_userentete == nullptr)
     {
         QList<User*> listUserFound;
         for (auto it = Datas::I()->users->actifs()->constBegin(); it != Datas::I()->users->actifs()->constEnd(); ++it)
@@ -2506,7 +2508,7 @@ User* dlg_impressions::userentete()
         if( dlg_askUser->exec() != QDialog::Accepted)
         {
             delete dlg_askUser;
-            return Q_NULLPTR;
+            return nullptr;
         }
         QList<UpRadioButton*> listbutt = boxuser->findChildren<UpRadioButton*>();
         for (int j=0; j<listbutt.size(); j++)
@@ -2633,7 +2635,7 @@ bool dlg_impressions::RecopieDocument(Impression *doc)
     m_docslistbinds[CP_PRESCRIPTION_IMPRESSIONS]    = (m_currentdocument->isprescription()? "1" : QVariant());
     m_docslistbinds[CP_EDITABLE_IMPRESSIONS]        = (m_currentdocument->iseditable()?     "1" : QVariant());
     m_docslistbinds[CP_MEDICAL_IMPRESSIONS]         = (m_currentdocument->ismedical()?      "1" : QVariant());
-    m_currentdocument = Q_NULLPTR;
+    m_currentdocument = nullptr;
     m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
     Remplir_TableView();
     FiltreListe();
@@ -2759,9 +2761,9 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
     m_listedestinataires.clear();
     m_listtexts.clear();
 
-    //User *userEntete = (Datas::I()->users->getById(currentuser()->idsuperviseur()) == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : Datas::I()->users->getById(currentuser()->idsuperviseur()));
+    //User *userEntete = (Datas::I()->users->getById(currentuser()->idsuperviseur()) == nullptr? Datas::I()->users->superviseurs()->first() : Datas::I()->users->getById(currentuser()->idsuperviseur()));
     User *userEntete = userentete();
-    if (userEntete == Q_NULLPTR)
+    if (userEntete == nullptr)
         return;
     QMap<QString,QVariant>  AgeTotal    = Utils::CalculAge(m_currentpatient->datedenaissance(), ui->dateImpressiondateEdit->date(), m_currentpatient->sexe());
     QString age                         = AgeTotal["toString"].toString();
@@ -2797,7 +2799,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
 
     QString form = NOCOR, form2 = NOCOR;
     Correspondant * cor = Datas::I()->correspondants->getById(m_currentpatient->idmg());
-    if (cor != Q_NULLPTR)
+    if (cor != nullptr)
     {
         if (cor->sexe() == "F")
         {
@@ -2814,10 +2816,10 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
         form += cor->prenom() + " " + cor->nom();
     }
     texte.replace("{{" + MGPAT + "}}"               , form);
-    texte.replace("{{" + MGPATTITRE + "}}"          , (cor != Q_NULLPTR? (cor->ismedecin()? tr("Docteur") : "") : ""));
+    texte.replace("{{" + MGPATTITRE + "}}"          , (cor != nullptr? (cor->ismedecin()? tr("Docteur") : "") : ""));
     texte.replace("{{" + POLITESSEMG + "}}"         , form2);
-    texte.replace("{{" + NOMMG + "}}"               , (cor != Q_NULLPTR? cor->nom(): ""));
-    texte.replace("{{" + PRENOMMG + "}}"            , (cor != Q_NULLPTR? cor->prenom(): ""));
+    texte.replace("{{" + NOMMG + "}}"               , (cor != nullptr? cor->nom(): ""));
+    texte.replace("{{" + PRENOMMG + "}}"            , (cor != nullptr? cor->prenom(): ""));
 
     if (texte.contains("{{" + KERATO + "}}"))
     {
@@ -2920,21 +2922,21 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
         else
             texte.replace("{{" + REFRACT + "}}",tr("pas de données de refraction retrouvées"));
     }
-    if (m_currentintervention != Q_NULLPTR)
+    if (m_currentintervention != nullptr)
     {
         QString txt = "";
         SessionOperatoire * session = Datas::I()->sessionsoperatoires->getById(m_currentintervention->idsession());
-        Site * sit = Q_NULLPTR;
-        if (session != Q_NULLPTR)
-            sit = Datas::I()->sites->getById(session->idlieu());
+        Site * sit = nullptr;
+        if (session != nullptr)
+            sit = Datas::I()->sites->getById(session->idsite());
         TypeIntervention *typ = Datas::I()->typesinterventions->getById(m_currentintervention->idtypeintervention());
 
         txt = "((" + TITRESURGEONINTERVENTION + "//" + SURGEONINTERVENTION + "))";
-        User *usr = (session != Q_NULLPTR? Datas::I()->users->getById(session->iduser()) : Q_NULLPTR);
-        texte.replace(txt,  (usr != Q_NULLPTR? usr->titre() + " " + usr->prenom() + " " + usr->nom() : "null"));
+        User *usr = (session != nullptr? Datas::I()->users->getById(session->iduser()) : nullptr);
+        texte.replace(txt,  (usr != nullptr? usr->titre() + " " + usr->prenom() + " " + usr->nom() : "null"));
 
         txt = "((" + TITREDATEINTERVENTION + "//" + DATEINTERVENTION + "))";
-        texte.replace(txt,  (session != Q_NULLPTR? QLocale::system().toString(session->date(),tr("d MMMM yyyy")) : "null"));
+        texte.replace(txt,  (session != nullptr? QLocale::system().toString(session->date(),tr("d MMMM yyyy")) : "null"));
 
         txt = "((" + TITREHEUREINTERVENTION + "//" + HEUREINTERVENTION + "))";
         texte.replace(txt, m_currentintervention->heure().toString(tr("HH:mm")));
@@ -3000,16 +3002,16 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
     {
         QList<Correspondant*> listcor;
         Correspondant * cor = Datas::I()->correspondants->getById(m_currentpatient->idmg());
-        if (cor != Q_NULLPTR)
+        if (cor != nullptr)
             listcor << cor;
         Correspondant * spe1 = Datas::I()->correspondants->getById(m_currentpatient->idspe1());
-        if (spe1 != Q_NULLPTR)
+        if (spe1 != nullptr)
             listcor << spe1;
         Correspondant * spe2 = Datas::I()->correspondants->getById(m_currentpatient->idspe2());
-        if (spe2 != Q_NULLPTR)
+        if (spe2 != nullptr)
             listcor << spe2;
         Correspondant * spe3 = Datas::I()->correspondants->getById(m_currentpatient->idspe3());
-        if (spe3 != Q_NULLPTR)
+        if (spe3 != nullptr)
             listcor << spe3;
         if (listcor.size()==0)
             texte.replace(reg, NOCOR);
@@ -3072,7 +3074,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
                 for (int j=0; j<m_listedestinataires.size(); j++)
                 {
                     Correspondant * cor = m_listedestinataires.at(j);
-                    if (cor == Q_NULLPTR)
+                    if (cor == nullptr)
                         continue;
                     QString txtdef = texte;
                     QString form = "", form2 = "";
@@ -3181,7 +3183,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
 
     dlg_askcorrespondant ->exec();
     delete dlg_askcorrespondant;
-    dlg_askcorrespondant = Q_NULLPTR;
+    dlg_askcorrespondant = nullptr;
 }
 
 void dlg_impressions::ListidCor()
@@ -3190,11 +3192,11 @@ void dlg_impressions::ListidCor()
     for (int i=0; i< model->rowCount(); i++)
     {
         UpStandardItem *Item = dynamic_cast<UpStandardItem*>(model->item(i));
-        if (Item != Q_NULLPTR)
+        if (Item != nullptr)
             if (Item->checkState() == Qt::Checked)
             {
                 Correspondant * cor = qobject_cast<Correspondant*>(Item->rufusitem());
-                if (cor != Q_NULLPTR)
+                if (cor != nullptr)
                     m_listedestinataires << cor;
             }
     }
@@ -3225,7 +3227,7 @@ void dlg_impressions::Remplir_TableView()
                                                                             m_textdocdelegate = line->text();
                                                                          });
     ui->DocsupTableView->setItemDelegateForColumn(1,linedoc);
-    if (m_docsmodel != Q_NULLPTR)
+    if (m_docsmodel != nullptr)
         delete m_docsmodel;
     m_docsmodel = new UpStandardItemModel(this);
 
@@ -3313,7 +3315,7 @@ void dlg_impressions::Remplir_TableView()
                                                                                                             }
                                                                                                     });
         connect(ui->DocsupTableView->horizontalHeader(),    &QHeaderView::sectionClicked,   this,  [&] (int id)  {if(id == 0)  selectAllDocuments();});
-        m_currentdocument = Q_NULLPTR;
+        m_currentdocument = nullptr;
     }
 
 
@@ -3333,7 +3335,7 @@ void dlg_impressions::Remplir_TableView()
                                                                          m_textdossierdelegate = line->text();
                                                                       });
     ui->DossiersupTableView->setItemDelegateForColumn(1,line);
-    if (m_dossiersmodel != Q_NULLPTR)
+    if (m_dossiersmodel != nullptr)
         delete m_dossiersmodel;
     m_dossiersmodel = new UpStandardItemModel(this);
 
@@ -3406,7 +3408,7 @@ void dlg_impressions::Remplir_TableView()
                                                                                                                 EnableOKPushButton();
                                                                                                             }
                                                                                                     });
-        m_currentdossier = Q_NULLPTR;
+        m_currentdossier = nullptr;
     }
 }
 
@@ -3593,7 +3595,7 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
-        m_currentdocument = Q_NULLPTR;
+        m_currentdocument = nullptr;
         int row = m_docsmodel->getRowFromItem(doc);
         //nettoyage de la table metadocs
         db->SupprRecordFromTable(doc->id(), CP_IDDOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);

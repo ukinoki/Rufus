@@ -40,7 +40,7 @@ Impression* Impressions::getById(int id, bool reload)
         if (impr)
             add(map_all, impr, Item::Update);
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<Impression*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<Impression*>(it.value()) : nullptr);
     }
     else if (reload)
     {
@@ -67,14 +67,14 @@ void Impressions::initListe()
     m_isfull = true;
 }
 
-void Impressions::SupprimeImpression(Impression* impr)
+void Impressions::SupprimeImpression(Impression* impr, QWidget *parent)
 {
-    Supprime(map_all, impr);
+    Supprime(map_all, impr, parent);
 }
 
 Impression* Impressions::CreationImpression(QHash<QString, QVariant> sets)
 {
-    Impression *impr = Q_NULLPTR;
+    Impression *impr = nullptr;
     int idimpr = 0;
     DataBase::I()->locktables(QStringList() << TBL_IMPRESSIONS);
     idimpr = DataBase::I()->selectMaxFromTable(CP_ID_IMPRESSIONS, TBL_IMPRESSIONS, m_ok);
@@ -88,7 +88,7 @@ Impression* Impressions::CreationImpression(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce document d'impression dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce document d'impression dans la base!"));
         return impr;
     }
     QJsonObject  data = QJsonObject{};
@@ -107,7 +107,7 @@ Impression* Impressions::CreationImpression(QHash<QString, QVariant> sets)
         else if (champ == CP_MEDICAL_IMPRESSIONS)       data[champ] = (itset.value().toInt() == 1);
     }
     impr = new Impression(data);
-    if (impr != Q_NULLPTR)
+    if (impr != nullptr)
         map_all->insert(impr->id(), impr);
     return impr;
 }
@@ -136,7 +136,7 @@ DossierImpression* DossiersImpressions::getById(int id, bool reload)
         if (dossier)
             add(map_all, dossier, Item::Update);
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<DossierImpression*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<DossierImpression*>(it.value()) : nullptr);
     }
     else if (reload)
     {
@@ -179,14 +179,14 @@ void DossiersImpressions::setlistedocs(DossierImpression *dossier, QList<int> li
     dossier->setlistdocsloaded(true);
 }
 
-void DossiersImpressions::SupprimeDossierImpression(DossierImpression* impr)
+void DossiersImpressions::SupprimeDossierImpression(DossierImpression* impr, QWidget *parent)
 {
-    Supprime(map_all, impr);
+    Supprime(map_all, impr, parent);
 }
 
 DossierImpression* DossiersImpressions::CreationDossierImpression(QHash<QString, QVariant> sets)
 {
-    DossierImpression *impr = Q_NULLPTR;
+    DossierImpression *impr = nullptr;
     int idimpr = 0;
     DataBase::I()->locktables(QStringList() << TBL_DOSSIERSIMPRESSIONS);
     idimpr = DataBase::I()->selectMaxFromTable(CP_ID_DOSSIERIMPRESSIONS, TBL_DOSSIERSIMPRESSIONS, m_ok);
@@ -200,7 +200,7 @@ DossierImpression* DossiersImpressions::CreationDossierImpression(QHash<QString,
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce document d'impression dans la base!"));
+        UpMessageBox::Watch(nullptr,tr("Impossible d'enregistrer ce document d'impression dans la base!"));
         return impr;
     }
     QJsonObject  data = QJsonObject{};
@@ -214,7 +214,7 @@ DossierImpression* DossiersImpressions::CreationDossierImpression(QHash<QString,
         else if (champ == CP_PUBLIC_DOSSIERIMPRESSIONS)        data[champ] = (itset.value().toInt() == 1);
     }
     impr = new DossierImpression(data);
-    if (impr != Q_NULLPTR)
+    if (impr != nullptr)
         map_all->insert(impr->id(), impr);
     return impr;
 }

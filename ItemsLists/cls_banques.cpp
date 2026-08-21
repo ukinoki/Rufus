@@ -43,18 +43,18 @@ Banque* Banques::getById(int id)
 {
     QMap<int, Banque*>::const_iterator itcpt = map_banques->constFind(id);
     if( itcpt == map_banques->constEnd() )
-        return Q_NULLPTR;
+        return nullptr;
     return itcpt.value();
 }
 
-void Banques::SupprimeBanque(Banque *bq)
+void Banques::SupprimeBanque(Banque *bq, QWidget *parent)
 {
-    Supprime(map_banques, bq);
+    Supprime(map_banques, bq, parent);
 }
 
  Banque* Banques::CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque)
 {
-    Banque *bq = Q_NULLPTR;
+    Banque *bq = nullptr;
 
     QString idabrege        = (idBanqueAbrege == ""?    "null" : "'" + Utils::correctquoteSQL(idBanqueAbrege) + "'");
     QString nombq           = (NomBanque == ""?         "null" : "'" + Utils::correctquoteSQL(NomBanque) + "'");
@@ -66,14 +66,14 @@ void Banques::SupprimeBanque(Banque *bq)
     if (!DataBase::I()->StandardSQL(req, MsgErreur))
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     // Récupération de l'idMotif créé ------------------------------------
     int idbq = DataBase::I()->selectMaxFromTable(CP_ID_BANQUES, TBL_BANQUES, m_ok, tr("Impossible de sélectionner les enregistrements"));
     if (!m_ok)
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return nullptr;
     }
     DataBase::I()->unlocktables();
     bq = new Banque();

@@ -103,7 +103,7 @@ void dlg_refractionlistemesures::Validation()
             for (int i =0 ; i<wdg_bigtable->selectionModel()->selectedRows().size(); i++)
             {
                 UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(wdg_bigtable->selectionModel()->selectedRows().at(i).row(),0));
-                if (itm != Q_NULLPTR)
+                if (itm != nullptr)
                     DetruireLaMesure(Datas::I()->refractions->getById(itm->rufusitem()->id()));
             }
             accept();
@@ -121,7 +121,7 @@ void dlg_refractionlistemesures::ItemClicked(QModelIndex mod)
     else if (m_mode ==  Recuperer)
     {
         UpStandardItem *pitem = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(mod));
-        if (pitem == Q_NULLPTR)
+        if (pitem == nullptr)
             return;
         if (pitem->checkState() == Qt::Checked)
         {
@@ -141,7 +141,7 @@ void dlg_refractionlistemesures::ItemClicked(QModelIndex mod)
 //----------------------------------------------------------------------------------
 void dlg_refractionlistemesures::DetruireLaMesure(Refraction *ref)
 {
-    if (ref == Q_NULLPTR)
+    if (ref == nullptr)
         return;
     QString mesure = Refraction::ConvertMesure(ref->typemesure());
     if (mesure != "")
@@ -203,7 +203,7 @@ void dlg_refractionlistemesures::RemplirTableView()
         SupprButton->setEnabled(false);
 
     UpStandardItem       *pitem0, *pitem1, *pitem2, *pitem3;
-    if (m_model != Q_NULLPTR)
+    if (m_model != nullptr)
         delete m_model;
     m_model = new QStandardItemModel(this);
 

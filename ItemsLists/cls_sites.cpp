@@ -37,7 +37,7 @@ Sites::Sites(QObject *parent) : ItemsList(parent)
 /*!
  * \brief Sites::getById
  * \param id l'id du site recherché
- * \return Q_NULLPTR si aucun site trouvé
+ * \return nullptr si aucun site trouvé
  * \return Site* le site correspondant à l'id
  */
 Site* Sites::getById(int id, bool reload)
@@ -49,7 +49,7 @@ Site* Sites::getById(int id, bool reload)
         if (sit)
             add(  map_all, sit, Item::Update );
         auto it = map_all->constFind(id);
-        return (it != map_all->cend()? const_cast<Site*>(it.value()) : Q_NULLPTR);
+        return (it != map_all->cend()? const_cast<Site*>(it.value()) : nullptr);
     }
     else if (reload)
     {
@@ -72,12 +72,12 @@ Site* Sites::getById(int id, bool reload)
 void Sites::initListe()
 {
     int id = 0;
-    if (m_currentsite != Q_NULLPTR)
+    if (m_currentsite != nullptr)
         id = m_currentsite->id();
     QList<Site*> listsites = DataBase::I()->loadSites();
     epurelist(map_all, &listsites);
     addList(map_all, &listsites);
-    m_currentsite = (id>0? getById(id) : Q_NULLPTR);
+    m_currentsite = (id>0? getById(id) : nullptr);
 }
 
 /*!
@@ -89,20 +89,20 @@ QMap<Site*,qlonglong> Sites::initListeByUser(int idusr)
     QMap<Site*,qlonglong> mapsites = QMap<Site*,qlonglong>();
     QMap<int,qlonglong> mapid = DataBase::I()->loadidSitesByUser(idusr);
     for (auto it = mapid.cbegin(); it != mapid.cend(); ++it)
-        if (getById(it.key()) != Q_NULLPTR)
+        if (getById(it.key()) != nullptr)
             mapsites.insert(getById(it.key()), it.value());
     return mapsites;
 }
 
-void Sites::SupprimeSite(Site* sit)
+void Sites::SupprimeSite(Site* sit, QWidget *parent)
 {
     DataBase::I()->StandardSQL("delete from " TBL_APPAREILSCONNECTESCENTRE " where " CP_IDLIEU_APP " = " + QString::number(sit->id()));
-    Supprime(map_all, sit);
+    Supprime(map_all, sit, parent);
 }
 
-Site* Sites::CreationSite(QHash<QString, QVariant> sets)
+Site* Sites::CreationSite(QHash<QString, QVariant> sets, QWidget *parent)
 {
-    Site *sit = Q_NULLPTR;
+    Site *sit = nullptr;
     int idSite = 0;
     DataBase::I()->locktables(QStringList() << TBL_LIEUXEXERCICE);
     idSite = DataBase::I()->selectMaxFromTable(CP_ID_SITE, TBL_LIEUXEXERCICE, m_ok);
@@ -116,7 +116,7 @@ Site* Sites::CreationSite(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce site dans la base!"));
+        UpMessageBox::Watch(parent,tr("Impossible d'enregistrer ce site dans la base!"));
         return sit;
     }
     QJsonObject  data = QJsonObject{};
@@ -134,9 +134,13 @@ Site* Sites::CreationSite(QHash<QString, QVariant> sets)
         else if (champ == CP_TELEPHONE_SITE)                data[champ] = itset.value().toString();
         else if (champ == CP_FAX_SITE)                      data[champ] = itset.value().toString();
         else if (champ == CP_COULEUR_SITE)                  data[champ] = itset.value().toString();
+        else if (champ == CP_MAIL_SITE)                     data[champ] = itset.value().toString();
+        else if (champ == CP_SMTPSERVEUR_SITE)              data[champ] = itset.value().toString();
+        else if (champ == CP_SMTPPORT_SITE)                 data[champ] = itset.value().toInt();
+        else if (champ == CP_SMTPLOGIN_SITE)                data[champ] = itset.value().toString();
     }
     sit = new Site(data);
-    if (sit != Q_NULLPTR)
+    if (sit != nullptr)
         map_all->insert(sit->id(), sit);
     return sit;
 }

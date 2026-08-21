@@ -81,12 +81,12 @@ Users::Users(QObject *parent) : ItemsList(parent)
  *
  * \param usr l'utilisateur que l'on veut ajouter
  * \return true si l'utilisateur est ajouté
- * \return false si le paramètre usr est un Q_NULLPTR
+ * \return false si le paramètre usr est un nullptr
  * \return false si l'utilisateur est déjà présent
  */
 bool Users::addUser(User *user)
 {
-    if( user == Q_NULLPTR)
+    if( user == nullptr)
         return false;
     int iduser = user->id();
     add(map_all, user, Item::Update);
@@ -121,7 +121,7 @@ bool Users::addUser(User *user)
 void Users::addList(QList<User*> listusr)
 {
     foreach (User *usr, listusr)
-        if (usr != Q_NULLPTR)
+        if (usr != nullptr)
             addUser(usr);
 }
 
@@ -129,13 +129,13 @@ void Users::addList(QList<User*> listusr)
  * \brief Users::getById
  * \param id l'id de l'utilisateur recherché
  * \param loadDetails
- * \return Q_NULLPTR si aucun utilisateur trouvé
+ * \return nullptr si aucun utilisateur trouvé
  * \return User* l'utilisateur correspondant à l'id
  */
 User* Users::getById(int id, Item::UPDATE upd)
 {
     QMap<int, User*>::const_iterator ituser = map_all->constFind(id);
-    User *result = Q_NULLPTR;;
+    User *result = nullptr;;
     if( ituser == map_all->constEnd() )
     {
         QJsonObject jsonUser = DataBase::I()->loadUserData(id);
@@ -164,7 +164,7 @@ User* Users::getById(int id, Item::UPDATE upd)
 /*!
  * \brief Users::reload
  * \param id l'id de l'utilisateur recherché
- * \return Q_NULLPTR si aucun utilisateur trouvé
+ * \return nullptr si aucun utilisateur trouvé
  * \return User* l'utilisateur correspondant à l'id
  */
 void Users::reload(User *usr)
@@ -193,7 +193,7 @@ void Users::initListe()
     int idcomptable     = User::ROLE_INDETERMINE;
     int idparent        = User::ROLE_INDETERMINE;
     int idsuperviseur   = User::ROLE_INDETERMINE;
-    if (userconnected() != Q_NULLPTR)
+    if (userconnected() != nullptr)
     {
         idcomptable     = userconnected()->idcomptableactes();
         idparent        = userconnected()->idparent();
@@ -213,7 +213,7 @@ void Users::initListe()
         }
         CalcCompteEncaissementActes(usr);
     }
-    if (userconnected() != Q_NULLPTR)
+    if (userconnected() != nullptr)
     {
         userconnected() ->setidparent(idparent);
         userconnected() ->setidcomptableactes(idcomptable);
@@ -249,7 +249,7 @@ void Users::CalcCompteEncaissementActes(User *usr)
 
 void Users::SupprimeUser(User *usr)
 {
-    if( usr == Q_NULLPTR)
+    if( usr == nullptr)
         return;
     map_all ->remove(usr->id());
     mapsclean(usr);
@@ -259,7 +259,7 @@ void Users::SupprimeUser(User *usr)
 
 void Users::mapsclean(User *usr)
 {
-    if (usr == Q_NULLPTR)
+    if (usr == nullptr)
     {
         map_actifs              ->clear();
         map_inactifs            ->clear();

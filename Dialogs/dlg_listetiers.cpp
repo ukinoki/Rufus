@@ -63,8 +63,8 @@ dlg_listetiers::~dlg_listetiers()
 void dlg_listetiers::Enablebuttons(QModelIndex idx)
 {
     Tiers *trs = getTiersFromIndex(idx);
-    wdg_buttonframe->wdg_modifBouton->setEnabled(trs != Q_NULLPTR);
-    if (trs != Q_NULLPTR)
+    wdg_buttonframe->wdg_modifBouton->setEnabled(trs != nullptr);
+    if (trs != nullptr)
     {
         bool ok = Datas::I()->tierspayants->isUtilise(trs->nom());
         wdg_buttonframe->wdg_moinsBouton->setEnabled(!ok);
@@ -75,7 +75,7 @@ void dlg_listetiers::Enablebuttons(QModelIndex idx)
 
 void dlg_listetiers::ChoixButtonFrame()
 {
-    Tiers *trs = Q_NULLPTR;
+    Tiers *trs = nullptr;
     if (wdg_itemstree->selectionModel()->selectedIndexes().size())
         trs = getTiersFromIndex(wdg_itemstree->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
@@ -103,7 +103,7 @@ bool dlg_listetiers::listetiersmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listetiers::EnregistreNouveauTiers()
 {
-    dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation, Q_NULLPTR, this);
+    dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation, nullptr, this);
     if (Dlg_IdentTiers->exec() == QDialog::Accepted)
     {
         Tiers * trs = Datas::I()->tierspayants->getById(Dlg_IdentTiers->idcurrentTiers());
@@ -121,10 +121,10 @@ void dlg_listetiers::EnregistreNouveauTiers()
 Tiers* dlg_listetiers::getTiersFromIndex(QModelIndex idx )
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(idx));
-    if (it != Q_NULLPTR)
+    if (it != nullptr)
         return qobject_cast<Tiers *>(it->rufusitem());
     else
-        return Q_NULLPTR;
+        return nullptr;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -132,13 +132,13 @@ Tiers* dlg_listetiers::getTiersFromIndex(QModelIndex idx )
 // ------------------------------------------------------------------------------------------
 void dlg_listetiers::ModifTiers(Tiers *trs)
 {
-    if (trs == Q_NULLPTR)
+    if (trs == nullptr)
         return;
     dlg_identificationtiers *Dlg_IdentTiers = new dlg_identificationtiers(dlg_identificationtiers::Modification, trs);
     if (Dlg_IdentTiers->exec() == QDialog::Accepted)
     {
         trs =  Datas::I()->tierspayants->getById(Dlg_IdentTiers->idcurrentTiers());
-        if (trs != Q_NULLPTR)
+        if (trs != nullptr)
         {
             int idtrs = trs->id();
             m_listemodifiee = true;
@@ -153,7 +153,7 @@ void dlg_listetiers::ModifTiers(Tiers *trs)
 
 void dlg_listetiers::scrollToTiers(Tiers *trs)
 {
-    if (trs != Q_NULLPTR)
+    if (trs != nullptr)
     {
         int id = trs->id();
         for (int i=0; i < m_model->rowCount(); ++i)
@@ -161,7 +161,7 @@ void dlg_listetiers::scrollToTiers(Tiers *trs)
             UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_model->item(i));
             if (itm)
             {
-                if (itm->rufusitem() != Q_NULLPTR)
+                if (itm->rufusitem() != nullptr)
                 {
                     if (itm->rufusitem()->id() == id)
                     {
@@ -207,7 +207,7 @@ void dlg_listetiers::ReconstruitTreeViewtiers(bool reconstruirelaliste, QString 
         Datas::I()->tierspayants->initListe();
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
-    if (m_model != Q_NULLPTR)
+    if (m_model != nullptr)
         delete m_model;
     m_model = new QStandardItemModel(this);
 

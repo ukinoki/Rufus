@@ -41,7 +41,7 @@ class dlg_motifs : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_motifs(QWidget *parent = Q_NULLPTR);
+    explicit dlg_motifs(QWidget *parent = nullptr);
     ~dlg_motifs();
 
 private:

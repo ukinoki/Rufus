@@ -33,7 +33,7 @@ class Patients : public ItemsList
 {
     Q_OBJECT
 public:
-    explicit Patients(QObject *parent = Q_NULLPTR);
+    explicit Patients(QObject *parent = nullptr);
 
     //GETTER
     QMap<int, Patient*> *patients()           { return map_patients; }
@@ -52,7 +52,7 @@ public:
                                                                                              * \brief Patients::getById
                                                                                              * \param id l'id du patient recherché
                                                                                              * \param loadDetails = NoLoadDetails  -> ne charge que les données d'identité - = LoadDetails -> charge les données sociales et médicales
-                                                                                             * \return Q_NULLPTR si aucun patient trouvé
+                                                                                             * \return nullptr si aucun patient trouvé
                                                                                              * \return Patient* le patient correspondant à l'id
                                                                                              */
     bool isfull();                                                                          /*! la liste contient tous les patients de la base */
@@ -69,8 +69,8 @@ public:
                                                                                             * \param DDN la date de naissance */
     void initListeIdInterventions(Patient * pat);                                          /*! calcule la liste des interventions d'un patient */
 
-    static bool veriftelephone(Patient * pat, QWidget *parent = Q_NULLPTR);                /*! vérfie si le patient a au moins un no de tel enregistré */
-    static bool verifNNI(Patient * pat, QWidget *parent = Q_NULLPTR);                      /*! vérfie si le patient a au moins un NNI enregistré */
+    static bool veriftelephone(Patient * pat, QWidget *parent = nullptr);                /*! vérfie si le patient a au moins un no de tel enregistré */
+    static bool verifNNI(Patient * pat, QWidget *parent = nullptr);                      /*! vérfie si le patient a au moins un NNI enregistré */
 
 private:
     /*! > il y a 3 listes de patients:
@@ -81,8 +81,8 @@ private:
     */
     QMap<int, Patient*> *map_patients;                                                      //!< une liste fourre tout
     QMap<int, Patient*> *map_patientstable;                                                 //!< la liste des patients de la table listepatients
-    Patient *m_currentpatient           = Q_NULLPTR;                                        //!> le patient dont le dossier est ouvert
-    Patient *m_dossierpatientaouvrir    = Q_NULLPTR;                                        //!> le dossier de patient à ouvrir
+    Patient *m_currentpatient           = nullptr;                                        //!> le patient dont le dossier est ouvert
+    Patient *m_dossierpatientaouvrir    = nullptr;                                        //!> le dossier de patient à ouvrir
 
     bool m_full;                                                                            //! la liste contient tous les patients de la base
 
@@ -94,7 +94,7 @@ public:
     //!> actions sur les champs
     void    updateCorrespondant(Patient *pat,                                               //! met à jour un des correspondants d'un patient
                                 Correspondant::typecorrespondant type,
-                                Correspondant *cor = Q_NULLPTR);
+                                Correspondant *cor = nullptr);
 
 
     //!> actions sur les enregistrements

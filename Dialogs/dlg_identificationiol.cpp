@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
         * Mode Modification
             * la fiche est lancée depuis dlg_listeiols pour modifier les paramètres d'un IOL existant
             * le paramètre IOL est donc celui de l'implant à modifier
-            * la paramètre Manufacturer peut-être laissé à Q_NULLPTR, il sera automatiquement rempli
+            * la paramètre Manufacturer peut-être laissé à nullptr, il sera automatiquement rempli
             * toutes les zones de saisie sont renseignées avec les paramètres déjà connus de l'implant
  * \param mode
  * \param iol
@@ -43,7 +43,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     }
     m_currentIOL = iol;
 
-    m_mode = (m_currentIOL != Q_NULLPTR? Modification : Creation);
+    m_mode = (m_currentIOL != nullptr? Modification : Creation);
     //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<dlg_identificationIOL::Mode>(), m_mode);
     if (m_mode == Modification)
         m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentIOL->idmanufacturer());
@@ -56,7 +56,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     //! FABRICANT - MODELE
     QHBoxLayout *choixIOLLay    = new QHBoxLayout();
 
-    if (m_manufacturersmodel != Q_NULLPTR)
+    if (m_manufacturersmodel != nullptr)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())
@@ -878,7 +878,7 @@ bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::FocusIn )
     {
         UpDoubleSpinBox* objUpdSpin = qobject_cast<UpDoubleSpinBox*>(obj);
-        if (objUpdSpin != Q_NULLPTR)   {
+        if (objUpdSpin != nullptr)   {
             objUpdSpin->setPrefix("");
             objUpdSpin->selectAll();
             return false;
@@ -1464,7 +1464,7 @@ bool dlg_identificationIOL::EnregistreIOL()
         return false;
     }
     QWidget* widg = VerifCstesANominal();
-    if (widg != Q_NULLPTR)
+    if (widg != nullptr)
     {
         UpMessageBox::Watch(this,tr("Vous n'avez saisi aucune constante A!"));
         switchDisplayConstant(Nominal);
@@ -1473,7 +1473,7 @@ bool dlg_identificationIOL::EnregistreIOL()
     }
 
     widg = VerifCstesAUlib();
-    if (widg != Q_NULLPTR)
+    if (widg != nullptr)
     {
         UpMessageBox::Watch(this,tr("Vous avez saisi des paramètres Ulib incomplets!"), tr("Vous devez renseigner au moins une constante A et le nombre de cas"));
         switchDisplayConstant(Ulib);
@@ -1482,7 +1482,7 @@ bool dlg_identificationIOL::EnregistreIOL()
     }
 
     widg = VerifCstesAOptimized();
-    if (widg != Q_NULLPTR)
+    if (widg != nullptr)
     {
         UpMessageBox::Watch(this,tr("Vous avez saisi des paramètres iolcon optimized incomplets!"), tr("Vous devez renseigner au moins la constante A et le nombre de cas"));
         switchDisplayConstant(Optimized);
@@ -1668,7 +1668,7 @@ QWidget* dlg_identificationIOL::VerifCstesANominal()
         if (QLocale().toDouble(wdg_Aoptline->text()) == 0)
             return wdg_Aoptline;
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 QWidget *dlg_identificationIOL::VerifCstesAUlib()
@@ -1684,7 +1684,7 @@ QWidget *dlg_identificationIOL::VerifCstesAUlib()
         if (wdg_UNbCasesline->text().toInt() == 0)
             return wdg_UNbCasesline;
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 QWidget* dlg_identificationIOL::VerifCstesAOptimized()
@@ -1697,5 +1697,5 @@ QWidget* dlg_identificationIOL::VerifCstesAOptimized()
         if (wdg_ONbCasesline->text().toInt() == 0)
             return wdg_ONbCasesline;
     }
-    return Q_NULLPTR;
+    return nullptr;
 }

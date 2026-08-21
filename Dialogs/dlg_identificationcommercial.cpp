@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
         * Mode Modification
             * la fiche est lancée depuis dlg_listecommercials pour modifier les paramètres dun COMMERCIAL existant
             * le paramètre COMMERCIAL est donc celui de l'implant à modifier
-            * la paramètre Manufacturer peut-être laissé à Q_NULLPTR
+            * la paramètre Manufacturer peut-être laissé à nullptr
             * toutes les zones de saisie sont renseignées avec las paramètres déjà connus de l'implant
  * \param mode
  * \param commercial
@@ -51,7 +51,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(Mode mode, Item *itm,
         m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentcommercial->idmanufacturer());
 
     //! FABRICANT
-    if (m_manufacturersmodel != Q_NULLPTR)
+    if (m_manufacturersmodel != nullptr)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())
@@ -246,7 +246,7 @@ void dlg_identificationcommercial::AfficheDatascommercial(Commercial *commercial
 {
     if (m_mode == Modification)
     {
-        if (commercial == Q_NULLPTR)
+        if (commercial == nullptr)
             return;
         disconnectSignals();
         m_currentcommercial = commercial;

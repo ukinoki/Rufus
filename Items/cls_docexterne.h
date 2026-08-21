@@ -75,7 +75,7 @@ private:
     int m_idrefraction;                             //!> l'id de la refraction concernée quand il s'agit d'une prescription de verres correcteurs
 
 public:
-    explicit DocExterne(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit DocExterne(QJsonObject data = {}, QObject *parent = nullptr);
     DocExterne(QString filepath, bool &initOK, QWidget *parent);
     void setData(QJsonObject data) override;
 
@@ -102,6 +102,7 @@ public:
     QString imagelien() const;
     bool isAllLoaded() const;
     int idrefraction() const;
+    int idsite() const                  { return m_idsite; }
     bool isprescription()  {return m_typedoc == PRESCRIPTION || m_typedoc == PRESCRIPTIONLUNETTES; }
 
     void setdate(QDateTime date);
@@ -112,6 +113,7 @@ public:
     void setimageblob(QByteArray blob);
     void setimageformat(QString format);
     void setidrefraction(int id)        {m_idrefraction = id;}
+    void setidsite(int id)              { m_idsite = id;            m_data[CP_IDLIEU_DOCSEXTERNES] = id; }
     void settexteentete(QString txt)    {m_textentete = txt;}
     void settextecorps(QString txt)     {m_textcorps = txt;}
     void settextepied(QString txt)      {m_textpied = txt;}

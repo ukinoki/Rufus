@@ -195,7 +195,7 @@ void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une 
     }
     // on a trouvé plusieurs villes
     QString newValue = dialogList(villes, VilleListModel::NOM, tr("Nom de la ville"));
-    if (newValue != Q_NULLPTR)
+    if (newValue != nullptr)
         ui->VillelineEdit->setText(newValue);
 }
 
@@ -397,7 +397,7 @@ void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
             dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask                 ->setWindowTitle(tr("Enregistrement d'une localité"));
             connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=, this]  {
-                                                                                if (Datas::I()->villes->enregistreNouvelleVille(Utils::trim(CP->text()), nomville) != Q_NULLPTR)
+                                                                                if (Datas::I()->villes->enregistreNouvelleVille(Utils::trim(CP->text()), nomville) != nullptr)
                                                                                 {
                                                                                     delete complListVilles->model();
                                                                                     complListVilles         ->setModel(new QStringListModel(m_villes->ListeNomsVilles()));
@@ -427,7 +427,7 @@ void VilleCPWidget::ChercheCPBaseIndividual(QString nomville)
         if (listvilles.size() > 0)
         {
             Ville * ville = listvilles.at(0);
-            if (ville != Q_NULLPTR)
+            if (ville != nullptr)
                 ui->CPlineEdit->setText(ville->codepostal());
         }
     }

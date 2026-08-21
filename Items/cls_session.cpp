@@ -36,7 +36,7 @@ void Session::setData(QJsonObject data)
     setDataInt(data, CP_IDSUPERVISEUR_SESSIONS, m_idUserSuperviseur);
     setDataInt(data, CP_IDPARENT_SESSIONS, m_idUserParent);
     setDataInt(data, CP_IDCOMPTABLE_SESSIONS, m_idUserComptable);
-    setDataInt(data, CP_IDLIEU_SESSIONS, m_idlieu);
+    setDataInt(data, CP_IDLIEU_SESSIONS, m_idsite);
     setDataDateTime(data,CP_DATEDEBUT_SESSIONS, m_datedebut);
     setDataDateTime(data,CP_DATEFIN_SESSIONS, m_datefin);
     m_data = data;

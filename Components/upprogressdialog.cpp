@@ -28,7 +28,7 @@ UpProgressDialog::UpProgressDialog(int n, int t, QWidget *parent, Qt::WindowFlag
     setFixedWidth(600);
     setBar(bar);
     setRange(n,t);
-    setCancelButton(Q_NULLPTR);
+    setCancelButton(nullptr);
     setWindowModality(Qt::WindowModal);
     setFont(qApp->font());
 }

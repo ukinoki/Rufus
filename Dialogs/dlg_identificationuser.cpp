@@ -91,17 +91,17 @@ bool dlg_identificationuser::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // Fleche Gauche - -----------------------------------------
         if(keyEvent->key()==Qt::Key_Left)
-            if (qobject_cast<QPushButton *>(obj) == Q_NULLPTR) return QWidget::focusPreviousChild();
+            if (qobject_cast<QPushButton *>(obj) == nullptr) return QWidget::focusPreviousChild();
 
         // Fleche Droite - -----------------------------------------
         if(keyEvent->key()==Qt::Key_Right)
-            if (qobject_cast<QPushButton *>(obj) == Q_NULLPTR) return QWidget::focusNextChild();
+            if (qobject_cast<QPushButton *>(obj) == nullptr) return QWidget::focusNextChild();
 
         // Return - Idem Flèche Droite sauf sur les pushButton ---------------------------
         if(keyEvent->key()==Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)
         {
             if (obj == ui->MDPlineEdit) Validation();
-            if (qobject_cast<QPushButton *>(obj) == Q_NULLPTR)
+            if (qobject_cast<QPushButton *>(obj) == nullptr)
                 return QWidget::focusNextChild();
         }
     }
@@ -124,7 +124,7 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     if (!DataBase::I()->dirsecure_file_priv())
     {
         ui->IconGlobalSQLupLabel->setPixmap(Icons::pxError());
-        UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
+        UpMessageBox::Watch(nullptr, tr("Configuration du serveur défectueuse"),
                             tr("La variable MySQL 'secure_file_priv' n'est pas positionnée sur un dossier existant\n"
                                "Vous ne pourrez pas afficher les documents d'imagerie\n"
                                "Veuillez modifier la valeur de cette variable en la faisant pointer\n"
@@ -140,7 +140,7 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     {
         QString sqlmode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION";
         ui->IconGlobalSQLupLabel->setPixmap(Icons::pxError());
-        UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
+        UpMessageBox::Watch(nullptr, tr("Configuration du serveur défectueuse"),
                             tr("La variable MySQL 'sql_mode' n'est pas positionnée sur la valeur ") + "'" + sqlmode + "'\n"
                                 + tr("Rufus sera instable\n"
                                      "Veuillez modifier la valeur de cette variable sur la valeur ") + "'" + sqlmode + "'\n"

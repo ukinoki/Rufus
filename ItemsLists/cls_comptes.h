@@ -25,10 +25,10 @@ class Comptes : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, Compte*> *map_all = Q_NULLPTR;  //!< la liste de tous les comptes
+    QMap<int, Compte*> *map_all = nullptr;  //!< la liste de tous les comptes
 
 public:
-    explicit Comptes(QObject *parent = Q_NULLPTR);
+    explicit Comptes(QObject *parent = nullptr);
     ~Comptes();
 
     QMap<int, Compte*>* comptes() const;
@@ -38,7 +38,7 @@ public:
     QMap<int, bool> initListeComptesByIdUser(int id);    //! reconstruit la liste des comptes d'un utilisateur
 
     //!> actions sur les enregistrements
-    void       SupprimeCompte(Compte *cpt);
+    void       SupprimeCompte(Compte *cpt, QWidget *parent = nullptr);
     Compte*    CreationCompte(int idBanque, int idUser, QString IBAN, QString IntituleCompte, QString NomCompteAbrege, double SoldeSurDernierReleve, bool Partage, bool Desactive);
 };
 

@@ -30,7 +30,7 @@ private:
     double m_solde;
 
 public:
-    explicit Compte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Compte(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     int idBanque() const;

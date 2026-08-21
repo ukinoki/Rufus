@@ -26,13 +26,13 @@ class DocsExternes : public ItemsList
 {
     Q_OBJECT
 private:
-    QMap<int, DocExterne*> *map_docsexternes = Q_NULLPTR; //!< la liste des DocExternes pour un patient donné
+    QMap<int, DocExterne*>      *map_docsexternes = nullptr; //!< la liste des DocExternes pour un patient donné
     bool                        m_nouveaudocument;
     Patient                     *m_patient;
     QList<DocExterne *>         m_newdocuments = QList<DocExterne *>();
 
 public:
-    explicit                    DocsExternes(QObject *parent = Q_NULLPTR);
+    explicit                    DocsExternes(QObject *parent = nullptr);
     QMap<int, DocExterne *>*    docsexternes();
     DocExterne*                 getById(int id, Item::LOADDETAILS loadDetails = Item::LoadDetails, ItemsList::ADDTOLIST addToList = ItemsList::AddToList);
     void                        addList(QList<DocExterne*> listdocs);
@@ -45,7 +45,7 @@ public:
     Patient*                    patient() const { return m_patient; }
 
     //!> actions sur les enregistrements
-    void                        SupprimeDocumentExterne(DocExterne *doc);
+    void                        SupprimeDocumentExterne(DocExterne *doc, QWidget *parent = nullptr);
     static DocExterne*          CreationDocumentExterne(QHash<QString, QVariant> sets);
 
     QList<DocExterne *> newdocuments() const;

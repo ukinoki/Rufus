@@ -375,7 +375,7 @@ void dlg_gestionusers::CreerUser()
     Line                        ->setFocus();
     dlg_ask->exec();
     delete dlg_ask;
-    dlg_ask = Q_NULLPTR;
+    dlg_ask = nullptr;
 }
 
 void dlg_gestionusers::changeLogo()
@@ -396,7 +396,7 @@ void dlg_gestionusers::changeLogo()
         }
         if (!file_origin .open(QIODevice::ReadOnly))
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + path_file_origin);
+            UpMessageBox::Watch(nullptr, tr("Impossible d'ouvrir le fichier") + " " + path_file_origin);
             return;
         }
         QImage img(path_file_origin);
@@ -433,7 +433,7 @@ void dlg_gestionusers::delLogo()
 void dlg_gestionusers::AfficheSignature()
 {
     bool modif      = (m_usermode == MODIFUSER);
-    QImage img      = (m_userencours != Q_NULLPTR) ? m_userencours->signatureimg() : QImage();
+    QImage img      = (m_userencours != nullptr) ? m_userencours->signatureimg() : QImage();
     bool asignature = modif && (img != QImage());
 
     ui->Signaturelabel              ->setVisible(modif);
@@ -853,7 +853,7 @@ void dlg_gestionusers::EnregistreUser()
         for(int i=0; i< ui->AdressupTableWidget->rowCount(); i++)
         {
             UpRadioButton *butt = qobject_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
-            if (butt == Q_NULLPTR)
+            if (butt == nullptr)
                 continue;
             if (butt->isChecked())
             {
@@ -1069,7 +1069,7 @@ void dlg_gestionusers::GestLieux()
     m_MDPverified = Utils::VerifMDPAdmin(DataBase::I()->getMDPAdmin(), m_MDPverified, this);
     if (!m_MDPverified)
             return;
-    dlg_listelieux *gestLieux = new dlg_listelieux(this);
+    dlg_listesites *gestLieux = new dlg_listesites(this);
     gestLieux->exec();
     ReconstruitListeLieuxExercice();
     delete gestLieux;
@@ -1082,7 +1082,7 @@ void dlg_gestionusers::GestLieux()
     for (int i=0; i<ui->AdressupTableWidget->rowCount(); ++i)
     {
         UpRadioButton *butt = qobject_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
-        if (butt == Q_NULLPTR)
+        if (butt == nullptr)
             continue;
         butt->setChecked(idlieuxlist.contains(butt->iD()));
     }
@@ -1179,7 +1179,7 @@ void dlg_gestionusers::RegleAffichage()
     ui->Comptawidget                ->setVisible((m_responsable || m_soccomptable) && db->parametres()->comptanormale());
     ui->ComptagroupBox              ->setVisible(m_responsable);
     ui->ComptaNoLiberalupRadioButton->setImmediateToolTip("");
-    if (ui->ListUserstableWidget    ->currentItem()!=Q_NULLPTR)
+    if (ui->ListUserstableWidget    ->currentItem()!=nullptr)
     {
         bool u = ExisteEmployeur(ui->ListUserstableWidget->item(ui->ListUserstableWidget->currentRow(),0)->text().toInt());
         QString avert = (u? "" :
@@ -1413,7 +1413,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     for (int i=0; i<ui->AdressupTableWidget->rowCount(); ++i)
     {
         UpRadioButton *butt = qobject_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
-        if (butt == Q_NULLPTR)
+        if (butt == nullptr)
             continue;
         butt->setChecked(idlieuxlist.contains(butt->iD()));
     }
@@ -1660,7 +1660,7 @@ void dlg_gestionusers::Inactifs()
 void dlg_gestionusers::setDataCurrentUser(int id)
 {
     m_userencours = Datas::I()->users->getById(id, Item::Update);
-    if (m_userencours == Q_NULLPTR)
+    if (m_userencours == nullptr)
         return;
     m_userencours->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(id));
     Datas::I()->users->CalcCompteEncaissementActes(m_userencours);
@@ -1727,7 +1727,7 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
             for(int i=0; i< ui->AdressupTableWidget->rowCount(); i++)
             {
                 UpRadioButton *butt = qobject_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
-                if (butt == Q_NULLPTR)
+                if (butt == nullptr)
                     continue;
                 if (butt->isChecked())
                 {

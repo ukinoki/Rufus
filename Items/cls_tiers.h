@@ -48,7 +48,7 @@ private:
     QString m_web = "";
     bool m_utilise;
 public:
-    explicit Tiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Tiers(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     QString nom() const;
@@ -84,7 +84,7 @@ class TypeTiers : public Item
 private:
     QString m_typetiers;
 public:
-    explicit TypeTiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit TypeTiers(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     QString typetiers() const;

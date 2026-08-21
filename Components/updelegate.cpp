@@ -35,7 +35,7 @@ void UpLabelDelegate::setEditorData(QWidget* editor, const QModelIndex& index) c
 {
     QString value = index.model()->data(index).toString();
     UpLabel *Lbl = qobject_cast<UpLabel*>(editor);
-    if (Lbl != Q_NULLPTR)
+    if (Lbl != nullptr)
         Lbl->setText(value);
 }
 

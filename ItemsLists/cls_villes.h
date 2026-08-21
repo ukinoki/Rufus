@@ -33,7 +33,7 @@ public: //STATIC
 
 public:
     enum FieldName {NOM, CODEPOSTAL}; Q_ENUM(FieldName)
-    explicit VilleListModel(const QList<Ville*> &villes, FieldName fieldName, QObject *parent = Q_NULLPTR);
+    explicit VilleListModel(const QList<Ville*> &villes, FieldName fieldName, QObject *parent = nullptr);
 
     void setFieldName(FieldName fieldName);
     int rowCount(const QModelIndex &parent) const;
@@ -59,7 +59,7 @@ private:
     bool m_custombase = false;
 
 public:
-    Villes(QObject *parent = Q_NULLPTR);
+    Villes(QObject *parent = nullptr);
     enum TownsFrom {DATABASE, CUSTOM}; Q_ENUM(TownsFrom)
     void initListe(TownsFrom from = DATABASE);
     Ville *enregistreNouvelleVille(QString CP, QString nomville);

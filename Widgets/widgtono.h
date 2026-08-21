@@ -29,7 +29,7 @@ class WidgTono : public QWidget
     Q_OBJECT
 
 public:
-    explicit WidgTono(QWidget *parent = Q_NULLPTR);
+    explicit WidgTono(QWidget *parent = nullptr);
     ~WidgTono();
     Ui::WidgTono *ui;
 };

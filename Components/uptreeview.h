@@ -24,7 +24,7 @@ class UpTreeView : public QTreeView
 {
     Q_OBJECT
 public:
-    UpTreeView(QWidget *parent = Q_NULLPTR);
+    UpTreeView(QWidget *parent = nullptr);
 
 protected:
     void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;

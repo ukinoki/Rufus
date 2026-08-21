@@ -27,7 +27,7 @@ class UpSpinBox : public QSpinBox
     Q_OBJECT
 
 public:
-    explicit        UpSpinBox(QWidget *parent = Q_NULLPTR);
+    explicit        UpSpinBox(QWidget *parent = nullptr);
     ~UpSpinBox();
     void            setvaleuravant(int ValPrec);
     int             valeuravant() const;

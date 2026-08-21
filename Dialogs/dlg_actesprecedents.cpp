@@ -27,13 +27,13 @@ ui(new Ui::dlg_actesprecedents)
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint | Qt::WindowTitleHint);
     setAttribute(Qt::WA_ShowWithoutActivating);
-    if (pat == Q_NULLPTR)
+    if (pat == nullptr)
     {
         m_initOK = false;
         return;
     }
     m_idpatient = pat->id();
-    if (Datas::I()->patients->currentpatient() != Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient() != nullptr)
     m_iscurrentpatient          = (pat == Datas::I()->patients->currentpatient());
     if (m_iscurrentpatient)                                                 /*! la fiche a été appelée depuis le dossier d'un patient, cas le plus fréquent,
                                                                                elle affiche tous les actes sauf le dernier */
@@ -169,7 +169,7 @@ void dlg_actesprecedents::keyPressEvent(QKeyEvent *keyEvent)
             return;
 
 //        --it_currentacte;
-//        if( it_currentacte == Q_NULLPTR)
+//        if( it_currentacte == nullptr)
 //            it_currentacte = map_actes->constBegin();
 
         if( it_currentacte != map_actes->constBegin())
@@ -262,11 +262,11 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 void dlg_actesprecedents::ActesPrecsAfficheActe()
 {
     Acte *acte = it_currentacte.value();
-    if( acte == Q_NULLPTR )    // Aucune consultation trouvee pour ces criteres
+    if( acte == nullptr )    // Aucune consultation trouvee pour ces criteres
         return;
     User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
     QString nomcomplet(""), login ("");
-    if (usr != Q_NULLPTR)
+    if (usr != nullptr)
     {
         nomcomplet =  usr->prenom() + " " + usr->nom();
         login = usr->login();
@@ -324,7 +324,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     //2. retrouver le créateur de l'acte
     //idUser = ActesPrecsQuery.value(2).toInt();
     QString createurconsult ("");
-    if (Datas::I()->users->getById(acte->idCreatedBy()) != Q_NULLPTR)
+    if (Datas::I()->users->getById(acte->idCreatedBy()) != nullptr)
         createurconsult = tr("Créé par ")
                           + Datas::I()->users->getById(acte->idCreatedBy())->login()
                           + tr(" pour ") + login; //Avant idPatient

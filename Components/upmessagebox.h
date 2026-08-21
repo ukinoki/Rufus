@@ -31,7 +31,7 @@ class UpMessageBox : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit                            UpMessageBox(QWidget *parent = Q_NULLPTR);
+    explicit                            UpMessageBox(QWidget *parent = nullptr);
     ~UpMessageBox();
     static void                         Show        (QWidget*, QString Text = "", QString InfoText = "");
     static void                         Information (QWidget*, QString Text = "", QString InfoText = "");

@@ -32,7 +32,7 @@ private:
     double m_montant;
 
 public:
-    explicit Archive(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Archive(QJsonObject data = {}, QObject *parent = nullptr);
     void setData(QJsonObject data) override;
 
     int idcompte() const;
@@ -53,7 +53,7 @@ class Archives
 {
 
 private:
-    QMap<int, Archive*>* m_archives = Q_NULLPTR; //!< la liste des archives
+    QMap<int, Archive*>* m_archives = nullptr; //!< la liste des archives
 public:
     explicit Archives();
     ~Archives();

@@ -52,7 +52,7 @@ class dlg_gestioncotations : public UpDialog
     Q_OBJECT
 public:
     enum Mode {Creation, Modification};    Q_ENUM(Mode)
-    explicit        dlg_gestioncotations(Mode mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
+    explicit        dlg_gestioncotations(Mode mode, QString CodeActe = "", QWidget *parent = nullptr);
     ~dlg_gestioncotations();
     QString         codeenregistre() const      { return m_codeenregistre; }    /*!< code réellement écrit (pour scroller dessus dans la table appelante) */
 
@@ -65,21 +65,21 @@ private:
     int             m_idcotation = 0;                           //!< id de la cotation en modification (clé de l'update)
     int             m_typecotation = 1;                         //!< mode courant : 1=CCAM, 2=association, 4=autre
     QStringList     m_listeCCAM;                                //!< codes de la table ccam (pour valider « c'est bien un code CCAM »)
-    QStandardItemModel *m_modelCCAM = Q_NULLPTR;                //!< code CCAM (DisplayRole) + libellé (ToolTipRole) : source des QCompleter avec infobulle
+    QStandardItemModel *m_modelCCAM = nullptr;                //!< code CCAM (DisplayRole) + libellé (ToolTipRole) : source des QCompleter avec infobulle
 
     /*! sélecteur de mode (création seulement) */
-    QGroupBox       *wdg_groupmode = Q_NULLPTR;
-    QCheckBox       *wdg_chkCCAM = Q_NULLPTR, *wdg_chkAssoc = Q_NULLPTR, *wdg_chkAutre = Q_NULLPTR;
+    QGroupBox       *wdg_groupmode = nullptr;
+    QCheckBox       *wdg_chkCCAM = nullptr, *wdg_chkAssoc = nullptr, *wdg_chkAutre = nullptr;
 
     /*! les champs (uniques, montrés/masqués selon le mode) */
-    UpLineEdit      *wdg_codeline = Q_NULLPTR, *wdg_codeline2 = Q_NULLPTR;
-    UpLineEdit      *wdg_tarifoptamline = Q_NULLPTR, *wdg_tarifnooptamline = Q_NULLPTR, *wdg_tarifpratiqueline = Q_NULLPTR;
-    UpLabel         *wdg_optamlabel = Q_NULLPTR;                //!< retitré « Conventionnel » en mode 4
-    UpTextEdit      *wdg_tipline = Q_NULLPTR;
-    QPushButton     *wdg_boutonCCAM1 = Q_NULLPTR,               //!< « ... » à droite du 1er code : ouvre la table CCAM
-                    *wdg_boutonCCAM2 = Q_NULLPTR;               //!< « ... » à droite du 2e code (association)
-    QWidget         *wdg_codewidg = Q_NULLPTR, *wdg_code2widg = Q_NULLPTR, *wdg_tarifoptamwidg = Q_NULLPTR,
-                    *wdg_tarifnooptamwidg = Q_NULLPTR, *wdg_tarifpratiquewidg = Q_NULLPTR, *wdg_tipwidg = Q_NULLPTR;
+    UpLineEdit      *wdg_codeline = nullptr, *wdg_codeline2 = nullptr;
+    UpLineEdit      *wdg_tarifoptamline = nullptr, *wdg_tarifnooptamline = nullptr, *wdg_tarifpratiqueline = nullptr;
+    UpLabel         *wdg_optamlabel = nullptr;                //!< retitré « Conventionnel » en mode 4
+    UpTextEdit      *wdg_tipline = nullptr;
+    QPushButton     *wdg_boutonCCAM1 = nullptr,               //!< « ... » à droite du 1er code : ouvre la table CCAM
+                    *wdg_boutonCCAM2 = nullptr;               //!< « ... » à droite du 2e code (association)
+    QWidget         *wdg_codewidg = nullptr, *wdg_code2widg = nullptr, *wdg_tarifoptamwidg = nullptr,
+                    *wdg_tarifnooptamwidg = nullptr, *wdg_tarifpratiquewidg = nullptr, *wdg_tipwidg = nullptr;
 
     void            appliqueMode();                             //!< montre/masque/retitre les champs et pose les completers selon m_typecotation
     void            remplitDepuisCCAM();                        //!< modes 1/2 : remplit montants + libellé à partir du/des code(s) CCAM
@@ -105,16 +105,16 @@ class dlg_choixccam : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit    dlg_choixccam(QWidget *parent = Q_NULLPTR);
+    explicit    dlg_choixccam(QWidget *parent = nullptr);
     QString     codechoisi() const              { return m_codechoisi; }    /*!< code CCAM retenu (vide si aucun) */
 
 private:
     DataBase    *db = DataBase::I();
     QString     m_codechoisi;
 
-    QCheckBox   *wdg_ophtaseul = Q_NULLPTR;      //!< « uniquement l'ophtalmologie » (coché par défaut)
-    UpTableWidget *wdg_table = Q_NULLPTR;        //!< actes CCAM : col 0 code, 1 OPTAM, 2 non OPTAM, 3 libellé (masquée)
-    UpTextEdit  *wdg_libelle = Q_NULLPTR;        //!< libellé de l'acte sélectionné
+    QCheckBox   *wdg_ophtaseul = nullptr;      //!< « uniquement l'ophtalmologie » (coché par défaut)
+    UpTableWidget *wdg_table = nullptr;        //!< actes CCAM : col 0 code, 1 OPTAM, 2 non OPTAM, 3 libellé (masquée)
+    UpTextEdit  *wdg_libelle = nullptr;        //!< libellé de l'acte sélectionné
 
     void        remplitTable();                 //!< charge TOUS les actes CCAM (une fois), puis applique filtreOphta
     void        filtreOphta(bool ophtaseul);    //!< masque/affiche les rangées (ophtaseul -> codes en B..), sans réinterroger

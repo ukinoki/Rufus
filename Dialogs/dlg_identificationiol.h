@@ -31,7 +31,7 @@ class dlg_identificationIOL : public UpDialog
     Q_OBJECT
 public:
     enum                        Mode {Creation, Modification};    Q_ENUM(Mode)
-    explicit                    dlg_identificationIOL(IOL *iol = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit                    dlg_identificationIOL(IOL *iol = nullptr, QWidget *parent = nullptr);
     dlg_identificationIOL();
     void                        setNomIOL(QString nom)  { wdg_nomiolline->setText(nom); }
     int                         idcurrentIOL() const    { return (m_currentIOL? m_currentIOL->id() : 0); }
@@ -45,12 +45,12 @@ private:
     QRegularExpression  rgx_diaht               = QRegularExpression("1[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
     QRegularExpression  rgx_haigis              = QRegularExpression("^-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
     QRegularExpression  rgx_int                 = QRegularExpression("[0-9]{6}");
-    QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
-    QStandardItemModel  *m_IOLsmodel            = Q_NULLPTR;
+    QStandardItemModel  *m_manufacturersmodel   = nullptr;
+    QStandardItemModel  *m_IOLsmodel            = nullptr;
     QList<int>          m_listeidIOLs           = QList<int>();
     Mode                m_mode = Creation;
-    Manufacturer        *m_currentmanufacturer  = Q_NULLPTR;
-    IOL                 *m_currentIOL           = Q_NULLPTR;
+    Manufacturer        *m_currentmanufacturer  = nullptr;
+    IOL                 *m_currentIOL           = nullptr;
     QHash<QString, QVariant>    m_listbinds;
     bool                m_initok                = true;
     QImage              m_nullimage             = QImage("://IOL.png");
@@ -137,7 +137,7 @@ private:
     UpComboBox          *wdg_typebox            = new UpComboBox;
     UpTextEdit          *wdg_remarquetxt        = new UpTextEdit;
     UpToolBar           *wdg_toolbar            = new UpToolBar();
-    UpPushButton        *wdg_recopiebutton      = Q_NULLPTR;
+    UpPushButton        *wdg_recopiebutton      = nullptr;
     UpCheckBox          *wdg_prechargechk       = new UpCheckBox(tr("Prechargé"));
     UpCheckBox          *wdg_jaunechk           = new UpCheckBox(tr("Jaune"));
     UpCheckBox          *wdg_inactifchk;
