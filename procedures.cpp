@@ -1711,8 +1711,9 @@ QStringList Procedures::CompleteCoordonneesMail(QWidget *parent, int idsite, QSt
     dlg_identificationsite dlg(sit, dlg_identificationsite::Complement, parent);
     if (dlg.exec() != QDialog::Accepted)
         return manque;
-    db                      ->UpdateTable(TBL_LIEUXEXERCICE, dlg.listbinds(), " where " CP_ID_SITE " = " + QString::number(sit->id()), tr("Impossible de modifier le site"));
+    bool okupd = db         ->UpdateTable(TBL_LIEUXEXERCICE, dlg.listbinds(), " where " CP_ID_SITE " = " + QString::number(sit->id()), tr("Impossible de modifier le site"));
     Datas::I()->sites       ->getById(sit->id(), true);
+    qDebug() << "TRACE CompleteCoordonneesMail update =" << okupd << "relu mail/serveur/port/login =" << sit->mail() << sit->smtpserveur() << sit->smtpport() << sit->smtplogin();
     return ManqueEnvoiMail(idsite);
 }
 
