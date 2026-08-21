@@ -1866,13 +1866,8 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
     grp                     ->addButton(printchk);
     grp                     ->addButton(pdfchk);
     grp                     ->addButton(mailchk);
-    mailchk                 ->setEnabled(manque.size() == 0);
     if (manque.size() > 0)
-    {
         mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "<br>- " + manque.join("<br>- "), true);
-        if (typ == SendMAIL)
-            typ = printDOC;
-    }
 
     switch (typ) {
     case printDOC:
@@ -1920,11 +1915,23 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
         lblvide             ->setAlignment(Qt::AlignCenter);
         lblvide             ->setWordWrap(true);
         (new QVBoxLayout(tblimprimantes->viewport()))->addWidget(lblvide);
+        printchk            ->setEnabled(false);
+        pdfchk              ->setChecked(true);
     }
 
     tblimprimantes          ->setEnabled(printchk->isChecked());
     connect (printchk,          &QCheckBox::toggled,    dlg,    [=] (bool coche) {tblimprimantes->setEnabled(coche);});
-    connect (dlg->OKButton,     &QPushButton::clicked,  dlg,    &QDialog::accept);
+    connect (dlg->OKButton,     &QPushButton::clicked,  dlg,    [=, this] {
+        if (mailchk->isChecked())
+        {
+            QStringList manqueenvoi = ManqueEnvoiMail(idsite);
+            if (manqueenvoi.size() > 0)
+                manqueenvoi = CompleteCoordonneesMail(dlg, idsite, manqueenvoi);
+            if (manqueenvoi.size() > 0)                     /*! coordonnées toujours incomplètes, la fiche ne se ferme pas */
+                return;
+        }
+        dlg                 ->accept();
+    });
 
     QVBoxLayout *laychk = new QVBoxLayout();
     laychk                  ->addWidget(printchk);
