@@ -4160,7 +4160,7 @@ QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
             incomplète, et la retoucher clé par clé demanderait autant de sed que de clés. */
         "awk '/^\\[%3\\]/{s=1;next} /^\\[/{s=0} !s' /etc/samba/smb.conf > /tmp/smb.rufus "
           "&& cat /tmp/smb.rufus > /etc/samba/smb.conf; rm -f /tmp/smb.rufus; "
-        "printf '\\n[%3]\\n   comment = Rufus\\n   path = %1/Rufus\\n"
+        "printf '\\n[%3]\\n   comment = Rufus\\n   path = %1/Rufus/Imagerie\\n"
           "   browseable = yes\\n   read only = no\\n   guest ok = yes\\n   force user = %2\\n"
           "   create mask = 0644\\n   directory mask = 0755\\n' >> /etc/samba/smb.conf; "
         "systemctl restart smbd 2>/dev/null || service smbd restart 2>/dev/null || true; "
@@ -4224,7 +4224,7 @@ bool MySQLInstaller::prepareCreateModeMacOS()
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
         /*! macOS renomme en '-1', '-2'… au lieu de refuser : sans ce test on accumule les doublons. */
-        "sharing -l 2>/dev/null | grep -q '%6' || sharing -a '%4' -n '%6' -s 001 -g 001 2>/dev/null; "
+        "sharing -l 2>/dev/null | grep -q '%6' || sharing -a '%4/Rufus/Imagerie' -n '%6' -s 001 -g 001 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null\n"
         "%5\n")                                                             /*!< restart */
         .arg(cnfTmp, cnfDst, pathTmp, path, restart, NOM_PARTAGE_IMAGERIE);
@@ -4348,7 +4348,7 @@ bool MySQLInstaller::partageImageriePresent()
     const int fin = conf.indexOf("\n[", deb);
     const QString section = conf.mid(deb, fin < 0 ? -1 : fin - deb);
     /*! une section incomplète partage mal : les clés sont contrôlées une à une */
-    const QStringList cles = { "path = " + sharedFolderPath() + "/Rufus", "read only = no",
+    const QStringList cles = { "path = " + sharedFolderPath() + "/Rufus/Imagerie", "read only = no",
                                "guest ok = yes", "force user = ", "create mask = 0644",
                                "directory mask = 0755" };
     for (const QString &cle : cles)
@@ -4356,7 +4356,8 @@ bool MySQLInstaller::partageImageriePresent()
             return false;
     return true;
 #else
-    return runCmd("sharing -l 2>/dev/null").contains(NOM_PARTAGE_IMAGERIE);
+    const QString out = runCmd("sharing -l 2>/dev/null");
+    return out.contains(NOM_PARTAGE_IMAGERIE) && out.contains(sharedFolderPath() + "/Rufus/Imagerie");
 #endif
 }
 
@@ -4426,7 +4427,8 @@ bool MySQLInstaller::setupSharedFolder()
     runCmdElevated(
         "launchctl enable system/com.apple.smbd; "
         "launchctl kickstart -k system/com.apple.smbd; "
-        "sharing -a '" + path + "' -n '" + NOM_PARTAGE_IMAGERIE + "' -s 001 -g 001; "
+        "sharing -r '" + NOM_PARTAGE_IMAGERIE + "' 2>/dev/null; "
+        "sharing -a '" + path + "/Rufus/Imagerie' -n '" + NOM_PARTAGE_IMAGERIE + "' -s 001 -g 001; "
         "launchctl kickstart -k system/com.apple.smbd; " + droits);
 
     return partageImageriePresent();
