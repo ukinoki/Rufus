@@ -70,7 +70,8 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
     wdg_faxlineedit         = new UpLineEdit(this);
     wdg_maillineedit        = new UpLineEdit(this);
     wdg_smtpserveurlineedit = new UpLineEdit(this);
-    wdg_smtpportlineedit    = new UpLineEdit(this);
+    wdg_smtpportcombo       = new QComboBox(this);
+    wdg_smtpportcombo       ->addItems(QStringList() << "465" << "587");
     wdg_smtploginlineedit   = new UpLineEdit(this);
 
     wdg_nomlineedit         ->setFixedWidth(240);
@@ -83,7 +84,7 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
     wdg_faxlineedit         ->setFixedWidth(120);
     wdg_maillineedit        ->setFixedWidth(240);
     wdg_smtpserveurlineedit ->setFixedWidth(240);
-    wdg_smtpportlineedit    ->setFixedWidth(90);
+    wdg_smtpportcombo       ->setFixedWidth(90);
     wdg_smtploginlineedit   ->setFixedWidth(240);
 
     wdg_nomlineedit         ->setMaxLength(80);
@@ -96,7 +97,6 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
     wdg_faxlineedit         ->setMaxLength(17);
     wdg_maillineedit        ->setMaxLength(100);
     wdg_smtpserveurlineedit ->setMaxLength(100);
-    wdg_smtpportlineedit    ->setMaxLength(5);
     wdg_smtploginlineedit   ->setMaxLength(100);
 
     wdg_nomlineedit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_ville));
@@ -109,13 +109,12 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
     wdg_faxlineedit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone));
     wdg_maillineedit        ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail));
     wdg_smtpserveurlineedit ->setValidator(new QRegularExpressionValidator(Utils::rgx_adresseserveur));
-    wdg_smtpportlineedit    ->setValidator(new QIntValidator(1, 65535));
 
     wdg_maillineedit        ->setImmediateToolTip(tr("L'adresse d'où partiront les documents envoyés par mail."));
     wdg_smtpserveurlineedit ->setImmediateToolTip(tr("Le serveur d'envoi de votre fournisseur de mail, en général smtp. suivi de son nom:")
                                            + "<br>smtp.sfr.fr, smtp.orange.fr, smtp.free.fr, ssl0.ovh.net, smtp.gmail.com<br>"
                                            + tr("Il figure dans les réglages de votre webmail, à la rubrique POP/IMAP."));
-    wdg_smtpportlineedit    ->setImmediateToolTip(tr("465 si la liaison est chiffrée dès la connexion, 587 sinon.")
+    wdg_smtpportcombo       ->setToolTip(tr("465 si la liaison est chiffrée dès la connexion, 587 sinon.")
                                            + "<br>" + tr("En cas de doute, essayez 465."));
     wdg_smtploginlineedit   ->setImmediateToolTip(tr("Ce que vous tapez pour vous connecter à votre messagerie, en général l'adresse mail complète.")
                                            + "<br>" + tr("Chez Gmail et Outlook, le mot de passe habituel est refusé: il faut créer un mot de passe d'application dans les réglages du compte."));
@@ -148,7 +147,7 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
     layledit                ->addWidget(wdg_faxlineedit);
     layledit                ->addWidget(wdg_maillineedit);
     layledit                ->addWidget(wdg_smtpserveurlineedit);
-    layledit                ->addWidget(wdg_smtpportlineedit);
+    layledit                ->addWidget(wdg_smtpportcombo);
     layledit                ->addWidget(wdg_smtploginlineedit);
     layledit                ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
 
@@ -176,12 +175,10 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
         wdg_faxlineedit         ->setText(m_site->fax());
         wdg_maillineedit        ->setText(m_site->mail());
         wdg_smtpserveurlineedit ->setText(m_site->smtpserveur());
-        wdg_smtpportlineedit    ->setText(QString::number(m_site->smtpport() == 0? 587 : m_site->smtpport()));
+        wdg_smtpportcombo       ->setCurrentText(QString::number(m_site->smtpport() == 0? 587 : m_site->smtpport()));
         wdg_smtploginlineedit   ->setText(m_site->smtplogin());
         str_nouvcolor           = m_site->couleur();
     }
-    else
-        wdg_smtpportlineedit    ->setText("587");   /*!< 465 = connexion chiffrée d'emblée, sinon chiffrement après connexion */
 
     if (m_mode == Complement)   /*! on ne vient que compléter les coordonnées d'envoi */
     {
@@ -194,15 +191,32 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
         wdg_tellineedit         ->setEnabled(false);
         wdg_faxlineedit         ->setEnabled(false);
         wdg_couleurpushbutt     ->setEnabled(false);
+        OKButton                ->setEnabled(false);
         wdg_maillineedit        ->setFocus();
     }
     else
         connect(wdg_couleurpushbutt,    &QPushButton::clicked,  this,   &dlg_identificationsite::ModifCouleur);
 
     foreach (UpLineEdit *led, findChildren<UpLineEdit*>())
-        connect(led,            &QLineEdit::textEdited,         this,   [=, this] { OKButton->setEnabled(true); });
+        connect(led,            &QLineEdit::textEdited,         this,   [=, this] { OKButton->setEnabled(NomValide()); });
+    connect(wdg_smtpportcombo,  &QComboBox::currentTextChanged, this,   [=, this] { OKButton->setEnabled(NomValide()); });
     OKButton                ->setEnabled(false);
     connect(OKButton,           &QPushButton::clicked,          this,   &dlg_identificationsite::Valide);
+}
+
+/*!
+ * \brief dlg_identificationsite::NomValide
+ * Vrai si le nom est renseigné et qu'aucun autre lieu ne le porte déjà.
+ */
+bool dlg_identificationsite::NomValide()
+{
+    const QString nom = Utils::trim(wdg_nomlineedit->text());
+    if (nom == "" || nom == tr("non défini"))
+        return false;
+    foreach (Site *sit, *Datas::I()->sites->sites())
+        if (sit->nom().toUpper() == nom.toUpper() && (m_site == nullptr || sit->id() != m_site->id()))
+            return false;
+    return true;
 }
 
 void dlg_identificationsite::ModifCouleur()
@@ -212,7 +226,7 @@ void dlg_identificationsite::ModifCouleur()
     if (!colorfin.isValid())
         return;
     str_nouvcolor = colorfin.name().replace("#","");
-    OKButton                ->setEnabled(true);
+    OKButton                ->setEnabled(NomValide());
 }
 
 /*!
@@ -222,10 +236,10 @@ void dlg_identificationsite::ModifCouleur()
 void dlg_identificationsite::Valide()
 {
     QString Msg = tr("Vous n'avez pas spécifié ");
-    if (wdg_nomlineedit->text() == "" || wdg_nomlineedit->text() == tr("non défini"))
+    if (!NomValide())
     {
         wdg_nomlineedit     ->setFocus();
-        UpMessageBox::Watch(this, Msg + tr("le nom de la structure de soins"));
+        UpMessageBox::Watch(this, tr("Le nom de la structure de soins est vide ou déjà utilisé"));
         return;
     }
     if (wdg_CPlineedit->text().toInt() == 0)
@@ -251,7 +265,7 @@ void dlg_identificationsite::Valide()
     m_listbinds[CP_COULEUR_SITE]        = str_nouvcolor;
     m_listbinds[CP_MAIL_SITE]           = Utils::trim(wdg_maillineedit->text());
     m_listbinds[CP_SMTPSERVEUR_SITE]    = Utils::trim(wdg_smtpserveurlineedit->text());
-    m_listbinds[CP_SMTPPORT_SITE]       = wdg_smtpportlineedit->text().toInt();
+    m_listbinds[CP_SMTPPORT_SITE]       = wdg_smtpportcombo->currentText().toInt();
     m_listbinds[CP_SMTPLOGIN_SITE]      = Utils::trim(wdg_smtploginlineedit->text());
     accept();
 }
