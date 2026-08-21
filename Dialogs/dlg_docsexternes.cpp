@@ -666,7 +666,6 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         return false;
     }
     delete Etat_textEdit;
-    int TailleEnTete        = (ALD?                                     proc->TailleEnTeteALD()         : proc->TailleEnTete());
     bool AvecDupli          = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES"
                                && docmt->typedoc() == PRESCRIPTION);
 
