@@ -120,6 +120,24 @@ dlg_identificationsite::dlg_identificationsite(Site *sit, Mode mode, QWidget *pa
     wdg_smtploginlineedit   ->setImmediateToolTip(tr("Ce que vous tapez pour vous connecter à votre messagerie, en général l'adresse mail complète.")
                                            + "<br>" + tr("Chez Gmail et Outlook, le mot de passe habituel est refusé: il faut créer un mot de passe d'application dans les réglages du compte."));
 
+    AjouteWidgetLayButtons(Utils::BoutonAide(
+        tr("Les quatre derniers champs servent à envoyer les documents par mail depuis ce lieu.") + "<br><br>"
+        + "<b>" + tr("Mail") + "</b><br>"
+        + tr("L'adresse d'où partiront les documents. C'est elle que verra le destinataire, et c'est à elle qu'il répondra.") + "<br><br>"
+        + "<b>" + tr("Serveur d'envoi") + "</b><br>"
+        + tr("Le serveur par lequel votre fournisseur de mail accepte d'expédier. Son nom commence presque toujours par smtp:") + "<br>"
+        + tr("SFR") + " smtp.sfr.fr &nbsp;&nbsp; " + tr("Orange") + " smtp.orange.fr &nbsp;&nbsp; " + tr("Free") + " smtp.free.fr<br>"
+        + tr("OVH") + " ssl0.ovh.net &nbsp;&nbsp; " + tr("Gmail") + " smtp.gmail.com &nbsp;&nbsp; " + tr("Outlook") + " smtp-mail.outlook.com<br>"
+        + tr("Vous le trouverez aussi dans les réglages de votre webmail, à la rubrique POP/IMAP.") + "<br><br>"
+        + "<b>" + tr("Port") + "</b><br>"
+        + tr("Le numéro par lequel on entre sur ce serveur. 465 quand la liaison est chiffrée dès la connexion, 587 quand elle l'est juste après.") + "<br>"
+        + tr("En cas de doute, essayez 465 puis 587.") + "<br><br>"
+        + "<b>" + tr("Login du compte mail") + "</b><br>"
+        + tr("Ce que vous tapez pour vous connecter à votre messagerie. Chez la plupart des fournisseurs, c'est l'adresse mail complète et non la partie qui précède l'arobase.") + "<br><br>"
+        + tr("Le mot de passe n'est pas ici: il n'est jamais enregistré dans la base, il reste sur l'ordinateur qui envoie et vous est demandé au premier envoi.") + "<br>"
+        + tr("Chez Gmail et Outlook, le mot de passe habituel est refusé: il faut créer un mot de passe d'application dans les réglages du compte."),
+        tr("À quoi servent ces champs ?")), false);
+
     layledit                ->addWidget(wdg_nomlineedit);
     layledit                ->addWidget(wdg_adress1lineedit);
     layledit                ->addWidget(wdg_adress2lineedit);

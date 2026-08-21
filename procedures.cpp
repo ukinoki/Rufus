@@ -1927,13 +1927,6 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
     laychk                  ->addWidget(pdfchk);
     laychk                  ->addWidget(mailchk);
     laychk                  ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    laychk                  ->addWidget(Utils::BoutonAide(
-                                tr("Trois façons de sortir ce document:")
-                                + "<br>- " + tr("l'imprimer, sur l'imprimante choisie dans la liste de droite")
-                                + "<br>- " + tr("en faire un pdf, déposé sur le bureau")
-                                + "<br>- " + tr("l'envoyer par mail, à une adresse que vous saisirez ensuite")
-                                + "<br><br>" + tr("L'envoi par mail n'est possible que si les coordonnées d'envoi du lieu d'exercice sont renseignées."),
-                                tr("Que puis-je faire dans cette fiche ?")), 0, Qt::AlignLeft);
 
     QHBoxLayout *laycom = new QHBoxLayout();
     laycom                  ->addLayout(laychk);
