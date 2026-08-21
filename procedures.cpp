@@ -3513,7 +3513,7 @@ bool Procedures::VerifVersionBase(QWidget* parent)
     int Version         = VERSION_BASE;
     m_parametres = db->parametres();
     int Versionencours = m_parametres->versionbase();
-
+    qDebug() << "Versionencours" << Versionencours << "Version" << Version;
     bool BupDone = false;
     if (Versionencours < Version)
     {
