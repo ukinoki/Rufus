@@ -232,7 +232,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         QMenu *menuMail = menu->addMenu(tr("Envoyer par mail"));
         menuMail            ->setIcon(Icons::icMessage());
 
-        QAction *pactionmail_Reimprimer = new QAction(tr("Envoyer"));
+        QAction *pactionmail_Reimprimer = new QAction(tr("Renvoyer une copie"));
         QAction *pactionmail_ModifierReimprimer = new QAction(tr("Modifier et envoyer"));
         QAction *pactionmail_ModifierReimprimerCeJour = new QAction(tr("Modifier et envoyer à la date d'aujourd'hui"));
         QAction *pactionmail_ReimprimerCeJour = new QAction(tr("Envoyer à la date d'aujourd'hui"));
