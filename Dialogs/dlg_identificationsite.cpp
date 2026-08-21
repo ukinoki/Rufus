@@ -267,6 +267,9 @@ void dlg_identificationsite::Valide()
     m_listbinds[CP_SMTPSERVEUR_SITE]    = Utils::trim(wdg_smtpserveurlineedit->text());
     m_listbinds[CP_SMTPPORT_SITE]       = wdg_smtpportcombo->currentText().toInt();
     m_listbinds[CP_SMTPLOGIN_SITE]      = Utils::trim(wdg_smtploginlineedit->text());
-    qDebug() << "TRACE Valide binds =" << m_listbinds;
+    m_onlymaillistbinds[CP_MAIL_SITE]           = Utils::trim(wdg_maillineedit->text());
+    m_onlymaillistbinds[CP_SMTPSERVEUR_SITE]    = Utils::trim(wdg_smtpserveurlineedit->text());
+    m_onlymaillistbinds[CP_SMTPPORT_SITE]       = wdg_smtpportcombo->currentText().toInt();
+    m_onlymaillistbinds[CP_SMTPLOGIN_SITE]      = Utils::trim(wdg_smtploginlineedit->text());
     accept();
 }

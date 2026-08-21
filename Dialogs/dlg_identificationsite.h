@@ -38,7 +38,7 @@ class dlg_identificationsite : public UpDialog
 public:
     enum Mode                       {Nouv, Modif, Complement}; Q_ENUM(Mode)
     explicit                        dlg_identificationsite(Site *sit = nullptr, Mode mode = Modif, QWidget *parent = nullptr);
-    QHash<QString, QVariant>        listbinds() const           { return m_listbinds; }
+    QHash<QString, QVariant>        listbinds(bool onlymail = false) const           { return onlymail? m_onlymaillistbinds : m_listbinds; }
 
 private:
     /*! les widgets */
@@ -61,6 +61,7 @@ private:
     Mode                            m_mode;
     QString                         str_nouvcolor = "";
     QHash<QString, QVariant>        m_listbinds;
+    QHash<QString, QVariant>        m_onlymaillistbinds;
 
     void                            ModifCouleur();
     void                            Valide();                   /*!< contrôle la fiche, remplit listbinds et ferme */
