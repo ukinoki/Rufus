@@ -1847,6 +1847,12 @@ bool Procedures::EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, in
 
 Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ, int idsite)
 {
+    QStringList manque = ManqueEnvoiMail(idsite);
+    if (manque.size() > 0 && typ == SendMAIL)
+        manque = CompleteCoordonneesMail(parent, idsite, manque);
+    if (typ == SendMAIL && manque.size() == 0)              /*! l'envoi est déjà choisi, la fiche n'a plus rien à demander */
+        return SendMAIL;
+
     UpDialog *dlg           = new UpDialog(parent);
     dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlg                     ->setModal(true);
@@ -1860,9 +1866,6 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
     grp                     ->addButton(printchk);
     grp                     ->addButton(pdfchk);
     grp                     ->addButton(mailchk);
-    QStringList manque = ManqueEnvoiMail(idsite);
-    if (manque.size() > 0 && typ == SendMAIL)
-        manque = CompleteCoordonneesMail(parent, idsite, manque);
     mailchk                 ->setEnabled(manque.size() == 0);
     if (manque.size() > 0)
     {
