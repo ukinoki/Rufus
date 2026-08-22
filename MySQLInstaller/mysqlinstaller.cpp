@@ -1677,10 +1677,16 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
         QFile::copy(datadir + sources.at(i), dest + cibles.at(i));
 #else
     /*! Datadir root-only (client-key.pem en 0600) : copie ÉLEVÉE puis restitution à l'utilisateur. */
-    const QString user = QString::fromLocal8Bit(qgetenv("USER"));
-    QString sh = "DATA='" + datadir + "'; DEST='" + dest + "'; USERN='" + user + "'\n";
+    QString sh = "DATA='" + datadir + "'; DEST='" + dest + "'\n";
     for (int i = 0; i < sources.size(); ++i)
         sh += "cp -f \"$DATA" + sources.at(i) + "\" \"$DEST" + cibles.at(i) + "\" 2>/dev/null\n";
+    /*! Propriétaire pris sur DEST, créé hors élévation : $USER est vide quand l'application est lancée
+     *  depuis le Finder, et les clés restaient alors à root, illisibles par le client. */
+  #if defined(Q_OS_MACOS)
+    sh += "USERN=$(stat -f %Su \"$DEST\")\n";
+  #else
+    sh += "USERN=$(stat -c %U \"$DEST\")\n";
+  #endif
     sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$DEST\"/*.pem 2>/dev/null\n"
           "chmod 600 \"$DEST/client-key.pem\" 2>/dev/null\n";
     runCmdElevated(sh);
