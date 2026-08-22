@@ -1636,10 +1636,11 @@ void dlg_param::ResetImprimante()
     msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
     msgbox.exec();
     if (msgbox.clickedButton() != &OKBouton) return;
-    ui->EntetespinBox->setValue(45);
-    ui->EnteteALDspinBox->setValue(63);
-    ui->PiedDePagespinBox->setValue(20);
-    ui->TopMargespinBox->setValue(3);
+    proc                    ->RestaureParametresImprimante();
+    ui->EntetespinBox       ->setValue(proc->settings()->value(Imprimante_TailleEnTete).toInt());
+    ui->EnteteALDspinBox    ->setValue(proc->settings()->value(Imprimante_TailleEnTeteALD).toInt());
+    ui->PiedDePagespinBox   ->setValue(proc->settings()->value(Imprimante_TaillePieddePage).toInt());
+    ui->TopMargespinBox     ->setValue(proc->settings()->value(Imprimante_TailleTopMarge).toInt());
     EnableOKModifPosteButton();
 }
 

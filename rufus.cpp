@@ -355,6 +355,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 z,8000);
     }
 
+    //! 20 - Marges d'impression absentes ou nulles dans rufus.ini
+    proc->VerifieParametresImprimante(this);
 }
 
 Rufus::~Rufus()
