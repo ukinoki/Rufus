@@ -4361,9 +4361,41 @@ bool MySQLInstaller::partageImageriePresent()
 #endif
 }
 
+/*!
+ * \brief MySQLInstaller::partageImagerieNomPresent
+ * Distingue la correction d'un partage mal placé de sa création : seule la première concerne les postes.
+ */
+bool MySQLInstaller::partageImagerieNomPresent()
+{
+#if defined(Q_OS_WIN)
+    return runCmd("powershell -NoProfile -Command \"if (Get-SmbShare -Name '"
+                  + NOM_PARTAGE_IMAGERIE + "' -ErrorAction SilentlyContinue) { 'present' }\"")
+           .contains("present");
+#elif defined(Q_OS_LINUX)
+    QFile smb("/etc/samba/smb.conf");
+    if (!smb.open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
+    return QString::fromUtf8(smb.readAll()).contains("[" + NOM_PARTAGE_IMAGERIE + "]");
+#else
+    return runCmd("sharing -l 2>/dev/null").contains(NOM_PARTAGE_IMAGERIE);
+#endif
+}
+
 bool MySQLInstaller::setupSharedFolder()
 {
     const QString path = sharedFolderPath();
+    //! Le partage change de dossier : les postes du réseau visent encore l'ancien.
+    const bool aCorriger = !partageImageriePresent() && partageImagerieNomPresent();
+    auto fin = [&](bool ok) {
+        if (ok && aCorriger)
+            UpMessageBox::Watch(m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent,
+                tr("Dossier d'imagerie déplacé"),
+                tr("Le dossier d'imagerie partagé par ce serveur a été déplacé.") + "\n\n" +
+                tr("Si d'autres postes du cabinet se connectent à ce serveur par le réseau local, "
+                   "vous devez sur chacun d'eux indiquer de nouveau l'emplacement du dossier "
+                   "d'imagerie, dans Édition / Paramètres."));
+        return ok;
+    };
     if (!QDir(path).exists())
         QDir().mkpath(path);
 
@@ -4373,7 +4405,7 @@ bool MySQLInstaller::setupSharedFolder()
     QDir().mkpath(path + "/Rufus/Imagerie");
     if (!partageImageriePresent())
         runCmdElevated(windowsPartageImagerieScript(path));
-    return partageImageriePresent();          /*!< et non l'existence du dossier : le partage seul compte */
+    return fin(partageImageriePresent());     /*!< et non l'existence du dossier : le partage seul compte */
 #elif defined(Q_OS_LINUX)
     /*! Déjà configuré ? Vérifications NON privilégiées (aucune invite pkexec). */
     auto alreadyConfigured = [&]() -> bool {
@@ -4397,13 +4429,13 @@ bool MySQLInstaller::setupSharedFolder()
         return true;
     };
     if (alreadyConfigured())
-        return true;
+        return fin(true);
 
     /*! Sinon, tout le paramétrage privilégié en une seule élévation (pkexec). */
     const QString user = runCmd("id -un 2>/dev/null").trimmed();
     runCmdElevated("IFS= read -r PW\n" + linuxFolderSambaScript(path, user),
                    m_password + "\n");
-    return QDir(path).exists();
+    return fin(QDir(path).exists());
 #else
     /*! Reprise d'une version antérieure, qui a pu laisser l'arborescence en 777. L'ACL est héritée par
         ce qu'un poste dépose : sans elle, le fichier créé via le partage naît illisible pour mysql. */
@@ -4418,9 +4450,9 @@ bool MySQLInstaller::setupSharedFolder()
     if (partageImageriePresent())
     {
         if (droitsDossierPartageConformes())
-            return true;
+            return fin(true);
         runCmdElevated(droits);                   /*!< poste installé avant : le partage est là, seuls les droits sont à reprendre */
-        return true;
+        return fin(true);
     }
 
     /*! Activer SMB et déclarer le partage — opérations privilégiées (une invite macOS). */
@@ -4431,7 +4463,7 @@ bool MySQLInstaller::setupSharedFolder()
         "sharing -a '" + path + "/Rufus/Imagerie' -n '" + NOM_PARTAGE_IMAGERIE + "' -s 001 -g 001; "
         "launchctl kickstart -k system/com.apple.smbd; " + droits);
 
-    return partageImageriePresent();
+    return fin(partageImageriePresent());
 #endif
 }
 

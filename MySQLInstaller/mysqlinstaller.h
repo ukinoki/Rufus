@@ -323,6 +323,7 @@ public:
     QString mysqlBin(const QString& binary);    /*!< chemin d'un binaire MySQL (mysql, mysqldump…), le nom nu s'il n'est qu'au PATH */
 private:
     bool partageImageriePresent();      /*!< dossier d'imagerie visible des postes du réseau */
+    bool partageImagerieNomPresent();   /*!< un partage de ce nom existe, quel que soit son dossier */
 #if defined(Q_OS_WIN)
     QString windowsPartageImagerieScript(const QString& path) const;   /*!< fragment PowerShell créant le partage du dossier d'imagerie */
 #endif
