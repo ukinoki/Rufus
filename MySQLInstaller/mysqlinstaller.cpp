@@ -1687,8 +1687,10 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
   #else
     sh += "USERN=$(stat -c %U \"$DEST\")\n";
   #endif
-    sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$DEST\"/*.pem 2>/dev/null\n"
-          "chmod 600 \"$DEST/client-key.pem\" 2>/dev/null\n";
+    /*! Fichiers nommés un à un : le motif *.pem n'est pas développé dans le shell élevé. */
+    for (const QString &f : cibles)
+        sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$DEST" + f + "\" 2>/dev/null\n";
+    sh += "chmod 600 \"$DEST/client-key.pem\" 2>/dev/null\n";
     runCmdElevated(sh);
 #endif
 
