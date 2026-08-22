@@ -1503,6 +1503,9 @@ du dossier de stockage des videos</string>
              </property>
             </widget>
             <widget class="UpLineEdit" name="DossierClesSSLupLineEdit">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="geometry">
               <rect>
                <x>10</x>

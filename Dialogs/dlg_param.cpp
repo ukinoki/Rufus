@@ -2248,8 +2248,45 @@ void dlg_param::DossierClesSSL()
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
         return;
-    ui->DossierClesSSLupLineEdit->setText(url.path());
-    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, url.path());
+
+    const QString choisi = url.path();
+    for (const QString &f : {QString("/ca-cert.pem"), QString("/client-cert.pem"), QString("/client-key.pem")})
+        if (!QFile::exists(choisi + f))
+        {
+            UpMessageBox::Watch(this, tr("Clés SSL introuvables"),
+                                tr("Le dossier indiqué ne contient pas les trois clés SSL du cabinet :") + "\n"
+                                + "ca-cert.pem, client-cert.pem, client-key.pem");
+            return;
+        }
+
+    /*! Clé privée illisible : copiée par un compte administrateur, elle ne lui appartient plus. */
+    QFile cle(choisi + "/client-key.pem");
+    if (!cle.open(QIODevice::ReadOnly))
+    {
+        UpMessageBox msgbox(this);
+        msgbox.setText(tr("Clés SSL non lisibles"));
+        msgbox.setInformativeText(tr("Les clés de ce dossier ne sont pas lisibles par votre compte.") + "\n"
+                                  + tr("Voulez-vous corriger leurs droits?"));
+        msgbox.setIcon(UpMessageBox::Warning);
+        UpSmallButton OKBouton(tr("Corriger"));
+        UpSmallButton NoBouton(tr("Annuler"));
+        msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() != &OKBouton)
+            return;
+        if (!MySQLInstaller().corrigerDroitsClesSSL(choisi))
+        {
+            UpMessageBox::Watch(this, tr("Correction impossible"),
+                                tr("Les droits des clés n'ont pas pu être corrigés."));
+            return;
+        }
+    }
+    else
+        cle.close();
+
+    ui->DossierClesSSLupLineEdit->setText(choisi);
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, choisi);
 }
 
 /*! (SERVEUR) Copie vers une clé USB les SEULES clés CLIENT SSL conservées par ce poste

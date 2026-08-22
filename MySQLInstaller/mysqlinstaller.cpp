@@ -1701,6 +1701,37 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
 }
 
 /*!
+ * \brief MySQLInstaller::corrigerDroitsClesSSL
+ * Rend les trois clés d'un dossier à l'utilisateur courant : copiées par un compte administrateur, elles
+ * lui appartiennent parfois, et client-key.pem en 600 est alors illisible par le client MySQL.
+ * \param dossier  dossier contenant ca-cert.pem, client-cert.pem et client-key.pem
+ */
+bool MySQLInstaller::corrigerDroitsClesSSL(const QString& dossier)
+{
+    const QStringList cles = { "/ca-cert.pem", "/client-cert.pem", "/client-key.pem" };
+#if defined(Q_OS_WIN)
+    Q_UNUSED(cles)
+    Q_UNUSED(dossier)
+#else
+    QString sh = "DEST='" + dossier + "'\n";
+  #if defined(Q_OS_MACOS)
+    sh += "USERN=$(stat -f %Su \"$DEST\")\n";
+  #else
+    sh += "USERN=$(stat -c %U \"$DEST\")\n";
+  #endif
+    for (const QString &f : cles)
+        sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$DEST" + f + "\" 2>/dev/null\n";
+    sh += "chmod 600 \"$DEST/client-key.pem\" 2>/dev/null\n";
+    runCmdElevated(sh);
+#endif
+    QFile cle(dossier + "/client-key.pem");
+    if (!cle.open(QIODevice::ReadOnly))
+        return false;
+    cle.close();
+    return true;
+}
+
+/*!
  * \brief MySQLInstaller::regenererClesSSL
  * DESTRUCTIF : supprime les certificats du datadir et laisse MySQL les recréer au redémarrage. Invalide
  * toutes les clés déjà distribuées, et coupe la connexion : l'appelant doit prévenir et relancer Rufus.
