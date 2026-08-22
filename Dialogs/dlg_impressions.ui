@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>1340</width>
-    <height>374</height>
+    <height>420</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1340</width>
-    <height>374</height>
+    <height>420</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>1340</width>
-    <height>374</height>
+    <height>426</height>
    </size>
   </property>
   <property name="mouseTracking">
@@ -208,8 +208,8 @@
   <widget class="QDateEdit" name="dateImpressiondateEdit">
    <property name="geometry">
     <rect>
-     <x>880</x>
-     <y>318</y>
+     <x>1060</x>
+     <y>330</y>
      <width>120</width>
      <height>24</height>
     </rect>
@@ -221,8 +221,8 @@
   <widget class="UpCheckBox" name="SignerupCheckBox">
    <property name="geometry">
     <rect>
-     <x>880</x>
-     <y>345</y>
+     <x>840</x>
+     <y>330</y>
      <width>81</width>
      <height>20</height>
     </rect>
@@ -234,8 +234,8 @@
   <widget class="QCheckBox" name="ALDcheckBox">
    <property name="geometry">
     <rect>
-     <x>750</x>
-     <y>320</y>
+     <x>760</x>
+     <y>330</y>
      <width>51</width>
      <height>20</height>
     </rect>
@@ -251,7 +251,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>330</y>
+     <y>325</y>
      <width>511</width>
      <height>41</height>
     </rect>
@@ -279,7 +279,7 @@
    <property name="geometry">
     <rect>
      <x>1050</x>
-     <y>320</y>
+     <y>360</y>
      <width>145</width>
      <height>55</height>
     </rect>
@@ -305,7 +305,7 @@
    <property name="geometry">
     <rect>
      <x>1192</x>
-     <y>320</y>
+     <y>360</y>
      <width>145</width>
      <height>55</height>
     </rect>
@@ -331,8 +331,8 @@ la sélection</string>
   <widget class="QCheckBox" name="DupliOrdocheckBox">
    <property name="geometry">
     <rect>
-     <x>750</x>
-     <y>345</y>
+     <x>930</x>
+     <y>330</y>
      <width>111</width>
      <height>20</height>
     </rect>
@@ -410,19 +410,63 @@ la sélection</string>
   <widget class="UpCheckBox" name="DocsPublicscheckBox">
    <property name="geometry">
     <rect>
-     <x>560</x>
-     <y>320</y>
-     <width>181</width>
-     <height>41</height>
+     <x>20</x>
+     <y>380</y>
+     <width>301</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>Afficher les dossiers
-et documents publics</string>
+    <string>Afficher les dossiers et documents publics</string>
    </property>
    <property name="checked">
     <bool>false</bool>
    </property>
+  </widget>
+  <widget class="UpGroupBox" name="PdfMailupGroupBox">
+   <property name="geometry">
+    <rect>
+     <x>1190</x>
+     <y>325</y>
+     <width>141</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QCheckBox" name="MailcheckBox">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>5</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
+    </property>
+    <property name="text">
+     <string>Mail</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="PDFcheckBox">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>5</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
+    </property>
+    <property name="text">
+     <string>PDF</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>
@@ -445,6 +489,12 @@ et documents publics</string>
    <class>UpTableView</class>
    <extends>QTableView</extends>
    <header>uptableview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>upgroupbox.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

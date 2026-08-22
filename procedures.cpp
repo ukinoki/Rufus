@@ -1700,20 +1700,24 @@ QStringList Procedures::ManqueEnvoiMail(int idlieu)
  * \param idsite  le lieu concerné, -1 = le lieu en cours
  * \param manque  ce qui manque avant la proposition
  */
-QStringList Procedures::CompleteCoordonneesMail(QWidget *parent, int idsite, QStringList manque)
+bool Procedures::CompleteCoordonneesMail(QWidget *parent, int idsite, QStringList &manque)
 {
     if (UpMessageBox::Question(parent, tr("Envoi par mail impossible, il manque:") + "<br>- " + manque.join("<br>- "),
                                tr("Voulez-vous compléter les coordonnées d'envoi de ce lieu?")) != UpSmallButton::STARTBUTTON)
-        return manque;
+        return false;
     Site *sit = Datas::I()->sites->getById(idsite < 0? Datas::I()->sites->idcurrentsite() : idsite);
     if (sit == nullptr)
-        return manque;
+    {
+        UpMessageBox::Watch(parent, tr("Envoi par mail impossible"),
+                                       tr("Le site n'est pas retrouvé."));
+        return false;
+    }
     dlg_identificationsite dlg(sit, dlg_identificationsite::Complement, parent);
-    if (dlg.exec() != QDialog::Accepted)
-        return manque;
+    if (dlg.exec() != QDialog::Accepted || ManqueEnvoiMail(idsite).size() >0)
+        return false;
     db         ->UpdateTable(TBL_LIEUXEXERCICE, dlg.listbinds(true), " where " CP_ID_SITE " = " + QString::number(sit->id()), tr("Impossible de modifier le site"));
     Datas::I()->sites       ->getById(sit->id(), true);
-    return ManqueEnvoiMail(idsite);
+    return true;
 }
 
 /*!
@@ -1846,11 +1850,16 @@ bool Procedures::EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, in
 
 Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEnvoi typ, int idsite)
 {
-    QStringList manque = ManqueEnvoiMail(idsite);
-    if (manque.size() > 0 && typ == SendMAIL)
-        manque = CompleteCoordonneesMail(parent, idsite, manque);
-    if (typ == SendMAIL && manque.size() == 0)              /*! l'envoi est déjà choisi, la fiche n'a plus rien à demander */
+    if (typ == SendMAIL)
+    {
+        while (ManqueEnvoiMail(idsite).size() > 0)
+        {
+            QStringList manque = ManqueEnvoiMail(idsite);
+            if (!CompleteCoordonneesMail(parent, idsite, manque))
+                return noEMISSION;
+        }
         return SendMAIL;
+    }
 
     UpDialog *dlg           = new UpDialog(parent);
     dlg                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -1865,6 +1874,7 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
     grp                     ->addButton(printchk);
     grp                     ->addButton(pdfchk);
     grp                     ->addButton(mailchk);
+    QStringList manque = ManqueEnvoiMail(idsite);
     if (manque.size() > 0)
         mailchk             ->setImmediateToolTip(tr("Envoi par mail impossible, il manque:") + "<br>- " + manque.join("<br>- "), true);
 
@@ -1923,11 +1933,12 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
     connect (dlg->OKButton,     &QPushButton::clicked,  dlg,    [=, this] {
         if (mailchk->isChecked())
         {
-            QStringList manqueenvoi = ManqueEnvoiMail(idsite);
-            if (manqueenvoi.size() > 0)
-                manqueenvoi = CompleteCoordonneesMail(dlg, idsite, manqueenvoi);
-            if (manqueenvoi.size() > 0)                     /*! coordonnées toujours incomplètes, la fiche ne se ferme pas */
-                return;
+            while (ManqueEnvoiMail(idsite).size() > 0)
+            {
+                QStringList manque = ManqueEnvoiMail(idsite);
+                if (!CompleteCoordonneesMail(parent, idsite, manque))
+                    return;
+            }
         }
         dlg                 ->accept();
     });

@@ -1685,6 +1685,16 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             delete Dlg_Imprs;
             return;
         }
+        if (typenvoi == Procedures::SendMAIL)
+        {
+            int idsite = Datas::I()->sites->idcurrentsite();
+            while (proc->ManqueEnvoiMail(idsite).size() > 0)
+            {
+                QStringList manque = proc->ManqueEnvoiMail(idsite);
+                if (!proc->CompleteCoordonneesMail(this, idsite, manque))
+                    return;
+            }
+        }
         QList<Procedures::DocAEnvoyer> docsamailer;   /*!< en mode mail, tous les documents partent dans un seul envoi */
         foreach (mapdoc, Dlg_Imprs->mapdocsaimprimer())
         {
@@ -1709,7 +1719,11 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
                     docsamailer << doc;
             }
             else
+            {
+                if (typenvoi == Procedures::createPDF)
+                    proc->setDirnamepdf(tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy"));
                 m_docimprime = proc->Imprimer_DocExterne(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, typenvoi, Administratif, signature);
+            }
             if (!m_docimprime)
                 break;
         }

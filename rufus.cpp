@@ -44,7 +44,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("18-09-2026/1");
+    qApp->setApplicationVersion("22-09-2026/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -8908,8 +8908,16 @@ void    Rufus::ImprimeDocument(Patient *pat)
             delete Dlg_Imprs;
             return;
         }
-        if (typenvoi == Procedures::createPDF)
-            proc->setDirnamepdf(tr("Documents") + " - " + userEntete->prenom() + " " + userEntete->nom() + " - " + QLocale::system().toString(QDate::currentDate(),"dd MMM yyyy"));
+        if (typenvoi == Procedures::SendMAIL)
+      {
+            int idsite = Datas::I()->sites->idcurrentsite();
+            while (proc->ManqueEnvoiMail(idsite).size() > 0)
+            {
+                QStringList manque = proc->ManqueEnvoiMail(idsite);
+                if (!proc->CompleteCoordonneesMail(this, idsite, manque))
+                    return;
+            }
+        }
         QList<Procedures::DocAEnvoyer> docsamailer;   /*!< en mode mail, tous les documents partent dans un seul envoi */
         foreach (mapdoc, listdocs)
         {
@@ -8930,9 +8938,13 @@ void    Rufus::ImprimeDocument(Patient *pat)
                     docsamailer << doc;
             }
             else
+            {
+                if (typenvoi == Procedures::createPDF)
+                    proc->setDirnamepdf(tr("Documents") + " - " + userEntete->prenom() + " " + userEntete->nom() + " - " + QLocale::system().toString(QDate::currentDate(),"dd MMM yyyy"));
                 success                 = proc->Imprimer_DocExterne(this, pat, userEntete, Titre,
                                                                   TxtDocument, DateDoc, Prescription, ALD,
                                                                   AvecDupli, typenvoi, Administratif, signature);
+            }
             if (!success)
                 break;
         }

@@ -129,8 +129,8 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->SignerupCheckBox->setChecked(asignature && currentuser()->autosign());
     if (!asignature)
         ui->SignerupCheckBox->setImmediateToolTip(tr("Vous n'avez pas de signature enregistrée.") + "\n"
-                                                  + tr("Pour en enregistrer une :") + "\n"
-                                                  + tr("menu Édition / Paramètres / Modifier mes données")
+                                                  + tr("Pour en enregistrer votre signature :") + "\n"
+                                                  + tr("menu Édition / Paramètres / Utilisateur/ Modifier mes données") + "\n"
                                                   + tr("après avoir déverrouillé avec votre mot de passe")
                                                   , true);
 
@@ -1722,7 +1722,11 @@ void dlg_impressions::OKpushButtonClicked()
         }
         if (map_docsaimprimer.size() > 0)
         {
-            m_typeenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite());
+            m_typeenvoi = Procedures::printDOC;
+            if(ui->PDFcheckBox->isChecked())
+                m_typeenvoi = Procedures::createPDF;
+            else if(ui->MailcheckBox->isChecked())
+                m_typeenvoi = Procedures::SendMAIL;
             if (m_typeenvoi == Procedures::noEMISSION)
                 return;
             accept();
