@@ -2250,7 +2250,8 @@ void dlg_param::DossierClesSSL()
         return;
 
     const QString choisi = url.path();
-    for (const QString &f : {QString("/ca-cert.pem"), QString("/client-cert.pem"), QString("/client-key.pem")})
+    const QStringList cles = { "/ca-cert.pem", "/client-cert.pem", "/client-key.pem" };
+    for (const QString &f : cles)
         if (!QFile::exists(choisi + f))
         {
             UpMessageBox::Watch(this, tr("Clés SSL introuvables"),
@@ -2259,9 +2260,17 @@ void dlg_param::DossierClesSSL()
             return;
         }
 
-    /*! Clé privée illisible : copiée par un compte administrateur, elle ne lui appartient plus. */
-    QFile cle(choisi + "/client-key.pem");
-    if (!cle.open(QIODevice::ReadOnly))
+    /*! Clés illisibles : copiées par un compte administrateur, elles ne lui appartiennent plus. */
+    bool lisibles = true;
+    for (const QString &f : cles)
+    {
+        QFile cle(choisi + f);
+        if (cle.open(QIODevice::ReadOnly))
+            cle.close();
+        else
+            lisibles = false;
+    }
+    if (!lisibles)
     {
         UpMessageBox msgbox(this);
         msgbox.setText(tr("Clés SSL non lisibles"));
@@ -2282,8 +2291,6 @@ void dlg_param::DossierClesSSL()
             return;
         }
     }
-    else
-        cle.close();
 
     ui->DossierClesSSLupLineEdit->setText(choisi);
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, choisi);

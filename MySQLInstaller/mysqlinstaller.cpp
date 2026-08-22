@@ -1709,10 +1709,7 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
 bool MySQLInstaller::corrigerDroitsClesSSL(const QString& dossier)
 {
     const QStringList cles = { "/ca-cert.pem", "/client-cert.pem", "/client-key.pem" };
-#if defined(Q_OS_WIN)
-    Q_UNUSED(cles)
-    Q_UNUSED(dossier)
-#else
+#if !defined(Q_OS_WIN)
     QString sh = "DEST='" + dossier + "'\n";
   #if defined(Q_OS_MACOS)
     sh += "USERN=$(stat -f %Su \"$DEST\")\n";
@@ -1724,10 +1721,13 @@ bool MySQLInstaller::corrigerDroitsClesSSL(const QString& dossier)
     sh += "chmod 600 \"$DEST/client-key.pem\" 2>/dev/null\n";
     runCmdElevated(sh);
 #endif
-    QFile cle(dossier + "/client-key.pem");
-    if (!cle.open(QIODevice::ReadOnly))
-        return false;
-    cle.close();
+    for (const QString &f : cles)
+    {
+        QFile cle(dossier + f);
+        if (!cle.open(QIODevice::ReadOnly))
+            return false;
+        cle.close();
+    }
     return true;
 }
 
