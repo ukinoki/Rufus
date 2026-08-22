@@ -5575,43 +5575,6 @@ bool Procedures::InstallationRufus(QWidget *parent)
  * et s'il n'y en a pas en crée avec un paramétrage minimal
  * monoposte et port 3306
  */
-void Procedures::RestaureParametresImprimante()
-{
-    m_settings->setValue(Imprimante_TailleEnTete,       45);
-    m_settings->setValue(Imprimante_TailleEnTeteALD,    63);
-    m_settings->setValue(Imprimante_TaillePieddePage,   20);
-    m_settings->setValue(Imprimante_TailleTopMarge,     3);
-}
-
-/*!
- * \brief Procedures::VerifieParametresImprimante
- * Propose de restaurer les valeurs par défaut quand une des quatre tailles manque ou vaut zéro.
- * \param parent  fiche parente de la question
- */
-void Procedures::VerifieParametresImprimante(QWidget *parent)
-{
-    bool valides = true;
-    for (const QString &cle : {QString(Imprimante_TailleEnTete),    QString(Imprimante_TailleEnTeteALD),
-                               QString(Imprimante_TaillePieddePage), QString(Imprimante_TailleTopMarge)})
-        if (!m_settings->contains(cle) || m_settings->value(cle).toInt() == 0)
-            valides = false;
-    if (valides)
-        return;
-
-    UpMessageBox msgbox(parent);
-    msgbox.setText(tr("Paramètres d'impression incorrects"));
-    msgbox.setInformativeText(tr("Les marges d'impression de ce poste sont incomplètes ou nulles.") + "\n"
-                              + tr("Restaurer les valeurs par défaut?"));
-    msgbox.setIcon(UpMessageBox::Warning);
-    UpSmallButton OKBouton(tr("Restaurer"));
-    UpSmallButton NoBouton(tr("Annuler"));
-    msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
-    msgbox.exec();
-    if (msgbox.clickedButton() == &OKBouton)
-        RestaureParametresImprimante();
-}
-
 void Procedures::ReconstruitIniMinimal()
 {
     if (m_settings != nullptr)

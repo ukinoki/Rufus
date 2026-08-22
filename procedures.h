@@ -175,8 +175,6 @@ private:
     bool                    InitialisationBaseEtDossiers(bool NouvelleBaseVierge = false, bool Restauration = false, QWidget *parent = nullptr);   //! installe le socle du poste : serveur MySQL, base vierge ou restaurée, dossiers et paramètres
     void                    PremierParametrageMateriel();
     bool                    InstallationRufus(QWidget *parent = nullptr);             //! crée la base du poste : restauration d'une sauvegarde, sinon base vierge
-    void                    RestaureParametresImprimante();                             //! remet les 4 tailles de marges à leurs valeurs par défaut
-    void                    VerifieParametresImprimante(QWidget *parent = nullptr);      //! propose la restauration si les tailles sont absentes ou nulles
     void                    ReconstruitIniMinimal();                                  //! vérifie que le Rufus.ini récupéré est exploitable et sinon, le corrige avec un paramétrage minimal et s'il n'y en a pas en crée avec un paramétrage minimal (monoposte et pport3306)
 public:
     enum protoc {BaseExistante, BaseVierge, NoBase};

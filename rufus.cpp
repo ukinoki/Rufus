@@ -356,7 +356,31 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
 
     //! 20 - Marges d'impression absentes ou nulles dans rufus.ini
-    proc->VerifieParametresImprimante(this);
+    bool margesok = true;
+    for (const QString &cle : {QString(Imprimante_TailleEnTete),     QString(Imprimante_TailleEnTeteALD),
+                               QString(Imprimante_TaillePieddePage), QString(Imprimante_TailleTopMarge)})
+        if (!proc->settings()->contains(cle) || proc->settings()->value(cle).toInt() == 0)
+            margesok = false;
+    if (!margesok)
+    {
+        UpMessageBox msgbox(this);
+        msgbox.setText(tr("Paramètres d'impression incorrects"));
+        msgbox.setInformativeText(tr("Les marges d'impression de ce poste sont incomplètes ou nulles.") + "\n"
+                                  + tr("Restaurer les valeurs par défaut?"));
+        msgbox.setIcon(UpMessageBox::Warning);
+        UpSmallButton OKBouton(tr("Restaurer"));
+        UpSmallButton NoBouton(tr("Annuler"));
+        msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() == &OKBouton)
+        {
+            proc->settings()->setValue(Imprimante_TailleEnTete,      45);
+            proc->settings()->setValue(Imprimante_TailleEnTeteALD,   63);
+            proc->settings()->setValue(Imprimante_TaillePieddePage,  20);
+            proc->settings()->setValue(Imprimante_TailleTopMarge,    3);
+        }
+    }
 }
 
 Rufus::~Rufus()
