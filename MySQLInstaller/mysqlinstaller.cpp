@@ -1677,7 +1677,8 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
         QFile::copy(datadir + sources.at(i), dest + cibles.at(i));
 #else
     /*! Datadir root-only (client-key.pem en 0600) : copie ÉLEVÉE puis restitution à l'utilisateur. */
-    QString sh = "DATA='" + datadir + "'; DEST='" + dest + "'\n";
+    QString sh = "exec >/tmp/rufus_export.log 2>&1\nset -x\n";
+    sh += "DATA='" + datadir + "'; DEST='" + dest + "'\n";
     for (int i = 0; i < sources.size(); ++i)
         sh += "cp -f \"$DATA" + sources.at(i) + "\" \"$DEST" + cibles.at(i) + "\" 2>/dev/null\n";
     /*! Propriétaire pris sur DEST, créé hors élévation : $USER est vide quand l'application est lancée
