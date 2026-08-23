@@ -1685,9 +1685,12 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
     QDir(tmp).removeRecursively();
     QDir().mkpath(tmp);
 
-    QString sh = "DATA='" + datadir + "'; TMP='" + tmp + "'\n";
+    QString sh = "exec >/tmp/rufus_export.log 2>&1\nset -x\n";
+    sh += "DATA='" + datadir + "'; TMP='" + tmp + "'\n";
+    sh += "ls -ld \"$DATA\" \"$TMP\"\n";
     for (int i = 0; i < sources.size(); ++i)
-        sh += "cp -f \"$DATA" + sources.at(i) + "\" \"$TMP" + cibles.at(i) + "\" 2>/dev/null\n";
+        sh += "cp -f \"$DATA" + sources.at(i) + "\" \"$TMP" + cibles.at(i) + "\"\n";
+    sh += "ls -l \"$TMP\"\n";
     /*! Propriétaire pris sur TMP, créé hors élévation : $USER est vide quand l'application est lancée
      *  depuis le Finder, et les clés restaient alors à root, illisibles par le client. */
   #if defined(Q_OS_MACOS)
@@ -1701,7 +1704,8 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
     runCmdElevated(sh);
 
     for (const QString &f : cibles)
-        QFile::copy(tmp + f, dest + f);
+        qDebug() << "export" << tmp + f << QFile::exists(tmp + f)
+                 << "->" << dest + f << QFile::copy(tmp + f, dest + f);
     QDir(tmp).removeRecursively();
     QFile::setPermissions(dest + "/client-key.pem", QFileDevice::ReadOwner | QFileDevice::WriteOwner);
 #endif
