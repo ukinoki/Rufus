@@ -1676,24 +1676,34 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
     for (int i = 0; i < sources.size(); ++i)
         QFile::copy(datadir + sources.at(i), dest + cibles.at(i));
 #else
-    /*! Datadir root-only (client-key.pem en 0600) : copie ÉLEVÉE puis restitution à l'utilisateur. */
-    QString sh = "exec >/tmp/rufus_export.log 2>&1\nset -x\n";
-    sh += "DATA='" + datadir + "'; DEST='" + dest + "'\n";
-    sh += "ls -ld \"$DEST\"; touch \"$DEST/.rufus_test\" && rm -f \"$DEST/.rufus_test\"\n";
+    /*! Datadir root-only (client-key.pem en 0600), d'où la copie ÉLEVÉE. Elle se fait en deux temps : le
+     *  script dépose les clés dans un dossier temporaire de l'utilisateur,
+     *  puis Rufus les porte à destination. Sur un volume externe, macOS refuse l'écriture au script élevé
+     *  (TCC, « Operation not permitted » même sous root) et n'affiche sa demande d'autorisation que pour
+     *  l'application elle-même. */
+    const QString tmp = QDir::tempPath() + "/rufus_clesssl";
+    QDir(tmp).removeRecursively();
+    QDir().mkpath(tmp);
+
+    QString sh = "DATA='" + datadir + "'; TMP='" + tmp + "'\n";
     for (int i = 0; i < sources.size(); ++i)
-        sh += "cp -f \"$DATA" + sources.at(i) + "\" \"$DEST" + cibles.at(i) + "\"\n";
-    /*! Propriétaire pris sur DEST, créé hors élévation : $USER est vide quand l'application est lancée
+        sh += "cp -f \"$DATA" + sources.at(i) + "\" \"$TMP" + cibles.at(i) + "\" 2>/dev/null\n";
+    /*! Propriétaire pris sur TMP, créé hors élévation : $USER est vide quand l'application est lancée
      *  depuis le Finder, et les clés restaient alors à root, illisibles par le client. */
   #if defined(Q_OS_MACOS)
-    sh += "USERN=$(stat -f %Su \"$DEST\")\n";
+    sh += "USERN=$(stat -f %Su \"$TMP\")\n";
   #else
-    sh += "USERN=$(stat -c %U \"$DEST\")\n";
+    sh += "USERN=$(stat -c %U \"$TMP\")\n";
   #endif
     /*! Fichiers nommés un à un : le motif *.pem n'est pas développé dans le shell élevé. */
     for (const QString &f : cibles)
-        sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$DEST" + f + "\" 2>/dev/null\n";
-    sh += "chmod 600 \"$DEST/client-key.pem\" 2>/dev/null\n";
+        sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$TMP" + f + "\" 2>/dev/null\n";
     runCmdElevated(sh);
+
+    for (const QString &f : cibles)
+        QFile::copy(tmp + f, dest + f);
+    QDir(tmp).removeRecursively();
+    QFile::setPermissions(dest + "/client-key.pem", QFileDevice::ReadOwner | QFileDevice::WriteOwner);
 #endif
 
     for (const QString &f : cibles)
