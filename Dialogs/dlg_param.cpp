@@ -2362,16 +2362,7 @@ void dlg_param::ExporterDonneesConnexion()
         return;
     }
 
-    UpMessageBox::Watch(this, tr("Avant d'exporter"),
-                        tr("Un accès distant suppose deux réglages sur votre box, à faire une fois pour toutes.") + "\n\n"
-                        + tr("1. Demandez une adresse IP fixe à votre opérateur.") + "\n"
-                        + tr("Sinon l'adresse exportée ici changera au prochain redémarrage de la box et l'accès distant s'arrêtera.") + "\n\n"
-                        + tr("2. Redirigez le port %1 de la box vers cet ordinateur.").arg(ui->SQLPortPostecomboBox->currentText()) + "\n"
-                        + tr("Sans cette redirection, le poste distant n'atteindra pas le serveur."));
-
-    QString adresse = AdresseIPPublique();
-    if (!Utils::SaisirAdresseIP(tr("Adresse à laquelle le poste distant joindra ce serveur :"), adresse, this, true))
-        return;
+    const QString adresse = AdresseIPPublique();
     if (adresse.isEmpty())
         return;
 
@@ -2414,9 +2405,16 @@ void dlg_param::ExporterDonneesConnexion()
     fic     .write("\n");
     fic     .close();
 
+    const QString lien = "https://www.rufusvision.org/installation-en-accegraves-distant.html";
     UpMessageBox::Watch(this, tr("Données de connexion exportées"),
-                        tr("Les données de connexion ont été copiées dans :") + "\n" + dest + "\n\n"
-                        + tr("Sur le poste distant, onglet Accès distant, utilisez « Importer les données de connexion »."));
+                        tr("Les données de connexion ont été correctement copiées dans :") + "\n" + dest + "\n\n"
+                        + tr("Sur le poste distant, onglet Accès distant, utilisez « Importer les données de connexion ».") + "\n\n"
+                        + tr("Il vous faudra aussi rediriger le port %1 de votre box vers cet ordinateur pour que "
+                             "l'accès distant fonctionne, et au besoin demander une adresse IP fixe à votre opérateur.")
+                          .arg(ui->SQLPortPostecomboBox->currentText()) + "\n"
+                        + tr("La marche à suivre est décrite sur :") + "\n"
+                        + "<a href=\"" + lien + "\">" + lien + "</a>",
+                        UpDialog::ButtonOK, lien);
 }
 
 /*! (ACCÈS DISTANT) Réinjecte sur ce poste le dossier exporté par le serveur : clés SSL recopiées en local,
