@@ -2308,7 +2308,7 @@ void dlg_param::ExporterClesSSLversUSB()
         return;
     //! Sous-dossier dédié « SSLKeys » dans l'emplacement choisi : les clés ne se perdent pas au
     //! milieu d'autres fichiers, et le poste distant n'a qu'à pointer ce dossier.
-    const QString dest = url.path() + "/SSLKeys";
+    const QString dest = url.path() + "SSLKeys";
 
     /*! Copie prise sur le datadir, la seule source qui fasse foi : demande le mot de passe administrateur,
         mais aucune copie intermédiaire ne peut y distribuer des clés que le serveur ne reconnaît plus. */
