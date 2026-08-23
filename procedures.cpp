@@ -3652,6 +3652,7 @@ bool Procedures::VerifVersionBase(QWidget* parent)
         QDir dir(PATH_DIR_RESSOURCES);
         if (dir.exists())
             dir.removeRecursively();
+        MySQLInstaller::controlerCompteDeSecours(parent);
     }
     if (Versionencours > Version)
     {
