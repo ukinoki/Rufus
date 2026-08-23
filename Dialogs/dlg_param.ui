@@ -820,13 +820,13 @@
           <property name="minimumSize">
            <size>
             <width>950</width>
-            <height>335</height>
+            <height>363</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>335</height>
+            <height>363</height>
            </size>
           </property>
           <property name="contextMenuPolicy">
@@ -964,10 +964,10 @@
               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="toolTip">
-              <string>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</string>
+              <string>Exporter les données de connexion pour paramétrer un accès distant</string>
              </property>
              <property name="text">
-              <string>Exporter les clés client SSL (clé USB)</string>
+              <string>Exporter les données de connexion</string>
              </property>
             </widget>
             <widget class="QPushButton" name="CreerClesSSLPosteupPushButton">
@@ -1388,7 +1388,7 @@ du dossier de stockage des videos</string>
               <x>10</x>
               <y>120</y>
               <width>325</width>
-              <height>168</height>
+              <height>196</height>
              </rect>
             </property>
             <property name="contextMenuPolicy">
@@ -1586,6 +1586,25 @@ du dossier de stockage des videos</string>
              </property>
              <property name="text">
               <string>Exporter les clés client SSL (clé USB)</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="ImportDonneesConnexionupPushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>163</y>
+               <width>305</width>
+               <height>28</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Importer les données de connexion exportées depuis le poste serveur</string>
+             </property>
+             <property name="text">
+              <string>Importer les données de connexion</string>
              </property>
             </widget>
            </widget>

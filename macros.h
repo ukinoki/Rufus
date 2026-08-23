@@ -36,6 +36,7 @@ public:
 #define LIEN_XML_RUFUSLASTVERSIONTEST         "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversiontest.xml"
 #define LIEN_XML_COTATIONS                    "https://raw.githubusercontent.com/ukinoki/additional_files/main/Cotations.xml"   /*!< fichier de cotations (CCAM/NGAP) hébergé sur GitHub (dépôt additional_files) */
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport2.3.xml"
+#define LIEN_IPPUBLIQUE                       "https://api.ipify.org"   /*!< renvoie en texte brut l'adresse publique vue de l'extérieur */
 
 // Les bases
 #define DB_CCAM                               "CCAM"
