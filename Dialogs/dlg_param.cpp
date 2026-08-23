@@ -2420,7 +2420,7 @@ void dlg_param::ExporterDonneesConnexion()
                              "l'accès distant fonctionne, et au besoin demander une adresse IP fixe à votre opérateur.")
                           .arg(ui->SQLPortPostecomboBox->currentText()) + "\n"
                         + tr("La marche à suivre est décrite sur :") + "\n"
-                        + "<a href=\"" + lien + "\">" + lien + "</a>",
+                        + "<a href=\"" + lien + "\">https://www.rufusvision.org/installation-en-accès-distant.html</a>",
                         UpDialog::ButtonOK, lien);
 }
 
