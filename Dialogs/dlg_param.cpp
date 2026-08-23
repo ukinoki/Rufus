@@ -2362,9 +2362,16 @@ void dlg_param::ExporterDonneesConnexion()
         return;
     }
 
-    const QString adresse = AdresseIPPublique();
+    QString adresse = AdresseIPPublique();
     if (adresse.isEmpty())
-        return;
+    {
+        UpMessageBox::Watch(this, tr("Adresse publique introuvable"),
+                            tr("Rufus n'a pas pu relever l'adresse publique de ce cabinet.") + "\n"
+                            + tr("Saisissez-la dans la boîte suivante."));
+        if (!Utils::SaisirAdresseIP(tr("Adresse à laquelle le poste distant joindra ce serveur :"), adresse, this, true)
+                || adresse.isEmpty())
+            return;
+    }
 
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Sélectionnez la clé USB de destination"),
                                               QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup());
