@@ -2380,7 +2380,8 @@ void dlg_param::ExporterDonneesConnexion()
     if (url == QUrl())
         return;
 
-    const QString dest = url.path() + "/" + DIR_CONNEXION;
+    /*! cleanPath : url.path() finit par un séparateur quand on désigne la racine d'un volume. */
+    const QString dest = QDir::cleanPath(url.path() + "/" + DIR_CONNEXION);
     if (!QDir().mkpath(dest))
     {
         UpMessageBox::Watch(this, tr("Dossier inaccessible"),
