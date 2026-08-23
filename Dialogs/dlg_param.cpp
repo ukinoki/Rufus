@@ -355,6 +355,32 @@ dlg_param::dlg_param(QWidget *parent) :
        wdg_testlocalstockage        ->setEnabled(ui->LocalPathStockageupLineEdit->text() != "");
        wdg_testlocalvideo           ->setEnabled(ui->LocalVideoDirupLineEdit->text() != "");
 
+#ifdef Q_OS_LINUX
+       /*! Délai avant la boîte « Rufus ne répond pas » de GNOME, trop court sur les postes lents. La
+        *  valeur vit dans gsettings, pas dans rufus.ini : on la lit ici et on la réécrit telle quelle. */
+       QProcess lecturedelai;
+       lecturedelai                 .start("gsettings", {"get", "org.gnome.mutter", "check-alive-timeout"});
+       lecturedelai                 .waitForFinished(3000);
+       QSpinBox *wdg_delaispin      = new QSpinBox();
+       wdg_delaispin                ->setRange(5000, 30000);
+       wdg_delaispin                ->setSingleStep(1000);
+       wdg_delaispin                ->setValue(QString(lecturedelai.readAllStandardOutput()).trimmed().toInt());
+       UpLabel *delailbl            = new UpLabel();
+       delailbl                     ->setText(tr("Délai avant l'alerte « Rufus ne répond pas » (ms)"));
+       QFrame *delaiframe           = new QFrame();
+       delaiframe                   ->setFrameShape(QFrame::StyledPanel);
+       QHBoxLayout *delailay        = new QHBoxLayout;
+       delailay                     ->addWidget(delailbl);
+       delailay                     ->addWidget(wdg_delaispin);
+       delailay                     ->addStretch(1);
+       delaiframe                   ->setLayout(delailay);
+       ui->PosteLayout              ->insertWidget(3, delaiframe);
+       connect(wdg_delaispin, &QSpinBox::editingFinished, this, [=]{
+           QProcess::startDetached("gsettings", {"set", "org.gnome.mutter", "check-alive-timeout",
+                                                 QString::number(wdg_delaispin->value())});
+       });
+#endif
+
        wdg_villeCP                  = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
        wdg_CPDefautlineEdit         = wdg_villeCP->ui->CPlineEdit;
        wdg_VilleDefautlineEdit      = wdg_villeCP->ui->VillelineEdit;

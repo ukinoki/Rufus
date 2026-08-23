@@ -729,6 +729,17 @@ activer_centrage_fenetres() {
     [ "${CENTRAGE_ANCIEN}" = "true" ] && return 0    # déjà centré → rien à changer ni à restaurer
     gsettings set org.gnome.mutter center-new-windows true 2>/dev/null && CENTRAGE_MODIFIE=1
 }
+# Délai avant la boîte « Rufus ne répond pas » de GNOME : 5 s par défaut, trop court sur les
+# postes lents, où elle s'affiche pour les opérations les plus banales. Réglable ensuite dans
+# Édition / Paramètres / Ce poste.
+allonger_delai_alerte() {
+    command -v gsettings >/dev/null 2>&1 || return 0
+    local actuel
+    actuel="$(gsettings get org.gnome.mutter check-alive-timeout 2>/dev/null)" || return 0
+    [ -z "${actuel}" ] && return 0                   # clé absente → pas GNOME/mutter
+    [ "${actuel}" -ge 15000 ] 2>/dev/null && return 0
+    gsettings set org.gnome.mutter check-alive-timeout 15000 2>/dev/null
+}
 restaurer_centrage_fenetres() {
     [ "${CENTRAGE_MODIFIE}" = "1" ] || return 0
     gsettings set org.gnome.mutter center-new-windows "${CENTRAGE_ANCIEN}" 2>/dev/null
@@ -813,6 +824,8 @@ if integration_proposee; then
     socle_mysql_ok || { restaurer_centrage_fenetres; exit 1; }
     # 1. Configurer le système. Si ça échoue réellement, on s'arrête là (rien d'inscrit).
     configurer_systeme || { restaurer_centrage_fenetres; exit 1; }
+    # 1 bis. Repousser la boîte « Rufus ne répond pas » de GNOME.
+    allonger_delai_alerte
     # 2. Inscrire Rufus dans les menus (sous animation, pour ne pas laisser l'écran vide).
     inscrire_dans_menus_avec_animation
     # 2 bis. Si les polices MS n'ont pas fini de se télécharger (aléa réseau du paquet
