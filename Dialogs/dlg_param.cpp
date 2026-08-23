@@ -2272,10 +2272,9 @@ void dlg_param::DossierClesSSL()
     }
     if (!lisibles)
     {
-        UpMessageBox::Watch(this, tr("Clés SSL non lisibles"),
-                            tr("Les clés de ce dossier ne sont pas lisibles par votre compte.") + "\n"
-                            + tr("Validez dans la boîte suivante, avec le mot de passe administrateur, "
-                                 "la correction de leurs droits."));
+        UpMessageBox::Watch(this, tr("Enregistrement des clés SSL"),
+                            tr("Dans la boîte suivante, validez l'enregistrement des nouvlles clés") + "\n"
+                            + tr("en entrant le mot de passe administrateur de l'ordinateur."));
         if (!MySQLInstaller().corrigerDroitsClesSSL(choisi))
         {
             UpMessageBox::Watch(this, tr("Correction impossible"),
