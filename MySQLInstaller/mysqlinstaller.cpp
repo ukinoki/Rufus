@@ -4012,8 +4012,8 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
 
 /*!
  * \brief MySQLInstaller::controlerCompteDeSecours
- * Met en place le compte de secours puis supprime root, à chaque démarrage du poste hôte. Sur une base
- * ancienne, attend l'utilisateur n°1 : lui seul choisit ce mot de passe.
+ * Met en place le compte de secours puis supprime root, au terme d'une mise à jour de la base.
+ * \param parent  fiche parente des boîtes affichées
  */
 void MySQLInstaller::controlerCompteDeSecours(QWidget *parent)
 {
