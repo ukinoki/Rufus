@@ -1452,6 +1452,21 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
             return;
         }
         ResumePrescription();
+        m_typeenvoi = Procedures::printDOC;
+        if (ui->PDFcheckBox->isChecked())
+            m_typeenvoi = Procedures::createPDF;
+        else if (ui->MailcheckBox->isChecked())
+            m_typeenvoi = Procedures::SendMAIL;
+        if (m_typeenvoi == Procedures::SendMAIL)
+        {
+            int idsite = Datas::I()->sites->idcurrentsite();
+            while (proc->ManqueEnvoiMail(idsite).size() > 0)
+            {
+                QStringList manque = proc->ManqueEnvoiMail(idsite);
+                if (!proc->CompleteCoordonneesMail(this, idsite, manque))
+                    return;
+            }
+        }
         // on vérifie dans Refraction s'il existe un enregistrement identique pour ne pas surcharger la table avec
         disconnect (ui->OKPushButton,   &QPushButton::clicked,  this,     &dlg_refraction::OKPushButton_Clicked);
 
@@ -1537,19 +1552,43 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
 
     /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
     QImage signature = ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
-    bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
+    QByteArray ba = proc->Cree_pdfByteArray(textcorps, textentete, textpied, userEntete, false, signature);
+    Patient *pat = Datas::I()->patients->currentpatient();
+    QString titre = tr("Prescription correction");
+    QString destinataire;
+    bool a = false;
+    if (m_typeenvoi == Procedures::createPDF)
+    {
+        proc                ->setDirnamepdf(tr("Documents") + " - " + userEntete->prenom() + " " + userEntete->nom() + " - " + QLocale::system().toString(QDate::currentDate(),"dd MMM yyyy"));
+        QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at(0) + "/" + proc->dirnamepdf();
+        QString filename    = pat->prenom() + " " + pat->nom() + " - " + titre + ".pdf";
+        proc                ->Cree_pdffile(textcorps, textentete, textpied, filename, userEntete, false, dirname, signature, this);
+        a                   = QFile(dirname + "/" + filename).exists();
+        UpMessageBox::Watch(this,
+                            a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                            a? tr("fichier") + " " + QDir::toNativeSeparators(filename) + "\n"
+                                 + tr("sauvegardé sur le bureau dans le dossier ") + "\n" + proc->dirnamepdf()
+                             : tr("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
+    }
+    else if (m_typeenvoi == Procedures::SendMAIL)
+    {
+        QMap<QString, QByteArray> pieces;
+        pieces.insert(titre + ".pdf", ba);
+        a = proc->EnvoiMail(this, pieces, Datas::I()->sites->idcurrentsite(), pat, destinataire);
+    }
+    else
+        a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        userEntete->mapBarCodes(),
                        AvecDupli, AvecNumPage, signature);
     // stockage de l'ordonnance dans la base de donnees - table impressions
     if (a && enregtable)
     {
-        QByteArray ba = proc->Cree_pdfByteArray(textcorps, textentete, textpied, userEntete, false, signature);
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDUSER_DOCSEXTERNES]           = Datas::I()->users->userconnected()->id();
         listbinds[CP_IDPAT_DOCSEXTERNES]            = Datas::I()->patients->currentpatient()->id();
         listbinds[CP_TYPEDOC_DOCSEXTERNES]          = PRESCRIPTION;
         listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]      = CORRECTION;
-        listbinds[CP_TITRE_DOCSEXTERNES]            = tr("Prescription correction");
+        listbinds[CP_TITRE_DOCSEXTERNES]            = titre;
         listbinds[CP_TEXTENTETE_DOCSEXTERNES]       = textentete;
         listbinds[CP_TEXTCORPS_DOCSEXTERNES]        = textcorps;
         listbinds[CP_TEXTORIGINE_DOCSEXTERNES]      = textorigine;
@@ -1564,7 +1603,11 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
         listbinds[CP_PDFORIGIN_DOCSEXTERNES]        = ba;
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if (doc != nullptr)
+        {
+            if (m_typeenvoi == Procedures::SendMAIL)
+                proc->EnregistreEnvoiMail(QList<int>() << doc->id(), destinataire);
             delete doc;
+        }
     }
     userEntete = nullptr;
     return a;
@@ -3588,6 +3631,7 @@ void dlg_refraction::RegleAffichageFiche()
     ui->DetailsPushButton->setEnabled(true);
     Afficher_Oeil_Droit(true);
     Afficher_Oeil_Gauche(true);
+    ui->PdfMailupGroupBox->setVisible(m_mode == Refraction::Prescription);   /*!< hors prescription, pas de sortie vers le mail ou l'imprimante */
 
     // on masque les objets inutiles selon les cas
     if (m_mode == Refraction::Fronto)
