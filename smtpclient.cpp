@@ -52,6 +52,7 @@ bool SmtpClient::commande(const QString &texte, const QString &codeattendu)
         }
     }
     const QString rep = lisReponse();
+    qDebug() << "SMTP attendu" << codeattendu << "recu" << rep.trimmed();
     if (rep.startsWith(codeattendu))
         return true;
     m_erreur = (rep == ""? tr("le serveur ne répond plus") : rep.trimmed());
