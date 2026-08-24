@@ -573,7 +573,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
             }
         }
     }
-    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
+    Procedures::typeEnvoi typenvoi = proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite());
 
     if (typenvoi == Procedures::createPDF)
     {
@@ -607,7 +607,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
         QString destinataire;
         QMap<QString, QByteArray> pieces;
         pieces.insert(windowTitle() + ".pdf", proc->Cree_pdfByteArray(textcorps, textentete, textpied));
-        proc->EnvoiMail(this, pieces, currentsession()->idsite(), nullptr, destinataire);
+        proc->EnvoiMail(this, pieces, Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
     }
 }
 
@@ -751,7 +751,7 @@ void dlg_programmationinterventions::ImprimeSession()
             }
         }
     }
-    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
+    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite());
 
     if (typenvoi == Procedures::createPDF)
     {
@@ -784,7 +784,7 @@ void dlg_programmationinterventions::ImprimeSession()
         QString destinataire;
         QMap<QString, QByteArray> pieces;
         pieces.insert(windowTitle() + ".pdf", proc->Cree_pdfByteArray(textcorps, textentete, textpied));
-        proc->EnvoiMail(this, pieces, currentsession()->idsite(), nullptr, destinataire);
+        proc->EnvoiMail(this, pieces, Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
     }
 }
 
@@ -1728,7 +1728,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
                 break;
         }
         if (m_docimprime && typenvoi == Procedures::SendMAIL)
-            m_docimprime = proc->EnvoiGroupeDocExternes(this, docsamailer, currentsession()->idsite(), pat);
+            m_docimprime = proc->EnvoiGroupeDocExternes(this, docsamailer, Datas::I()->sites->idcurrentsite(), pat);
     }
     delete Dlg_Imprs;
 }
@@ -2086,7 +2086,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
                 }
             }
         }
-        Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, currentsession()->idsite());
+        Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite());
 
         if (typenvoi == Procedures::createPDF)
         {

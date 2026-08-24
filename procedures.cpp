@@ -1941,7 +1941,7 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
             while (ManqueEnvoiMail(idsite).size() > 0)
             {
                 QStringList manque = ManqueEnvoiMail(idsite);
-                if (!CompleteCoordonneesMail(parent, idsite, manque))
+                if (!CompleteCoordonneesMail(dlg, idsite, manque))
                     return;
             }
         }
