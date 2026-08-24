@@ -105,6 +105,7 @@ bool SmtpClient::envoie(const QString &serveur, int port,
 {
     m_erreur = "";
     m_refusidentifiants = false;
+    qDebug() << "SMTP serveur" << serveur << "port" << port << "login" << login << "expediteur" << expediteur;
 
     if (port == 465)                                /*!< liaison chiffrée dès la connexion */
     {
