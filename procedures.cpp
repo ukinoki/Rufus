@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPdfWriter>
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <QAction>
 
 Procedures* Procedures::instance =  nullptr;
 Procedures* Procedures::I()
@@ -1754,6 +1755,14 @@ bool Procedures::EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, in
     mdpled                  ->setFixedWidth(300);
     mdpled                  ->setEchoMode(QLineEdit::Password);
     mdpled                  ->setText(mdp);
+
+    QAction *oeil = mdpled  ->addAction(Icons::icEye(), QLineEdit::TrailingPosition);
+    oeil                    ->setToolTip(tr("Afficher / masquer le mot de passe"));
+    connect(oeil, &QAction::triggered, dlg, [=] {
+        const bool masque = (mdpled->echoMode() == QLineEdit::Password);
+        mdpled              ->setEchoMode(masque ? QLineEdit::Normal : QLineEdit::Password);
+        oeil                ->setIcon(masque ? Icons::icEyeBarre() : Icons::icEye());
+    });
 
     UpSmallButton *mdpbutt  = new UpSmallButton();
     mdpbutt                 ->setIconSize(QSize(18, 18));
