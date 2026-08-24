@@ -1106,6 +1106,7 @@ public:
 #define SIZEMAXIMGIOL                           16284       // 16 Ko
 #define SIZEMAXILOGO                            8192        // 8 Ko
 #define SIZEMAXISIGNATURE                       65536       // 54 Ko (png transparent à la résolution d'impression)
+#define SIZEMAXMAIL                             5242880     // 5 Mo (limite courante des serveurs d'envoi)
 #define SIGNATURE_LARGEUR_IMPRESSION_MM         40          /*!< largeur (mm) de la signature apposée sur le document imprimé ; convertie en pixels selon la résolution de l'imprimante */
 
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)

@@ -8921,6 +8921,7 @@ void    Rufus::EnvoiMailGroupe()
     if (fichiers.size() == 0)
         return;
     QMap<QString, QByteArray> pieces;
+    qint64 poids = 0;
     foreach (QString nomfichier, fichiers)
     {
         QFile fich(nomfichier);
@@ -8929,8 +8930,16 @@ void    Rufus::EnvoiMailGroupe()
             UpMessageBox::Watch(this, tr("Impossible de lire le fichier"), QDir::toNativeSeparators(nomfichier));
             return;
         }
+        poids += fich.size();
         pieces.insert(QFileInfo(nomfichier).fileName(), fich.readAll());
         fich.close();
+    }
+    if (poids > SIZEMAXMAIL)
+    {
+        UpMessageBox::Watch(this, tr("Envoi trop lourd"),
+                            tr("Les fichiers choisis pèsent ") + QString::number(poids / 1048576.0, 'f', 1) + tr(" Mo")
+                            + "\n" + tr("La plupart des serveurs refusent au-delà de 5 Mo"));
+        return;
     }
     QString destinataire;
     proc                ->EnvoiMail(this, pieces, idsite, nullptr, destinataire);
