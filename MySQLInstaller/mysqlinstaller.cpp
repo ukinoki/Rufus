@@ -2045,8 +2045,8 @@ bool MySQLInstaller::executerEtapesConfig()
 
 /*!
  * \brief MySQLInstaller::uninstallMySQL
- * Désinstalle MySQL et la configuration ajoutée par l'outil. NON destructif pour le dossier partagé
- * /Users/Shared (susceptible de contenir les données de l'utilisateur). Une seule élévation par plateforme.
+ * Purge tout serveur MySQL/MariaDB (quel que soit son mode d'install) après s'être assuré qu'il est bien
+ * arrêté (kill de secours). NON destructif pour le dossier partagé /Users/Shared (données utilisateur).
  */
 bool MySQLInstaller::uninstallMySQL()
 {
@@ -2059,7 +2059,8 @@ bool MySQLInstaller::uninstallMySQL()
         "$ErrorActionPreference='SilentlyContinue';"
         "$base=$null;"
         "$svc=Get-CimInstance Win32_Service | "
-            "Where-Object {$_.PathName -like '*mysqld.exe*'} | Select-Object -First 1;"
+            "Where-Object {$_.PathName -like '*mysqld.exe*' -or $_.PathName -like '*mariadbd.exe*'} "
+            "| Select-Object -First 1;"
         "if($svc){"
             "$exe=$svc.PathName.Trim([char]34);"
             "$i=$exe.ToLower().IndexOf('mysqld.exe');"
@@ -2070,16 +2071,19 @@ bool MySQLInstaller::uninstallMySQL()
             "sc.exe delete $svc.Name | Out-Null"
         "};"
         "Start-Sleep -Seconds 2;"
-        "Get-Process mysqld -ErrorAction SilentlyContinue | Stop-Process -Force;"
+        "Get-Process mysqld,mariadbd -ErrorAction SilentlyContinue | Stop-Process -Force;"
         "Start-Sleep -Seconds 1;"
         "if($base -and (Test-Path $base)){Remove-Item -LiteralPath $base -Recurse -Force};"
         "Get-ChildItem 'C:\\Program Files\\MySQL' -Directory -Filter 'MySQL Server *' "
             "-ErrorAction SilentlyContinue | Remove-Item -Recurse -Force;"
         "Get-ChildItem 'C:\\ProgramData\\MySQL' -Directory -Filter 'MySQL Server *' "
             "-ErrorAction SilentlyContinue | Remove-Item -Recurse -Force;"
+        "Get-ChildItem 'C:\\Program Files' -Directory -Filter 'MariaDB *' "
+            "-ErrorAction SilentlyContinue | Remove-Item -Recurse -Force;"
         "$p=[Environment]::GetEnvironmentVariable('Path','Machine');"
         "if($p){[Environment]::SetEnvironmentVariable('Path',"
-            "(($p -split ';' | Where-Object {$_ -and ($_ -notlike '*MySQL Server*')}) -join ';'),"
+            "(($p -split ';' | Where-Object {$_ -and ($_ -notlike '*MySQL Server*') "
+            "-and ($_ -notlike '*MariaDB*')}) -join ';'),"
             "'Machine')};"
         "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
         "\\Uninstall\\MySQLForRufus' -Recurse -Force";
@@ -2101,6 +2105,7 @@ bool MySQLInstaller::uninstallMySQL()
      *  emportaient mysql-workbench ou php-mysql. */
     const QString script =
         "systemctl stop mysql mysqld mariadb 2>/dev/null;"
+        "pkill -x mysqld 2>/dev/null; pkill -x mariadbd 2>/dev/null; sleep 1;"
         "for pat in 'mysql-server.*' 'mysql-client.*' 'mysql-common' "
                    "'mysql-community-*' 'mariadb.*'; do "
           "DEBIAN_FRONTEND=noninteractive apt-get purge -y \"$pat\" 2>/dev/null || true; "
@@ -2138,14 +2143,17 @@ bool MySQLInstaller::uninstallMySQL()
     runCmdElevated(script);
     return !isMySQLInstalled();
 #else
-    /*! macOS (installeur Oracle .dmg) : arrêt du démon, suppression du pkg (toutes versions via glob),
-     *  config et reçus pkgutil. Le compte système _mysql (natif à macOS) est conservé. */
+    /*! macOS : purge de TOUT serveur — Oracle (.dmg) ET Homebrew (mysql / mariadb). brew refuse de tourner
+     *  en root → on le traite hors élévation ; l'Oracle et le kill de secours sont élevés. */
+    runCmd("for f in mysql mysql@8.4 mariadb; do brew services stop $f 2>/dev/null; "
+           "brew uninstall --force --ignore-dependencies $f 2>/dev/null; done; "
+           "P=$(brew --prefix 2>/dev/null); [ -n \"$P\" ] && rm -rf \"$P/var/mysql\"", 120000);
     const QString script =
         "launchctl bootout system "
           "/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist 2>/dev/null || "
         "launchctl unload -w "
           "/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist 2>/dev/null;"
-        "pkill -f /usr/local/mysql/bin/mysqld 2>/dev/null; sleep 2;"
+        "pkill -x mysqld 2>/dev/null; pkill -x mariadbd 2>/dev/null; sleep 2;"
         "rm -f /Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist;"
         "rm -rf /Library/PreferencePanes/MySQL.prefPane;"
         "rm -rf /usr/local/mysql /usr/local/mysql-*;"   /*!< symlink + dossier(s) versionné(s) */
