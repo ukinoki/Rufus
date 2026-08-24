@@ -1194,6 +1194,7 @@ void Rufus::AfficheMenu(QMenu *menu)
             menuDocuments       ->addSeparator();
             actionExportActe    ->setVisible(ui->Acteframe->isVisible());
         }
+        menuDocuments->addAction(actionEnvoiMailGroupe);
         menuDocuments->addAction(actionRechercheCourrier);
         menuDocuments->addAction(actionCorrespondants);
         menuDocuments->addAction(actionFabricants);
@@ -7786,6 +7787,7 @@ void Rufus::CreerMenu()
         connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=, this] {EnregistreVideo(currentpatient());});
         connect (actionExportActe,                  &QAction::triggered,        this,                   [=, this] {ExporteActe(currentacte());});
         connect (actionRechercheCourrier,           &QAction::triggered,        this,                   &Rufus::AfficheCourriersAFaire);
+        connect (actionEnvoiMailGroupe,             &QAction::triggered,        this,                   &Rufus::EnvoiMailGroupe);
         // Comptabilité
         connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   &Rufus::GestionComptes);
         connect (actionPaiementDirect,              &QAction::triggered,        this,                   [=, this] {AppelPaiementDirect(Menu);});
@@ -8899,6 +8901,39 @@ void    Rufus::OuvrirActesPrecedents()
         return;
     dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(currentpatient(), this);
     Dlg_ActesPrecs->show();
+}
+
+/*!
+ * \brief Rufus::EnvoiMailGroupe
+ * Envoie dans un seul mail des fichiers choisis sur le disque.
+ */
+void    Rufus::EnvoiMailGroupe()
+{
+    int idsite = Datas::I()->sites->idcurrentsite();
+    while (proc->ManqueEnvoiMail(idsite).size() > 0)
+    {
+        QStringList manque = proc->ManqueEnvoiMail(idsite);
+        if (!proc->CompleteCoordonneesMail(this, idsite, manque))
+            return;
+    }
+    QStringList fichiers = QFileDialog::getOpenFileNames(this, tr("Choisir les fichiers à envoyer"),
+                                                         QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at(0));
+    if (fichiers.size() == 0)
+        return;
+    QMap<QString, QByteArray> pieces;
+    foreach (QString nomfichier, fichiers)
+    {
+        QFile fich(nomfichier);
+        if (!fich.open(QIODevice::ReadOnly))
+        {
+            UpMessageBox::Watch(this, tr("Impossible de lire le fichier"), QDir::toNativeSeparators(nomfichier));
+            return;
+        }
+        pieces.insert(QFileInfo(nomfichier).fileName(), fich.readAll());
+        fich.close();
+    }
+    QString destinataire;
+    proc                ->EnvoiMail(this, pieces, idsite, nullptr, destinataire);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -11040,6 +11075,7 @@ void Rufus::retranslateActions() {
     actionEnregistrerDocument = retranslateAction(actionEnregistrerDocument, tr("Enregistrer un document"));
     actionEnregistrerVideo = retranslateAction(actionEnregistrerVideo, tr("Enregistrer une video"));
     actionRechercheCourrier = retranslateAction(actionRechercheCourrier, tr("Afficher les courriers en attente"));
+    actionEnvoiMailGroupe = retranslateAction(actionEnvoiMailGroupe, tr("Envoyer un mail groupé"));
     actionCorrespondants = retranslateAction(actionCorrespondants, tr("Liste des correspondants"));
     actionFabricants = retranslateAction(actionFabricants, tr("Liste des fabricants"));
     actionIOLs = retranslateAction(actionIOLs, tr("Liste des implants"));

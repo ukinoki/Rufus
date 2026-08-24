@@ -402,6 +402,7 @@ private:
     void                OuvrirActesPrecedents();
     QList<dlg_docsexternes*> listdlgdocsexternes();
     void                OuvrirDocsExternes(DocsExternes *docs = Datas::I()->docsexternes);
+    void                EnvoiMailGroupe();                                                     //! envoie dans un seul mail des fichiers choisis sur le disque
     void                ImprimeDocument(Patient *pat);                                             //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
@@ -475,6 +476,7 @@ private:
     QAction         *actionEnregistrerDocument    = nullptr;
     QAction         *actionEnregistrerVideo         = nullptr;
     QAction         *actionRechercheCourrier        = nullptr;
+    QAction         *actionEnvoiMailGroupe         = nullptr;
     QAction         *actionExportActe               = nullptr;
     QAction         *actionGestionComptesBancaires  = nullptr;
     QAction         *actionPaiementDirect           = nullptr;
