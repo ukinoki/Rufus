@@ -1805,12 +1805,17 @@ bool Procedures::EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, in
     if (!valide || destinataire == "" || mdp == "")
         return false;
 
+    User *usr = Datas::I()->users->userconnected();
+    QString signature = (usr->titre() != ""? usr->titre() + " " : "") + usr->prenom() + " " + usr->nom();
+    if (usr->titre() == "" && usr->fonction() != "")
+        signature += ", " + usr->fonction();
+
     QApplication::setOverrideCursor(Qt::WaitCursor);
     SmtpClient smtp;
     bool ok = smtp.envoie(sit->smtpserveur(), sit->smtpport(), sit->smtplogin(), mdp,
                           sit->mail(), destinataire, sit->mail(),
                           tr("Document ") + sit->nom(),
-                          tr("Veuillez trouver ci-joint le document annoncé.") + "\n\n" + sit->nom(),
+                          tr("Veuillez trouver ci-joint le document annoncé.") + "\n\n" + signature,
                           pieces);
     QApplication::restoreOverrideCursor();
 
