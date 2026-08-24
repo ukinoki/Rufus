@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "smtpclient.h"
+#include <QMimeDatabase>
 
 #define DELAI_SMTP 20000        /*!< au-delà, le serveur ne répondra plus */
 
@@ -82,7 +83,8 @@ QByteArray SmtpClient::calcMessage(const QString &expediteur, const QString &des
     for (auto it = pieces.cbegin(); it != pieces.cend(); ++it)
     {
         msg += "--" + limite + "\r\n";
-        msg += "Content-Type: application/pdf; name=\"" + it.key() + "\"\r\n";
+        const QString typemime = QMimeDatabase().mimeTypeForFile(it.key(), QMimeDatabase::MatchExtension).name();
+        msg += "Content-Type: " + typemime + "; name=\"" + it.key() + "\"\r\n";
         msg += "Content-Transfer-Encoding: base64\r\n";
         msg += "Content-Disposition: attachment; filename=\"" + it.key() + "\"\r\n\r\n";
         const QByteArray b64 = it.value().toBase64();

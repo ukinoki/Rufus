@@ -48,7 +48,7 @@ public:
      * \param copiecachee adresse en copie cachée, vide si aucune
      * \param sujet       sujet du mail
      * \param corps       corps du mail, en texte simple
-     * \param pieces      les pièces jointes, nom de fichier -> pdf
+     * \param pieces      les pièces jointes, nom de fichier -> contenu
      */
     bool                    envoie(const QString &serveur, int port,
                                    const QString &login, const QString &motdepasse,

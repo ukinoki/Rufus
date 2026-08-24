@@ -8930,14 +8930,15 @@ void    Rufus::EnvoiMailGroupe()
             UpMessageBox::Watch(this, tr("Impossible de lire le fichier"), QDir::toNativeSeparators(nomfichier));
             return;
         }
-        poids += fich.size();
-        pieces.insert(QFileInfo(nomfichier).fileName(), fich.readAll());
+        QByteArray contenu = fich.readAll();
+        poids += (contenu.size() + 2) / 3 * 4;      /*!< le poids qui compte est celui du mail, une fois les pièces encodées en base64 */
+        pieces.insert(QFileInfo(nomfichier).fileName(), contenu);
         fich.close();
     }
     if (poids > SIZEMAXMAIL)
     {
         UpMessageBox::Watch(this, tr("Envoi trop lourd"),
-                            tr("Les fichiers choisis pèsent ") + QString::number(poids / 1048576.0, 'f', 1) + tr(" Mo")
+                            tr("Les fichiers choisis font un mail de ") + QString::number(poids / 1048576.0, 'f', 1) + tr(" Mo")
                             + "\n" + tr("La plupart des serveurs refusent au-delà de 5 Mo"));
         return;
     }
