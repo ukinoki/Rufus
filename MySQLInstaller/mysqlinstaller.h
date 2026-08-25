@@ -254,7 +254,8 @@ private:
     MySQLRemoteConfig             m_remoteConfig;                            /*!< config distante (chargée une seule fois) */
     bool                          m_remoteConfigLoaded = false;
     QString                       m_dossierPartageForce;                     /*!< dossier d'imagerie hérité d'une ancienne base (sinon défaut) */
-    bool                          m_avertirImagerieAMigrer = false;          /*!< identifiants de l'ancien serveur perdus : prévenir de recopier l'imagerie */
+    QString                       m_ancienDossierImagerie;                   /*!< dossier source connu à recopier (héritage impossible) */
+    bool                          m_avertirImagerieAMigrer = false;          /*!< prévenir l'utilisateur de recopier lui-même son imagerie */
 
     /*! ── Phases de run() ─────────────────────────────────────────────────────────────────────────────── */
     bool faireCreate(const MySQLRemoteConfig& cfg);             /*!< chemin création : installe MySQL + crée adminrufus + config */
@@ -263,7 +264,8 @@ private:
     /*! ── Imagerie d'une ancienne base : héritage du dossier ou avertissement ─────────────────────────── */
     QString lireSecureFilePriv(const QStringList& log);              /*!< secure_file_priv de l'ancien serveur (vide si NULL/illisible) */
     void    preserverDossierImagerieAncienneBase(const QStringList& log);   /*!< avant la purge : hérite du dossier d'imagerie ou mémorise qu'il faut avertir */
-    void    avertirImagerieAMigrer();                               /*!< invite l'utilisateur à recopier lui-même son imagerie (identifiants perdus) */
+    bool    configurerEtapesDossierPartage(bool silencieux);        /*!< étapes 3-5 : dossier partagé + secure_file_priv + test R/W */
+    void    avertirImagerieAMigrer();                               /*!< invite l'utilisateur à recopier lui-même son imagerie */
 
     bool          isMariaDB();                                                                         /*!< le serveur local est-il MariaDB ? (incompatible) */
     bool          faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout,

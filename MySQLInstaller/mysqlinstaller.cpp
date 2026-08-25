@@ -1989,17 +1989,25 @@ void MySQLInstaller::avertirImagerieAMigrer()
              "ils étaient. Notez le message et contactez l'assistance : on retrouvera le dossier avec "
              "vous.");
 
+    QString info =
+          tr("Vos documents d'imagerie (photos du fond d'œil, OCT, champs visuels, scanners…) ne font "
+             "pas partie de la sauvegarde de la base de données : ils sont rangés à part, dans un "
+             "dossier.") + "\n\n";
+    if (m_ancienDossierImagerie.isEmpty())
+        info += tr("Si vous utilisiez déjà Rufus sur cet ordinateur, vérifiez qu'ils se trouvent bien "
+                   "dans ce dossier :") + "\n\n" + chemin + "\n\n"
+              + tr("S'ils n'y sont pas, il vous faudra les y recopier vous-même. Le bouton « Plus "
+                   "d'explications » vous montre comment faire, pas à pas.");
+    else
+        info += tr("Vos anciennes images se trouvent dans :") + "\n\n"
+              + m_ancienDossierImagerie + "/Rufus/Imagerie" + "\n\n"
+              + tr("Recopiez-les vous-même dans le nouveau dossier :") + "\n\n" + chemin + "\n\n"
+              + tr("Le bouton « Plus d'explications » vous montre comment faire, pas à pas.");
+
     UpMessageBox msgbox(m_parent);
     msgbox.setIcon(UpMessageBox::Info);
     msgbox.setText(tr("Vos documents d'imagerie"));
-    msgbox.setInformativeText(
-          tr("Vos documents d'imagerie (photos du fond d'œil, OCT, champs visuels, scanners…) ne font "
-             "pas partie de la sauvegarde de la base de données : ils sont rangés à part, dans un "
-             "dossier.") + "\n\n"
-        + tr("Si vous utilisiez déjà Rufus sur cet ordinateur, vérifiez qu'ils se trouvent bien dans "
-             "ce dossier :") + "\n\n" + chemin + "\n\n"
-        + tr("S'ils n'y sont pas, il vous faudra les y recopier vous-même. Le bouton « Plus "
-             "d'explications » vous montre comment faire, pas à pas."));
+    msgbox.setInformativeText(info);
 
     UpSmallButton *bAide = Utils::BoutonAide(aide, tr("Plus d'explications"));
     bAide   ->setText(tr("Plus d'explications"));
@@ -2089,47 +2097,18 @@ bool MySQLInstaller::executerEtapesConfig()
         return false;
     }
 
-    /*! ── Étape 3 : le dossier partagé existe et est partagé ──────────────── */
-    if (!setupSharedFolder()) {
-        UpMessageBox::Watch(m_dialog, tr("Dossier partagé impossible"),
-            tr("Impossible de créer ou de partager le dossier %1.")
-            .arg(sharedFolderPath()));
-        return false;
-    }
-    if (m_dialog->wasCancelled()) return false;
-    m_dialog->checkStep(2);
-
-    /*! ── Étape 4 : secure_file_priv pointe sur le dossier partagé ────────── */
-    if (!ensureSecureFilePriv()) {
-        UpMessageBox::Watch(m_dialog, tr("secure_file_priv impossible"),
-            tr("Impossible de configurer secure_file_priv sur %1.")
-            .arg(sharedFolderPath())
-            + (m_secureFilePrivErr.trimmed().isEmpty()
-                   ? QString()
-                   : "\n\n" + tr("Détail :") + "\n" + m_secureFilePrivErr.trimmed()));
-        return false;
-    }
-    if (m_dialog->wasCancelled()) return false;
-    m_dialog->checkStep(3);
-
-    /*! ── Étape 5 : mysql lit et écrit dans le dossier partagé (fichier test) ───────
-     *  L'étape 4 a déjà prouvé que le serveur applique secure_file_priv : un échec ici a donc une cause
-     *  réelle (privilège FILE, droits du dossier), pas le « Full Disk Access » qu'on accusait à tort. */
-    if (!testSharedFolderRW()) {
-        if (!tryConnect()) {
-            UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
-                tr("Connexion impossible avec le login « %1 ».\n"
-                   "Vérifiez le login et le mot de passe.").arg(m_login));
+    /*! ── Étapes 3-5 : dossier partagé + secure_file_priv + test R/W ──────────
+     *  Dossier hérité d'une ancienne base : si le nouveau serveur (durci) n'y accède pas, on bascule sur le
+     *  dossier par défaut et l'utilisateur sera invité à recopier son imagerie. */
+    if (!configurerEtapesDossierPartage(!m_dossierPartageForce.isEmpty())) {
+        if (m_dialog->wasCancelled() || m_dossierPartageForce.isEmpty())
             return false;
-        }
-        UpMessageBox::Watch(m_dialog, tr("Écriture impossible"),
-            tr("Le serveur MySQL ne parvient pas à écrire dans %1.\n\n"
-               "Vérifiez que le compte « %2 » possède le privilège FILE et que les "
-               "droits du dossier autorisent l'écriture.").arg(sharedFolderPath(), m_login));
-        return false;
+        m_ancienDossierImagerie  = m_dossierPartageForce;
+        m_dossierPartageForce.clear();
+        m_avertirImagerieAMigrer = true;
+        if (!configurerEtapesDossierPartage(false))
+            return false;
     }
-    if (m_dialog->wasCancelled()) return false;
-    m_dialog->checkStep(4);
 
     /*! ── Étape 6 : privilèges ALL + GRANT OPTION ─────────────────────────── */
     QStringList missing;
@@ -2148,6 +2127,60 @@ bool MySQLInstaller::executerEtapesConfig()
     m_dialog->checkStep(6);
 
     /*! ── Toutes les étapes de configuration sont validées ───────────────────── */
+    return true;
+}
+
+/*!
+ * \brief MySQLInstaller::configurerEtapesDossierPartage
+ * Étapes 3-5 : crée/partage le dossier, y pointe secure_file_priv, teste lecture/écriture par le serveur.
+ * \param silencieux  true = pas de fenêtre d'erreur (essai d'un dossier hérité, avant bascule éventuelle)
+ */
+bool MySQLInstaller::configurerEtapesDossierPartage(bool silencieux)
+{
+    /*! ── Étape 3 : le dossier partagé existe et est partagé ──────────────── */
+    if (!setupSharedFolder()) {
+        if (!silencieux)
+            UpMessageBox::Watch(m_dialog, tr("Dossier partagé impossible"),
+                tr("Impossible de créer ou de partager le dossier %1.")
+                .arg(sharedFolderPath()));
+        return false;
+    }
+    if (m_dialog->wasCancelled()) return false;
+    m_dialog->checkStep(2);
+
+    /*! ── Étape 4 : secure_file_priv pointe sur le dossier partagé ────────── */
+    if (!ensureSecureFilePriv()) {
+        if (!silencieux)
+            UpMessageBox::Watch(m_dialog, tr("secure_file_priv impossible"),
+                tr("Impossible de configurer secure_file_priv sur %1.")
+                .arg(sharedFolderPath())
+                + (m_secureFilePrivErr.trimmed().isEmpty()
+                       ? QString()
+                       : "\n\n" + tr("Détail :") + "\n" + m_secureFilePrivErr.trimmed()));
+        return false;
+    }
+    if (m_dialog->wasCancelled()) return false;
+    m_dialog->checkStep(3);
+
+    /*! ── Étape 5 : mysql lit et écrit dans le dossier partagé (fichier test) ───────
+     *  L'étape 4 a déjà prouvé que le serveur applique secure_file_priv : un échec ici a donc une cause
+     *  réelle (privilège FILE, droits du dossier), pas le « Full Disk Access » qu'on accusait à tort. */
+    if (!testSharedFolderRW()) {
+        if (!silencieux) {
+            if (!tryConnect())
+                UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
+                    tr("Connexion impossible avec le login « %1 ».\n"
+                       "Vérifiez le login et le mot de passe.").arg(m_login));
+            else
+                UpMessageBox::Watch(m_dialog, tr("Écriture impossible"),
+                    tr("Le serveur MySQL ne parvient pas à écrire dans %1.\n\n"
+                       "Vérifiez que le compte « %2 » possède le privilège FILE et que les "
+                       "droits du dossier autorisent l'écriture.").arg(sharedFolderPath(), m_login));
+        }
+        return false;
+    }
+    if (m_dialog->wasCancelled()) return false;
+    m_dialog->checkStep(4);
     return true;
 }
 
