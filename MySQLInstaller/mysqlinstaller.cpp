@@ -1490,7 +1490,52 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     stockerMotDePasse(m_password);
 
     cleanupDialog();
+    avertirPostesAnciensAMettreAJour();
     return true;
+}
+
+/*!
+ * \brief MySQLInstaller::avertirPostesAnciensAMettreAJour
+ * Serveur neuf sécurisé d'emblée (aléatoire, sans générique) : prévient qu'un autre poste ne pourra s'y
+ * connecter qu'avec cette version de Rufus et le mot de passe sécurisé, avec un bouton d'explications.
+ */
+void MySQLInstaller::avertirPostesAnciensAMettreAJour()
+{
+    const QString aide =
+          tr("<b>Pourquoi ce message ?</b>") + "<br>"
+        + tr("Pour protéger vos données, ce serveur est protégé par un mot de passe unique et aléatoire, "
+             "créé à l'instant et propre à votre cabinet — Rufus n'utilise plus de mot de passe générique "
+             "connu.") + "<br><br>"
+        + tr("<b>Qu'est-ce que ça change pour les autres postes ?</b>") + "<br>"
+        + tr("Si d'autres ordinateurs consultent ce serveur, ils doivent utiliser la même version de "
+             "Rufus que celle-ci et connaître ce mot de passe sécurisé. Un poste équipé d'une ancienne "
+             "version ne pourra pas se connecter.") + "<br><br>"
+        + tr("<b>Que faire pour connecter un autre poste ?</b>") + "<br>"
+        + tr("1. Installez ou mettez à jour Rufus sur cet autre poste avec la présente version.") + "<br>"
+        + tr("2. Munissez-vous du mot de passe sécurisé (celui que Rufus vient de vous inviter à noter).") + "<br>"
+        + tr("3. Au premier lancement, saisissez-le lorsque Rufus le demande (ou importez-le depuis la clé "
+             "USB si vous l'y avez enregistré).") + "<br><br>"
+        + tr("<b>Où est ce mot de passe ?</b>") + "<br>"
+        + tr("C'est le mot de passe que Rufus vous a demandé de conserver en lieu sûr (papier ou clé USB) "
+             "juste après l'installation. Gardez-le : il est nécessaire pour tout nouveau poste.");
+
+    UpMessageBox msgbox(m_parent);
+    msgbox.setIcon(UpMessageBox::Info);
+    msgbox.setText(tr("Connexion des autres postes"));
+    msgbox.setInformativeText(
+          tr("Ce serveur utilise un mot de passe sécurisé.") + "\n\n"
+        + tr("Si d'autres postes doivent se connecter à ce serveur avec une ancienne version de Rufus, "
+             "ils ne pourront pas : il faudra d'abord les mettre à jour avec cette version, puis leur "
+             "fournir ce mot de passe sécurisé."));
+
+    UpSmallButton *bAide = Utils::BoutonAide(aide, tr("Plus d'explications"));
+    bAide   ->setText(tr("Plus d'explications"));
+    UpSmallButton *bOK = new UpSmallButton(tr("OK, j'ai compris"));
+    bOK     ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
+    connect(bOK, &UpSmallButton::clicked, &msgbox, &QDialog::accept);
+    msgbox.AjouteWidgetLayButtons(bAide);
+    msgbox.AjouteWidgetLayButtons(bOK);
+    msgbox.exec();
 }
 
 /*!
@@ -3878,27 +3923,21 @@ bool MySQLInstaller::createUser()
         return true;
 #endif
 
-    /*! DOUBLE mot de passe : l'aléatoire en principal, gaxt78iy conservé en 2e (RETAIN) pour qu'un
-     *  poste réseau puisse encore se connecter tant que la purge des 30 j n'a pas eu lieu.
-     *  Plugin : mysql_native_password d'abord (le driver Qt ne fait pas caching_sha2 en TCP clair), avec
-     *  repli sur le plugin par défaut, ce plugin étant désactivé d'origine sur MySQL 8.4 (ERROR 1524). */
+    /*! Serveur neuf : aléatoire SEUL, pas de générique gaxt78iy en 2e mdp (aucun ancien poste à amorcer).
+     *  Plugin mysql_native_password d'abord (driver Qt en TCP clair), repli sur le défaut (désactivé sur 8.4). */
     const QString sslLogin = QString(LOGIN_SQL "SSL");
-    const QString legacy   = QString(MDP_SQL);
-    /*! adminrufus (NON-SSL) n'est créé QUE sur les hosts LOCAUX/PRIVÉS (jamais @'%', joignable du WAN via
-     *  redirection de ports). adminrufusSSL@'%' (SSL) sert l'accès distant. Double mot de passe partout :
-     *  aléatoire (m_password) primaire + gaxt78iy en 2e (bootstrap réseau, 30 j). */
+    /*! adminrufus (NON-SSL) uniquement sur les hosts LOCAUX/PRIVÉS (jamais @'%', joignable du WAN par
+     *  redirection de ports) ; adminrufusSSL@'%' (SSL) sert l'accès distant. */
     auto sqlAvecAuth = [&](const QString& auth) {
         QString sql;
         for (const QString& h : hostsLANprives())
         {
-            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
-            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
-            sql += QString("ALTER USER '%1'@'%2' %3 '%4' RETAIN CURRENT PASSWORD;").arg(m_login, h, auth, m_password);
+            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(m_login, h, auth, m_password);
+            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(m_login, h, auth, m_password);
             sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(m_login, h);
         }
-        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
-        sql += QString("ALTER USER '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
-        sql += QString("ALTER USER '%1'@'%' %2 '%3' RETAIN CURRENT PASSWORD;").arg(sslLogin, auth, m_password);
+        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, m_password);
+        sql += QString("ALTER USER '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, m_password);
         sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;").arg(sslLogin);
         sql += "FLUSH PRIVILEGES;\n";
         return sql;
@@ -4239,27 +4278,20 @@ bool MySQLInstaller::prepareCreateModeLinux()
     if (cnfTmp.isEmpty())
         return false;
 
-    /*! 1. SQL de création des DEUX utilisateurs (adminrufus + adminrufusSSL) avec un DOUBLE mot de passe :
-     *  on pose d'abord gaxt78iy (MDP_SQL, %3 — littéral, pas un secret), puis on bascule sur l'aléatoire
-     *  $PW (placeholder printf %s) EN CONSERVANT gaxt78iy en 2e. INDISPENSABLE : les autres postes se
-     *  connectent d'abord avec gaxt78iy avant de récupérer l'aléatoire. Sans ce 2e mot de passe, le
-     *  court-circuit « if (tryConnect()) return true; » de createUser() priverait adminrufus de gaxt78iy. */
+    /*! 1. SQL de création des DEUX utilisateurs (adminrufus + adminrufusSSL). Serveur neuf → aléatoire SEUL
+     *  ($PW, injecté par printf %s pour ne pas figurer dans le script), pas de générique gaxt78iy. */
     const QString sslLogin = QString(LOGIN_SQL "SSL");
-    const QString legacy   = QString(MDP_SQL);
     /*! mysql_native_password : cf. createUser() — indispensable pour que le driver Qt (TCP en clair) puisse
-     *  se connecter. Actif par défaut sur le MySQL 8.0 d'apt. %1=adminrufus, %2=adminrufusSSL, %3=gaxt78iy ;
-     *  %s (printf) = $PW (aléatoire), 2 occurrences. */
+     *  se connecter. %1=adminrufus, %2=adminrufusSSL ; %s (printf) = $PW (aléatoire), 4 occurrences. */
     const QString userSql = QString(
-        "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%3'; "
-        "ALTER USER '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%3'; "
-        "ALTER USER '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' RETAIN CURRENT PASSWORD; "
+        "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s'; "
+        "ALTER USER '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s'; "
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%%' WITH GRANT OPTION; "
-        "CREATE USER IF NOT EXISTS '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL; "
-        "ALTER USER '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL; "
-        "ALTER USER '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' RETAIN CURRENT PASSWORD; "
+        "CREATE USER IF NOT EXISTS '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' REQUIRE SSL; "
+        "ALTER USER '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' REQUIRE SSL; "
         "GRANT ALL PRIVILEGES ON *.* TO '%2'@'%%' WITH GRANT OPTION; "
-        "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" | mysql -u root; ")
-        .arg(m_login, sslLogin, legacy);
+        "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" \"$PW\" \"$PW\" | mysql -u root; ")
+        .arg(m_login, sslLogin);
 
     /*! 3. Aiguillage my.cnf remis sur MySQL, copie de my.cnf en place + redémarrage du serveur. */
     const QString cnfFragment = linuxForceMysqlCnfScript() + QString(

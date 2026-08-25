@@ -260,6 +260,7 @@ private:
     /*! ── Phases de run() ─────────────────────────────────────────────────────────────────────────────── */
     bool faireCreate(const MySQLRemoteConfig& cfg);             /*!< chemin création : installe MySQL + crée adminrufus + config */
     bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);   /*!< section install de faireCreate, sans saisie (migration) */
+    void avertirPostesAnciensAMettreAJour();                    /*!< serveur neuf : prévient qu'un ancien poste devra être mis à jour */
 
     /*! ── Imagerie d'une ancienne base : héritage du dossier ou avertissement ─────────────────────────── */
     QString lireSecureFilePriv(const QStringList& log);              /*!< secure_file_priv de l'ancien serveur (vide si NULL/illisible) */
