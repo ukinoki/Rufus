@@ -379,12 +379,12 @@ dlg_param::dlg_param(QWidget *parent) :
        delailay                     ->addStretch(1);
        delaiframe                   ->setLayout(delailay);
        ui->PosteLayout              ->insertWidget(3, delaiframe);
+       //ui->horizontalLayout_8       ->insertWidget(0, delaiframe);
        connect(wdg_delaispin, &QSpinBox::editingFinished, this, [=]{
            QProcess::startDetached("gsettings", {"set", "org.gnome.mutter", "check-alive-timeout",
                                                  QString::number(wdg_delaispin->value())});
        });
 #endif
-
        wdg_villeCP                  = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
        wdg_CPDefautlineEdit         = wdg_villeCP->ui->CPlineEdit;
        wdg_VilleDefautlineEdit      = wdg_villeCP->ui->VillelineEdit;
@@ -2544,7 +2544,7 @@ void dlg_param::ExporterClesSSLDistantversUSB()
     if (url == QUrl())
         return;
     //! Sous-dossier dédié « SSLKeys » dans l'emplacement choisi (même principe que l'export serveur).
-    const QString dest = url.path() + "/SSLKeys";
+    const QString dest = url.path() + "SSLKeys";
     if (!QDir().mkpath(dest))
     {
         UpMessageBox::Watch(this, tr("Dossier inaccessible"),
