@@ -3520,7 +3520,9 @@ bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
     if (!BackupRufusBaseBeforeInstall(LOGIN_SQL, MySQLInstaller::motDePasseSQL()))
         return false;   //! rien n'a été désinstallé
 
-    if (!MySQLInstaller().reinstallerSocleMySQLpourMigration())
+    /*! { mdp, login } d'adminrufus : hérite du dossier d'imagerie de l'ancienne base. */
+    const QStringList log = { MySQLInstaller::motDePasseSQL(), QString(LOGIN_SQL) };
+    if (!MySQLInstaller().reinstallerSocleMySQLpourMigration(log))
     {
         UpMessageBox::Watch(parent, tr("Réinstallation impossible"),
             tr("La réinstallation de MySQL a échoué.") + "\n" +

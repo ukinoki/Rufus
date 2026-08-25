@@ -189,7 +189,7 @@ public:
     static bool socleLocalConforme();                   /*!< idem, mais relevé SANS connexion (serveur LOCAL) : pour les décisions qui précèdent la connexion */
     static bool serveurLocalPresent();                  /*!< un serveur MySQL local est-il installé ? (avant toute connexion) */
     void        verifierEtReparerConfigMonoposte();     /*!< monoposte : vérif silencieuse de la config, propose de réparer sinon */
-    bool        reinstallerSocleMySQLpourMigration();   /*!< migration DESTRUCTIVE du socle (après sauvegarde validée) */
+    bool        reinstallerSocleMySQLpourMigration(const QStringList& log);   /*!< migration DESTRUCTIVE du socle (log = admin de l'ancien serveur, pour hériter de son imagerie) */
 
     /*! ── Clés SSL (accès distant chiffré) ────────────────────────────────────────────────────────────── */
     bool        sauvegarderClesSSLMigration();       /*!< copie les .pem du datadir vers un stash (avant désinstall) */
@@ -253,10 +253,17 @@ private:
     QString                       m_initLog = "/tmp/rufus_mysql_init.log";   /*!< journal d'init du datadir (macOS) */
     MySQLRemoteConfig             m_remoteConfig;                            /*!< config distante (chargée une seule fois) */
     bool                          m_remoteConfigLoaded = false;
+    QString                       m_dossierPartageForce;                     /*!< dossier d'imagerie hérité d'une ancienne base (sinon défaut) */
+    bool                          m_avertirImagerieAMigrer = false;          /*!< identifiants de l'ancien serveur perdus : prévenir de recopier l'imagerie */
 
     /*! ── Phases de run() ─────────────────────────────────────────────────────────────────────────────── */
     bool faireCreate(const MySQLRemoteConfig& cfg);             /*!< chemin création : installe MySQL + crée adminrufus + config */
     bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);   /*!< section install de faireCreate, sans saisie (migration) */
+
+    /*! ── Imagerie d'une ancienne base : héritage du dossier ou avertissement ─────────────────────────── */
+    QString lireSecureFilePriv(const QStringList& log);              /*!< secure_file_priv de l'ancien serveur (vide si NULL/illisible) */
+    void    preserverDossierImagerieAncienneBase(const QStringList& log);   /*!< avant la purge : hérite du dossier d'imagerie ou mémorise qu'il faut avertir */
+    void    avertirImagerieAMigrer();                               /*!< invite l'utilisateur à recopier lui-même son imagerie (identifiants perdus) */
 
     bool          isMariaDB();                                                                         /*!< le serveur local est-il MariaDB ? (incompatible) */
     bool          faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout,

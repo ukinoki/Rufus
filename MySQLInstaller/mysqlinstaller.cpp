@@ -824,6 +824,8 @@ static const QString NOM_PARTAGE_IMAGERIE = "RufusImagerie";    /*!< sans accent
 
 QString MySQLInstaller::sharedFolderPath()
 {
+    if (!m_dossierPartageForce.isEmpty())   /*!< dossier hérité d'une ancienne base Rufus */
+        return m_dossierPartageForce;
 #if defined(Q_OS_WIN)
     return "C:/Users/Public";   /*!< slashes avant : acceptés par Qt et MySQL sous Windows */
 #else
@@ -1118,7 +1120,7 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
             tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
                "Le serveur actuel et tout ce qu'il contient seront supprimés. Voulez-vous continuer ?")))
         return false;
-    if (!reinstallerSocleMySQLpourMigration())
+    if (!reinstallerSocleMySQLpourMigration(log))
         return false;
     return true;
 }
@@ -1886,12 +1888,15 @@ void MySQLInstaller::avertirExpirationClesSSLDistant()
  * Orchestration destructive de la migration du socle : (droits admin) → désinstallation de l'ancien MySQL
  * → réinstallation + adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si le
  * nouveau socle est prêt.
+ * \param log  { mdp, login } d'un compte admin de l'ancien serveur (vide si perdus)
  */
-bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
+bool MySQLInstaller::reinstallerSocleMySQLpourMigration(const QStringList& log)
 {
     if (!assurerDroitsAdmin())
         return false;
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
+    /*! Imagerie : hériter du dossier de l'ancienne base (secure_file_priv) tant que le serveur répond. */
+    preserverDossierImagerieAncienneBase(log);
     /*! SSL (étape 7, point 4) : conserver les clés AVANT la désinstallation (qui détruit le datadir). */
     const bool clesConservees = sauvegarderClesSSLMigration();
     uninstallMySQL();
@@ -1900,7 +1905,110 @@ bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
     /*! Réinjecter les anciennes clés (même CA) : les postes distants existants restent valides. */
     if (clesConservees)
         restaurerClesSSLMigration();
+    if (m_avertirImagerieAMigrer)
+        avertirImagerieAMigrer();
     return true;
+}
+
+/*!
+ * \brief MySQLInstaller::lireSecureFilePriv
+ * secure_file_priv de l'ancien serveur, lu avec un compte admin avant la purge (vide si NULL ou illisible).
+ * \param log  { mdp, login } d'un compte administrateur MySQL
+ */
+QString MySQLInstaller::lireSecureFilePriv(const QStringList& log)
+{
+    if (log.size() < 2)
+        return QString();
+    const QString out = runCmdFull(
+        QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
+                "\"SELECT @@GLOBAL.secure_file_priv;\" 2>&1")
+            .arg(mysqlBin("mysql"), argsServeurCourant(), log.at(1), log.at(0)));
+    const QStringList l = lignesResultat(out);
+    if (l.isEmpty())
+        return QString();
+    const QString v = l.first().trimmed();
+    return v.compare("NULL", Qt::CaseInsensitive) == 0 ? QString() : v;
+}
+
+/*!
+ * \brief MySQLInstaller::preserverDossierImagerieAncienneBase
+ * Avant la purge : si une base Rufus existe, on garde son dossier d'imagerie (secure_file_priv) pour le
+ * nouveau serveur ; identifiants perdus → on mémorise qu'il faudra inviter l'utilisateur à la recopier.
+ * \param log  { mdp, login } d'un compte admin de l'ancien serveur (vide si perdus)
+ */
+void MySQLInstaller::preserverDossierImagerieAncienneBase(const QStringList& log)
+{
+    if (log.size() < 2) {
+        m_avertirImagerieAMigrer = true;
+        return;
+    }
+    if (!isBaseRufus(log))                   /*!< pas d'ancienne base → rien à préserver, on écrase tout */
+        return;
+    const QString ancien = QDir::cleanPath(lireSecureFilePriv(log));
+    if (!ancien.isEmpty() && ancien != QDir::cleanPath(sharedFolderPath()))
+        m_dossierPartageForce = ancien;
+}
+
+/*!
+ * \brief MySQLInstaller::avertirImagerieAMigrer
+ * Identifiants de l'ancien serveur perdus : invite l'utilisateur à vérifier/recopier lui-même son imagerie
+ * dans le nouveau dossier partagé, avec un bouton d'explications détaillées.
+ */
+void MySQLInstaller::avertirImagerieAMigrer()
+{
+    const QString chemin = sharedFolderPath() + "/Rufus/Imagerie";
+#if defined(Q_OS_WIN)
+    const QString explorateur = tr("l'Explorateur de fichiers");
+#elif defined(Q_OS_MACOS)
+    const QString explorateur = tr("le Finder");
+#else
+    const QString explorateur = tr("le gestionnaire de fichiers « Fichiers »");
+#endif
+
+    const QString aide =
+          tr("<b>Pourquoi ce message ?</b>") + "<br>"
+        + tr("Rufus vient de réinstaller son moteur de base de données. La base (vos patients, vos "
+             "consultations) a été sauvegardée et remise en place automatiquement. En revanche, les "
+             "images (fond d'œil, OCT, champ visuel, documents scannés) ne sont pas dans la base : ce "
+             "sont des fichiers rangés dans un dossier de l'ordinateur. Rufus ne peut pas deviner où se "
+             "trouvaient vos anciennes images ; c'est pourquoi il vous demande de vérifier.") + "<br><br>"
+        + tr("<b>Où doivent être vos images maintenant ?</b>") + "<br>"
+        + tr("Dans ce dossier, et nulle part ailleurs :") + "<br><b>" + chemin + "</b><br><br>"
+        + tr("<b>Comment vérifier et, au besoin, recopier vos images ?</b>") + "<br>"
+        + tr("1. Ouvrez le gestionnaire de fichiers de votre ordinateur (%1).").arg(explorateur) + "<br>"
+        + tr("2. Cherchez le dossier où étaient rangées vos images avant (souvent un dossier nommé "
+             "Rufus puis Imagerie, à l'endroit que vous aviez choisi lors de la première "
+             "installation).") + "<br>"
+        + tr("3. Si ce dossier contient bien vos images et qu'il n'est pas celui indiqué ci-dessus, "
+             "sélectionnez tout son contenu, faites Copier, puis Collez le tout dans le dossier indiqué "
+             "ci-dessus.") + "<br>"
+        + tr("4. Vous pouvez copier (et non déplacer) : vos fichiers d'origine restent en place, rien "
+             "n'est perdu si vous vous trompez.") + "<br><br>"
+        + tr("<b>Et si je ne trouve pas mes anciennes images ?</b>") + "<br>"
+        + tr("Ne supprimez rien et ne réinstallez rien. Vos fichiers sont toujours sur le disque, là où "
+             "ils étaient. Notez le message et contactez l'assistance : on retrouvera le dossier avec "
+             "vous.");
+
+    UpMessageBox msgbox(m_parent);
+    msgbox.setIcon(UpMessageBox::Info);
+    msgbox.setText(tr("Vos documents d'imagerie"));
+    msgbox.setInformativeText(
+          tr("Vos documents d'imagerie (photos du fond d'œil, OCT, champs visuels, scanners…) ne font "
+             "pas partie de la sauvegarde de la base de données : ils sont rangés à part, dans un "
+             "dossier.") + "\n\n"
+        + tr("Si vous utilisiez déjà Rufus sur cet ordinateur, vérifiez qu'ils se trouvent bien dans "
+             "ce dossier :") + "\n\n" + chemin + "\n\n"
+        + tr("S'ils n'y sont pas, il vous faudra les y recopier vous-même. Le bouton « Plus "
+             "d'explications » vous montre comment faire, pas à pas."));
+
+    UpSmallButton *bAide = Utils::BoutonAide(aide, tr("Plus d'explications"));
+    bAide   ->setText(tr("Plus d'explications"));
+    UpSmallButton *bOK = new UpSmallButton(tr("OK, j'ai compris"));
+    bOK     ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
+    connect(bOK, &UpSmallButton::clicked, &msgbox, &QDialog::accept);
+    msgbox.AjouteWidgetLayButtons(bAide);
+    msgbox.AjouteWidgetLayButtons(bOK);
+    msgbox.exec();
 }
 
 /*!
