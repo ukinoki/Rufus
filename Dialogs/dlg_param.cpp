@@ -289,6 +289,11 @@ dlg_param::dlg_param(QWidget *parent) :
             })
         );
     }
+    connect(ui->ParamtabWidget, &QTabWidget::currentChanged, this, [=, this] (int index) {
+        ui->LockParamGeneralupLabel ->setVisible(index == ui->ParamtabWidget->indexOf(ui->GeneralParamtab));
+        ui->LockParamPosteupLabel   ->setVisible(index == ui->ParamtabWidget->indexOf(ui->PosteParamtab));
+        ui->LockParamUserupLabel    ->setVisible(index == ui->ParamtabWidget->indexOf(ui->UserParamtab));
+    });
 
     /*-------------------- GESTION DE LA COMPTABILITÉ-------------------------------------------------------*/
     ui->ComptagroupBox->setVisible(true);
