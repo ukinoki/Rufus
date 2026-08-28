@@ -5432,19 +5432,19 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         QStringList logAdmin;
         const bool serveurPresent = MySQLInstaller::serveurLocalPresent();
         if (serveurPresent)
-        {
-            if (!propBackupMySQLBeforeErase(&dlg))
-            {
-                abandonner();
-                return;
-            }
             //! adminrufus/gaxt78iy, sinon saisie d'un compte admin : indépendant de la conformité
             logAdmin = installeurMySQL->FindMdpLoginMySQL();
-        }
+
         const bool connectable   = !logAdmin.isEmpty();
         const bool aInstaller    = !serveurPresent;
         const bool aDesinstaller = serveurPresent
                                 && (!connectable || !MySQLInstaller::socleLocalConforme());
+
+        if (serveurPresent && !propBackupMySQLBeforeErase(&dlg))
+        {
+            abandonner();
+            return;
+        }
 
         //! Base Rufus en place : elle sera effacée, on propose de la sauvegarder
         if (connectable && MySQLInstaller::isBaseRufus(logAdmin))
@@ -5469,31 +5469,22 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 }
         }
 
-        //! Accord de l'utilisateur avant d'agir ; serveur inaccessible = purge imposée, sans choix
-        auto accepte = [&](const QString& titre, const QString& texte) {
-            return UpMessageBox::Question(&dlg, titre, texte,
+        //! Une seule demande d'accord ; serveur injoignable = purge imposée, donc simple avertissement
+        if (aDesinstaller && !connectable)
+            UpMessageBox::Watch(&dlg, tr("Serveur MySQL inaccessible"),
+                tr("Rufus ne parvient pas à se connecter au serveur MySQL de cet ordinateur.") + "\n\n" +
+                tr("Ce serveur et tout ce qu'il contient vont être supprimés, puis un serveur neuf "
+                   "sera installé."));
+        else if (aInstaller || aDesinstaller)
+        {
+            const QString texte = aDesinstaller
+                ? tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
+                     "Le serveur actuel et tout ce qu'il contient seront supprimés. Voulez-vous continuer ?")
+                : tr("Pour installer Rufus, il est nécessaire d'installer une base de données MySQL "
+                     "sur cet ordinateur.\n\nVoulez-vous l'installer maintenant ?");
+            if (UpMessageBox::Question(&dlg, tr("Installation de MySQL"), texte,
                         UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                        QStringList() << tr("Non") << tr("Oui")) == UpSmallButton::STARTBUTTON;
-        };
-        if (aInstaller
-         && !accepte(tr("Installation de MySQL"),
-                     tr("Pour installer Rufus, il est nécessaire d'installer une base de données MySQL "
-                        "sur cet ordinateur.\n\nVoulez-vous l'installer maintenant ?")))
-        {
-            abandonner();
-            return;
-        }
-        if (aDesinstaller)
-        {
-            if (!connectable)
-                UpMessageBox::Watch(&dlg, tr("Serveur MySQL inaccessible"),
-                    tr("Rufus ne parvient pas à se connecter au serveur MySQL de cet ordinateur.") + "\n\n" +
-                    tr("Ce serveur et tout ce qu'il contient vont être supprimés, puis un serveur neuf "
-                       "sera installé."));
-            else if (!accepte(tr("Installation d'un serveur MySQL neuf"),
-                              tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
-                                 "Le serveur actuel et tout ce qu'il contient seront supprimés. "
-                                 "Voulez-vous continuer ?")))
+                        QStringList() << tr("Non") << tr("Oui")) != UpSmallButton::STARTBUTTON)
             {
                 abandonner();
                 return;

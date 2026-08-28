@@ -122,11 +122,11 @@ private:
     Garantit au démarrage qu'un serveur MySQL conforme est prêt (installé, configuré, sécurisé), et fournit
     l'entretien qui suit (mot de passe, clés SSL). Tout est LOCAL : les données ne quittent jamais le cabinet.
 
-    * POINT D'ENTRÉE — run() (synchrone), cf. initialisation Rufus.txt § II.1 :
-        * MySQL absent                -> faireCreate() : installe MySQL, crée les comptes, configure.
-        * MySQL présent               -> réutilisation ou remplacement du serveur, selon son état.
-            * socle conforme + compte admin -> faireReutiliser() : on garde le serveur.
-            * sinon -> reinstallerSocleMySQLpourMigration() : désinstallation puis serveur neuf.
+    * POINT D'ENTRÉE — run(desinstaller, installer) (synchrone) : exécute le diagnostic posé par
+      l'appelant, le paramétrage pour Rufus étant fait dans tous les cas.
+        * desinstaller -> reinstallerSocleMySQLpourMigration() : purge puis serveur neuf.
+        * installer    -> faireCreate() : installe MySQL, crée les comptes, configure.
+        * ni l'un ni l'autre -> on garde le serveur en place et on le paramètre.
         * renvoie true si un MySQL conforme est prêt.
     * ÉTAPES DE CONFIG — executerEtapesConfig(), affichées dans la checklist de MySQLInstallerDialog :
         * 0 connexion admin   1 PATH   2 dossier partagé   3 secure_file_priv
@@ -270,7 +270,6 @@ private:
     void    avertirImagerieAMigrer();                                       /*!< invite l'utilisateur à recopier lui-même son imagerie */
 
     bool          isMariaDB();                                              /*!< le serveur local est-il MariaDB ? (incompatible) */
-    bool          faireReutiliser(const MySQLRemoteConfig& cfg);            /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
     void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);  /*!< supprime toutes les bases non système */
 
     bool executerEtapesConfig();                                            /*!< déroule les étapes de config + coche la checklist ; true si tout OK */

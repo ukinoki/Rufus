@@ -975,7 +975,59 @@ bool MySQLInstaller::run(bool desinstaller, bool installer)
         return faireCreate(cfg);
     }
 
-    return faireReutiliser(cfg);
+    /*! Serveur en place réutilisable : les comptes Rufus sont créés avec le compte admin éprouvé, qu'il
+     *  faut relever AVANT de poser l'aléatoire dans m_login/m_password. */
+    const QStringList admin = SqlLog();
+    if (admin.size() < 2)
+        return false;
+
+    m_dialog = new MySQLInstallerDialog(m_parent);
+    m_dialog->passerEnConfiguration(tr("Configuration de MySQL"),
+                                    tr("Paramétrage du serveur en cours…"));
+
+    /*! Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : sinon elle se
+     *  fermerait et rouvrirait entre deux coches (clignotement). */
+    bool configReussie = false;
+    QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
+    connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
+        m_dialog->checkStep(0);
+
+        m_login    = LOGIN_SQL;
+        m_password = genererMotDePasse();
+        if (!isServerRunning()) startMySQL();
+
+        const CreateUserResult r = createUserAvecAdmin(admin.at(1), admin.at(0));
+        if (r == CreateUserResult::NoCreateUserRight) {
+            UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
+                tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
+                   "(CREATE USER). Réessayez avec un compte administrateur MySQL "
+                   "(par ex. root).").arg(admin.at(1)));
+            m_dialog->reject();
+            return;
+        }
+        if (r != CreateUserResult::Ok) {
+            UpMessageBox::Watch(m_dialog, tr("Erreur"),
+                tr("Impossible de créer les comptes Rufus."));
+            m_dialog->reject();
+            return;
+        }
+        stockerMotDePasse(m_password);
+        m_comptesDejaCrees = true;
+
+        /*! Les bases non-Rufus (données étrangères) sont supprimées ; les bases Rufus seront recréées
+         *  vierges par RestaureBase. */
+        effacerToutesBasesUtilisateur(admin.at(1), admin.at(0));
+
+        if (!executerEtapesConfig()) { m_dialog->reject(); return; }
+
+        configReussie = true;
+        m_dialog->accept();
+    });
+
+    QMetaObject::invokeMethod(m_dialog->OKButton, "click", Qt::QueuedConnection);
+    m_dialog->exec();
+    cleanupDialog();
+    return configReussie;
 }
 
 /*!
@@ -1237,69 +1289,6 @@ static void avertirSuppressionGaxt78iyEffectuee(QWidget *parent = nullptr)
                       "version plus ancienne du programme, ils doivent IMPÉRATIVEMENT être "
                       "mis à jour vers cette nouvelle version pour pouvoir continuer à "
                       "utiliser Rufus."));
-}
-
-/*!
- * \brief MySQLInstaller::faireReutiliser
- * RÉUTILISE un MySQL existant compatible (choix Effacer/Conserver) : demande un compte admin MySQL, crée
- * adminrufus/SSL, (option : efface les bases non-Rufus), déroule la config, puis la saisie du futur
- * utilisateur Rufus.
- * \param effacerTout  true = supprime aussi les bases non-Rufus (choix « Effacer »)
- */
-bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig&)
-{
-    m_dialog    = new MySQLInstallerDialog(m_parent);
-    m_dialog->passerEnConfiguration(tr("Configuration de MySQL"),
-                                        tr("Paramétrage du serveur en cours…"));
-
-    /*! Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : vérifie la connexion
-     *  admin (coche la case 0) puis enchaîne la config (cases 1 à 6). accept() seulement à la toute fin,
-     *  quand tout est coché — sinon la fiche se fermerait/rouvrirait entre deux cases (clignotement).
-     *  Connexion refusée → fiche laissée ouverte pour réessayer ; erreur bloquante → reject(). */
-    bool configReussie = false;
-    QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
-    connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
-        m_dialog->checkStep(0);
-
-        m_login    = LOGIN_SQL;
-        m_password = genererMotDePasse();
-        if (!isServerRunning()) startMySQL();
-
-        const CreateUserResult r = createUserAvecAdmin(m_login, m_password);
-        if (r == CreateUserResult::NoCreateUserRight) {
-            UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
-                tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
-                   "(CREATE USER). Réessayez avec un compte administrateur MySQL "
-                   "(par ex. root).").arg(m_login));
-            m_dialog->reject();                     /*!< → retour à la boîte de choix */
-            return;
-        }
-        if (r != CreateUserResult::Ok) {
-            UpMessageBox::Watch(m_dialog, tr("Erreur"),
-                tr("Impossible de créer les comptes Rufus."));
-            m_dialog->reject();
-            return;
-        }
-        /*! adminrufus/adminrufusSSL créés : on mémorise leur mot de passe aléatoire. */
-        stockerMotDePasse(m_password);
-        m_comptesDejaCrees = true;
-
-        /*! EFFACER : on supprime aussi les bases NON-Rufus (données étrangères) ; les bases Rufus sont
-         *  (re)créées vierges par RestaureBase. CONSERVER : on n'y touche pas. */
-        effacerToutesBasesUtilisateur(m_login, m_password);
-
-        if (!executerEtapesConfig()) { m_dialog->reject(); return; }
-
-        configReussie = true;
-        m_dialog->accept();                         /*!< tout est coché : on ferme enfin */
-    });
-
-    QMetaObject::invokeMethod(m_dialog->OKButton, "click", Qt::QueuedConnection);
-    m_dialog->exec();
-    if (!configReussie) { cleanupDialog(); return false; }
-
-    cleanupDialog();
-    return true;
 }
 
 /*!
