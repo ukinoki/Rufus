@@ -107,14 +107,7 @@ int main(int argc, char *argv[])
     //! Pavé numérique : la touche décimale envoie le séparateur décimal local (cf. classe ci-dessus).
     app.installEventFilter(new FiltreSeparateurDecimal(&app));
 
-    //! TEST TEMPORAIRE de la fiche de saisie du compte admin MySQL - à retirer après essai.
-    {
-        const QStringList log = MySQLInstaller().FindMdpLoginMySQL();
-        qDebug() << "FindMdpLoginMySQL ->" << log;
-        //return 0;
-    }
-
-    /*QString locale = QLocale::system().name().section('_', 0, 0);
+   /*QString locale = QLocale::system().name().section('_', 0, 0);
     QDir dirloc = QDir(QCoreApplication::applicationDirPath());
     dirloc.cdUp();
     locale = dirloc.absolutePath() + "/Locale/rufus_" + locale + ".qm";*/

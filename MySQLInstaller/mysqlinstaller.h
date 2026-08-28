@@ -47,6 +47,10 @@ struct MySQLRemoteConfig {
     QString macX86Url;     /*!< URL de téléchargement macOS Intel */
 };
 
+
+
+
+
 /*! MySQLProgressDialog — petite fiche de progression (téléchargement / installation).
     * total <= 0 -> barre animée (indéterminée) ; sinon pourcentage.
     * setProgress affiche en plus le volume « X / Y Mo » (gros DMG macOS ~550 Mo).
@@ -64,6 +68,10 @@ private:
     QProgressBar* m_progress;
     QLabel*       m_detail;   /*!< volume téléchargé « X / Y Mo » */
 };
+
+
+
+
 
 /*! MySQLInstallerDialog — la fiche de l'installeur (dérive d'UpDialog).
     * Haut : titre + sous-titre. Milieu : saisie identifiant + mot de passe (2 UpLineEdit, plus une
@@ -105,6 +113,10 @@ private:
     QString        m_minVersion = VERSION_MYSQL_MINI;                               /*!< seuil commun (8.0.14), écrasé par setMinVersion() */
     bool           m_cancelled  = false;
 };
+
+
+
+
 
 /*! MySQLInstaller — moteur d'installation, de vérification et de sécurisation du serveur MySQL de Rufus.
     Garantit au démarrage qu'un serveur MySQL conforme est prêt (installé, configuré, sécurisé), et fournit
@@ -257,9 +269,8 @@ private:
     bool    configurerEtapesDossierPartage(bool silencieux);                /*!< étapes 3-5 : dossier partagé + secure_file_priv + test R/W */
     void    avertirImagerieAMigrer();                                       /*!< invite l'utilisateur à recopier lui-même son imagerie */
 
-    bool          isMariaDB();                                                                        /*!< le serveur local est-il MariaDB ? (incompatible) */
-    bool          faireReutiliser(const MySQLRemoteConfig& cfg,
-                         bool effacerTout);                                 /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
+    bool          isMariaDB();                                              /*!< le serveur local est-il MariaDB ? (incompatible) */
+    bool          faireReutiliser(const MySQLRemoteConfig& cfg);            /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
     void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);  /*!< supprime toutes les bases non système */
 
     bool executerEtapesConfig();                                            /*!< déroule les étapes de config + coche la checklist ; true si tout OK */

@@ -987,7 +987,7 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
 
     //! Serveur récent ET ouvrable : on le garde. Sinon rien n'est réutilisable, on le remplace.
     if (socleLocalConforme())
-        return faireReutiliser(cfg, /*effacerTout=*/true);
+        return faireReutiliser(cfg);
 
     if (!askYesNo(tr("Installation d'un serveur MySQL neuf"),
             tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
@@ -1266,7 +1266,7 @@ static void avertirSuppressionGaxt78iyEffectuee(QWidget *parent = nullptr)
  * utilisateur Rufus.
  * \param effacerTout  true = supprime aussi les bases non-Rufus (choix « Effacer »)
  */
-bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effacerTout)
+bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig&)
 {
     m_dialog    = new MySQLInstallerDialog(m_parent);
     m_dialog->passerEnConfiguration(tr("Configuration de MySQL"),
@@ -1276,7 +1276,6 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
      *  admin (coche la case 0) puis enchaîne la config (cases 1 à 6). accept() seulement à la toute fin,
      *  quand tout est coché — sinon la fiche se fermerait/rouvrirait entre deux cases (clignotement).
      *  Connexion refusée → fiche laissée ouverte pour réessayer ; erreur bloquante → reject(). */
-    QString adminLogin, adminMdp;
     bool configReussie = false;
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
@@ -1286,12 +1285,12 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
         m_password = genererMotDePasse();
         if (!isServerRunning()) startMySQL();
 
-        const CreateUserResult r = createUserAvecAdmin(adminLogin, adminMdp);
+        const CreateUserResult r = createUserAvecAdmin(m_login, m_password);
         if (r == CreateUserResult::NoCreateUserRight) {
             UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
                 tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
                    "(CREATE USER). Réessayez avec un compte administrateur MySQL "
-                   "(par ex. root).").arg(adminLogin));
+                   "(par ex. root).").arg(m_login));
             m_dialog->reject();                     /*!< → retour à la boîte de choix */
             return;
         }
@@ -1307,8 +1306,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
 
         /*! EFFACER : on supprime aussi les bases NON-Rufus (données étrangères) ; les bases Rufus sont
          *  (re)créées vierges par RestaureBase. CONSERVER : on n'y touche pas. */
-        if (effacerTout)
-            effacerToutesBasesUtilisateur(adminLogin, adminMdp);
+        effacerToutesBasesUtilisateur(m_login, m_password);
 
         if (!executerEtapesConfig()) { m_dialog->reject(); return; }
 

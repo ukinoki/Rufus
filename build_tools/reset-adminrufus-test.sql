@@ -43,6 +43,20 @@ PREPARE st FROM @drops;
 EXECUTE st;
 DEALLOCATE PREPARE st;
 
+SELECT CONCAT('DROP USER IF EXISTS ',
+              GROUP_CONCAT(CONCAT(QUOTE(User), '@', QUOTE(Host)) SEPARATOR ', '))
+  INTO @drops
+  FROM mysql.user
+ WHERE User LIKE 'secoursrufus%';
+
+-- Aucun compte trouvé → @drops vaut NULL : on met une instruction neutre pour
+-- que PREPARE ne plante pas.
+SET @drops = IFNULL(@drops, 'DO 0');
+
+PREPARE st FROM @drops;
+EXECUTE st;
+DEALLOCATE PREPARE st;
+
 -- --- 2. Recréation de l'état antérieur (générique seul, non sécurisé) -------
 CREATE USER 'adminrufus'@'%'
        IDENTIFIED BY 'gaxt78iy';
