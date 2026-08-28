@@ -934,11 +934,12 @@ bool MySQLInstaller::assurerDroitsAdmin()
 
 /*!
  * \brief MySQLInstaller::run
- * Point d'entrée synchrone (cf. initialisation Rufus.txt § II.1) : pré-requis plateforme, détection de
- * MySQL, sauvegarde de la base Rufus qui s'y trouve, puis réutilisation ou remplacement du serveur.
- * Renvoie true si un MySQL conforme à Rufus est prêt.
+ * Point d'entrée synchrone : exécute ce que l'appelant a diagnostiqué (désinstaller, installer), le
+ * paramétrage pour Rufus étant fait dans tous les cas. Renvoie true si un MySQL conforme est prêt.
+ * \param desinstaller  purger le serveur en place avant d'en installer un neuf
+ * \param installer     installer MySQL (faux si le serveur en place est réutilisable)
  */
-bool MySQLInstaller::run(const QStringList& logAdmin)
+bool MySQLInstaller::run(bool desinstaller, bool installer)
 {
 #if defined(Q_OS_WIN)
     /*! Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et l'installe AVANT toute
@@ -964,7 +965,16 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
 
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
 
-    if (!isMySQLInstalled())
+    if (desinstaller)
+    {
+        if (!askYesNo(tr("Installation d'un serveur MySQL neuf"),
+                tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
+                   "Le serveur actuel et tout ce qu'il contient seront supprimés. Voulez-vous continuer ?")))
+            return false;
+        return reinstallerSocleMySQLpourMigration(SqlLog());
+    }
+
+    if (installer)
     {
         if (!askYesNo(tr("Installation de MySQL"),
                 tr("Pour installer Rufus, il est nécessaire d'installer une base de données MySQL "
@@ -974,28 +984,8 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
             return false;
         return faireCreate(cfg);
     }
-    if (!logAdmin.isEmpty() && !tryConnectAs(logAdmin[1], logAdmin[0]))
-    {
-        if (FindMdpLoginMySQL() == QStringList())/*!< réessaie la saisie si le mot de passe fourni est faux */
-        {
-            UpMessageBox::Watch(m_parent, tr("Connexion impossible"),
-                                tr("Le mot de passe administrateur MySQL fourni est incorrect.\n\n"
-                                   "Rufus ne peut pas se connecter au serveur MySQL déjà installé sur cet ordinateur."));
-            return false;
-        }
-    }
 
-    //! Serveur récent ET ouvrable : on le garde. Sinon rien n'est réutilisable, on le remplace.
-    if (socleLocalConforme())
-        return faireReutiliser(cfg);
-
-    if (!askYesNo(tr("Installation d'un serveur MySQL neuf"),
-            tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
-               "Le serveur actuel et tout ce qu'il contient seront supprimés. Voulez-vous continuer ?")))
-        return false;
-    if (!reinstallerSocleMySQLpourMigration(SqlLog()))
-        return false;
-    return true;
+    return faireReutiliser(cfg);
 }
 
 /*!
