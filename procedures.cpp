@@ -5553,17 +5553,9 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
             db->setVersion(m_version);
         }
-        //! le serveur et la base rufus et , le fichier rufus.ini et les dossiers sont en place, on crée le comte de secours et on redémarre
-
-        MySQLInstaller::creerCompteDeSecours(&dlg);
+        //! le serveur, la base rufus, le fichier rufus.ini et les dossiers sont en place : on redémarre
         UpMessageBox::Watch(&dlg, tr("Redémarrage nécessaire"),
-                              tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
-                              tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé") + ".\n" +
-                              tr("Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)") + "\n" +
-                              tr("il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.") + "\n\n" +
-                              tr("Mot de passe :") + "\n\n" +
-                              "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">" + MySQLInstaller::motDePasseSQL() + "</span></b></p>" + "\n\n" +
-                              tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
+                              tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte."));
         Utils::Redemarrage();
     };
 

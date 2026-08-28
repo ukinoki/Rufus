@@ -259,6 +259,7 @@ private:
     bool                          m_avertirImagerieAMigrer = false;          /*!< prévenir l'utilisateur de recopier lui-même son imagerie */
 
     /*! ── Phases de run() ─────────────────────────────────────────────────────────────────────────────── */
+    bool terminerRun(bool ok);                                              /*!< sortie commune de run() : aléatoire à noter + compte de secours */
     bool faireCreate(const MySQLRemoteConfig& cfg);                         /*!< chemin création : installe MySQL + crée adminrufus + config */
     bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);               /*!< section install de faireCreate, sans saisie (migration) */
     void avertirPostesAnciensAMettreAJour();                                /*!< serveur neuf : prévient qu'un ancien poste devra être mis à jour */

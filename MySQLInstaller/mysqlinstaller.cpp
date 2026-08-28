@@ -967,14 +967,10 @@ bool MySQLInstaller::run(bool desinstaller, bool installer)
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
 
     if (desinstaller)
-        return reinstallerSocleMySQLpourMigration(SqlLog());
+        return terminerRun(reinstallerSocleMySQLpourMigration(SqlLog()));
 
     if (installer)
-    {
-        if (!assurerDroitsAdmin())
-            return false;
-        return faireCreate(cfg);
-    }
+        return terminerRun(assurerDroitsAdmin() && faireCreate(cfg));
 
     /*! Serveur en place réutilisable : les comptes Rufus sont créés avec le compte admin éprouvé, qu'il
      *  faut relever AVANT de poser l'aléatoire dans m_login/m_password. SqlLog = { login, mdp }. */
@@ -1028,7 +1024,7 @@ bool MySQLInstaller::run(bool desinstaller, bool installer)
     QMetaObject::invokeMethod(m_dialog->OKButton, "click", Qt::QueuedConnection);
     m_dialog->exec();
     cleanupDialog();
-    return configReussie;
+    return terminerRun(configReussie);
 }
 
 /*!
@@ -1204,6 +1200,21 @@ static void inviterANoterMotDePasse(const QString& mdp, QWidget *parent = nullpt
                  + mdp + "</span></b></p>"
         + "\n\n" + QObject::tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment "
                                "depuis Paramètres ▸ onglet « Ce poste »."));
+}
+
+/*!
+ * \brief MySQLInstaller::terminerRun
+ * Sortie commune de run() : le serveur est prêt, on fait noter l'aléatoire et on met en place le compte
+ * de secours avant de rendre la main.
+ * \param ok  résultat de la branche exécutée
+ */
+bool MySQLInstaller::terminerRun(bool ok)
+{
+    if (!ok)
+        return false;
+    inviterANoterMotDePasse(m_password, m_parent);
+    creerCompteDeSecours(m_parent);
+    return true;
 }
 
 /*!
@@ -1436,7 +1447,6 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
     if (!executerEtapesConfig())  { cleanupDialog(); return false; }
     stockerMotDePasse(m_password);
     cleanupDialog();
-    inviterANoterMotDePasse(m_password, m_parent);
     return true;
 }
 
