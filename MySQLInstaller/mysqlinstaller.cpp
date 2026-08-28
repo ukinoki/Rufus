@@ -966,20 +966,10 @@ bool MySQLInstaller::run(bool desinstaller, bool installer)
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
 
     if (desinstaller)
-    {
-        if (!askYesNo(tr("Installation d'un serveur MySQL neuf"),
-                tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
-                   "Le serveur actuel et tout ce qu'il contient seront supprimés. Voulez-vous continuer ?")))
-            return false;
         return reinstallerSocleMySQLpourMigration(SqlLog());
-    }
 
     if (installer)
     {
-        if (!askYesNo(tr("Installation de MySQL"),
-                tr("Pour installer Rufus, il est nécessaire d'installer une base de données MySQL "
-                   "sur cet ordinateur.\n\nVoulez-vous l'installer maintenant ?")))
-            return false;
         if (!assurerDroitsAdmin())
             return false;
         return faireCreate(cfg);

@@ -5426,44 +5426,84 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
     auto installer = [&]()
     {
         MySQLInstaller *installeurMySQL = new MySQLInstaller(&dlg);
+        auto abandonner = [&] { delete installeurMySQL; };
+
+        //! Diagnostic : y a-t-il un serveur, s'y connecte-t-on, est-il conforme ?
         QStringList logAdmin;
-        bool isserverMySQL = MySQLInstaller::serveurLocalPresent();
-        if (isserverMySQL)
+        const bool serveurPresent = MySQLInstaller::serveurLocalPresent();
+        if (serveurPresent)
         {
             if (!propBackupMySQLBeforeErase(&dlg))
-                return;
-            logAdmin          = installeurMySQL->FindMdpLoginMySQL();
-            isserverMySQL     = !logAdmin.isEmpty();
-            if (isserverMySQL && MySQLInstaller::isBaseRufus(logAdmin))
             {
-                const UpSmallButton::StyleBouton rep =
-                                        UpMessageBox::Question(&dlg,
-                                            tr("Une base patients Rufus est présente sur ce serveur"),
-                                            tr("Elle sera effacée par l'installation.") + "\n\n" +
-                                            tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."),
-                                            UpDialog::ButtonSuppr | UpDialog::ButtonRecord | UpDialog::ButtonCancel,
-                                            QStringList() << tr("Annuler") << tr("Non,\neffacer la base") << tr("Oui,\nsauvegarder la base"));
-                if (rep == UpSmallButton::CANCELBUTTON)
+                abandonner();
+                return;
+            }
+            //! adminrufus/gaxt78iy, sinon saisie d'un compte admin : indépendant de la conformité
+            logAdmin = installeurMySQL->FindMdpLoginMySQL();
+        }
+        const bool connectable   = !logAdmin.isEmpty();
+        const bool aInstaller    = !serveurPresent;
+        const bool aDesinstaller = serveurPresent
+                                && (!connectable || !MySQLInstaller::socleLocalConforme());
+
+        //! Base Rufus en place : elle sera effacée, on propose de la sauvegarder
+        if (connectable && MySQLInstaller::isBaseRufus(logAdmin))
+        {
+            const UpSmallButton::StyleBouton rep =
+                                    UpMessageBox::Question(&dlg,
+                                        tr("Une base patients Rufus est présente sur ce serveur"),
+                                        tr("Elle sera effacée par l'installation.") + "\n\n" +
+                                        tr("Rufus peut la sauvegarder maintenant et vous proposer de la restaurer ensuite."),
+                                        UpDialog::ButtonSuppr | UpDialog::ButtonRecord | UpDialog::ButtonCancel,
+                                        QStringList() << tr("Annuler") << tr("Non,\neffacer la base") << tr("Oui,\nsauvegarder la base"));
+            if (rep == UpSmallButton::CANCELBUTTON)
+            {
+                abandonner();
+                return;
+            }
+            else if (rep == UpSmallButton::RECORDBUTTON)
+                if (!BackupRufusBaseBeforeInstall(logAdmin.at(1), logAdmin.at(0), &dlg))
+                {
+                    abandonner();
                     return;
-                else if (rep == UpSmallButton::RECORDBUTTON)
-                    if (!BackupRufusBaseBeforeInstall(logAdmin.at(1), logAdmin.at(0), &dlg))
-                        return;
+                }
+        }
+
+        //! Accord de l'utilisateur avant d'agir ; serveur inaccessible = purge imposée, sans choix
+        auto accepte = [&](const QString& titre, const QString& texte) {
+            return UpMessageBox::Question(&dlg, titre, texte,
+                        UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                        QStringList() << tr("Non") << tr("Oui")) == UpSmallButton::STARTBUTTON;
+        };
+        if (aInstaller
+         && !accepte(tr("Installation de MySQL"),
+                     tr("Pour installer Rufus, il est nécessaire d'installer une base de données MySQL "
+                        "sur cet ordinateur.\n\nVoulez-vous l'installer maintenant ?")))
+        {
+            abandonner();
+            return;
+        }
+        if (aDesinstaller)
+        {
+            if (!connectable)
+                UpMessageBox::Watch(&dlg, tr("Serveur MySQL inaccessible"),
+                    tr("Rufus ne parvient pas à se connecter au serveur MySQL de cet ordinateur.") + "\n\n" +
+                    tr("Ce serveur et tout ce qu'il contient vont être supprimés, puis un serveur neuf "
+                       "sera installé."));
+            else if (!accepte(tr("Installation d'un serveur MySQL neuf"),
+                              tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
+                                 "Le serveur actuel et tout ce qu'il contient seront supprimés. "
+                                 "Voulez-vous continuer ?")))
+            {
+                abandonner();
+                return;
             }
         }
-        QString login(""), mdp("");
-        bool serverconfigured = false;          //! serveurconfigured = un serveur est installé et il est paramétré
-        if (!isserverMySQL)
+
+        if (!installeurMySQL->run(aDesinstaller, aInstaller))
         {
-            //! pas de serveur -> on l'installe ; serveur non conforme (ou identifiants perdus) -> on le purge
-            const bool installer   = !MySQLInstaller::serveurLocalPresent();
-            const bool desinstaller = !installer && !MySQLInstaller::socleLocalConforme();
-            if (!installeurMySQL->run(desinstaller, installer))
-            {
-                delete installeurMySQL;
-                return;
-            }
-            else
-                serverconfigured = true;
+            abandonner();
+            return;
         }
 
         if (dirSQLExecutable() == "")
@@ -5486,13 +5526,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
             return;
         }
         m_connexionbaseOK = true;
-
-        //! serveur ouvrable : on le paramètre tel quel, sauf s'il n'est pas conforme -> on le purge
-        if (!serverconfigured && !installeurMySQL->run(!MySQLInstaller::socleLocalConforme(), false))
-        {
-            delete installeurMySQL;
-            return;
-        }
 
         //! Tout est OK concernant le serveur -> on passe à la création/restauration de la table
 
