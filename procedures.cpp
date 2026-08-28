@@ -2918,6 +2918,9 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         OKBouton.setText(tr("J'ai compris\nJe confirme"));
         msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
         msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+        qDebug() << "RestaureBase parent =" << parent
+                 << " active =" << QApplication::activeWindow()
+                 << " modality msgbox =" << msgbox.windowModality();
         msgbox.exec();
         if (msgbox.clickedButton() != &OKBouton)
             return "";
