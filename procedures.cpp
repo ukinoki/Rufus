@@ -5452,7 +5452,10 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         bool serverconfigured = false;          //! serveurconfigured = un serveur est installé et il est paramétré
         if (!isserverMySQL)
         {
-            if (!installeurMySQL->run())        //! il n'y a pas de serveur ou on a perdu les identifiants -> installation et paramétrage d'un serveur neuf
+            //! pas de serveur -> on l'installe ; serveur non conforme (ou identifiants perdus) -> on le purge
+            const bool installer   = !MySQLInstaller::serveurLocalPresent();
+            const bool desinstaller = !installer && !MySQLInstaller::socleLocalConforme();
+            if (!installeurMySQL->run(desinstaller, installer))
             {
                 delete installeurMySQL;
                 return;
@@ -5482,7 +5485,8 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         }
         m_connexionbaseOK = true;
 
-        if (!serverconfigured && !installeurMySQL->run(logAdmin))        //! paramétrage du serveur
+        //! serveur ouvrable : on le paramètre tel quel, sauf s'il n'est pas conforme -> on le purge
+        if (!serverconfigured && !installeurMySQL->run(!MySQLInstaller::socleLocalConforme(), false))
         {
             delete installeurMySQL;
             return;
