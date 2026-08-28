@@ -5456,7 +5456,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 return;
             }
             else if (rep == UpSmallButton::RECORDBUTTON)
-                if (!BackupRufusBaseBeforeInstall(logAdmin.at(1), logAdmin.at(0), &dlg))
+                if (!BackupRufusBaseBeforeInstall(logAdmin.at(0), logAdmin.at(1), &dlg))
                 {
                     abandonner();
                     return;

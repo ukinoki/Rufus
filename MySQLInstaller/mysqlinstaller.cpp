@@ -1097,7 +1097,7 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
                     : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
             return;                                 /*!< fiche ouverte : on réessaie */
         }
-        log << Line2->text() << Line->text().trimmed();
+        log << Line->text().trimmed() << Line2->text();
         dlg.accept();
     });
 
