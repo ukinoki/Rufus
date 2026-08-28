@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "rufus.h"
 #include "procedures.h"
 #include "dlg_initbase.h"
+#include "mysqlinstaller.h"
 #include <QApplication>
 #include <QTranslator>
 #include <QKeyEvent>
@@ -105,6 +106,13 @@ int main(int argc, char *argv[])
 
     //! Pavé numérique : la touche décimale envoie le séparateur décimal local (cf. classe ci-dessus).
     app.installEventFilter(new FiltreSeparateurDecimal(&app));
+
+    //! TEST TEMPORAIRE de la fiche de saisie du compte admin MySQL - à retirer après essai.
+    {
+        const QStringList log = MySQLInstaller().FindMdpLoginMySQL();
+        qDebug() << "FindMdpLoginMySQL ->" << log;
+        return 0;
+    }
 
     /*QString locale = QLocale::system().name().section('_', 0, 0);
     QDir dirloc = QDir(QCoreApplication::applicationDirPath());

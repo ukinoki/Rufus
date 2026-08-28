@@ -1144,15 +1144,45 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
                "MySQL ?")))
         return QStringList();
 
-    m_dialog = new MySQLInstallerDialog(m_parent);
-    m_dialog->configurerVerifyAdminMySQL();
+    /*! Compte MySQL EXISTANT : ni validateur ni confirmation (« root », mdp non alphanumérique…). */
+    UpDialog     dlg(m_parent);
+    QVBoxLayout *lay    = new QVBoxLayout();
+    UpLabel     *label  = new UpLabel();
+    UpLabel     *label2 = new UpLabel();
+    UpLineEdit  *Line   = new UpLineEdit();
+    UpLineEdit  *Line2  = new UpLineEdit();
+
+    dlg     .setWindowModality(Qt::WindowModal);
+    dlg     .setFixedSize(300, 220);
+    dlg     .setWindowTitle("");
+
+    Line    ->setAlignment(Qt::AlignCenter);
+    Line2   ->setAlignment(Qt::AlignCenter);
+    Line    ->setFixedHeight(20);
+    Line2   ->setFixedHeight(20);
+    Line2   ->setEchoMode(QLineEdit::Password);
+    label   ->setMinimumHeight(46);
+    label2  ->setFixedHeight(16);
+    label   ->setAlignment(Qt::AlignCenter);
+    label2  ->setAlignment(Qt::AlignCenter);
+
+    label   ->setText(tr("Un serveur MySQL existe déjà.\nSaisissez l'identifiant d'un compte MySQL administrateur\n- capable de créer des utilisateurs -"));
+    label2  ->setText(tr("Mot de passe"));
+
+    dlg     .AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg     .OKButton->setEnabled(false);
+
     QStringList log = QStringList();
-    QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
-    connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
-        if (!m_dialog->validerSaisie()) return;
-        if (!tryConnectAs(m_dialog->login(), m_dialog->password())) {
-            //! serveur muet : accuser l'identifiant enverrait chercher au mauvais endroit
-            UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
+    auto majOK = [&] { dlg.OKButton->setEnabled(!Line->text().trimmed().isEmpty()
+                                             && !Line2->text().isEmpty()); };
+    connect(Line,  &QLineEdit::textChanged, &dlg, majOK);
+    connect(Line2, &QLineEdit::textChanged, &dlg, majOK);
+
+    QObject::disconnect(dlg.OKButton, &QPushButton::clicked, nullptr, nullptr);
+    connect(dlg.OKButton, &QPushButton::clicked, &dlg, [&] {
+        if (!tryConnectAs(Line->text().trimmed(), Line2->text())) {
+            /*! serveur muet : accuser l'identifiant enverrait chercher au mauvais endroit */
+            UpMessageBox::Watch(&dlg, tr("Connexion impossible"),
                 m_serveurInjoignable
                     ? tr("Le serveur MySQL de cet ordinateur ne répond pas.") + "\n" +
                       tr("Il est installé mais non démarré : ni l'identifiant ni le mot de passe "
@@ -1160,11 +1190,23 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
                     : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
             return;                                 /*!< fiche ouverte : on réessaie */
         }
-        log << m_dialog->password() << m_dialog->login();
-        m_dialog->accept();
+        log << Line2->text() << Line->text().trimmed();
+        dlg.accept();
     });
-    m_dialog->exec();
-    cleanupDialog();
+
+    lay     ->addWidget(label);
+    lay     ->addWidget(Line);
+    lay     ->addWidget(label2);
+    lay     ->addWidget(Line2);
+    lay     ->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
+    lay     ->setContentsMargins(5, 5, 5, 5);
+    lay     ->setSpacing(5);
+
+    dlg.dlglayout() ->insertLayout(0, lay);
+    dlg.dlglayout() ->setSizeConstraint(QLayout::SetFixedSize);
+
+    Line->setFocus();
+    dlg.exec();
     return log;
 }
 
