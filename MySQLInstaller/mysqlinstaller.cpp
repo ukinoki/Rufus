@@ -177,15 +177,6 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     if (OKButton)
         connect(OKButton, &QPushButton::clicked, this, &MySQLInstallerDialog::accept);
-
-    /*! « Supprimer MySQL » (mode Verify) : désinstalle le MySQL existant pour repartir neuf. Placé à
-     *  gauche (loin d'OK/Annuler) ; masqué par défaut, affiché par configurerVerifyAdminMySQL(). Le clic
-     *  clôt exec() avec ResultSupprimerMySQL. */
-    m_btnSupprMySQL = new UpSmallButton(tr("Supprimer MySQL"), this);
-    m_btnSupprMySQL ->setVisible(false);
-    AjouteWidgetLayButtons(m_btnSupprMySQL, false);   /*!< false = inséré tout à gauche */
-    connect(m_btnSupprMySQL, &QPushButton::clicked, this,
-            [this]{ done(ResultSupprimerMySQL); });
 }
 
 /*! ── Configuration selon le contexte ──────────────────────────────────────────── */
@@ -206,16 +197,13 @@ void MySQLInstallerDialog::configurer(const QString& titre,
     m_subtitle ->setText(sousTitre);
     if (OKButton) { OKButton->setText(okLabel); OKButton->show(); }
     if (CancelButton) CancelButton->show();
-
-    /*! « Supprimer MySQL » n'a de sens qu'en mode Verify : masqué ici, ré-affiché par configurerVerifyAdminMySQL(). */
-    if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
 }
 
 /*!
  * \brief MySQLInstallerDialog::passerEnConfiguration
  * Bascule en mode « paramétrage en cours » : plus aucune saisie ni clic attendus. Login/mdp (déjà
- * choisis) restent affichés mais GRISÉS, boutons OK/Annuler (et « Supprimer MySQL ») masqués ; seule la
- * checklist se coche en direct.
+ * choisis) restent affichés mais GRISÉS, boutons OK/Annuler masqués ; seule la checklist se coche en
+ * direct.
  * \param titre      titre affiché en haut de la fiche
  * \param sousTitre  sous-titre explicatif
  */
@@ -226,7 +214,6 @@ void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
     m_subtitle ->setText(sousTitre);
     if (OKButton)        OKButton->hide();
     if (CancelButton)    CancelButton->hide();
-    if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
     unsetCursor();
     QApplication::processEvents();
 }
