@@ -3691,12 +3691,13 @@ QString MySQLInstaller::getCnfVar(const QString& key)
 }
 
 /*! ── Identifiants ─────────────────────────────────────────────────────────────── */
+/*! Toute réponse du serveur (refus d'accès, plugin d'auth absent…) prouve qu'il tourne : seule une erreur
+ *  de connexion dit le contraire. */
 bool MySQLInstaller::isServerRunning()
 {
-    QString bin = mysqlBin("mysqladmin");
-    QString out = runCmdFull(QString("\"%1\" ping 2>&1").arg(bin));
-    return out.contains("mysqld is alive", Qt::CaseInsensitive)
-        || out.contains("Access denied",   Qt::CaseInsensitive);
+    const QString out = runCmdFull(QString("\"%1\" ping 2>&1").arg(mysqlBin("mysqladmin")));
+    return !out.contains("ERROR 2002") && !out.contains("ERROR 2003")
+        && !out.contains("ERROR 2005");
 }
 
 bool MySQLInstaller::tryConnect()
