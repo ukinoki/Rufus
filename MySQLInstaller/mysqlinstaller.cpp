@@ -150,7 +150,7 @@ void MySQLProgressDialog::setProgressBar(qint64 done, qint64 total)
 MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     : UpDialog(parent)
 {
-    setWindowFlags(Qt::CustomizeWindowHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint);
     int row = 0;
 
     /*! Titre + sous-titre (libellés pilotés par les configurer*()). */
@@ -1059,7 +1059,7 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
     UpLineEdit  *Line2  = new UpLineEdit();
 
     dlg     .setWindowModality(Qt::WindowModal);
-    dlg     .setWindowFlags(Qt::CustomizeWindowHint);
+    dlg     .setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint);
     dlg     .setFixedSize(300, 220);
     dlg     .setWindowTitle("");
 

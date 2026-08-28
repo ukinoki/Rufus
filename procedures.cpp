@@ -5536,6 +5536,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
 
         if (m_protoc == BaseVierge)                                     //! si on crée une base vierge, on demande les identifiants du premier utilisateur et on paramètre le premier utilisateur et le reste
         {
+            QString login (""), mdp ("");
             if (!Utils::SaisirNouvelUtilisateur(login, mdp, &dlg))
             {
                 UpMessageBox::Watch(&dlg, tr("Erreur de création du compte utilisateur"),
