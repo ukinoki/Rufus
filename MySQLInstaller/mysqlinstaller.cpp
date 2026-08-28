@@ -977,7 +977,7 @@ bool MySQLInstaller::run(bool desinstaller, bool installer)
     }
 
     /*! Serveur en place réutilisable : les comptes Rufus sont créés avec le compte admin éprouvé, qu'il
-     *  faut relever AVANT de poser l'aléatoire dans m_login/m_password. */
+     *  faut relever AVANT de poser l'aléatoire dans m_login/m_password. SqlLog = { login, mdp }. */
     const QStringList admin = SqlLog();
     if (admin.size() < 2)
         return false;
@@ -997,12 +997,12 @@ bool MySQLInstaller::run(bool desinstaller, bool installer)
         m_password = genererMotDePasse();
         if (!isServerRunning()) startMySQL();
 
-        const CreateUserResult r = createUserAvecAdmin(admin.at(1), admin.at(0));
+        const CreateUserResult r = createUserAvecAdmin(admin.at(0), admin.at(1));
         if (r == CreateUserResult::NoCreateUserRight) {
             UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
                 tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
                    "(CREATE USER). Réessayez avec un compte administrateur MySQL "
-                   "(par ex. root).").arg(admin.at(1)));
+                   "(par ex. root).").arg(admin.at(0)));
             m_dialog->reject();
             return;
         }
@@ -1017,7 +1017,7 @@ bool MySQLInstaller::run(bool desinstaller, bool installer)
 
         /*! Les bases non-Rufus (données étrangères) sont supprimées ; les bases Rufus seront recréées
          *  vierges par RestaureBase. */
-        effacerToutesBasesUtilisateur(admin.at(1), admin.at(0));
+        effacerToutesBasesUtilisateur(admin.at(0), admin.at(1));
 
         if (!executerEtapesConfig()) { m_dialog->reject(); return; }
 
