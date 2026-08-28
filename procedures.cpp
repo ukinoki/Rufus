@@ -5440,12 +5440,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         const bool aDesinstaller = serveurPresent
                                 && (!connectable || !MySQLInstaller::socleLocalConforme());
 
-        if (serveurPresent && !propBackupMySQLBeforeErase(&dlg))
-        {
-            abandonner();
-            return;
-        }
-
         //! Base Rufus en place : elle sera effacée, on propose de la sauvegarder
         if (connectable && MySQLInstaller::isBaseRufus(logAdmin))
         {
@@ -5467,6 +5461,13 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                     abandonner();
                     return;
                 }
+        }
+
+        //! Les données étrangères à Rufus, elles, ne sont pas sauvegardées : l'utilisateur peut renoncer
+        if (serveurPresent && !propBackupMySQLBeforeErase(&dlg))
+        {
+            abandonner();
+            return;
         }
 
         //! Une seule demande d'accord ; serveur injoignable = purge imposée, donc simple avertissement
