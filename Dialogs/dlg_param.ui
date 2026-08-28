@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1015</width>
-    <height>940</height>
+    <height>980</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>1015</width>
-    <height>940</height>
+    <height>980</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>1015</width>
-    <height>940</height>
+    <height>980</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -741,34 +741,6 @@
             </property>
            </spacer>
           </item>
-          <item>
-           <widget class="UpLabel" name="LockParamUserupLabel">
-            <property name="minimumSize">
-             <size>
-              <width>48</width>
-              <height>48</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>48</width>
-              <height>48</height>
-             </size>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-            </property>
-            <property name="text">
-             <string>T</string>
-            </property>
-            <property name="scaledContents">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
        </layout>
@@ -790,12 +762,12 @@
          <x>0</x>
          <y>0</y>
          <width>985</width>
-         <height>841</height>
+         <height>868</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="PosteLayout">
         <property name="spacing">
-         <number>5</number>
+         <number>10</number>
         </property>
         <property name="leftMargin">
          <number>5</number>
@@ -820,13 +792,13 @@
           <property name="minimumSize">
            <size>
             <width>950</width>
-            <height>335</height>
+            <height>375</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>335</height>
+            <height>375</height>
            </size>
           </property>
           <property name="contextMenuPolicy">
@@ -836,7 +808,7 @@
            <enum>QTabWidget::TabPosition::North</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>false</bool>
@@ -851,7 +823,7 @@
               <x>360</x>
               <y>120</y>
               <width>550</width>
-              <height>170</height>
+              <height>210</height>
              </rect>
             </property>
            </widget>
@@ -861,7 +833,7 @@
               <x>10</x>
               <y>120</y>
               <width>325</width>
-              <height>168</height>
+              <height>210</height>
              </rect>
             </property>
             <property name="frameShape">
@@ -936,9 +908,9 @@
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>82</y>
+               <y>92</y>
                <width>305</width>
-               <height>28</height>
+               <height>35</height>
               </rect>
              </property>
              <property name="contextMenuPolicy">
@@ -955,28 +927,28 @@
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>135</y>
+               <y>170</y>
                <width>305</width>
-               <height>28</height>
+               <height>35</height>
               </rect>
              </property>
              <property name="contextMenuPolicy">
               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="toolTip">
-              <string>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</string>
+              <string>Exporter les données de connexion pour paramétrer un accès distant</string>
              </property>
              <property name="text">
-              <string>Exporter les clés client SSL (clé USB)</string>
+              <string>Exporter les données de connexion</string>
              </property>
             </widget>
             <widget class="QPushButton" name="CreerClesSSLPosteupPushButton">
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>110</y>
+               <y>131</y>
                <width>305</width>
-               <height>28</height>
+               <height>35</height>
               </rect>
              </property>
              <property name="contextMenuPolicy">
@@ -1112,9 +1084,9 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>140</y>
+              <y>120</y>
               <width>325</width>
-              <height>108</height>
+              <height>210</height>
              </rect>
             </property>
             <property name="frameShape">
@@ -1220,13 +1192,12 @@ du dossier de stockage des videos</string>
              <rect>
               <x>10</x>
               <y>95</y>
-              <width>281</width>
-              <height>41</height>
+              <width>310</width>
+              <height>30</height>
              </rect>
             </property>
             <property name="text">
-             <string>Cet appareil peut se connecter à
-un serveur hébergé sur le réseau local</string>
+             <string>Cet appareil se connecte à un serveur local</string>
             </property>
            </widget>
            <widget class="UpLabel" name="LocalDocsExtupLabel">
@@ -1248,13 +1219,13 @@ un serveur hébergé sur le réseau local</string>
               <x>360</x>
               <y>120</y>
               <width>550</width>
-              <height>170</height>
+              <height>210</height>
              </rect>
             </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>200</height>
+              <height>210</height>
              </size>
             </property>
             <property name="selectionMode">
@@ -1283,8 +1254,8 @@ un serveur hébergé sur le réseau local</string>
              <bool>true</bool>
             </property>
             <property name="readOnly">
-      <bool>false</bool>
-     </property>
+             <bool>false</bool>
+            </property>
            </widget>
            <widget class="UpLabel" name="LocalPathStockageupLabel">
             <property name="geometry">
@@ -1388,7 +1359,7 @@ du dossier de stockage des videos</string>
               <x>10</x>
               <y>120</y>
               <width>325</width>
-              <height>168</height>
+              <height>210</height>
              </rect>
             </property>
             <property name="contextMenuPolicy">
@@ -1437,7 +1408,7 @@ du dossier de stockage des videos</string>
               <rect>
                <x>110</x>
                <y>5</y>
-               <width>150</width>
+               <width>171</width>
                <height>21</height>
               </rect>
              </property>
@@ -1467,7 +1438,7 @@ du dossier de stockage des videos</string>
             <widget class="QPushButton" name="DossierCLesSSLupPushButton">
              <property name="geometry">
               <rect>
-               <x>219</x>
+               <x>258</x>
                <y>72</y>
                <width>54</width>
                <height>32</height>
@@ -1507,7 +1478,7 @@ du dossier de stockage des videos</string>
               <rect>
                <x>10</x>
                <y>79</y>
-               <width>201</width>
+               <width>241</width>
                <height>21</height>
               </rect>
              </property>
@@ -1524,6 +1495,9 @@ du dossier de stockage des videos</string>
               <number>150</number>
              </property>
              <property name="frame">
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
               <bool>true</bool>
              </property>
             </widget>
@@ -1572,7 +1546,7 @@ du dossier de stockage des videos</string>
                <x>10</x>
                <y>135</y>
                <width>305</width>
-               <height>28</height>
+               <height>36</height>
               </rect>
              </property>
              <property name="contextMenuPolicy">
@@ -1583,6 +1557,25 @@ du dossier de stockage des videos</string>
              </property>
              <property name="text">
               <string>Exporter les clés client SSL (clé USB)</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="ImportDonneesConnexionupPushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>170</y>
+               <width>305</width>
+               <height>36</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Importer les données de connexion exportées depuis le poste serveur</string>
+             </property>
+             <property name="text">
+              <string>Importer les données de connexion</string>
              </property>
             </widget>
            </widget>
@@ -1599,7 +1592,7 @@ du dossier de stockage des videos</string>
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
-             <string>Cet appareil peut se connecter à un serveur distant</string>
+             <string>Cet appareil se connecte à un serveur distant</string>
             </property>
            </widget>
            <widget class="UpLabel" name="DistantDocsExtupLabel">
@@ -1624,13 +1617,13 @@ du dossier de stockage des videos</string>
               <x>360</x>
               <y>120</y>
               <width>550</width>
-              <height>170</height>
+              <height>210</height>
              </rect>
             </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>200</height>
+              <height>210</height>
              </size>
             </property>
             <property name="contextMenuPolicy">
@@ -2418,7 +2411,7 @@ du dossier de stockage des videos</string>
             <property name="minimumSize">
              <size>
               <width>421</width>
-              <height>185</height>
+              <height>160</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -2675,7 +2668,7 @@ du dossier de stockage des videos</string>
               <property name="maximumSize">
                <size>
                 <width>520</width>
-                <height>95</height>
+                <height>80</height>
                </size>
               </property>
               <property name="title">
@@ -2751,13 +2744,13 @@ du dossier de stockage des videos</string>
               <property name="minimumSize">
                <size>
                 <width>520</width>
-                <height>71</height>
+                <height>60</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>520</width>
-                <height>71</height>
+                <height>61</height>
                </size>
               </property>
               <property name="contextMenuPolicy">
@@ -2790,69 +2783,6 @@ du dossier de stockage des videos</string>
            </size>
           </property>
          </spacer>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
-          <property name="spacing">
-           <number>5</number>
-          </property>
-          <property name="leftMargin">
-           <number>5</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>5</number>
-          </property>
-          <property name="bottomMargin">
-           <number>5</number>
-          </property>
-          <item>
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="UpLabel" name="LockParamPosteupLabel">
-            <property name="minimumSize">
-             <size>
-              <width>48</width>
-              <height>48</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>48</width>
-              <height>48</height>
-             </size>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="scaledContents">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
@@ -3953,37 +3883,6 @@ des organismes bancaires</string>
             </property>
            </spacer>
           </item>
-          <item>
-           <widget class="UpLabel" name="LockParamGeneralupLabel">
-            <property name="minimumSize">
-             <size>
-              <width>48</width>
-              <height>48</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>48</width>
-              <height>48</height>
-             </size>
-            </property>
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="scaledContents">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
        </layout>
@@ -3993,6 +3892,118 @@ des organismes bancaires</string>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>5</number>
+     </property>
+     <item>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="UpLabel" name="LockParamPosteupLabel">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="UpLabel" name="LockParamUserupLabel">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+       </property>
+       <property name="text">
+        <string>T</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="UpLabel" name="LockParamGeneralupLabel">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">

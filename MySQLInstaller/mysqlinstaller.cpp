@@ -149,8 +149,7 @@ void MySQLProgressDialog::setProgressBar(qint64 done, qint64 total)
 MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     : UpDialog(parent)
 {
-    setWindowTitle(tr("Préparation de MySQL pour Rufus"));
-
+    setWindowFlags(Qt::CustomizeWindowHint);
     int row = 0;
 
     /*! Titre + sous-titre (libellés pilotés par les configurer*()). */
@@ -163,31 +162,6 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     m_subtitle  ->setStyleSheet("font-size: 12px; color: #1C1B18;");
     m_subtitle  ->setWordWrap(true);
     dlglayout() ->insertWidget(row++, m_subtitle);
-
-    /*! Saisie : identifiant + mot de passe (mêmes validateurs que dlg_paramconnexion). */
-    m_loginLbl = new UpLabel(this, tr("Identifiant :"));
-    dlglayout() ->insertWidget(row++, m_loginLbl);
-    m_login = new UpLineEdit(this);
-    m_login     ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, this));
-    dlglayout() ->insertWidget(row++, m_login);
-
-    m_mdpLbl = new UpLabel(this, tr("Mot de passe :"));
-    dlglayout() ->insertWidget(row++, m_mdpLbl);
-    m_mdp = new UpLineEdit(this);
-    m_mdp       ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
-    m_mdp       ->setEchoMode(QLineEdit::Password);
-    dlglayout() ->insertWidget(row++, m_mdp);
-
-    /*! Confirmation du mot de passe : seulement à la CRÉATION d'un compte (voir configurer*()). Masquée
-     *  par défaut ; affichée par configurerCreateUserRufus. */
-    m_mdpConfirmLbl = new UpLabel(this, tr("Confirmez le mot de passe :"));
-    dlglayout()     ->insertWidget(row++, m_mdpConfirmLbl);
-    m_mdpConfirm = new UpLineEdit(this);
-    m_mdpConfirm    ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
-    m_mdpConfirm    ->setEchoMode(QLineEdit::Password);
-    dlglayout()     ->insertWidget(row++, m_mdpConfirm);
-    m_mdpConfirmLbl ->setVisible(false);
-    m_mdpConfirm    ->setVisible(false);
 
     /*! Les 7 cases (affichage seul) insérées entre la saisie et les boutons. */
     for (int i = 0; i < 7; i++) {
@@ -232,12 +206,6 @@ void MySQLInstallerDialog::configurer(const QString& titre,
     if (OKButton) { OKButton->setText(okLabel); OKButton->show(); }
     if (CancelButton) CancelButton->show();
 
-    /*! Mode interactif : champs éditables (restaure l'état après un « paramétrage en cours »). */
-    if (m_login)      { m_login->setEnabled(true);      m_login->clear(); }
-    if (m_mdp)        { m_mdp->setEnabled(true);        m_mdp->clear(); }
-    if (m_mdpConfirm) { m_mdpConfirm->setEnabled(true); m_mdpConfirm->clear(); }
-    if (m_login) m_login->setFocus();
-
     /*! « Supprimer MySQL » n'a de sens qu'en mode Verify : masqué ici, ré-affiché par configurerVerifyAdminMySQL(). */
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
 }
@@ -255,27 +223,11 @@ void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
 {
     m_title    ->setText(titre);
     m_subtitle ->setText(sousTitre);
-    if (m_login)      m_login->setEnabled(false);
-    if (m_mdp)        m_mdp->setEnabled(false);
-    if (m_mdpConfirm) m_mdpConfirm->setEnabled(false);
     if (OKButton)        OKButton->hide();
     if (CancelButton)    CancelButton->hide();
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
     unsetCursor();
     QApplication::processEvents();
-}
-
-/*!
- * \brief appliquerValidateursRufus
- * Impose le format d'un identifiant Rufus à CRÉER (5-15 / 5-12 caractères alphanumériques).
- * \param login   champ identifiant
- * \param mdp     champ mot de passe
- * \param parent  parent Qt des validateurs
- */
-static void appliquerValidateursRufus(UpLineEdit* login, UpLineEdit* mdp, QObject* parent)
-{
-    login ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, parent));
-    mdp   ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, parent));
 }
 
 void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
@@ -285,93 +237,6 @@ void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
                tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
                   "dans Rufus."),
                tr("Installer"));
-    appliquerValidateursRufus(m_login, m_mdp, this);   /*!< user Rufus → format imposé */
-
-    /*! CRÉATION d'un compte → champ de confirmation du mot de passe visible ET exigé à la validation. */
-    m_confirmMdpRequis = true;
-    if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(true);
-    if (m_mdpConfirm)    { m_mdpConfirm->setVisible(true);
-                           m_mdpConfirm->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this)); }
-}
-
-void MySQLInstallerDialog::masquerSaisieUtilisateur()
-{
-    m_confirmMdpRequis = false;
-    if (m_loginLbl)      m_loginLbl->setVisible(false);
-    if (m_login)         m_login->setVisible(false);
-    if (m_mdpLbl)        m_mdpLbl->setVisible(false);
-    if (m_mdp)           m_mdp->setVisible(false);
-    if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(false);
-    if (m_mdpConfirm)    m_mdpConfirm->setVisible(false);
-}
-
-void MySQLInstallerDialog::configurerVerifyAdminMySQL()
-{
-    configurer(tr("Connexion à MySQL"),
-               tr("Un serveur MySQL existe déjà. Saisissez l'identifiant et le mot "
-                  "de passe d'un compte MySQL administrateur (capable de créer des "
-                  "utilisateurs)."),
-               tr("Se connecter"));
-
-    /*! Compte MySQL EXISTANT : aucun format imposé (ex. « root » — 4 car. —, ou mdp non alphanumérique)
-     *  → on RETIRE les validateurs. */
-    m_login ->setValidator(nullptr);
-    m_mdp   ->setValidator(nullptr);
-
-    /*! On SAISIT un mot de passe existant (pas de création) → pas de confirmation. */
-    m_confirmMdpRequis = false;
-    if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(false);
-    if (m_mdpConfirm)    m_mdpConfirm->setVisible(false);
-
-    /*! Le choix « réinstaller / effacer » est fait en amont (boîte « que faire de MySQL ? ») : cette
-     *  fiche ne sert plus qu'à saisir les identifiants. */
-    if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
-
-    /*! La version MySQL est déjà connue : l'étape 0 sert de statut de connexion. */
-    m_steps[0] ->setText(tr("Connexion OK"));
-}
-
-QString MySQLInstallerDialog::login() const
-{
-    return m_login ? m_login ->text() : QString();
-}
-
-QString MySQLInstallerDialog::password() const
-{
-    return m_mdp ? m_mdp ->text() : QString();
-}
-
-void MySQLInstallerDialog::prefill(const QString& log, const QString& mdp)
-{
-    if (m_login) m_login   ->setText(log);
-    if (m_mdp)   m_mdp     ->setText(mdp);
-}
-
-/*!
- * \brief MySQLInstallerDialog::validerSaisie
- * Vérifie que login et mot de passe sont renseignés, et — en mode création — que le mot de passe et sa
- * confirmation coïncident. Affiche un message et renvoie false sinon.
- */
-bool MySQLInstallerDialog::validerSaisie()
-{
-    if (login().isEmpty() || password().isEmpty()) {
-        UpMessageBox::Watch(this, tr("Saisie incomplète"),
-            tr("Veuillez renseigner un identifiant et un mot de passe."));
-        return false;
-    }
-
-    /*! Confirmation : uniquement à la CRÉATION (m_confirmMdpRequis). On vérifie que les deux saisies
-     *  coïncident — pas question d'enregistrer un mot de passe mal tapé. NB : on ne teste PAS isVisible()
-     *  (validerSaisie() est appelée APRÈS exec(), fiche déjà masquée → faux). */
-    if (m_confirmMdpRequis && m_mdpConfirm
-        && password() != m_mdpConfirm->text()) {
-        UpMessageBox::Watch(this, tr("Confirmation incorrecte"),
-            tr("Le mot de passe et sa confirmation ne sont pas identiques."));
-        m_mdpConfirm ->clear();
-        m_mdpConfirm ->setFocus();
-        return false;
-    }
-    return true;
 }
 
 QString MySQLInstallerDialog::baseStepLabel(int i) const
@@ -824,6 +689,8 @@ static const QString NOM_PARTAGE_IMAGERIE = "RufusImagerie";    /*!< sans accent
 
 QString MySQLInstaller::sharedFolderPath()
 {
+    if (!m_dossierPartageForce.isEmpty())   /*!< dossier hérité d'une ancienne base Rufus */
+        return m_dossierPartageForce;
 #if defined(Q_OS_WIN)
     return "C:/Users/Public";   /*!< slashes avant : acceptés par Qt et MySQL sous Windows */
 #else
@@ -1107,18 +974,26 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
             return false;
         return faireCreate(cfg);
     }
-
-    const QStringList log = logAdmin.isEmpty() ? FindMdpLoginMySQL() : logAdmin;
+    if (!logAdmin.isEmpty() && !tryConnectAs(logAdmin[1], logAdmin[0]))
+    {
+        if (FindMdpLoginMySQL() == QStringList())/*!< réessaie la saisie si le mot de passe fourni est faux */
+        {
+            UpMessageBox::Watch(m_parent, tr("Connexion impossible"),
+                                tr("Le mot de passe administrateur MySQL fourni est incorrect.\n\n"
+                                   "Rufus ne peut pas se connecter au serveur MySQL déjà installé sur cet ordinateur."));
+            return false;
+        }
+    }
 
     //! Serveur récent ET ouvrable : on le garde. Sinon rien n'est réutilisable, on le remplace.
-    if (!log.isEmpty() && socleLocalConforme())
-        return faireReutiliser(cfg, /*effacerTout=*/true, log);
+    if (socleLocalConforme())
+        return faireReutiliser(cfg);
 
     if (!askYesNo(tr("Installation d'un serveur MySQL neuf"),
             tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
                "Le serveur actuel et tout ce qu'il contient seront supprimés. Voulez-vous continuer ?")))
         return false;
-    if (!reinstallerSocleMySQLpourMigration())
+    if (!reinstallerSocleMySQLpourMigration(SqlLog()))
         return false;
     return true;
 }
@@ -1142,15 +1017,46 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
                "MySQL ?")))
         return QStringList();
 
-    m_dialog = new MySQLInstallerDialog(m_parent);
-    m_dialog->configurerVerifyAdminMySQL();
+    /*! Compte MySQL EXISTANT : ni validateur ni confirmation (« root », mdp non alphanumérique…). */
+    UpDialog     dlg(m_parent);
+    QVBoxLayout *lay    = new QVBoxLayout();
+    UpLabel     *label  = new UpLabel();
+    UpLabel     *label2 = new UpLabel();
+    UpLineEdit  *Line   = new UpLineEdit();
+    UpLineEdit  *Line2  = new UpLineEdit();
+
+    dlg     .setWindowModality(Qt::WindowModal);
+    dlg     .setWindowFlags(Qt::CustomizeWindowHint);
+    dlg     .setFixedSize(300, 220);
+    dlg     .setWindowTitle("");
+
+    Line    ->setAlignment(Qt::AlignCenter);
+    Line2   ->setAlignment(Qt::AlignCenter);
+    Line    ->setFixedHeight(20);
+    Line2   ->setFixedHeight(20);
+    Line2   ->setEchoMode(QLineEdit::Password);
+    label   ->setMinimumHeight(46);
+    label2  ->setFixedHeight(16);
+    label   ->setAlignment(Qt::AlignCenter);
+    label2  ->setAlignment(Qt::AlignCenter);
+
+    label   ->setText(tr("Un serveur MySQL existe déjà.\nSaisissez l'identifiant d'un compte MySQL administrateur\n- capable de créer des utilisateurs -"));
+    label2  ->setText(tr("Mot de passe"));
+
+    dlg     .AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg     .OKButton->setEnabled(false);
+
     QStringList log = QStringList();
-    QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
-    connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
-        if (!m_dialog->validerSaisie()) return;
-        if (!tryConnectAs(m_dialog->login(), m_dialog->password())) {
-            //! serveur muet : accuser l'identifiant enverrait chercher au mauvais endroit
-            UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
+    auto majOK = [&] { dlg.OKButton->setEnabled(!Line->text().trimmed().isEmpty()
+                                             && !Line2->text().isEmpty()); };
+    connect(Line,  &QLineEdit::textChanged, &dlg, majOK);
+    connect(Line2, &QLineEdit::textChanged, &dlg, majOK);
+
+    QObject::disconnect(dlg.OKButton, &QPushButton::clicked, nullptr, nullptr);
+    connect(dlg.OKButton, &QPushButton::clicked, &dlg, [&] {
+        if (!tryConnectAs(Line->text().trimmed(), Line2->text())) {
+            /*! serveur muet : accuser l'identifiant enverrait chercher au mauvais endroit */
+            UpMessageBox::Watch(&dlg, tr("Connexion impossible"),
                 m_serveurInjoignable
                     ? tr("Le serveur MySQL de cet ordinateur ne répond pas.") + "\n" +
                       tr("Il est installé mais non démarré : ni l'identifiant ni le mot de passe "
@@ -1158,11 +1064,23 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
                     : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
             return;                                 /*!< fiche ouverte : on réessaie */
         }
-        log << m_dialog->password() << m_dialog->login();
-        m_dialog->accept();
+        log << Line2->text() << Line->text().trimmed();
+        dlg.accept();
     });
-    m_dialog->exec();
-    cleanupDialog();
+
+    lay     ->addWidget(label);
+    lay     ->addWidget(Line);
+    lay     ->addWidget(label2);
+    lay     ->addWidget(Line2);
+    lay     ->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
+    lay     ->setContentsMargins(5, 5, 5, 5);
+    lay     ->setSpacing(5);
+
+    dlg.dlglayout() ->insertLayout(0, lay);
+    dlg.dlglayout() ->setSizeConstraint(QLayout::SetFixedSize);
+
+    Line->setFocus();
+    dlg.exec();
     return log;
 }
 
@@ -1212,9 +1130,9 @@ void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
                                                    const QString& adminMdp)
 {
     const QString out = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+        QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
                 "\"SHOW DATABASES;\" 2>&1")
-            .arg(mysqlBin("mysql"), adminLogin, adminMdp));
+            .arg(mysqlBin("mysql"), argsServeurCourant(), adminLogin, adminMdp));
     QString sql;
     for (const QString& db : lignesResultat(out)) {
         if (db.startsWith("ERROR", Qt::CaseInsensitive))
@@ -1226,8 +1144,8 @@ void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
     }
     if (sql.isEmpty())
         return;
-    runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-        .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
+    runCmdFull(QString("\"%1\" %2 -u \"%3\" -p\"%4\" -e \"%5\" 2>&1")
+        .arg(mysqlBin("mysql"), argsServeurCourant(), adminLogin, adminMdp, sql));
 }
 
 /*!
@@ -1348,53 +1266,31 @@ static void avertirSuppressionGaxt78iyEffectuee(QWidget *parent = nullptr)
  * utilisateur Rufus.
  * \param effacerTout  true = supprime aussi les bases non-Rufus (choix « Effacer »)
  */
-bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effacerTout,
-                                     const QStringList& log)
+bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig&)
 {
-    m_dialog = new MySQLInstallerDialog(m_parent);
-    m_dialog->configurerVerifyAdminMySQL();
-    /*! Compte déjà éprouvé par AskMdpLoginMySQL : rien à saisir, la fiche n'affiche que la checklist. */
-    if (log.size() >= 2)
-    {
-        m_dialog->prefill(log.at(1), log.at(0));
-        m_dialog->masquerSaisieUtilisateur();
-        m_dialog->passerEnConfiguration(tr("Configuration de MySQL"),
+    m_dialog    = new MySQLInstallerDialog(m_parent);
+    m_dialog->passerEnConfiguration(tr("Configuration de MySQL"),
                                         tr("Paramétrage du serveur en cours…"));
-    }
 
     /*! Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : vérifie la connexion
      *  admin (coche la case 0) puis enchaîne la config (cases 1 à 6). accept() seulement à la toute fin,
      *  quand tout est coché — sinon la fiche se fermerait/rouvrirait entre deux cases (clignotement).
      *  Connexion refusée → fiche laissée ouverte pour réessayer ; erreur bloquante → reject(). */
-    QString adminLogin, adminMdp;
     bool configReussie = false;
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
-        if (!m_dialog->validerSaisie()) return;
-        if (!tryConnectAs(m_dialog->login(), m_dialog->password())) {
-            //! serveur muet : accuser l'identifiant enverrait chercher au mauvais endroit
-            UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
-                m_serveurInjoignable
-                    ? tr("Le serveur MySQL de cet ordinateur ne répond pas.") + "\n" +
-                      tr("Il est installé mais non démarré : ni l'identifiant ni le mot de passe "
-                         "ne sont en cause.")
-                    : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
-            return;                                 /*!< fiche ouverte : on réessaie */
-        }
         m_dialog->checkStep(0);
 
-        adminLogin = m_dialog->login();
-        adminMdp   = m_dialog->password();
         m_login    = LOGIN_SQL;
         m_password = genererMotDePasse();
         if (!isServerRunning()) startMySQL();
 
-        const CreateUserResult r = createUserAvecAdmin(adminLogin, adminMdp);
+        const CreateUserResult r = createUserAvecAdmin(m_login, m_password);
         if (r == CreateUserResult::NoCreateUserRight) {
             UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
                 tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
                    "(CREATE USER). Réessayez avec un compte administrateur MySQL "
-                   "(par ex. root).").arg(adminLogin));
+                   "(par ex. root).").arg(m_login));
             m_dialog->reject();                     /*!< → retour à la boîte de choix */
             return;
         }
@@ -1410,8 +1306,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
 
         /*! EFFACER : on supprime aussi les bases NON-Rufus (données étrangères) ; les bases Rufus sont
          *  (re)créées vierges par RestaureBase. CONSERVER : on n'y touche pas. */
-        if (effacerTout)
-            effacerToutesBasesUtilisateur(adminLogin, adminMdp);
+        effacerToutesBasesUtilisateur(m_login, m_password);
 
         if (!executerEtapesConfig()) { m_dialog->reject(); return; }
 
@@ -1419,8 +1314,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
         m_dialog->accept();                         /*!< tout est coché : on ferme enfin */
     });
 
-    if (log.size() >= 2)
-        QMetaObject::invokeMethod(m_dialog->OKButton, "click", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(m_dialog->OKButton, "click", Qt::QueuedConnection);
     m_dialog->exec();
     if (!configReussie) { cleanupDialog(); return false; }
 
@@ -1438,7 +1332,6 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerCreateUserRufus(cfg.minVersion);
-    m_dialog->masquerSaisieUtilisateur();   /*!< l'utilisateur Rufus est saisi par l'appelant */
 
     /*! Fiche en « paramétrage en cours » : installation puis config SANS clic — seule une éventuelle saisie
      *  du code administrateur (élévation système) peut être demandée. */
@@ -1488,7 +1381,52 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     stockerMotDePasse(m_password);
 
     cleanupDialog();
+    avertirPostesAnciensAMettreAJour();
     return true;
+}
+
+/*!
+ * \brief MySQLInstaller::avertirPostesAnciensAMettreAJour
+ * Serveur neuf sécurisé d'emblée (aléatoire, sans générique) : prévient qu'un autre poste ne pourra s'y
+ * connecter qu'avec cette version de Rufus et le mot de passe sécurisé, avec un bouton d'explications.
+ */
+void MySQLInstaller::avertirPostesAnciensAMettreAJour()
+{
+    const QString aide =
+          tr("<b>Pourquoi ce message ?</b>") + "<br>"
+        + tr("Pour protéger vos données, ce serveur est protégé par un mot de passe unique et aléatoire, "
+             "créé à l'instant et propre à votre cabinet — Rufus n'utilise plus de mot de passe générique "
+             "connu.") + "<br><br>"
+        + tr("<b>Qu'est-ce que ça change pour les autres postes ?</b>") + "<br>"
+        + tr("Si d'autres ordinateurs consultent ce serveur, ils doivent utiliser la même version de "
+             "Rufus que celle-ci et connaître ce mot de passe sécurisé. Un poste équipé d'une ancienne "
+             "version ne pourra pas se connecter.") + "<br><br>"
+        + tr("<b>Que faire pour connecter un autre poste ?</b>") + "<br>"
+        + tr("1. Installez ou mettez à jour Rufus sur cet autre poste avec la présente version.") + "<br>"
+        + tr("2. Munissez-vous du mot de passe sécurisé (celui que Rufus vient de vous inviter à noter).") + "<br>"
+        + tr("3. Au premier lancement, saisissez-le lorsque Rufus le demande (ou importez-le depuis la clé "
+             "USB si vous l'y avez enregistré).") + "<br><br>"
+        + tr("<b>Où est ce mot de passe ?</b>") + "<br>"
+        + tr("C'est le mot de passe que Rufus vous a demandé de conserver en lieu sûr (papier ou clé USB) "
+             "juste après l'installation. Gardez-le : il est nécessaire pour tout nouveau poste.");
+
+    UpMessageBox msgbox(m_parent);
+    msgbox.setIcon(UpMessageBox::Info);
+    msgbox.setText(tr("Connexion des autres postes"));
+    msgbox.setInformativeText(
+          tr("Ce serveur utilise un mot de passe sécurisé.") + "\n\n"
+        + tr("Si d'autres postes doivent se connecter à ce serveur avec une ancienne version de Rufus, "
+             "ils ne pourront pas : il faudra d'abord les mettre à jour avec cette version, puis leur "
+             "fournir ce mot de passe sécurisé."));
+
+    UpSmallButton *bAide = Utils::BoutonAide(aide, tr("Plus d'explications"));
+    bAide   ->setText(tr("Plus d'explications"));
+    UpSmallButton *bOK = new UpSmallButton(tr("OK, j'ai compris"));
+    bOK     ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
+    connect(bOK, &UpSmallButton::clicked, &msgbox, &QDialog::accept);
+    msgbox.AjouteWidgetLayButtons(bAide);
+    msgbox.AjouteWidgetLayButtons(bOK);
+    msgbox.exec();
 }
 
 /*!
@@ -1502,7 +1440,6 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerCreateUserRufus(cfg.minVersion);
-    m_dialog->masquerSaisieUtilisateur();   /*!< migration : pas de saisie d'un nouvel utilisateur */
     m_dialog->passerEnConfiguration(
         tr("Réinstallation de MySQL"),
         tr("Installation du serveur MySQL en cours…"));
@@ -1676,27 +1613,70 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
     for (int i = 0; i < sources.size(); ++i)
         QFile::copy(datadir + sources.at(i), dest + cibles.at(i));
 #else
-    /*! Datadir root-only (client-key.pem en 0600) : copie ÉLEVÉE puis restitution à l'utilisateur. */
-    QString sh = "DATA='" + datadir + "'; DEST='" + dest + "'\n";
+    /*! Datadir root-only (client-key.pem en 0600), d'où la copie ÉLEVÉE. Elle se fait en deux temps : le
+     *  script dépose les clés dans un dossier temporaire de l'utilisateur,
+     *  puis Rufus les porte à destination. Sur un volume externe, macOS refuse l'écriture au script élevé
+     *  (TCC, « Operation not permitted » même sous root) et n'affiche sa demande d'autorisation que pour
+     *  l'application elle-même. */
+    const QString tmp = QDir::tempPath() + "/rufus_clesssl";
+    QDir(tmp).removeRecursively();
+    QDir().mkpath(tmp);
+
+    QString sh = "DATA='" + datadir + "'; TMP='" + tmp + "'\n";
     for (int i = 0; i < sources.size(); ++i)
-        sh += "cp -f \"$DATA" + sources.at(i) + "\" \"$DEST" + cibles.at(i) + "\" 2>/dev/null\n";
-    /*! Propriétaire pris sur DEST, créé hors élévation : $USER est vide quand l'application est lancée
+        sh += "cp -f \"$DATA" + sources.at(i) + "\" \"$TMP" + cibles.at(i) + "\" 2>/dev/null\n";
+    /*! Propriétaire pris sur TMP, créé hors élévation : $USER est vide quand l'application est lancée
      *  depuis le Finder, et les clés restaient alors à root, illisibles par le client. */
   #if defined(Q_OS_MACOS)
-    sh += "USERN=$(stat -f %Su \"$DEST\")\n";
+    sh += "USERN=$(stat -f %Su \"$TMP\")\n";
   #else
-    sh += "USERN=$(stat -c %U \"$DEST\")\n";
+    sh += "USERN=$(stat -c %U \"$TMP\")\n";
   #endif
     /*! Fichiers nommés un à un : le motif *.pem n'est pas développé dans le shell élevé. */
     for (const QString &f : cibles)
-        sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$DEST" + f + "\" 2>/dev/null\n";
-    sh += "chmod 600 \"$DEST/client-key.pem\" 2>/dev/null\n";
+        sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$TMP" + f + "\" 2>/dev/null\n";
     runCmdElevated(sh);
+
+    for (const QString &f : cibles)
+        QFile::copy(tmp + f, dest + f);
+    QDir(tmp).removeRecursively();
+    QFile::setPermissions(dest + "/client-key.pem", QFileDevice::ReadOwner | QFileDevice::WriteOwner);
 #endif
 
     for (const QString &f : cibles)
         if (!QFile::exists(dest + f))
             return false;
+    return true;
+}
+
+/*!
+ * \brief MySQLInstaller::corrigerDroitsClesSSL
+ * Rend les trois clés d'un dossier à l'utilisateur courant : copiées par un compte administrateur, elles
+ * lui appartiennent parfois, et client-key.pem en 600 est alors illisible par le client MySQL.
+ * \param dossier  dossier contenant ca-cert.pem, client-cert.pem et client-key.pem
+ */
+bool MySQLInstaller::corrigerDroitsClesSSL(const QString& dossier)
+{
+    const QStringList cles = { "/ca-cert.pem", "/client-cert.pem", "/client-key.pem" };
+#if !defined(Q_OS_WIN)
+    QString sh = "DEST='" + dossier + "'\n";
+  #if defined(Q_OS_MACOS)
+    sh += "USERN=$(stat -f %Su \"$DEST\")\n";
+  #else
+    sh += "USERN=$(stat -c %U \"$DEST\")\n";
+  #endif
+    for (const QString &f : cles)
+        sh += "[ -n \"$USERN\" ] && chown \"$USERN\" \"$DEST" + f + "\" 2>/dev/null\n";
+    sh += "chmod 600 \"$DEST/client-key.pem\" 2>/dev/null\n";
+    runCmdElevated(sh);
+#endif
+    for (const QString &f : cles)
+    {
+        QFile cle(dossier + f);
+        if (!cle.open(QIODevice::ReadOnly))
+            return false;
+        cle.close();
+    }
     return true;
 }
 
@@ -1843,12 +1823,15 @@ void MySQLInstaller::avertirExpirationClesSSLDistant()
  * Orchestration destructive de la migration du socle : (droits admin) → désinstallation de l'ancien MySQL
  * → réinstallation + adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si le
  * nouveau socle est prêt.
+ * \param log  { mdp, login } d'un compte admin de l'ancien serveur (vide si perdus)
  */
-bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
+bool MySQLInstaller::reinstallerSocleMySQLpourMigration(const QStringList& log)
 {
     if (!assurerDroitsAdmin())
         return false;
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
+    /*! Imagerie : hériter du dossier de l'ancienne base (secure_file_priv) tant que le serveur répond. */
+    preserverDossierImagerieAncienneBase(log);
     /*! SSL (étape 7, point 4) : conserver les clés AVANT la désinstallation (qui détruit le datadir). */
     const bool clesConservees = sauvegarderClesSSLMigration();
     uninstallMySQL();
@@ -1857,7 +1840,118 @@ bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
     /*! Réinjecter les anciennes clés (même CA) : les postes distants existants restent valides. */
     if (clesConservees)
         restaurerClesSSLMigration();
+    if (m_avertirImagerieAMigrer)
+        avertirImagerieAMigrer();
     return true;
+}
+
+/*!
+ * \brief MySQLInstaller::lireSecureFilePriv
+ * secure_file_priv de l'ancien serveur, lu avec un compte admin avant la purge (vide si NULL ou illisible).
+ * \param log  { mdp, login } d'un compte administrateur MySQL
+ */
+QString MySQLInstaller::lireSecureFilePriv(const QStringList& log)
+{
+    if (log.size() < 2)
+        return QString();
+    const QString out = runCmdFull(
+        QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
+                "\"SELECT @@GLOBAL.secure_file_priv;\" 2>&1")
+            .arg(mysqlBin("mysql"), argsServeurCourant(), log.at(1), log.at(0)));
+    const QStringList l = lignesResultat(out);
+    if (l.isEmpty())
+        return QString();
+    const QString v = l.first().trimmed();
+    return v.compare("NULL", Qt::CaseInsensitive) == 0 ? QString() : v;
+}
+
+/*!
+ * \brief MySQLInstaller::preserverDossierImagerieAncienneBase
+ * Avant la purge : si une base Rufus existe, on garde son dossier d'imagerie (secure_file_priv) pour le
+ * nouveau serveur ; identifiants perdus → on mémorise qu'il faudra inviter l'utilisateur à la recopier.
+ * \param log  { mdp, login } d'un compte admin de l'ancien serveur (vide si perdus)
+ */
+void MySQLInstaller::preserverDossierImagerieAncienneBase(const QStringList& log)
+{
+    if (log.size() < 2) {
+        m_avertirImagerieAMigrer = true;
+        return;
+    }
+    if (!isBaseRufus(log))                   /*!< pas d'ancienne base → rien à préserver, on écrase tout */
+        return;
+    const QString ancien = QDir::cleanPath(lireSecureFilePriv(log));
+    if (!ancien.isEmpty() && ancien != QDir::cleanPath(sharedFolderPath()))
+        m_dossierPartageForce = ancien;
+}
+
+/*!
+ * \brief MySQLInstaller::avertirImagerieAMigrer
+ * Identifiants de l'ancien serveur perdus : invite l'utilisateur à vérifier/recopier lui-même son imagerie
+ * dans le nouveau dossier partagé, avec un bouton d'explications détaillées.
+ */
+void MySQLInstaller::avertirImagerieAMigrer()
+{
+    const QString chemin = sharedFolderPath() + "/Rufus/Imagerie";
+#if defined(Q_OS_WIN)
+    const QString explorateur = tr("l'Explorateur de fichiers");
+#elif defined(Q_OS_MACOS)
+    const QString explorateur = tr("le Finder");
+#else
+    const QString explorateur = tr("le gestionnaire de fichiers « Fichiers »");
+#endif
+
+    const QString aide =
+          tr("<b>Pourquoi ce message ?</b>") + "<br>"
+        + tr("Rufus vient de réinstaller son moteur de base de données. La base (vos patients, vos "
+             "consultations) a été sauvegardée et remise en place automatiquement. En revanche, les "
+             "images (fond d'œil, OCT, champ visuel, documents scannés) ne sont pas dans la base : ce "
+             "sont des fichiers rangés dans un dossier de l'ordinateur. Rufus ne peut pas deviner où se "
+             "trouvaient vos anciennes images ; c'est pourquoi il vous demande de vérifier.") + "<br><br>"
+        + tr("<b>Où doivent être vos images maintenant ?</b>") + "<br>"
+        + tr("Dans ce dossier, et nulle part ailleurs :") + "<br><b>" + chemin + "</b><br><br>"
+        + tr("<b>Comment vérifier et, au besoin, recopier vos images ?</b>") + "<br>"
+        + tr("1. Ouvrez le gestionnaire de fichiers de votre ordinateur (%1).").arg(explorateur) + "<br>"
+        + tr("2. Cherchez le dossier où étaient rangées vos images avant (souvent un dossier nommé "
+             "Rufus puis Imagerie, à l'endroit que vous aviez choisi lors de la première "
+             "installation).") + "<br>"
+        + tr("3. Si ce dossier contient bien vos images et qu'il n'est pas celui indiqué ci-dessus, "
+             "sélectionnez tout son contenu, faites Copier, puis Collez le tout dans le dossier indiqué "
+             "ci-dessus.") + "<br>"
+        + tr("4. Vous pouvez copier (et non déplacer) : vos fichiers d'origine restent en place, rien "
+             "n'est perdu si vous vous trompez.") + "<br><br>"
+        + tr("<b>Et si je ne trouve pas mes anciennes images ?</b>") + "<br>"
+        + tr("Ne supprimez rien et ne réinstallez rien. Vos fichiers sont toujours sur le disque, là où "
+             "ils étaient. Notez le message et contactez l'assistance : on retrouvera le dossier avec "
+             "vous.");
+
+    QString info =
+          tr("Vos documents d'imagerie (photos du fond d'œil, OCT, champs visuels, scanners…) ne font "
+             "pas partie de la sauvegarde de la base de données : ils sont rangés à part, dans un "
+             "dossier.") + "\n\n";
+    if (m_ancienDossierImagerie.isEmpty())
+        info += tr("Si vous utilisiez déjà Rufus sur cet ordinateur, vérifiez qu'ils se trouvent bien "
+                   "dans ce dossier :") + "\n\n" + chemin + "\n\n"
+              + tr("S'ils n'y sont pas, il vous faudra les y recopier vous-même. Le bouton « Plus "
+                   "d'explications » vous montre comment faire, pas à pas.");
+    else
+        info += tr("Vos anciennes images se trouvent dans :") + "\n\n"
+              + m_ancienDossierImagerie + "/Rufus/Imagerie" + "\n\n"
+              + tr("Recopiez-les vous-même dans le nouveau dossier :") + "\n\n" + chemin + "\n\n"
+              + tr("Le bouton « Plus d'explications » vous montre comment faire, pas à pas.");
+
+    UpMessageBox msgbox(m_parent);
+    msgbox.setIcon(UpMessageBox::Info);
+    msgbox.setText(tr("Vos documents d'imagerie"));
+    msgbox.setInformativeText(info);
+
+    UpSmallButton *bAide = Utils::BoutonAide(aide, tr("Plus d'explications"));
+    bAide   ->setText(tr("Plus d'explications"));
+    UpSmallButton *bOK = new UpSmallButton(tr("OK, j'ai compris"));
+    bOK     ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
+    connect(bOK, &UpSmallButton::clicked, &msgbox, &QDialog::accept);
+    msgbox.AjouteWidgetLayButtons(bAide);
+    msgbox.AjouteWidgetLayButtons(bOK);
+    msgbox.exec();
 }
 
 /*!
@@ -1938,47 +2032,18 @@ bool MySQLInstaller::executerEtapesConfig()
         return false;
     }
 
-    /*! ── Étape 3 : le dossier partagé existe et est partagé ──────────────── */
-    if (!setupSharedFolder()) {
-        UpMessageBox::Watch(m_dialog, tr("Dossier partagé impossible"),
-            tr("Impossible de créer ou de partager le dossier %1.")
-            .arg(sharedFolderPath()));
-        return false;
-    }
-    if (m_dialog->wasCancelled()) return false;
-    m_dialog->checkStep(2);
-
-    /*! ── Étape 4 : secure_file_priv pointe sur le dossier partagé ────────── */
-    if (!ensureSecureFilePriv()) {
-        UpMessageBox::Watch(m_dialog, tr("secure_file_priv impossible"),
-            tr("Impossible de configurer secure_file_priv sur %1.")
-            .arg(sharedFolderPath())
-            + (m_secureFilePrivErr.trimmed().isEmpty()
-                   ? QString()
-                   : "\n\n" + tr("Détail :") + "\n" + m_secureFilePrivErr.trimmed()));
-        return false;
-    }
-    if (m_dialog->wasCancelled()) return false;
-    m_dialog->checkStep(3);
-
-    /*! ── Étape 5 : mysql lit et écrit dans le dossier partagé (fichier test) ───────
-     *  L'étape 4 a déjà prouvé que le serveur applique secure_file_priv : un échec ici a donc une cause
-     *  réelle (privilège FILE, droits du dossier), pas le « Full Disk Access » qu'on accusait à tort. */
-    if (!testSharedFolderRW()) {
-        if (!tryConnect()) {
-            UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
-                tr("Connexion impossible avec le login « %1 ».\n"
-                   "Vérifiez le login et le mot de passe.").arg(m_login));
+    /*! ── Étapes 3-5 : dossier partagé + secure_file_priv + test R/W ──────────
+     *  Dossier hérité d'une ancienne base : si le nouveau serveur (durci) n'y accède pas, on bascule sur le
+     *  dossier par défaut et l'utilisateur sera invité à recopier son imagerie. */
+    if (!configurerEtapesDossierPartage(!m_dossierPartageForce.isEmpty())) {
+        if (m_dialog->wasCancelled() || m_dossierPartageForce.isEmpty())
             return false;
-        }
-        UpMessageBox::Watch(m_dialog, tr("Écriture impossible"),
-            tr("Le serveur MySQL ne parvient pas à écrire dans %1.\n\n"
-               "Vérifiez que le compte « %2 » possède le privilège FILE et que les "
-               "droits du dossier autorisent l'écriture.").arg(sharedFolderPath(), m_login));
-        return false;
+        m_ancienDossierImagerie  = m_dossierPartageForce;
+        m_dossierPartageForce.clear();
+        m_avertirImagerieAMigrer = true;
+        if (!configurerEtapesDossierPartage(false))
+            return false;
     }
-    if (m_dialog->wasCancelled()) return false;
-    m_dialog->checkStep(4);
 
     /*! ── Étape 6 : privilèges ALL + GRANT OPTION ─────────────────────────── */
     QStringList missing;
@@ -2001,9 +2066,63 @@ bool MySQLInstaller::executerEtapesConfig()
 }
 
 /*!
+ * \brief MySQLInstaller::configurerEtapesDossierPartage
+ * Étapes 3-5 : crée/partage le dossier, y pointe secure_file_priv, teste lecture/écriture par le serveur.
+ * \param silencieux  true = pas de fenêtre d'erreur (essai d'un dossier hérité, avant bascule éventuelle)
+ */
+bool MySQLInstaller::configurerEtapesDossierPartage(bool silencieux)
+{
+    /*! ── Étape 3 : le dossier partagé existe et est partagé ──────────────── */
+    if (!setupSharedFolder()) {
+        if (!silencieux)
+            UpMessageBox::Watch(m_dialog, tr("Dossier partagé impossible"),
+                tr("Impossible de créer ou de partager le dossier %1.")
+                .arg(sharedFolderPath()));
+        return false;
+    }
+    if (m_dialog->wasCancelled()) return false;
+    m_dialog->checkStep(2);
+
+    /*! ── Étape 4 : secure_file_priv pointe sur le dossier partagé ────────── */
+    if (!ensureSecureFilePriv()) {
+        if (!silencieux)
+            UpMessageBox::Watch(m_dialog, tr("secure_file_priv impossible"),
+                tr("Impossible de configurer secure_file_priv sur %1.")
+                .arg(sharedFolderPath())
+                + (m_secureFilePrivErr.trimmed().isEmpty()
+                       ? QString()
+                       : "\n\n" + tr("Détail :") + "\n" + m_secureFilePrivErr.trimmed()));
+        return false;
+    }
+    if (m_dialog->wasCancelled()) return false;
+    m_dialog->checkStep(3);
+
+    /*! ── Étape 5 : mysql lit et écrit dans le dossier partagé (fichier test) ───────
+     *  L'étape 4 a déjà prouvé que le serveur applique secure_file_priv : un échec ici a donc une cause
+     *  réelle (privilège FILE, droits du dossier), pas le « Full Disk Access » qu'on accusait à tort. */
+    if (!testSharedFolderRW()) {
+        if (!silencieux) {
+            if (!tryConnect())
+                UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
+                    tr("Connexion impossible avec le login « %1 ».\n"
+                       "Vérifiez le login et le mot de passe.").arg(m_login));
+            else
+                UpMessageBox::Watch(m_dialog, tr("Écriture impossible"),
+                    tr("Le serveur MySQL ne parvient pas à écrire dans %1.\n\n"
+                       "Vérifiez que le compte « %2 » possède le privilège FILE et que les "
+                       "droits du dossier autorisent l'écriture.").arg(sharedFolderPath(), m_login));
+        }
+        return false;
+    }
+    if (m_dialog->wasCancelled()) return false;
+    m_dialog->checkStep(4);
+    return true;
+}
+
+/*!
  * \brief MySQLInstaller::uninstallMySQL
- * Désinstalle MySQL et la configuration ajoutée par l'outil. NON destructif pour le dossier partagé
- * /Users/Shared (susceptible de contenir les données de l'utilisateur). Une seule élévation par plateforme.
+ * Purge tout serveur MySQL/MariaDB (quel que soit son mode d'install) après s'être assuré qu'il est bien
+ * arrêté (kill de secours). NON destructif pour le dossier partagé /Users/Shared (données utilisateur).
  */
 bool MySQLInstaller::uninstallMySQL()
 {
@@ -2014,29 +2133,33 @@ bool MySQLInstaller::uninstallMySQL()
      *  (Aucun guillemet double DANS $ps : quotes simples ou [char]34.) */
     const QString ps =
         "$ErrorActionPreference='SilentlyContinue';"
-        "$base=$null;"
-        "$svc=Get-CimInstance Win32_Service | "
-            "Where-Object {$_.PathName -like '*mysqld.exe*'} | Select-Object -First 1;"
-        "if($svc){"
+        "$bases=@();"
+        "foreach($svc in (Get-CimInstance Win32_Service | "
+            "Where-Object {$_.PathName -like '*mysqld.exe*' -or $_.PathName -like '*mariadbd.exe*'})){"
             "$exe=$svc.PathName.Trim([char]34);"
-            "$i=$exe.ToLower().IndexOf('mysqld.exe');"
-            "if($i -ge 0){$exe=$exe.Substring(0,$i+10)};"
-            "$base=Split-Path (Split-Path ($exe.Trim().Trim([char]34)) -Parent) -Parent;"
+            "foreach($bin in 'mariadbd.exe','mysqld.exe'){"
+                "$i=$exe.ToLower().IndexOf($bin);"
+                "if($i -ge 0){$exe=$exe.Substring(0,$i+$bin.Length); break}"
+            "};"
+            "$bases+=Split-Path (Split-Path ($exe.Trim().Trim([char]34)) -Parent) -Parent;"
             "Stop-Service -Name $svc.Name -Force;"
             "sc.exe stop $svc.Name | Out-Null;"
             "sc.exe delete $svc.Name | Out-Null"
         "};"
         "Start-Sleep -Seconds 2;"
-        "Get-Process mysqld -ErrorAction SilentlyContinue | Stop-Process -Force;"
+        "Get-Process mysqld,mariadbd -ErrorAction SilentlyContinue | Stop-Process -Force;"
         "Start-Sleep -Seconds 1;"
-        "if($base -and (Test-Path $base)){Remove-Item -LiteralPath $base -Recurse -Force};"
+        "foreach($b in $bases){if($b -and (Test-Path $b)){Remove-Item -LiteralPath $b -Recurse -Force}};"
         "Get-ChildItem 'C:\\Program Files\\MySQL' -Directory -Filter 'MySQL Server *' "
             "-ErrorAction SilentlyContinue | Remove-Item -Recurse -Force;"
         "Get-ChildItem 'C:\\ProgramData\\MySQL' -Directory -Filter 'MySQL Server *' "
             "-ErrorAction SilentlyContinue | Remove-Item -Recurse -Force;"
+        "Get-ChildItem 'C:\\Program Files' -Directory -Filter 'MariaDB *' "
+            "-ErrorAction SilentlyContinue | Remove-Item -Recurse -Force;"
         "$p=[Environment]::GetEnvironmentVariable('Path','Machine');"
         "if($p){[Environment]::SetEnvironmentVariable('Path',"
-            "(($p -split ';' | Where-Object {$_ -and ($_ -notlike '*MySQL Server*')}) -join ';'),"
+            "(($p -split ';' | Where-Object {$_ -and ($_ -notlike '*MySQL Server*') "
+            "-and ($_ -notlike '*MariaDB*')}) -join ';'),"
             "'Machine')};"
         "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
         "\\Uninstall\\MySQLForRufus' -Recurse -Force";
@@ -2058,6 +2181,7 @@ bool MySQLInstaller::uninstallMySQL()
      *  emportaient mysql-workbench ou php-mysql. */
     const QString script =
         "systemctl stop mysql mysqld mariadb 2>/dev/null;"
+        "pkill -x mysqld 2>/dev/null; pkill -x mariadbd 2>/dev/null; sleep 1;"
         "for pat in 'mysql-server.*' 'mysql-client.*' 'mysql-common' "
                    "'mysql-community-*' 'mariadb.*'; do "
           "DEBIAN_FRONTEND=noninteractive apt-get purge -y \"$pat\" 2>/dev/null || true; "
@@ -2095,14 +2219,17 @@ bool MySQLInstaller::uninstallMySQL()
     runCmdElevated(script);
     return !isMySQLInstalled();
 #else
-    /*! macOS (installeur Oracle .dmg) : arrêt du démon, suppression du pkg (toutes versions via glob),
-     *  config et reçus pkgutil. Le compte système _mysql (natif à macOS) est conservé. */
+    /*! macOS : purge de TOUT serveur — Oracle (.dmg) ET Homebrew (mysql / mariadb). brew refuse de tourner
+     *  en root → on le traite hors élévation ; l'Oracle et le kill de secours sont élevés. */
+    runCmd("for f in mysql mysql@8.4 mariadb; do brew services stop $f 2>/dev/null; "
+           "brew uninstall --force --ignore-dependencies $f 2>/dev/null; done; "
+           "P=$(brew --prefix 2>/dev/null); [ -n \"$P\" ] && rm -rf \"$P/var/mysql\"", 120000);
     const QString script =
         "launchctl bootout system "
           "/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist 2>/dev/null || "
         "launchctl unload -w "
           "/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist 2>/dev/null;"
-        "pkill -f /usr/local/mysql/bin/mysqld 2>/dev/null; sleep 2;"
+        "pkill -x mysqld 2>/dev/null; pkill -x mariadbd 2>/dev/null; sleep 2;"
         "rm -f /Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist;"
         "rm -rf /Library/PreferencePanes/MySQL.prefPane;"
         "rm -rf /usr/local/mysql /usr/local/mysql-*;"   /*!< symlink + dossier(s) versionné(s) */
@@ -2197,7 +2324,6 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     /*! Réparation : on REJOUE les étapes de config (PATH, dossier partagé, secure_file_priv,
      *  lecture/écriture, privilèges) SANS réinstaller ni recréer d'utilisateur (m_freshInstall=false). */
     m_dialog = new MySQLInstallerDialog(m_parent);
-    m_dialog->masquerSaisieUtilisateur();          /*!< aucun compte à saisir : on corrige une config existante */
     m_dialog->passerEnConfiguration(tr("Correction de la configuration MySQL"),
                                     tr("Vérification et correction de la configuration en cours…"));
     m_dialog->show();
@@ -3453,9 +3579,9 @@ bool MySQLInstaller::ensureSecureFilePriv()
     QString liveVu;     /*!< dernière valeur lue côté serveur (conservée pour le diagnostic) */
     auto serveurOk = [&]() -> bool {
         const QString out = runCmdFull(QString(
-            "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+            "\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
             "\"SELECT @@GLOBAL.secure_file_priv;\" 2>&1")
-            .arg(mysqlBin("mysql"), m_login, m_password));
+            .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password));
         /*! runCmdFull fusionne stderr : le client mysql lancé avec -p<motdepasse> imprime TOUJOURS
          *  « [Warning] Using a password on the command line… » AVANT le résultat. La valeur est donc sur la
          *  DERNIÈRE ligne non vide ; comparer la sortie brute échouerait à cause de cette ligne parasite. */
@@ -3544,13 +3670,13 @@ bool MySQLInstaller::testSharedFolderRW()
     /*! ── Écriture par le serveur ─────────────────────────────────────────────── */
     QFile::remove(file);   /*!< INTO OUTFILE refuse un fichier existant */
     runCmdFull(QString(
-        "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT '%4' INTO OUTFILE '%5';\" 2>&1")
-        .arg(mysqlBin("mysql"), m_login, m_password, token, file));
+        "\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e \"SELECT '%5' INTO OUTFILE '%6';\" 2>&1")
+        .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password, token, file));
 
     /*! ── Relecture par le serveur (et non par l'app) ─────────────────────────── */
     const QString out = runCmdFull(QString(
-        "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT LOAD_FILE('%4');\" 2>&1")
-        .arg(mysqlBin("mysql"), m_login, m_password, file));
+        "\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e \"SELECT LOAD_FILE('%5');\" 2>&1")
+        .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password, file));
 
     /*! ── Nettoyage ───────────────────────────────────────────────────────────── */
     QFile::remove(file);
@@ -3614,7 +3740,8 @@ bool MySQLInstaller::tryConnect()
 
 /*!
  * \brief MySQLInstaller::tryConnectAs
- * Comme tryConnect() mais avec des identifiants arbitraires (compte admin saisi).
+ * Ouvre une connexion avec des identifiants arbitraires (compte admin saisi) et vérifie qu'ils donnent
+ * tous les privilèges requis.
  * \param login  identifiant à tester
  * \param mdp    mot de passe à tester
  */
@@ -3625,7 +3752,16 @@ bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
             .arg(mysqlBin("mysqladmin"), argsServeurCourant(), login, mdp));
     m_serveurInjoignable = out.contains("ERROR 2002") || out.contains("ERROR 2003")
                         || out.contains("ERROR 2005");
-    return out.contains("mysqld is alive");
+    m_login    = login;
+    m_password = mdp;
+    QStringList manquants;
+    m_isconnectlogvalid = out.contains("mysqld is alive") && checkPrivileges(manquants);
+    if (!m_isconnectlogvalid)
+    {
+        m_login = QString();
+        m_password = QString();
+    }
+    return m_isconnectlogvalid;
 }
 
 bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
@@ -3644,9 +3780,9 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
      *  son host. Depuis qu'adminrufus n'existe plus en @'%', le nommer en dur ne rendait aucune ligne :
      *  tous les privilèges étaient signalés manquants. */
     QString raw = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+        QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
                 "\"SHOW GRANTS;\" 2>&1")
-            .arg(mysqlBin("mysql"), m_login, m_password));
+            .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password));
 
     QStringList grantedPrivs;
     bool hasGrantOption = false;
@@ -3686,27 +3822,21 @@ bool MySQLInstaller::createUser()
         return true;
 #endif
 
-    /*! DOUBLE mot de passe : l'aléatoire en principal, gaxt78iy conservé en 2e (RETAIN) pour qu'un
-     *  poste réseau puisse encore se connecter tant que la purge des 30 j n'a pas eu lieu.
-     *  Plugin : mysql_native_password d'abord (le driver Qt ne fait pas caching_sha2 en TCP clair), avec
-     *  repli sur le plugin par défaut, ce plugin étant désactivé d'origine sur MySQL 8.4 (ERROR 1524). */
+    /*! Serveur neuf : aléatoire SEUL, pas de générique gaxt78iy en 2e mdp (aucun ancien poste à amorcer).
+     *  Plugin mysql_native_password d'abord (driver Qt en TCP clair), repli sur le défaut (désactivé sur 8.4). */
     const QString sslLogin = QString(LOGIN_SQL "SSL");
-    const QString legacy   = QString(MDP_SQL);
-    /*! adminrufus (NON-SSL) n'est créé QUE sur les hosts LOCAUX/PRIVÉS (jamais @'%', joignable du WAN via
-     *  redirection de ports). adminrufusSSL@'%' (SSL) sert l'accès distant. Double mot de passe partout :
-     *  aléatoire (m_password) primaire + gaxt78iy en 2e (bootstrap réseau, 30 j). */
+    /*! adminrufus (NON-SSL) uniquement sur les hosts LOCAUX/PRIVÉS (jamais @'%', joignable du WAN par
+     *  redirection de ports) ; adminrufusSSL@'%' (SSL) sert l'accès distant. */
     auto sqlAvecAuth = [&](const QString& auth) {
         QString sql;
         for (const QString& h : hostsLANprives())
         {
-            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
-            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
-            sql += QString("ALTER USER '%1'@'%2' %3 '%4' RETAIN CURRENT PASSWORD;").arg(m_login, h, auth, m_password);
+            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(m_login, h, auth, m_password);
+            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(m_login, h, auth, m_password);
             sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(m_login, h);
         }
-        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
-        sql += QString("ALTER USER '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
-        sql += QString("ALTER USER '%1'@'%' %2 '%3' RETAIN CURRENT PASSWORD;").arg(sslLogin, auth, m_password);
+        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, m_password);
+        sql += QString("ALTER USER '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, m_password);
         sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;").arg(sslLogin);
         sql += "FLUSH PRIVILEGES;\n";
         return sql;
@@ -3943,8 +4073,9 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
         return sql;
     };
     auto executer = [&](const QString& sql) {
-        return m.runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-                            .arg(m.mysqlBin("mysql"), QString(LOGIN_SQL), motDePasseSQL(), sql));
+        return m.runCmdFull(QString("\"%1\" %2 -u \"%3\" -p\"%4\" -e \"%5\" 2>&1")
+                            .arg(m.mysqlBin("mysql"), argsServeurCourant(), QString(LOGIN_SQL),
+                                 motDePasseSQL(), sql));
     };
     /*! native d'abord, repli silencieux : le plugin est désactivé d'origine sur MySQL 8.4. */
     QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
@@ -3981,8 +4112,8 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
 
 /*!
  * \brief MySQLInstaller::controlerCompteDeSecours
- * Met en place le compte de secours puis supprime root, à chaque démarrage du poste hôte. Sur une base
- * ancienne, attend l'utilisateur n°1 : lui seul choisit ce mot de passe.
+ * Met en place le compte de secours puis supprime root, au terme d'une mise à jour de la base.
+ * \param parent  fiche parente des boîtes affichées
  */
 void MySQLInstaller::controlerCompteDeSecours(QWidget *parent)
 {
@@ -4047,27 +4178,20 @@ bool MySQLInstaller::prepareCreateModeLinux()
     if (cnfTmp.isEmpty())
         return false;
 
-    /*! 1. SQL de création des DEUX utilisateurs (adminrufus + adminrufusSSL) avec un DOUBLE mot de passe :
-     *  on pose d'abord gaxt78iy (MDP_SQL, %3 — littéral, pas un secret), puis on bascule sur l'aléatoire
-     *  $PW (placeholder printf %s) EN CONSERVANT gaxt78iy en 2e. INDISPENSABLE : les autres postes se
-     *  connectent d'abord avec gaxt78iy avant de récupérer l'aléatoire. Sans ce 2e mot de passe, le
-     *  court-circuit « if (tryConnect()) return true; » de createUser() priverait adminrufus de gaxt78iy. */
+    /*! 1. SQL de création des DEUX utilisateurs (adminrufus + adminrufusSSL). Serveur neuf → aléatoire SEUL
+     *  ($PW, injecté par printf %s pour ne pas figurer dans le script), pas de générique gaxt78iy. */
     const QString sslLogin = QString(LOGIN_SQL "SSL");
-    const QString legacy   = QString(MDP_SQL);
     /*! mysql_native_password : cf. createUser() — indispensable pour que le driver Qt (TCP en clair) puisse
-     *  se connecter. Actif par défaut sur le MySQL 8.0 d'apt. %1=adminrufus, %2=adminrufusSSL, %3=gaxt78iy ;
-     *  %s (printf) = $PW (aléatoire), 2 occurrences. */
+     *  se connecter. %1=adminrufus, %2=adminrufusSSL ; %s (printf) = $PW (aléatoire), 4 occurrences. */
     const QString userSql = QString(
-        "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%3'; "
-        "ALTER USER '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%3'; "
-        "ALTER USER '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' RETAIN CURRENT PASSWORD; "
+        "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s'; "
+        "ALTER USER '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s'; "
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%%' WITH GRANT OPTION; "
-        "CREATE USER IF NOT EXISTS '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL; "
-        "ALTER USER '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL; "
-        "ALTER USER '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' RETAIN CURRENT PASSWORD; "
+        "CREATE USER IF NOT EXISTS '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' REQUIRE SSL; "
+        "ALTER USER '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' REQUIRE SSL; "
         "GRANT ALL PRIVILEGES ON *.* TO '%2'@'%%' WITH GRANT OPTION; "
-        "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" | mysql -u root; ")
-        .arg(m_login, sslLogin, legacy);
+        "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" \"$PW\" \"$PW\" | mysql -u root; ")
+        .arg(m_login, sslLogin);
 
     /*! 3. Aiguillage my.cnf remis sur MySQL, copie de my.cnf en place + redémarrage du serveur. */
     const QString cnfFragment = linuxForceMysqlCnfScript() + QString(

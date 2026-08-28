@@ -55,6 +55,7 @@ private:
     QStringList             m_stringliste1, m_stringliste2;
     Refraction::Mesure      m_mode;
     ModeOuverture           m_modeouverture;
+    Procedures::typeEnvoi   m_typeenvoi = Procedures::printDOC;
     enum ModeSortie         {Annul, Imprime, OK};
     enum DateMesure         {Aujourdhui, Avant, NoDate};
     upDoubleValidator       *m_val;

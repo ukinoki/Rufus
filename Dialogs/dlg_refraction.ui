@@ -1631,6 +1631,51 @@ et fermer</string>
        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
      </widget>
+     <widget class="UpGroupBox" name="PdfMailupGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>730</x>
+        <y>110</y>
+        <width>141</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QCheckBox" name="MailcheckBox">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>3</y>
+         <width>51</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::FocusPolicy::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>Mail</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="PDFcheckBox">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>3</y>
+         <width>51</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::FocusPolicy::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>PDF</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </item>
    <item row="2" column="0">
@@ -1773,7 +1818,7 @@ prédéfini</string>
       </property>
       <property name="dateTime">
        <datetime>
-        <hour>20</hour>
+        <hour>19</hour>
         <minute>0</minute>
         <second>0</second>
         <year>2014</year>

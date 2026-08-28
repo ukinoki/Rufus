@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPdfWriter>
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <QAction>
 
 Procedures* Procedures::instance =  nullptr;
 Procedures* Procedures::I()
@@ -1755,6 +1756,14 @@ bool Procedures::EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, in
     mdpled                  ->setEchoMode(QLineEdit::Password);
     mdpled                  ->setText(mdp);
 
+    QAction *oeil = mdpled  ->addAction(Icons::icEye(), QLineEdit::TrailingPosition);
+    oeil                    ->setToolTip(tr("Afficher / masquer le mot de passe"));
+    connect(oeil, &QAction::triggered, dlg, [=] {
+        const bool masque = (mdpled->echoMode() == QLineEdit::Password);
+        mdpled              ->setEchoMode(masque ? QLineEdit::Normal : QLineEdit::Password);
+        oeil                ->setIcon(masque ? Icons::icEyeBarre() : Icons::icEye());
+    });
+
     UpSmallButton *mdpbutt  = new UpSmallButton();
     mdpbutt                 ->setIconSize(QSize(18, 18));
     auto majmdpbutt = [=, &cles] {
@@ -1805,12 +1814,17 @@ bool Procedures::EnvoiMail(QWidget *parent, QMap<QString, QByteArray> pieces, in
     if (!valide || destinataire == "" || mdp == "")
         return false;
 
+    User *usr = Datas::I()->users->userconnected();
+    QString signature = (usr->titre() != ""? usr->titre() + " " : "") + usr->prenom() + " " + usr->nom();
+    if (usr->titre() == "" && usr->fonction() != "")
+        signature += ", " + usr->fonction();
+
     QApplication::setOverrideCursor(Qt::WaitCursor);
     SmtpClient smtp;
     bool ok = smtp.envoie(sit->smtpserveur(), sit->smtpport(), sit->smtplogin(), mdp,
                           sit->mail(), destinataire, sit->mail(),
                           tr("Document ") + sit->nom(),
-                          tr("Veuillez trouver ci-joint le document annoncé.") + "\n\n" + sit->nom(),
+                          tr("Veuillez trouver ci-joint le document annoncé.") + "\n\n" + signature,
                           pieces);
     QApplication::restoreOverrideCursor();
 
@@ -1936,7 +1950,7 @@ Procedures::typeEnvoi Procedures::QuestionMailPdfOrPrint(QWidget *parent, typeEn
             while (ManqueEnvoiMail(idsite).size() > 0)
             {
                 QStringList manque = ManqueEnvoiMail(idsite);
-                if (!CompleteCoordonneesMail(parent, idsite, manque))
+                if (!CompleteCoordonneesMail(dlg, idsite, manque))
                     return;
             }
         }
@@ -3506,7 +3520,9 @@ bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
     if (!BackupRufusBaseBeforeInstall(LOGIN_SQL, MySQLInstaller::motDePasseSQL()))
         return false;   //! rien n'a été désinstallé
 
-    if (!MySQLInstaller().reinstallerSocleMySQLpourMigration())
+    /*! { mdp, login } d'adminrufus : hérite du dossier d'imagerie de l'ancienne base. */
+    const QStringList log = { MySQLInstaller::motDePasseSQL(), QString(LOGIN_SQL) };
+    if (!MySQLInstaller().reinstallerSocleMySQLpourMigration(log))
     {
         UpMessageBox::Watch(parent, tr("Réinstallation impossible"),
             tr("La réinstallation de MySQL a échoué.") + "\n" +
@@ -3534,7 +3550,6 @@ bool Procedures::VerifVersionBase(QWidget* parent)
     int Version         = VERSION_BASE;
     m_parametres = db->parametres();
     int Versionencours = m_parametres->versionbase();
-    qDebug() << "Versionencours" << Versionencours << "Version" << Version;
     bool BupDone = false;
     if (Versionencours < Version)
     {
@@ -3653,6 +3668,7 @@ bool Procedures::VerifVersionBase(QWidget* parent)
         QDir dir(PATH_DIR_RESSOURCES);
         if (dir.exists())
             dir.removeRecursively();
+        MySQLInstaller::controlerCompteDeSecours(parent);
     }
     if (Versionencours > Version)
     {

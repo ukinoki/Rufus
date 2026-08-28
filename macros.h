@@ -36,6 +36,7 @@ public:
 #define LIEN_XML_RUFUSLASTVERSIONTEST         "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversiontest.xml"
 #define LIEN_XML_COTATIONS                    "https://raw.githubusercontent.com/ukinoki/additional_files/main/Cotations.xml"   /*!< fichier de cotations (CCAM/NGAP) hébergé sur GitHub (dépôt additional_files) */
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport2.3.xml"
+#define LIEN_IPPUBLIQUE                       "https://api.ipify.org"   /*!< renvoie en texte brut l'adresse publique vue de l'extérieur */
 
 // Les bases
 #define DB_CCAM                               "CCAM"
@@ -1105,6 +1106,7 @@ public:
 #define SIZEMAXIMGIOL                           16284       // 16 Ko
 #define SIZEMAXILOGO                            8192        // 8 Ko
 #define SIZEMAXISIGNATURE                       65536       // 54 Ko (png transparent à la résolution d'impression)
+#define SIZEMAXMAIL                             5242880     // 5 Mo (limite courante des serveurs d'envoi)
 #define SIGNATURE_LARGEUR_IMPRESSION_MM         40          /*!< largeur (mm) de la signature apposée sur le document imprimé ; convertie en pixels selon la résolution de l'imprimante */
 
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)

@@ -1084,8 +1084,9 @@ bool Utils::SaisirMDP(QString Msg, QString &mdp, QWidget *parent)
  * \param Msg     texte affiché au-dessus du champ
  * \param ip      adresse saisie, préremplie à l'appel
  * \param parent  fenêtre parente
+ * \param nomautorise  accepte aussi un nom de serveur (DynDNS) au lieu d'une IPv4
  */
-bool Utils::SaisirAdresseIP(QString Msg, QString &ip, QWidget *parent)
+bool Utils::SaisirAdresseIP(QString Msg, QString &ip, QWidget *parent, bool nomautorise)
 {
     UpDialog dlg(parent);
     dlg.setWindowModality(Qt::WindowModal);
@@ -1096,7 +1097,7 @@ bool Utils::SaisirAdresseIP(QString Msg, QString &ip, QWidget *parent)
     dlg     .dlglayout()->insertWidget(0, label);
 
     UpLineEdit *champ = new UpLineEdit(&dlg);
-    champ   ->setValidator(new QRegularExpressionValidator(rgx_IPV4_mask, &dlg));
+    champ   ->setValidator(new QRegularExpressionValidator(nomautorise ? rgx_adresseserveur : rgx_IPV4_mask, &dlg));
     champ   ->setAlignment(Qt::AlignCenter);
     champ   ->setText(ip);
     dlg     .dlglayout()->insertWidget(1, champ);

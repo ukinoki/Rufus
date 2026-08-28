@@ -44,7 +44,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("22-09-2026/1");
+    qApp->setApplicationVersion("16-09-2026/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -355,6 +355,32 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 z,8000);
     }
 
+    //! 20 - Marges d'impression absentes ou nulles dans rufus.ini
+    bool margesok = true;
+    for (const QString &cle : {QString(Imprimante_TailleEnTete),     QString(Imprimante_TailleEnTeteALD),
+                               QString(Imprimante_TaillePieddePage), QString(Imprimante_TailleTopMarge)})
+        if (!proc->settings()->contains(cle) || proc->settings()->value(cle).toInt() == 0)
+            margesok = false;
+    if (!margesok)
+    {
+        UpMessageBox msgbox(this);
+        msgbox.setText(tr("Paramètres d'impression incorrects"));
+        msgbox.setInformativeText(tr("Les marges d'impression de ce poste sont incomplètes ou nulles.") + "\n"
+                                  + tr("Restaurer les valeurs par défaut?"));
+        msgbox.setIcon(UpMessageBox::Warning);
+        UpSmallButton OKBouton(tr("Restaurer"));
+        UpSmallButton NoBouton(tr("Annuler"));
+        msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() == &OKBouton)
+        {
+            proc->settings()->setValue(Imprimante_TailleEnTete,      45);
+            proc->settings()->setValue(Imprimante_TailleEnTeteALD,   63);
+            proc->settings()->setValue(Imprimante_TaillePieddePage,  20);
+            proc->settings()->setValue(Imprimante_TailleTopMarge,    3);
+        }
+    }
 }
 
 Rufus::~Rufus()
@@ -1168,6 +1194,7 @@ void Rufus::AfficheMenu(QMenu *menu)
             menuDocuments       ->addSeparator();
             actionExportActe    ->setVisible(ui->Acteframe->isVisible());
         }
+        menuDocuments->addAction(actionEnvoiMailGroupe);
         menuDocuments->addAction(actionRechercheCourrier);
         menuDocuments->addAction(actionCorrespondants);
         menuDocuments->addAction(actionFabricants);
@@ -7760,6 +7787,7 @@ void Rufus::CreerMenu()
         connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=, this] {EnregistreVideo(currentpatient());});
         connect (actionExportActe,                  &QAction::triggered,        this,                   [=, this] {ExporteActe(currentacte());});
         connect (actionRechercheCourrier,           &QAction::triggered,        this,                   &Rufus::AfficheCourriersAFaire);
+        connect (actionEnvoiMailGroupe,             &QAction::triggered,        this,                   &Rufus::EnvoiMailGroupe);
         // Comptabilité
         connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   &Rufus::GestionComptes);
         connect (actionPaiementDirect,              &QAction::triggered,        this,                   [=, this] {AppelPaiementDirect(Menu);});
@@ -8873,6 +8901,49 @@ void    Rufus::OuvrirActesPrecedents()
         return;
     dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(currentpatient(), this);
     Dlg_ActesPrecs->show();
+}
+
+/*!
+ * \brief Rufus::EnvoiMailGroupe
+ * Envoie dans un seul mail des fichiers choisis sur le disque.
+ */
+void    Rufus::EnvoiMailGroupe()
+{
+    int idsite = Datas::I()->sites->idcurrentsite();
+    while (proc->ManqueEnvoiMail(idsite).size() > 0)
+    {
+        QStringList manque = proc->ManqueEnvoiMail(idsite);
+        if (!proc->CompleteCoordonneesMail(this, idsite, manque))
+            return;
+    }
+    QStringList fichiers = QFileDialog::getOpenFileNames(this, tr("Choisir les fichiers à envoyer"),
+                                                         QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at(0));
+    if (fichiers.size() == 0)
+        return;
+    QMap<QString, QByteArray> pieces;
+    qint64 poids = 0;
+    foreach (QString nomfichier, fichiers)
+    {
+        QFile fich(nomfichier);
+        if (!fich.open(QIODevice::ReadOnly))
+        {
+            UpMessageBox::Watch(this, tr("Impossible de lire le fichier"), QDir::toNativeSeparators(nomfichier));
+            return;
+        }
+        QByteArray contenu = fich.readAll();
+        poids += (contenu.size() + 2) / 3 * 4;      /*!< le poids qui compte est celui du mail, une fois les pièces encodées en base64 */
+        pieces.insert(QFileInfo(nomfichier).fileName(), contenu);
+        fich.close();
+    }
+    if (poids > SIZEMAXMAIL)
+    {
+        UpMessageBox::Watch(this, tr("Envoi trop lourd"),
+                            tr("Les fichiers choisis font un mail de ") + QString::number(poids / 1048576.0, 'f', 1) + tr(" Mo")
+                            + "\n" + tr("La plupart des serveurs refusent au-delà de 5 Mo"));
+        return;
+    }
+    QString destinataire;
+    proc                ->EnvoiMail(this, pieces, idsite, nullptr, destinataire);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -11014,6 +11085,7 @@ void Rufus::retranslateActions() {
     actionEnregistrerDocument = retranslateAction(actionEnregistrerDocument, tr("Enregistrer un document"));
     actionEnregistrerVideo = retranslateAction(actionEnregistrerVideo, tr("Enregistrer une video"));
     actionRechercheCourrier = retranslateAction(actionRechercheCourrier, tr("Afficher les courriers en attente"));
+    actionEnvoiMailGroupe = retranslateAction(actionEnvoiMailGroupe, tr("Envoyer un mail groupé"));
     actionCorrespondants = retranslateAction(actionCorrespondants, tr("Liste des correspondants"));
     actionFabricants = retranslateAction(actionFabricants, tr("Liste des fabricants"));
     actionIOLs = retranslateAction(actionIOLs, tr("Liste des implants"));

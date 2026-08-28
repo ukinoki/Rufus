@@ -162,7 +162,9 @@ private:
     void                LocalVideoDir();
     void                DistantVideoDir();
     void                DossierClesSSL();
-    void                ExporterClesSSLversUSB();        //!< (serveur) copie les clés CLIENT SSL conservées par ce poste vers une clé USB, pour les postes distants
+    void                ExporterDonneesConnexion();      //!< (serveur) exporte vers un support amovible les clés CLIENT SSL, l'adresse, le port et le mot de passe de la base
+    void                ImporterDonneesConnexion();      //!< (accès distant) réinjecte sur ce poste les données de connexion exportées depuis le serveur
+    QString             AdresseIPPublique();             //!< adresse publique vue de l'extérieur, vide si le service ne répond pas
     void                ExporterClesSSLDistantversUSB();  //!< (accès distant) copie vers une clé USB les clés d'accès au serveur distant (dossier Dossier_ClesSSL), pour les déployer sur un autre poste distant
     void                CreerClesSSL();                   //!< (Ce poste) régénère DE NOUVELLES clés SSL serveur (avertissement sévère : invalide les clés distribuées) puis relance Rufus
     void                EnableModif(QWidget *obj);

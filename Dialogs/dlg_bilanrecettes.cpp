@@ -379,7 +379,7 @@ void dlg_bilanrecettes::PrintReport()
     }
     textcorps += "</body></html>";
 
-    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sessions->currentsession()->idsite());
+    Procedures::typeEnvoi typenvoi =  proc->QuestionMailPdfOrPrint(this, Procedures::printDOC, Datas::I()->sites->idcurrentsite());
 
     if (typenvoi == Procedures::createPDF)
     {
@@ -407,7 +407,7 @@ void dlg_bilanrecettes::PrintReport()
         QString destinataire;
         QMap<QString, QByteArray> pieces;
         pieces.insert(windowTitle() + ".pdf", proc->Cree_pdfByteArray(textcorps, textentete, textpied));
-        proc->EnvoiMail(this, pieces, Datas::I()->sessions->currentsession()->idsite(), nullptr, destinataire);
+        proc->EnvoiMail(this, pieces, Datas::I()->sites->idcurrentsite(), nullptr, destinataire);
     }
 }
 

@@ -47,6 +47,10 @@ struct MySQLRemoteConfig {
     QString macX86Url;     /*!< URL de téléchargement macOS Intel */
 };
 
+
+
+
+
 /*! MySQLProgressDialog — petite fiche de progression (téléchargement / installation).
     * total <= 0 -> barre animée (indéterminée) ; sinon pourcentage.
     * setProgress affiche en plus le volume « X / Y Mo » (gros DMG macOS ~550 Mo).
@@ -64,6 +68,10 @@ private:
     QProgressBar* m_progress;
     QLabel*       m_detail;   /*!< volume téléchargé « X / Y Mo » */
 };
+
+
+
+
 
 /*! MySQLInstallerDialog — la fiche de l'installeur (dérive d'UpDialog).
     * Haut : titre + sous-titre. Milieu : saisie identifiant + mot de passe (2 UpLineEdit, plus une
@@ -83,43 +91,32 @@ public:
     enum DialogResult { ResultSupprimerMySQL = 2 };
 
     /*! ── Configuration selon le contexte (titre / sous-titre / bouton OK + reset des champs) ─────────── */
-    void configurerCreateUserRufus(const QString& minVersion);                    /*!< contexte : saisie du futur utilisateur Rufus */
-    void configurerVerifyAdminMySQL();                                            /*!< contexte : saisie d'un compte ADMIN MySQL existant */
-    void passerEnConfiguration(const QString& titre, const QString& sousTitre);   /*!< bascule en « paramétrage en cours » (champs figés, boutons masqués) */
-    void masquerSaisieUtilisateur();                                              /*!< cache la ligne login/mdp (réinstallation lors d'une migration) */
-
-    /*! ── Saisie ─────────────────────────────────────────────────────────────────────────────────────── */
-    QString login() const;      /*!< texte courant du champ login */
-    QString password() const;   /*!< texte courant du champ mot de passe */
-    void    prefill(const QString& log, const QString& mdp);   /*!< pose un couple déjà éprouvé dans les champs */
-    bool    validerSaisie();    /*!< login ET mdp renseignés ? (message + false sinon) */
+    void configurerCreateUserRufus(const QString& minVersion);                      /*!< contexte : saisie du futur utilisateur Rufus */
+    void passerEnConfiguration(const QString& titre, const QString& sousTitre);     /*!< bascule en « paramétrage en cours » (champs figés, boutons masqués) */
 
     /*! ── Checklist ──────────────────────────────────────────────────────────────────────────────────── */
-    void checkStep(int i);                              /*!< coche la case i + repaint */
-    void setMinVersion(const QString& v);               /*!< re-libelle l'étape 0 */
-    bool wasCancelled() const { return m_cancelled; }   /*!< l'utilisateur a-t-il annulé ? */
-    void reject() override;                             /*!< marque l'annulation (slot public, comme QDialog) */
+    void checkStep(int i);                                                          /*!< coche la case i + repaint */
+    void setMinVersion(const QString& v);                                           /*!< re-libelle l'étape 0 */
+    bool wasCancelled() const { return m_cancelled; }                               /*!< l'utilisateur a-t-il annulé ? */
+    void reject() override;                                                         /*!< marque l'annulation (slot public, comme QDialog) */
 
 private:
-    QString baseStepLabel(int i) const;           /*!< libellé de base de la case i */
-    void    applyStepLabel(int i);                /*!< (ré)applique le libellé i (base + detail) */
+    QString baseStepLabel(int i) const;                                             /*!< libellé de base de la case i */
+    void    applyStepLabel(int i);                                                  /*!< (ré)applique le libellé i (base + detail) */
     void    configurer(const QString& titre, const QString& sousTitre,
-                       const QString& okLabel);   /*!< applique titre/sous-titre/bouton + vide les champs */
+                       const QString& okLabel);                                     /*!< applique titre/sous-titre/bouton + vide les champs */
 
     UpLabel*       m_title         = nullptr;
     UpLabel*       m_subtitle      = nullptr;
-    UpLabel*       m_loginLbl      = nullptr;
-    UpLabel*       m_mdpLbl        = nullptr;
-    UpLineEdit*    m_login         = nullptr;
-    UpLineEdit*    m_mdp           = nullptr;
-    UpLabel*       m_mdpConfirmLbl = nullptr;           /*!< confirmation du mot de passe (création de compte) */
-    UpLineEdit*    m_mdpConfirm    = nullptr;
-    bool           m_confirmMdpRequis = false;          /*!< mode CRÉATION : validerSaisie() exige mdp == confirmation */
-    UpSmallButton* m_btnSupprMySQL = nullptr;           /*!< « Supprimer MySQL » (mode Verify) */
-    UpCheckBox*    m_steps[7];                          /*!< 0..5 = config ; 6 = clés SSL (accès distant) */
-    QString        m_minVersion = VERSION_MYSQL_MINI;   /*!< seuil commun (8.0.14), écrasé par setMinVersion() */
+    UpSmallButton* m_btnSupprMySQL = nullptr;                                       /*!< « Supprimer MySQL » (mode Verify) */
+    UpCheckBox*    m_steps[7];                                                      /*!< 0..5 = config ; 6 = clés SSL (accès distant) */
+    QString        m_minVersion = VERSION_MYSQL_MINI;                               /*!< seuil commun (8.0.14), écrasé par setMinVersion() */
     bool           m_cancelled  = false;
 };
+
+
+
+
 
 /*! MySQLInstaller — moteur d'installation, de vérification et de sécurisation du serveur MySQL de Rufus.
     Garantit au démarrage qu'un serveur MySQL conforme est prêt (installé, configuré, sécurisé), et fournit
@@ -155,9 +152,9 @@ class MySQLInstaller : public QObject {
 public:
     explicit MySQLInstaller(QWidget* parent = nullptr);   /*!< parent des fiches et messages de l'installeur */
 
-    bool run(const QStringList& log = {});   /*!< point d'entrée synchrone ; log = compte admin déjà éprouvé */
-    QStringList FindMdpLoginMySQL();                     /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide s'il n'y en a pas */
-    static bool isBaseRufus(const QStringList& log);    /*!< une base Rufus est-elle présente sur ce serveur ? */
+    bool run(const QStringList& log = {});                                      /*!< point d'entrée synchrone ; log = compte admin déjà éprouvé */
+    QStringList FindMdpLoginMySQL();                                            /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide s'il n'y en a pas */
+    static bool isBaseRufus(const QStringList& log);                            /*!< une base Rufus est-elle présente sur ce serveur ? */
 
     /*! ── Mot de passe aléatoire / .dbkey (helpers statiques) ─────────────────────────────────────────── */
     static QString     genererMotDePasse();                                                    /*!< mot de passe aléatoire fort (12 car., [A-Za-z0-9]) */
@@ -185,40 +182,44 @@ public:
     bool entretienComptesAdminrufusLAN(const QString& mdpCourant);
 
     /*! ── État du socle / du serveur ──────────────────────────────────────────────────────────────────── */
-    static bool socleMySQLConforme();                   /*!< socle MySQL conforme à Rufus (>= 8.0.14 et pas MariaDB) */
-    static bool socleLocalConforme();                   /*!< idem, mais relevé SANS connexion (serveur LOCAL) : pour les décisions qui précèdent la connexion */
-    static bool serveurLocalPresent();                  /*!< un serveur MySQL local est-il installé ? (avant toute connexion) */
-    void        verifierEtReparerConfigMonoposte();     /*!< monoposte : vérif silencieuse de la config, propose de réparer sinon */
-    bool        reinstallerSocleMySQLpourMigration();   /*!< migration DESTRUCTIVE du socle (après sauvegarde validée) */
+    static bool socleMySQLConforme();                                           /*!< socle MySQL conforme à Rufus (>= 8.0.14 et pas MariaDB) */
+    static bool socleLocalConforme();                                           /*!< idem, mais relevé SANS connexion (serveur LOCAL) : pour les décisions qui précèdent la connexion */
+    static bool serveurLocalPresent();                                          /*!< un serveur MySQL local est-il installé ? (avant toute connexion) */
+    void        verifierEtReparerConfigMonoposte();                             /*!< monoposte : vérif silencieuse de la config, propose de réparer sinon */
+    bool        reinstallerSocleMySQLpourMigration(const QStringList& log);     /*!< migration DESTRUCTIVE du socle (log = admin de l'ancien serveur, pour hériter de son imagerie) */
+    QStringList SqlLog() {return m_isconnectlogvalid?
+                                      QStringList()<<m_login<<m_password :
+                                      QStringList();}                           /*!< log de connexion éprouvé (adminrufus / adminrufusSSL) ; vide si pas de connexion */
 
     /*! ── Clés SSL (accès distant chiffré) ────────────────────────────────────────────────────────────── */
-    bool        sauvegarderClesSSLMigration();       /*!< copie les .pem du datadir vers un stash (avant désinstall) */
-    void        restaurerClesSSLMigration();         /*!< réinjecte les .pem dans le nouveau datadir + redémarre */
-    static bool      clesSSLServeurPresentes();      /*!< le serveur a-t-il des certificats en service ? */
-    static QDateTime dateExpirationCertSSL();        /*!< date d'expiration du certificat serveur (invalide si SSL inactif) */
-    bool        exporterClesClientSSL(const QString& dest);   /*!< copie les clés client du datadir vers dest */
-    bool        regenererClesSSL();                  /*!< DESTRUCTIF : régénère les certs serveur (invalide les clés déjà distribuées) */
-    void        controlerClesSSLMonoposte();         /*!< monoposte au démarrage : réextrait ou régénère selon l'état des clés */
-    void        avertirExpirationClesSSLDistant();   /*!< accès distant : prévient si les certs SSL approchent de l'expiration */
+    bool        sauvegarderClesSSLMigration();                                  /*!< copie les .pem du datadir vers un stash (avant désinstall) */
+    void        restaurerClesSSLMigration();                                    /*!< réinjecte les .pem dans le nouveau datadir + redémarre */
+    static bool      clesSSLServeurPresentes();                                 /*!< le serveur a-t-il des certificats en service ? */
+    static QDateTime dateExpirationCertSSL();                                   /*!< date d'expiration du certificat serveur (invalide si SSL inactif) */
+    bool        exporterClesClientSSL(const QString& dest);                     /*!< copie les clés client du datadir vers dest */
+    bool        corrigerDroitsClesSSL(const QString& dossier);                  /*!< rend les clés d'un dossier à l'utilisateur courant */
+    bool        regenererClesSSL();                                             /*!< DESTRUCTIF : régénère les certs serveur (invalide les clés déjà distribuées) */
+    void        controlerClesSSLMonoposte();                                    /*!< monoposte au démarrage : réextrait ou régénère selon l'état des clés */
+    void        avertirExpirationClesSSLDistant();                              /*!< accès distant : prévient si les certs SSL approchent de l'expiration */
 
     /*! ── Entretien au démarrage (après connexion) ────────────────────────────────────────────────────── */
-    static void      entretienApresConnexion(QWidget *parent = nullptr);                                       /*!< sécurise au besoin puis efface gaxt78iy à échéance */
-    static bool      adminrufusEstSecurise();                                         /*!< adminrufus a-t-il un 2e mot de passe (base déjà sécurisée) ? */
-    static bool      unCompteLANaPerduSystemUser();                                   /*!< un compte adminrufus local a-t-il perdu SYSTEM_USER (à régulariser) ? */
-    static QDateTime dateSecurisation();                                              /*!< date de sécurisation (password_last_changed d'adminrufus) */
-    static QString   posteSecurisation();                                             /*!< nom du poste ayant posé l'aléatoire (vide si version antérieure) */
-    static void      supprimerGaxt78iySiEchue(QWidget *parent = nullptr);                                      /*!< efface gaxt78iy si la deadline est passée (et si ce poste a l'aléatoire) */
-    void             avertirEffacementImminent();                                     /*!< informe que l'effacement de gaxt78iy approche (informatif) */
-    void             proposerRecuperationAleatoire();                                 /*!< base sécurisée mais poste sur gaxt78iy : propose de saisir l'aléatoire */
-    void             suggererSecurisationDepuisLocal();                               /*!< poste distant sur base non sécurisée : invite à sécuriser depuis le LAN */
+    static void      entretienApresConnexion(QWidget *parent = nullptr);            /*!< sécurise au besoin puis efface gaxt78iy à échéance */
+    static bool      adminrufusEstSecurise();                                       /*!< adminrufus a-t-il un 2e mot de passe (base déjà sécurisée) ? */
+    static bool      unCompteLANaPerduSystemUser();                                 /*!< un compte adminrufus local a-t-il perdu SYSTEM_USER (à régulariser) ? */
+    static QDateTime dateSecurisation();                                            /*!< date de sécurisation (password_last_changed d'adminrufus) */
+    static QString   posteSecurisation();                                           /*!< nom du poste ayant posé l'aléatoire (vide si version antérieure) */
+    static void      supprimerGaxt78iySiEchue(QWidget *parent = nullptr);           /*!< efface gaxt78iy si la deadline est passée (et si ce poste a l'aléatoire) */
+    void             avertirEffacementImminent();                                   /*!< informe que l'effacement de gaxt78iy approche (informatif) */
+    void             proposerRecuperationAleatoire();                               /*!< base sécurisée mais poste sur gaxt78iy : propose de saisir l'aléatoire */
+    void             suggererSecurisationDepuisLocal();                             /*!< poste distant sur base non sécurisée : invite à sécuriser depuis le LAN */
     bool             recreerMotDePasseApresVerifAdmin(QWidget *parent = nullptr);   /*!< recrée l'aléatoire quand plus aucun poste ne l'a (protégé par mdp Admin) */
 
     /*! ── Compte de secours (et suppression de root) ──────────────────────────────────────────────────── */
     static bool rootExiste();                                                   /*!< un compte 'root' subsiste-t-il sur ce serveur ? */
     static bool compteDeSecoursExiste();                                        /*!< secoursrufus est-il en place sur TOUS les hosts LAN ? */
-    static bool creerCompteDeSecours(QWidget* parent = nullptr);              /*!< demande le mdp confidentiel, crée secoursrufus sur les hosts LAN, l'éprouve puis supprime root */
-    static void controlerCompteDeSecours(QWidget *parent = nullptr);            /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
-    bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = nullptr);  /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
+    static bool creerCompteDeSecours(QWidget* parent = nullptr);                /*!< demande le mdp confidentiel, crée secoursrufus sur les hosts LAN, l'éprouve puis supprime root */
+    static void controlerCompteDeSecours(QWidget *parent = nullptr);            /*!< à chaque mise à jour de la base : met en place le secours s'il manque, et supprime root */
+    bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = nullptr);    /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
 
     /*! ── Récupération du mot de passe du cabinet ─────────────────────────────────────────────────────── */
     enum class IssueMdp {
@@ -235,16 +236,17 @@ public:
                                              const QString &corps = QString(),
                                              bool monoposte = false);
 
-    enum class CreateUserResult { Ok, NoCreateUserRight, Error };   /*!< résultat de createUserAvecAdmin() */
+    enum class CreateUserResult { Ok, NoCreateUserRight, Error };           /*!< résultat de createUserAvecAdmin() */
 
 private:
     static QHash<QString,QString> s_cacheMDP;                                /*!< cache mémoire des mdp par mode (cf. motDePasseSQL) */
     QString                       m_login;                                   /*!< = LOGIN_SQL (compte SQL technique) */
     QString                       m_password;                                /*!< mot de passe aléatoire d'adminrufus */
+    bool                          m_isconnectlogvalid = false;               /*!< true si m_login/m_password représsentent un user MySQL possédant tous les droits valide */
     QString                       m_createUserErr;                           /*!< sortie SQL du dernier createUser() échoué (diag) */
     QString                       m_secureFilePrivErr;                       /*!< diagnostic du dernier ensureSecureFilePriv() échoué */
     QString                       m_brewPrefix;                              /*!< préfixe Homebrew (cache) */
-    QWidget*                      m_parent = nullptr;        /*!< fiche appelante : parent de toutes les fenêtres de l'installeur */
+    QWidget*                      m_parent = nullptr;                        /*!< fiche appelante : parent de toutes les fenêtres de l'installeur */
     MySQLInstallerDialog*         m_dialog = nullptr;                        /*!< la fiche de l'installeur */
     bool                          m_freshInstall = false;                    /*!< MySQL vient d'être installé */
     bool                          m_serveurInjoignable = false;              /*!< dernier tryConnectAs : le serveur n'a pas répondu (ERROR 2002/2003/2005) */
@@ -252,80 +254,89 @@ private:
     QString                       m_initLog = "/tmp/rufus_mysql_init.log";   /*!< journal d'init du datadir (macOS) */
     MySQLRemoteConfig             m_remoteConfig;                            /*!< config distante (chargée une seule fois) */
     bool                          m_remoteConfigLoaded = false;
+    QString                       m_dossierPartageForce;                     /*!< dossier d'imagerie hérité d'une ancienne base (sinon défaut) */
+    QString                       m_ancienDossierImagerie;                   /*!< dossier source connu à recopier (héritage impossible) */
+    bool                          m_avertirImagerieAMigrer = false;          /*!< prévenir l'utilisateur de recopier lui-même son imagerie */
 
     /*! ── Phases de run() ─────────────────────────────────────────────────────────────────────────────── */
-    bool faireCreate(const MySQLRemoteConfig& cfg);             /*!< chemin création : installe MySQL + crée adminrufus + config */
-    bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);   /*!< section install de faireCreate, sans saisie (migration) */
+    bool faireCreate(const MySQLRemoteConfig& cfg);                         /*!< chemin création : installe MySQL + crée adminrufus + config */
+    bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);               /*!< section install de faireCreate, sans saisie (migration) */
+    void avertirPostesAnciensAMettreAJour();                                /*!< serveur neuf : prévient qu'un ancien poste devra être mis à jour */
 
-    bool          isMariaDB();                                                                         /*!< le serveur local est-il MariaDB ? (incompatible) */
-    bool          faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout,
-                                  const QStringList& log = {});                                       /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
-    void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);   /*!< supprime toutes les bases non système */
+    /*! ── Imagerie d'une ancienne base : héritage du dossier ou avertissement ─────────────────────────── */
+    QString lireSecureFilePriv(const QStringList& log);                     /*!< secure_file_priv de l'ancien serveur (vide si NULL/illisible) */
+    void    preserverDossierImagerieAncienneBase(const QStringList& log);   /*!< avant la purge : hérite du dossier d'imagerie ou mémorise qu'il faut avertir */
+    bool    configurerEtapesDossierPartage(bool silencieux);                /*!< étapes 3-5 : dossier partagé + secure_file_priv + test R/W */
+    void    avertirImagerieAMigrer();                                       /*!< invite l'utilisateur à recopier lui-même son imagerie */
 
-    bool executerEtapesConfig();   /*!< déroule les étapes de config + coche la checklist ; true si tout OK */
-    void cleanupDialog();          /*!< ferme et détruit m_dialog */
+    bool          isMariaDB();                                              /*!< le serveur local est-il MariaDB ? (incompatible) */
+    bool          faireReutiliser(const MySQLRemoteConfig& cfg);            /*!< réutilise un MySQL existant : compte admin -> comptes Rufus -> config */
+    void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);  /*!< supprime toutes les bases non système */
+
+    bool executerEtapesConfig();                                            /*!< déroule les étapes de config + coche la checklist ; true si tout OK */
+    void cleanupDialog();                                                   /*!< ferme et détruit m_dialog */
 
     /*! ── Multi-plateforme ────────────────────────────────────────────────────────────────────────────── */
-    QString sharedFolderPath();   /*!< dossier partagé (/Users/Shared, C:/Users/Public…) */
+    QString sharedFolderPath();                                             /*!< dossier partagé (/Users/Shared, C:/Users/Public…) */
 
     /*! ── Pré-requis (droits admin) ───────────────────────────────────────────────────────────────────── */
-    bool isAdminUser();          /*!< processus élevé / compte administrateur ? */
-    bool assurerDroitsAdmin();   /*!< garantit les droits admin (élévation UAC sinon) ; À N'APPELER qu'avant une (dés)installation */
+    bool isAdminUser();                                                     /*!< processus élevé / compte administrateur ? */
+    bool assurerDroitsAdmin();                                              /*!< garantit les droits admin (élévation UAC sinon) ; À N'APPELER qu'avant une (dés)installation */
 #if defined(Q_OS_WIN)
-    bool isVCRedist2022Installed();                               /*!< Windows : VC++ Redistributable 2022 présent ? */
-    bool installVCRedist2022();                                   /*!< Windows : installe VC++ 2022 */
-    bool relancerEnAdministrateur();                              /*!< Windows : relance Rufus élevé via l'invite UAC (« runas ») */
+    bool isVCRedist2022Installed();                                         /*!< Windows : VC++ Redistributable 2022 présent ? */
+    bool installVCRedist2022();                                             /*!< Windows : installe VC++ 2022 */
+    bool relancerEnAdministrateur();                                        /*!< Windows : relance Rufus élevé via l'invite UAC (« runas ») */
     void registerWindowsUninstaller(const QString& base,
                                        const QString& progData,
-                                       const QString& version);   /*!< Windows : déclare MySQL dans « Applications » + script de désinstall */
+                                       const QString& version);             /*!< Windows : déclare MySQL dans « Applications » + script de désinstall */
 #endif
 #if defined(Q_OS_LINUX)
     bool isUbuntuVersionSupported();   /*!< Ubuntu > 22.04 ? */
 #endif
 
     /*! ── MySQL (install / version / démarrage) ───────────────────────────────────────────────────────── */
-    bool    isMySQLInstalled();                                      /*!< MySQL installé (binaire/service) ? */
-    bool    ensureMysqlInPath();                                     /*!< mysql présent dans le PATH (l'ajoute sinon) */
-    QString getMySQLServerVersion();                                 /*!< version du SERVEUR (mysqld), pas du client */
-    QString serverVersionString();                                   /*!< VERSION() brute du serveur EN COURS ("" si injoignable) */
-    bool    installMySQL();                                          /*!< installe MySQL (3 plateformes) */
-    bool    uninstallMySQL();                                        /*!< désinstalle MySQL + config Rufus */
-    bool    installFromDmg(const QString& dmgPath);                  /*!< macOS : installe depuis le .dmg Oracle */
-    QString downloadOracleDmg();                                     /*!< macOS : télécharge le .dmg Oracle */
-    bool    initOracleDataDir();                                     /*!< macOS : initialise le datadir Oracle si le pkg ne l'a pas fait */
-    QString oracleInitStartScript() const;                           /*!< fragment shell root idempotent : init datadir Oracle + démarre le serveur */
+    bool    isMySQLInstalled();                                             /*!< MySQL installé (binaire/service) ? */
+    bool    ensureMysqlInPath();                                            /*!< mysql présent dans le PATH (l'ajoute sinon) */
+    QString getMySQLServerVersion();                                        /*!< version du SERVEUR (mysqld), pas du client */
+    QString serverVersionString();                                          /*!< VERSION() brute du serveur EN COURS ("" si injoignable) */
+    bool    installMySQL();                                                 /*!< installe MySQL (3 plateformes) */
+    bool    uninstallMySQL();                                               /*!< désinstalle MySQL + config Rufus */
+    bool    installFromDmg(const QString& dmgPath);                         /*!< macOS : installe depuis le .dmg Oracle */
+    QString downloadOracleDmg();                                            /*!< macOS : télécharge le .dmg Oracle */
+    bool    initOracleDataDir();                                            /*!< macOS : initialise le datadir Oracle si le pkg ne l'a pas fait */
+    QString oracleInitStartScript() const;                                  /*!< fragment shell root idempotent : init datadir Oracle + démarre le serveur */
     bool    downloadFile(const QString& url, const QString& dest,
-                         const QString& label);                      /*!< télécharge url -> dest avec barre de progression */
-    bool    hasNetworkAccess();                                      /*!< accès réseau (WAN) présent ? (silencieux) */
-    bool    checkDownloadConnectivity(const QString& downloadUrl);   /*!< pré-requis réseau avant téléchargement (message explicite si KO) */
-    void    avertirTelechargementImpossible();                       /*!< invite à installer MySQL soi-même puis relancer si le téléchargement échoue */
-    bool    startMySQL();                                            /*!< démarre le serveur */
-    bool    waitForMySQL(int maxSeconds = 30);                       /*!< attend que le serveur réponde */
+                         const QString& label);                             /*!< télécharge url -> dest avec barre de progression */
+    bool    hasNetworkAccess();                                             /*!< accès réseau (WAN) présent ? (silencieux) */
+    bool    checkDownloadConnectivity(const QString& downloadUrl);          /*!< pré-requis réseau avant téléchargement (message explicite si KO) */
+    void    avertirTelechargementImpossible();                              /*!< invite à installer MySQL soi-même puis relancer si le téléchargement échoue */
+    bool    startMySQL();                                                   /*!< démarre le serveur */
+    bool    waitForMySQL(int maxSeconds = 30);                              /*!< attend que le serveur réponde */
 
     /*! ── Identifiants / connexion ────────────────────────────────────────────────────────────────────── */
-    bool isServerRunning();                                        /*!< le serveur répond-il ? */
-    bool tryConnect();                                             /*!< connexion adminrufus (mdp courant) */
-    bool tryConnectAs(const QString& login, const QString& mdp);   /*!< connexion avec login/mdp arbitraires (compte admin saisi) */
-    bool checkPrivileges(QStringList& outMissing);                 /*!< adminrufus a-t-il tous les privilèges requis ? (manquants -> outMissing) */
-    bool createUser();                                             /*!< crée adminrufus/SSL (mode création) */
+    bool isServerRunning();                                                 /*!< le serveur répond-il ? */
+    bool tryConnect();                                                      /*!< connexion adminrufus (mdp courant) */
+    bool tryConnectAs(const QString& login, const QString& mdp);            /*!< connexion avec login/mdp arbitraires (compte admin saisi) */
+    bool checkPrivileges(QStringList& outMissing);                          /*!< adminrufus a-t-il tous les privilèges requis ? (manquants -> outMissing) */
+    bool createUser();                                                      /*!< crée adminrufus/SSL (mode création) */
 
     /*! Crée adminrufus/SSL via le compte admin MySQL fourni ; distingue le manque de CREATE USER des autres erreurs. */
     CreateUserResult createUserAvecAdmin(const QString& adminLogin,
                                          const QString& adminMdp);
 
     /*! ── Dossier partagé (/Users/Shared) ─────────────────────────────────────────────────────────────── */
-    bool setupSharedFolder();      /*!< dossier partagé existant + partagé (crée/partage sinon) */
-    bool ensureSecureFilePriv();   /*!< secure_file_priv = dossier partagé (my.cnf) */
-    bool testSharedFolderRW();     /*!< mysql lit ET écrit un fichier test dans le dossier partagé */
-    bool droitsDossierPartageConformes();  /*!< dossier partagé traversable par mysql, et jamais inscriptible par tous */
+    bool setupSharedFolder();                                               /*!< dossier partagé existant + partagé (crée/partage sinon) */
+    bool ensureSecureFilePriv();                                            /*!< secure_file_priv = dossier partagé (my.cnf) */
+    bool testSharedFolderRW();                                              /*!< mysql lit ET écrit un fichier test dans le dossier partagé */
+    bool droitsDossierPartageConformes();                                   /*!< dossier partagé traversable par mysql, et jamais inscriptible par tous */
 public:
-    void    retirerEcriturePourTous();          /*!< retire en silence le w des « autres » sous le dossier partagé */
-    QString mysqlBin(const QString& binary);    /*!< chemin d'un binaire MySQL (mysql, mysqldump…), le nom nu s'il n'est qu'au PATH */
+    void    retirerEcriturePourTous();                                      /*!< retire en silence le w des « autres » sous le dossier partagé */
+    QString mysqlBin(const QString& binary);                                /*!< chemin d'un binaire MySQL (mysql, mysqldump…), le nom nu s'il n'est qu'au PATH */
 private:
-    bool partageImageriePresent();      /*!< dossier d'imagerie visible des postes du réseau */
-    bool partageImagerieNomPresent();   /*!< un partage de ce nom existe, quel que soit son dossier */
+    bool partageImageriePresent();                                          /*!< dossier d'imagerie visible des postes du réseau */
+    bool partageImagerieNomPresent();                                       /*!< un partage de ce nom existe, quel que soit son dossier */
 #if defined(Q_OS_WIN)
-    QString windowsPartageImagerieScript(const QString& path) const;   /*!< fragment PowerShell créant le partage du dossier d'imagerie */
+    QString windowsPartageImagerieScript(const QString& path) const;        /*!< fragment PowerShell créant le partage du dossier d'imagerie */
 #endif
 #if defined(Q_OS_LINUX)
     bool    prepareCreateModeLinux();                                                 /*!< Linux : tout le paramétrage root du mode Create en UNE élévation */
@@ -333,7 +344,7 @@ private:
     QString linuxForceMysqlCnfScript() const;                                         /*!< fragment shell remettant l'aiguillage my.cnf sur mysql-server */
 #endif
 #if defined(Q_OS_MACOS)
-    bool prepareCreateModeMacOS();   /*!< macOS : tout le paramétrage root du mode Create en UNE invite admin */
+    bool prepareCreateModeMacOS();                                          /*!< macOS : tout le paramétrage root du mode Create en UNE invite admin */
 #endif
     QList<QPair<QString, QString>> rufusCnfVars();                                               /*!< variables [mysqld] requises par Rufus (source unique) */
     QString                        getCnfVar(const QString& key);                                /*!< lit une variable de my.cnf */
@@ -342,29 +353,29 @@ private:
     void                           restartMySQL();                                               /*!< redémarre le serveur */
 
     /*! ── Config distante ─────────────────────────────────────────────────────────────────────────────── */
-    static MySQLRemoteConfig defaultMySQLConfig();   /*!< config MySQL par défaut (repli) */
-    MySQLRemoteConfig        fetchRemoteConfig();    /*!< config JSON distante -> repli sur défaut */
+    static MySQLRemoteConfig defaultMySQLConfig();                          /*!< config MySQL par défaut (repli) */
+    MySQLRemoteConfig        fetchRemoteConfig();                           /*!< config JSON distante -> repli sur défaut */
 
     /*! ── Helpers d'exécution ─────────────────────────────────────────────────────────────────────────── */
-    bool        askYesNo(const QString& title, const QString& text);     /*!< question Oui/Non (UpMessageBox::Question) */
-    QString     runCmd(const QString& cmd, int timeoutMs = 30000);       /*!< exécute une commande, renvoie sa sortie */
-    QString     runCmdFull(const QString& cmd, int timeoutMs = 30000);   /*!< comme runCmd, sortie complète (stdout + stderr) */
-    static QString argsServeurCourant();                                 /*!< arguments du client mysql vers le serveur du mode courant */
-    QStringList lignesResultat(const QString& sortie);                   /*!< lignes de DONNÉES d'une sortie mysql (sans « [Warning] … password … ») */
+    bool        askYesNo(const QString& title, const QString& text);        /*!< question Oui/Non (UpMessageBox::Question) */
+    QString     runCmd(const QString& cmd, int timeoutMs = 30000);          /*!< exécute une commande, renvoie sa sortie */
+    QString     runCmdFull(const QString& cmd, int timeoutMs = 30000);      /*!< comme runCmd, sortie complète (stdout + stderr) */
+    static QString argsServeurCourant();                                    /*!< arguments du client mysql vers le serveur du mode courant */
+    QStringList lignesResultat(const QString& sortie);                      /*!< lignes de DONNÉES d'une sortie mysql (sans « [Warning] … password … ») */
 
-    static void supprimerCompteMySQL(const QString& login);   /*!< supprime un compte MySQL sur TOUS ses hosts (erreur SQL muette : l'appelant constate) */
+    static void supprimerCompteMySQL(const QString& login);                 /*!< supprime un compte MySQL sur TOUS ses hosts (erreur SQL muette : l'appelant constate) */
 
     /*! Exécute avec droits admin. stdinData (Linux) :
      *  passé sur l'entrée standard du processus élevé (ex. mot de passe smbpasswd)
      *  — jamais sur disque, ni en argument, ni dans les logs. */
     bool    runCmdElevated(const QString& cmd, const QString& stdinData = {});
     void    runLongOp(const QString& cmd, const QString& label,
-                      int timeoutMs = 360000);           /*!< commande longue avec fiche d'attente */
+                      int timeoutMs = 360000);                              /*!< commande longue avec fiche d'attente */
     void    runLongOpProgress(const QString& cmd, const QString& label,
-                              int timeoutMs = 360000);   /*!< commande longue avec barre de % (la commande émet « PROGRESS f t ») */
-    QString getBrewPrefix();                             /*!< préfixe Homebrew (macOS) */
-    bool    isOracleInstall();                           /*!< installation Oracle (vs Homebrew) ? */
-    QString oraclePrefix() const;                        /*!< préfixe d'une install Oracle ("" sinon) */
+                              int timeoutMs = 360000);                      /*!< commande longue avec barre de % (la commande émet « PROGRESS f t ») */
+    QString getBrewPrefix();                                                /*!< préfixe Homebrew (macOS) */
+    bool    isOracleInstall();                                              /*!< installation Oracle (vs Homebrew) ? */
+    QString oraclePrefix() const;                                           /*!< préfixe d'une install Oracle ("" sinon) */
 };
 
 #endif // MYSQLINSTALLER_H
