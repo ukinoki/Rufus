@@ -3742,7 +3742,8 @@ bool MySQLInstaller::tryConnect()
 
 /*!
  * \brief MySQLInstaller::tryConnectAs
- * Comme tryConnect() mais avec des identifiants arbitraires (compte admin saisi).
+ * Ouvre une connexion avec des identifiants arbitraires (compte admin saisi) et vérifie qu'ils donnent
+ * tous les privilèges requis.
  * \param login  identifiant à tester
  * \param mdp    mot de passe à tester
  */
@@ -3753,13 +3754,11 @@ bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
             .arg(mysqlBin("mysqladmin"), argsServeurCourant(), login, mdp));
     m_serveurInjoignable = out.contains("ERROR 2002") || out.contains("ERROR 2003")
                         || out.contains("ERROR 2005");
-    m_isconnectlogvalid = out.contains("mysqld is alive");
-    if (m_isconnectlogvalid)
-    {
-        m_login = login;
-        m_password = mdp;
-    }
-    else
+    m_login    = login;
+    m_password = mdp;
+    QStringList manquants;
+    m_isconnectlogvalid = out.contains("mysqld is alive") && checkPrivileges(manquants);
+    if (!m_isconnectlogvalid)
     {
         m_login = QString();
         m_password = QString();
