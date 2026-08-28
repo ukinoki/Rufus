@@ -1130,9 +1130,9 @@ void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
                                                    const QString& adminMdp)
 {
     const QString out = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+        QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
                 "\"SHOW DATABASES;\" 2>&1")
-            .arg(mysqlBin("mysql"), adminLogin, adminMdp));
+            .arg(mysqlBin("mysql"), argsServeurCourant(), adminLogin, adminMdp));
     QString sql;
     for (const QString& db : lignesResultat(out)) {
         if (db.startsWith("ERROR", Qt::CaseInsensitive))
@@ -1144,8 +1144,8 @@ void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
     }
     if (sql.isEmpty())
         return;
-    runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-        .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
+    runCmdFull(QString("\"%1\" %2 -u \"%3\" -p\"%4\" -e \"%5\" 2>&1")
+        .arg(mysqlBin("mysql"), argsServeurCourant(), adminLogin, adminMdp, sql));
 }
 
 /*!
@@ -3581,9 +3581,9 @@ bool MySQLInstaller::ensureSecureFilePriv()
     QString liveVu;     /*!< dernière valeur lue côté serveur (conservée pour le diagnostic) */
     auto serveurOk = [&]() -> bool {
         const QString out = runCmdFull(QString(
-            "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+            "\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
             "\"SELECT @@GLOBAL.secure_file_priv;\" 2>&1")
-            .arg(mysqlBin("mysql"), m_login, m_password));
+            .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password));
         /*! runCmdFull fusionne stderr : le client mysql lancé avec -p<motdepasse> imprime TOUJOURS
          *  « [Warning] Using a password on the command line… » AVANT le résultat. La valeur est donc sur la
          *  DERNIÈRE ligne non vide ; comparer la sortie brute échouerait à cause de cette ligne parasite. */
@@ -3672,13 +3672,13 @@ bool MySQLInstaller::testSharedFolderRW()
     /*! ── Écriture par le serveur ─────────────────────────────────────────────── */
     QFile::remove(file);   /*!< INTO OUTFILE refuse un fichier existant */
     runCmdFull(QString(
-        "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT '%4' INTO OUTFILE '%5';\" 2>&1")
-        .arg(mysqlBin("mysql"), m_login, m_password, token, file));
+        "\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e \"SELECT '%5' INTO OUTFILE '%6';\" 2>&1")
+        .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password, token, file));
 
     /*! ── Relecture par le serveur (et non par l'app) ─────────────────────────── */
     const QString out = runCmdFull(QString(
-        "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT LOAD_FILE('%4');\" 2>&1")
-        .arg(mysqlBin("mysql"), m_login, m_password, file));
+        "\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e \"SELECT LOAD_FILE('%5');\" 2>&1")
+        .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password, file));
 
     /*! ── Nettoyage ───────────────────────────────────────────────────────────── */
     QFile::remove(file);
@@ -3782,9 +3782,9 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
      *  son host. Depuis qu'adminrufus n'existe plus en @'%', le nommer en dur ne rendait aucune ligne :
      *  tous les privilèges étaient signalés manquants. */
     QString raw = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+        QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
                 "\"SHOW GRANTS;\" 2>&1")
-            .arg(mysqlBin("mysql"), m_login, m_password));
+            .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password));
 
     QStringList grantedPrivs;
     bool hasGrantOption = false;
@@ -4075,8 +4075,9 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
         return sql;
     };
     auto executer = [&](const QString& sql) {
-        return m.runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-                            .arg(m.mysqlBin("mysql"), QString(LOGIN_SQL), motDePasseSQL(), sql));
+        return m.runCmdFull(QString("\"%1\" %2 -u \"%3\" -p\"%4\" -e \"%5\" 2>&1")
+                            .arg(m.mysqlBin("mysql"), argsServeurCourant(), QString(LOGIN_SQL),
+                                 motDePasseSQL(), sql));
     };
     /*! native d'abord, repli silencieux : le plugin est désactivé d'origine sur MySQL 8.4. */
     QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
