@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     {
         const QStringList log = MySQLInstaller().FindMdpLoginMySQL();
         qDebug() << "FindMdpLoginMySQL ->" << log;
-        return 0;
+        //return 0;
     }
 
     /*QString locale = QLocale::system().name().section('_', 0, 0);

@@ -149,8 +149,7 @@ void MySQLProgressDialog::setProgressBar(qint64 done, qint64 total)
 MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     : UpDialog(parent)
 {
-    setWindowTitle(tr("Préparation de MySQL pour Rufus"));
-
+    setWindowFlags(Qt::CustomizeWindowHint);
     int row = 0;
 
     /*! Titre + sous-titre (libellés pilotés par les configurer*()). */
@@ -163,31 +162,6 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     m_subtitle  ->setStyleSheet("font-size: 12px; color: #1C1B18;");
     m_subtitle  ->setWordWrap(true);
     dlglayout() ->insertWidget(row++, m_subtitle);
-
-    /*! Saisie : identifiant + mot de passe (mêmes validateurs que dlg_paramconnexion). */
-    m_loginLbl = new UpLabel(this, tr("Identifiant :"));
-    dlglayout() ->insertWidget(row++, m_loginLbl);
-    m_login = new UpLineEdit(this);
-    m_login     ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, this));
-    dlglayout() ->insertWidget(row++, m_login);
-
-    m_mdpLbl = new UpLabel(this, tr("Mot de passe :"));
-    dlglayout() ->insertWidget(row++, m_mdpLbl);
-    m_mdp = new UpLineEdit(this);
-    m_mdp       ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
-    m_mdp       ->setEchoMode(QLineEdit::Password);
-    dlglayout() ->insertWidget(row++, m_mdp);
-
-    /*! Confirmation du mot de passe : seulement à la CRÉATION d'un compte (voir configurer*()). Masquée
-     *  par défaut ; affichée par configurerCreateUserRufus. */
-    m_mdpConfirmLbl = new UpLabel(this, tr("Confirmez le mot de passe :"));
-    dlglayout()     ->insertWidget(row++, m_mdpConfirmLbl);
-    m_mdpConfirm = new UpLineEdit(this);
-    m_mdpConfirm    ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
-    m_mdpConfirm    ->setEchoMode(QLineEdit::Password);
-    dlglayout()     ->insertWidget(row++, m_mdpConfirm);
-    m_mdpConfirmLbl ->setVisible(false);
-    m_mdpConfirm    ->setVisible(false);
 
     /*! Les 7 cases (affichage seul) insérées entre la saisie et les boutons. */
     for (int i = 0; i < 7; i++) {
@@ -232,12 +206,6 @@ void MySQLInstallerDialog::configurer(const QString& titre,
     if (OKButton) { OKButton->setText(okLabel); OKButton->show(); }
     if (CancelButton) CancelButton->show();
 
-    /*! Mode interactif : champs éditables (restaure l'état après un « paramétrage en cours »). */
-    if (m_login)      { m_login->setEnabled(true);      m_login->clear(); }
-    if (m_mdp)        { m_mdp->setEnabled(true);        m_mdp->clear(); }
-    if (m_mdpConfirm) { m_mdpConfirm->setEnabled(true); m_mdpConfirm->clear(); }
-    if (m_login) m_login->setFocus();
-
     /*! « Supprimer MySQL » n'a de sens qu'en mode Verify : masqué ici, ré-affiché par configurerVerifyAdminMySQL(). */
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
 }
@@ -255,27 +223,11 @@ void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
 {
     m_title    ->setText(titre);
     m_subtitle ->setText(sousTitre);
-    if (m_login)      m_login->setEnabled(false);
-    if (m_mdp)        m_mdp->setEnabled(false);
-    if (m_mdpConfirm) m_mdpConfirm->setEnabled(false);
     if (OKButton)        OKButton->hide();
     if (CancelButton)    CancelButton->hide();
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
     unsetCursor();
     QApplication::processEvents();
-}
-
-/*!
- * \brief appliquerValidateursRufus
- * Impose le format d'un identifiant Rufus à CRÉER (5-15 / 5-12 caractères alphanumériques).
- * \param login   champ identifiant
- * \param mdp     champ mot de passe
- * \param parent  parent Qt des validateurs
- */
-static void appliquerValidateursRufus(UpLineEdit* login, UpLineEdit* mdp, QObject* parent)
-{
-    login ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, parent));
-    mdp   ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, parent));
 }
 
 void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
@@ -285,93 +237,6 @@ void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
                tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
                   "dans Rufus."),
                tr("Installer"));
-    appliquerValidateursRufus(m_login, m_mdp, this);   /*!< user Rufus → format imposé */
-
-    /*! CRÉATION d'un compte → champ de confirmation du mot de passe visible ET exigé à la validation. */
-    m_confirmMdpRequis = true;
-    if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(true);
-    if (m_mdpConfirm)    { m_mdpConfirm->setVisible(true);
-                           m_mdpConfirm->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this)); }
-}
-
-void MySQLInstallerDialog::masquerSaisieUtilisateur()
-{
-    m_confirmMdpRequis = false;
-    if (m_loginLbl)      m_loginLbl->setVisible(false);
-    if (m_login)         m_login->setVisible(false);
-    if (m_mdpLbl)        m_mdpLbl->setVisible(false);
-    if (m_mdp)           m_mdp->setVisible(false);
-    if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(false);
-    if (m_mdpConfirm)    m_mdpConfirm->setVisible(false);
-}
-
-void MySQLInstallerDialog::configurerVerifyAdminMySQL()
-{
-    configurer(tr("Connexion à MySQL"),
-               tr("Un serveur MySQL existe déjà. Saisissez l'identifiant et le mot "
-                  "de passe d'un compte MySQL administrateur (capable de créer des "
-                  "utilisateurs)."),
-               tr("Se connecter"));
-
-    /*! Compte MySQL EXISTANT : aucun format imposé (ex. « root » — 4 car. —, ou mdp non alphanumérique)
-     *  → on RETIRE les validateurs. */
-    m_login ->setValidator(nullptr);
-    m_mdp   ->setValidator(nullptr);
-
-    /*! On SAISIT un mot de passe existant (pas de création) → pas de confirmation. */
-    m_confirmMdpRequis = false;
-    if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(false);
-    if (m_mdpConfirm)    m_mdpConfirm->setVisible(false);
-
-    /*! Le choix « réinstaller / effacer » est fait en amont (boîte « que faire de MySQL ? ») : cette
-     *  fiche ne sert plus qu'à saisir les identifiants. */
-    if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
-
-    /*! La version MySQL est déjà connue : l'étape 0 sert de statut de connexion. */
-    m_steps[0] ->setText(tr("Connexion OK"));
-}
-
-QString MySQLInstallerDialog::login() const
-{
-    return m_login ? m_login ->text() : QString();
-}
-
-QString MySQLInstallerDialog::password() const
-{
-    return m_mdp ? m_mdp ->text() : QString();
-}
-
-void MySQLInstallerDialog::prefill(const QString& log, const QString& mdp)
-{
-    if (m_login) m_login   ->setText(log);
-    if (m_mdp)   m_mdp     ->setText(mdp);
-}
-
-/*!
- * \brief MySQLInstallerDialog::validerSaisie
- * Vérifie que login et mot de passe sont renseignés, et — en mode création — que le mot de passe et sa
- * confirmation coïncident. Affiche un message et renvoie false sinon.
- */
-bool MySQLInstallerDialog::validerSaisie()
-{
-    if (login().isEmpty() || password().isEmpty()) {
-        UpMessageBox::Watch(this, tr("Saisie incomplète"),
-            tr("Veuillez renseigner un identifiant et un mot de passe."));
-        return false;
-    }
-
-    /*! Confirmation : uniquement à la CRÉATION (m_confirmMdpRequis). On vérifie que les deux saisies
-     *  coïncident — pas question d'enregistrer un mot de passe mal tapé. NB : on ne teste PAS isVisible()
-     *  (validerSaisie() est appelée APRÈS exec(), fiche déjà masquée → faux). */
-    if (m_confirmMdpRequis && m_mdpConfirm
-        && password() != m_mdpConfirm->text()) {
-        UpMessageBox::Watch(this, tr("Confirmation incorrecte"),
-            tr("Le mot de passe et sa confirmation ne sont pas identiques."));
-        m_mdpConfirm ->clear();
-        m_mdpConfirm ->setFocus();
-        return false;
-    }
-    return true;
 }
 
 QString MySQLInstallerDialog::baseStepLabel(int i) const
@@ -1109,18 +974,26 @@ bool MySQLInstaller::run(const QStringList& logAdmin)
             return false;
         return faireCreate(cfg);
     }
-
-    const QStringList log = logAdmin.isEmpty() ? FindMdpLoginMySQL() : logAdmin;
+    if (!logAdmin.isEmpty() && !tryConnectAs(logAdmin[1], logAdmin[0]))
+    {
+        if (FindMdpLoginMySQL() == QStringList())/*!< réessaie la saisie si le mot de passe fourni est faux */
+        {
+            UpMessageBox::Watch(m_parent, tr("Connexion impossible"),
+                                tr("Le mot de passe administrateur MySQL fourni est incorrect.\n\n"
+                                   "Rufus ne peut pas se connecter au serveur MySQL déjà installé sur cet ordinateur."));
+            return false;
+        }
+    }
 
     //! Serveur récent ET ouvrable : on le garde. Sinon rien n'est réutilisable, on le remplace.
-    if (!log.isEmpty() && socleLocalConforme())
-        return faireReutiliser(cfg, /*effacerTout=*/true, log);
+    if (socleLocalConforme())
+        return faireReutiliser(cfg, /*effacerTout=*/true);
 
     if (!askYesNo(tr("Installation d'un serveur MySQL neuf"),
             tr("Rufus doit installer un serveur MySQL neuf sur cet ordinateur.\n\n"
                "Le serveur actuel et tout ce qu'il contient seront supprimés. Voulez-vous continuer ?")))
         return false;
-    if (!reinstallerSocleMySQLpourMigration(log))
+    if (!reinstallerSocleMySQLpourMigration(SqlLog()))
         return false;
     return true;
 }
@@ -1153,6 +1026,7 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
     UpLineEdit  *Line2  = new UpLineEdit();
 
     dlg     .setWindowModality(Qt::WindowModal);
+    dlg     .setWindowFlags(Qt::CustomizeWindowHint);
     dlg     .setFixedSize(300, 220);
     dlg     .setWindowTitle("");
 
@@ -1392,19 +1266,11 @@ static void avertirSuppressionGaxt78iyEffectuee(QWidget *parent = nullptr)
  * utilisateur Rufus.
  * \param effacerTout  true = supprime aussi les bases non-Rufus (choix « Effacer »)
  */
-bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effacerTout,
-                                     const QStringList& log)
+bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effacerTout)
 {
-    m_dialog = new MySQLInstallerDialog(m_parent);
-    m_dialog->configurerVerifyAdminMySQL();
-    /*! Compte déjà éprouvé par AskMdpLoginMySQL : rien à saisir, la fiche n'affiche que la checklist. */
-    if (log.size() >= 2)
-    {
-        m_dialog->prefill(log.at(1), log.at(0));
-        m_dialog->masquerSaisieUtilisateur();
-        m_dialog->passerEnConfiguration(tr("Configuration de MySQL"),
+    m_dialog    = new MySQLInstallerDialog(m_parent);
+    m_dialog->passerEnConfiguration(tr("Configuration de MySQL"),
                                         tr("Paramétrage du serveur en cours…"));
-    }
 
     /*! Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : vérifie la connexion
      *  admin (coche la case 0) puis enchaîne la config (cases 1 à 6). accept() seulement à la toute fin,
@@ -1414,21 +1280,8 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     bool configReussie = false;
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
-        if (!m_dialog->validerSaisie()) return;
-        if (!tryConnectAs(m_dialog->login(), m_dialog->password())) {
-            //! serveur muet : accuser l'identifiant enverrait chercher au mauvais endroit
-            UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
-                m_serveurInjoignable
-                    ? tr("Le serveur MySQL de cet ordinateur ne répond pas.") + "\n" +
-                      tr("Il est installé mais non démarré : ni l'identifiant ni le mot de passe "
-                         "ne sont en cause.")
-                    : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
-            return;                                 /*!< fiche ouverte : on réessaie */
-        }
         m_dialog->checkStep(0);
 
-        adminLogin = m_dialog->login();
-        adminMdp   = m_dialog->password();
         m_login    = LOGIN_SQL;
         m_password = genererMotDePasse();
         if (!isServerRunning()) startMySQL();
@@ -1463,8 +1316,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
         m_dialog->accept();                         /*!< tout est coché : on ferme enfin */
     });
 
-    if (log.size() >= 2)
-        QMetaObject::invokeMethod(m_dialog->OKButton, "click", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(m_dialog->OKButton, "click", Qt::QueuedConnection);
     m_dialog->exec();
     if (!configReussie) { cleanupDialog(); return false; }
 
@@ -1482,7 +1334,6 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerCreateUserRufus(cfg.minVersion);
-    m_dialog->masquerSaisieUtilisateur();   /*!< l'utilisateur Rufus est saisi par l'appelant */
 
     /*! Fiche en « paramétrage en cours » : installation puis config SANS clic — seule une éventuelle saisie
      *  du code administrateur (élévation système) peut être demandée. */
@@ -1591,7 +1442,6 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->configurerCreateUserRufus(cfg.minVersion);
-    m_dialog->masquerSaisieUtilisateur();   /*!< migration : pas de saisie d'un nouvel utilisateur */
     m_dialog->passerEnConfiguration(
         tr("Réinstallation de MySQL"),
         tr("Installation du serveur MySQL en cours…"));
@@ -2476,7 +2326,6 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     /*! Réparation : on REJOUE les étapes de config (PATH, dossier partagé, secure_file_priv,
      *  lecture/écriture, privilèges) SANS réinstaller ni recréer d'utilisateur (m_freshInstall=false). */
     m_dialog = new MySQLInstallerDialog(m_parent);
-    m_dialog->masquerSaisieUtilisateur();          /*!< aucun compte à saisir : on corrige une config existante */
     m_dialog->passerEnConfiguration(tr("Correction de la configuration MySQL"),
                                     tr("Vérification et correction de la configuration en cours…"));
     m_dialog->show();
@@ -3904,7 +3753,18 @@ bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
             .arg(mysqlBin("mysqladmin"), argsServeurCourant(), login, mdp));
     m_serveurInjoignable = out.contains("ERROR 2002") || out.contains("ERROR 2003")
                         || out.contains("ERROR 2005");
-    return out.contains("mysqld is alive");
+    m_isconnectlogvalid = out.contains("mysqld is alive");
+    if (m_isconnectlogvalid)
+    {
+        m_login = login;
+        m_password = mdp;
+    }
+    else
+    {
+        m_login = QString();
+        m_password = QString();
+    }
+    return m_isconnectlogvalid;
 }
 
 bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
