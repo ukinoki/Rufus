@@ -5373,28 +5373,6 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Initialisation du poste : serveur MySQL, base vierge ou restaurée, dossiers et paramètres -----------------------
 -----------------------------------------------------------------------------------------------------------------*/
-/*!
- * \brief Procedures::propBackupMySQLBeforeErase
- * Avertit que les données du serveur vont être effacées ; false = l'utilisateur renonce.
- * \param parent  fiche appelante
- */
-bool Procedures::propBackupMySQLBeforeErase(QWidget *parent)
-{
-    UpMessageBox msgbox(parent);
-    msgbox.setIcon(UpMessageBox::Warning);
-    msgbox.setText(tr("L'installation d'une base Rufus va effacer les données"));
-    msgbox.setInformativeText(tr(
-        "Cet ordinateur héberge un serveur MySQL\n\n"
-        "Les données déjà présentes sur ce serveur MySQL seront perdues.\n\n"
-        "Rufus sauvegardera une base patients qu'il y trouverait, mais pas d'autres données : "
-        "si elles vous importent, renoncez et sauvegardez-les vous-même."));
-    UpSmallButton* bArreter   = new UpSmallButton(tr("Annuler, je vais\nsauvegarder les données"));
-    UpSmallButton* bContinuer = new UpSmallButton(tr("Continuer"));
-    msgbox.addButton(bArreter,   UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(bContinuer, UpSmallButton::STARTBUTTON);
-    msgbox.exec();
-    return msgbox.clickedButton() == bContinuer;
-}
 
 bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
 {
@@ -5461,13 +5439,6 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                     abandonner();
                     return;
                 }
-        }
-
-        //! Les données étrangères à Rufus, elles, ne sont pas sauvegardées : l'utilisateur peut renoncer
-        if (serveurPresent && !propBackupMySQLBeforeErase(&dlg))
-        {
-            abandonner();
-            return;
         }
 
         //! Une seule demande d'accord ; serveur injoignable = purge imposée, donc simple avertissement

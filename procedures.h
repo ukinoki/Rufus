@@ -122,7 +122,6 @@ private:
     QString                 m_sauvegardeInstallation = "";                              //! dossier de la sauvegarde faite avant d'effacer le serveur (hors dossier figé si le disque manquait de place)
     bool                    EprouverConnexionApresSaisie(QWidget *parent = nullptr);  //! après reconstruction de Rufus.ini : mot de passe du cabinet, à défaut le générique
     void                    VerifierIni(QTranslator *traducteur, QWidget *parent = nullptr);                      //! Rufus.ini absent ou invalide (spec § II.1) : fiche UNIQUE qui ne fait que (re)construire Rufus.ini — quitter / restaurer la sauvegarde / revoir les paramètres — en boucle jusqu'à obtenir un fichier exploitable ; le traducteur sert au sélecteur de langue de la fiche
-    bool                    propBackupMySQLBeforeErase(QWidget *parent = nullptr);   //! prévient que les données du serveur vont disparaître ; false = renoncer
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
                                     bool proposerRestauration = false,
                                     QWidget *parent = nullptr);
