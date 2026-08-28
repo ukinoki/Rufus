@@ -3561,9 +3561,11 @@ bool Procedures::VerifVersionBase(QWidget* parent)
             {
                 UpMessageBox msgbox(parent);
                 msgbox.setText(tr("Mise à jour de la base nécessaire"));
-                msgbox.setInformativeText(tr("Pour éxécuter cette version de Rufus, la base de données doit être mise à jour vers la version") +
-                                          " <b>" + QString::number(VERSION_BASE) + "</b><br />" +
-                                          tr("et une sauvegarde de la base actuelle est fortement conseillée"));
+                msgbox.setInformativeText(tr("Pour éxécuter cette version de Rufus, la base de données doit être mise à jour depuis la version") +
+                                            " <b>" + QString::number(m_parametres->versionbase()) + "</b><br />" +
+                                            tr("vers la version") +
+                                            " <b>" + QString::number(VERSION_BASE) + "</b><br />" +
+                                            tr("et une sauvegarde de la base actuelle est fortement conseillée"));
                 msgbox.setIcon(UpMessageBox::Warning);
                 UpSmallButton *OKBouton = new UpSmallButton();
                 UpSmallButton *BackupBouton = new UpSmallButton();
