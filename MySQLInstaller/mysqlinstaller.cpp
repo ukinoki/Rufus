@@ -39,6 +39,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHostInfo>
 #include <QTcpSocket>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QFileDialog>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -3695,7 +3696,12 @@ QString MySQLInstaller::getCnfVar(const QString& key)
  *  de connexion dit le contraire. */
 bool MySQLInstaller::isServerRunning()
 {
-    const QString out = runCmdFull(QString("\"%1\" ping 2>&1").arg(mysqlBin("mysqladmin")));
+    /*! mysqlBin renvoie le nom nu quand il n'a rien trouvé : sans client, la sortie ne prouve rien. */
+    const QString bin = mysqlBin("mysqladmin");
+    if (!QFile::exists(bin) && QStandardPaths::findExecutable(bin).isEmpty())
+        return false;
+
+    const QString out = runCmdFull(QString("\"%1\" ping 2>&1").arg(bin));
     return !out.contains("ERROR 2002") && !out.contains("ERROR 2003")
         && !out.contains("ERROR 2005");
 }
