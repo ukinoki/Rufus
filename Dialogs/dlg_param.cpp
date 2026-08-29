@@ -2310,7 +2310,7 @@ void dlg_param::DossierClesSSL()
         UpMessageBox::Watch(this, tr("Enregistrement des clés SSL"),
                             tr("Dans la boîte suivante, validez l'enregistrement des nouvlles clés") + "\n"
                             + tr("en entrant le mot de passe administrateur de l'ordinateur."));
-        if (!MySQLInstaller().corrigerDroitsClesSSL(choisi))
+        if (!MySQLInstaller(this).corrigerDroitsClesSSL(choisi))
         {
             UpMessageBox::Watch(this, tr("Correction impossible"),
                                 tr("Les droits des clés n'ont pas pu être corrigés."));
@@ -2394,7 +2394,7 @@ void dlg_param::ExporterDonneesConnexion()
 
     /*! Copie prise sur le datadir, la seule source qui fasse foi : demande le mot de passe administrateur,
         mais aucune copie intermédiaire ne peut y distribuer des clés que le serveur ne reconnaît plus. */
-    if (!MySQLInstaller().exporterClesClientSSL(dest + "/" + DIR_CLES))
+    if (!MySQLInstaller(this).exporterClesClientSSL(dest + "/" + DIR_CLES))
     {
         UpMessageBox::Watch(this, tr("Export incomplet"),
                             tr("Les clés SSL n'ont pas pu être copiées sur :") + "\n" + dest);
@@ -2471,7 +2471,7 @@ void dlg_param::ImporterDonneesConnexion()
                             tr("Certaines clés SSL n'ont pas pu être copiées :") + "\n" + echecs.join(", "));
         return;
     }
-    MySQLInstaller().corrigerDroitsClesSSL(destcles);
+    MySQLInstaller(this).corrigerDroitsClesSSL(destcles);
 
     QSettings connexion(source + "/" + FIC_ADRESSE, QSettings::IniFormat);
     const QString adresse = connexion.value(CLE_SERVEUR).toString();
@@ -2623,7 +2623,7 @@ void dlg_param::CreerClesSSL()
     //! derrière dlg_param, donc bloqué). On relance Rufus juste après, donc inutile de les rétablir.
     proc->SuspendreTimersFond();
 
-    if (MySQLInstaller().regenererClesSSL())
+    if (MySQLInstaller(this).regenererClesSSL())
     {
         UpMessageBox::Watch(this, tr("Nouvelles clés SSL générées"),
             tr("De nouvelles clés SSL ont été générées.") + "\n"
@@ -2922,7 +2922,7 @@ void dlg_param::ConnectSignals()
     connect(ui->CreerClesSSLPosteupPushButton,      &QPushButton::clicked,                  this,   &dlg_param::CreerClesSSL);
     //! Recréer le mot de passe de la base (si l'ancien aléatoire est perdu). Protégé par le mot de passe
     //! Administrateur ; réservé au local + socle conforme (contrôlé dans recreerMotDePasseApresVerifAdmin).
-    connect(ui->RecreerMDPMonoupPushButton,         &QPushButton::clicked,                  this,   [=, this] {MySQLInstaller().recreerMotDePasseApresVerifAdmin(this);});
+    connect(ui->RecreerMDPMonoupPushButton,         &QPushButton::clicked,                  this,   [=, this] {MySQLInstaller(this).recreerMotDePasseApresVerifAdmin(this);});
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=, this] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});

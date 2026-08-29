@@ -898,7 +898,7 @@ void Procedures::setDirSQLExecutable(QWidget *parent)
 
 /*! 2. On délègue à l'installeur, qui connaît déjà les emplacements Oracle (8.4 puis 8.0), Homebrew
  *  et le PATH. */
-    QString bin = MySQLInstaller().mysqlBin("mysql");
+    QString bin = MySQLInstaller(parent).mysqlBin("mysql");
     if (!QDir::isAbsolutePath(bin))
         bin = QStandardPaths::findExecutable(bin);
     if (!bin.isEmpty() && QFile::exists(bin))
@@ -3531,7 +3531,7 @@ bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
 
     /*! { mdp, login } d'adminrufus : hérite du dossier d'imagerie de l'ancienne base. */
     const QStringList log = { MySQLInstaller::motDePasseSQL(), QString(LOGIN_SQL) };
-    if (!MySQLInstaller().reinstallerSocleMySQLpourMigration(log))
+    if (!MySQLInstaller(parent).reinstallerSocleMySQLpourMigration(log))
     {
         UpMessageBox::Watch(parent, tr("Réinstallation impossible"),
             tr("La réinstallation de MySQL a échoué.") + "\n" +
@@ -3992,7 +3992,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                             QStringList() << tr("Annuler") << tr("Rétablir l'accès"))
                         != UpSmallButton::STARTBUTTON)
                         continue;
-                    if (MySQLInstaller().restaurerAvecMotDePasseDeSecours())
+                    if (MySQLInstaller(parent).restaurerAvecMotDePasseDeSecours(parent))
                     {
                         errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
                         break;
