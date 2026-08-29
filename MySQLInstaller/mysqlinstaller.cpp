@@ -4088,7 +4088,8 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
 
     /*! Suppression de root, vérification (relecture de mysql.user)*/
     const std::optional<bool> rootAvant = rootExiste();
-    supprimerCompteMySQL("root");
+    if (rootAvant.value_or(false))
+        supprimerCompteMySQL("root");
     const std::optional<bool> rootApres = rootExiste();
     const bool verifImpossible = !rootAvant || !rootApres;
     if (verifImpossible || (*rootAvant && *rootApres))
