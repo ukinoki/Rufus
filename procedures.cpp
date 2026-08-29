@@ -3538,7 +3538,9 @@ bool Procedures::MettreAJourSocleMySQL(QWidget *parent)
             tr("Votre sauvegarde est conservée dans :") + "\n" + m_sauvegardeInstallation);
         return false;
     }
-    if (InstallationRufus(parent))
+    //! sauvegarde prise à l'instant : on la restaure sans rien demander
+    setProtocoleRestauration(BaseExistante);
+    if (InstallationRufus(parent, /*sansQuestion=*/true))
         return true;
 
     //! serveur neuf mais base vide : sans ce rappel, on ne sait plus où est la sauvegarde
