@@ -5478,17 +5478,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
             exit(0);
         }
 
-        db->setModeacces(Utils::Poste);
-        db->initParametresConnexionSQL("localhost", 3306);
-        QString erreurConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
-        if (!erreurConnexion.isEmpty())
-        {
-            UpMessageBox::Watch(&dlg, tr("Erreur de connexion au serveur MySQL"),
-                                tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreurConnexion);
-            delete installeurMySQL;
-            return;
-        }
-        m_connexionbaseOK = true;
+        m_connexionbaseOK = true;   //! la connexion a été ouverte et éprouvée par run()
 
         //! Tout est OK concernant le serveur -> on passe à la création/restauration de la table
 
