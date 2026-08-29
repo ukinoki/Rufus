@@ -153,7 +153,7 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint);
     int row = 0;
 
-    /*! Titre + sous-titre (libellés pilotés par les configurer*()). */
+    /*! Titre + sous-titre (libellés posés par passerEnConfiguration). */
     m_title = new UpLabel(this, tr("Préparation de MySQL pour Rufus"));
     m_title     ->setStyleSheet("font-size: 16px; font-weight: 700; color: #1C1B18;");
     m_title     ->setWordWrap(true);
@@ -164,46 +164,20 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     m_subtitle  ->setWordWrap(true);
     dlglayout() ->insertWidget(row++, m_subtitle);
 
-    /*! Les 7 cases (affichage seul) insérées entre la saisie et les boutons. */
+    /*! Les 7 cases, en affichage seul. */
     for (int i = 0; i < 7; i++) {
         m_steps[i] = new UpCheckBox();
         m_steps[i]  ->setToggleable(false);   /*!< pilotée par l'engine, non cliquable */
         dlglayout() ->insertWidget(row++, m_steps[i]);
         applyStepLabel(i);
     }
-
-    /*! Boutons « Annuler » + « OK » (libellé d'OK ajusté par configurer*()). AjouteLayButtons relie déjà
-     *  Annuler à reject() ; on relie OK à accept(). */
-    AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    if (OKButton)
-        connect(OKButton, &QPushButton::clicked, this, &MySQLInstallerDialog::accept);
 }
 
 /*! ── Configuration selon le contexte ──────────────────────────────────────────── */
 
 /*!
- * \brief MySQLInstallerDialog::configurer
- * Base commune aux configurer*() : applique titre / sous-titre / libellé du bouton OK et remet les
- * champs en état interactif (éditables, vidés).
- * \param titre      titre de la fiche
- * \param sousTitre  texte explicatif sous le titre
- * \param okLabel    libellé du bouton OK selon le contexte
- */
-void MySQLInstallerDialog::configurer(const QString& titre,
-                                      const QString& sousTitre,
-                                      const QString& okLabel)
-{
-    m_title    ->setText(titre);
-    m_subtitle ->setText(sousTitre);
-    if (OKButton) { OKButton->setText(okLabel); OKButton->show(); }
-    if (CancelButton) CancelButton->show();
-}
-
-/*!
  * \brief MySQLInstallerDialog::passerEnConfiguration
- * Bascule en mode « paramétrage en cours » : plus aucune saisie ni clic attendus. Login/mdp (déjà
- * choisis) restent affichés mais GRISÉS, boutons OK/Annuler masqués ; seule la checklist se coche en
- * direct.
+ * Applique titre et sous-titre : la fiche ne fait qu'afficher la checklist, qui se coche en direct.
  * \param titre      titre affiché en haut de la fiche
  * \param sousTitre  sous-titre explicatif
  */
@@ -212,19 +186,8 @@ void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
 {
     m_title    ->setText(titre);
     m_subtitle ->setText(sousTitre);
-    if (OKButton)        OKButton->hide();
-    if (CancelButton)    CancelButton->hide();
     unsetCursor();
     QApplication::processEvents();
-}
-
-void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
-{
-    setMinVersion(minVersion);
-    configurer(tr("Création de la base Rufus"),
-               tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
-                  "dans Rufus."),
-               tr("Installer"));
 }
 
 QString MySQLInstallerDialog::baseStepLabel(int i) const
@@ -276,12 +239,6 @@ void MySQLInstallerDialog::setMinVersion(const QString& v)
     if (v.isEmpty() || v == m_minVersion) return;
     m_minVersion = v;
     applyStepLabel(0);
-}
-
-void MySQLInstallerDialog::reject()
-{
-    m_cancelled = true;
-    UpDialog::reject();
 }
 
 /*! ═══ Helpers d'exécution dépendants de la plateforme ════════════════════════════════════════════════
@@ -1295,7 +1252,7 @@ static void avertirSuppressionGaxt78iyEffectuee(QWidget *parent = nullptr)
 bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog(m_parent);
-    m_dialog->configurerCreateUserRufus(cfg.minVersion);
+    m_dialog->setMinVersion(cfg.minVersion);
 
     /*! Fiche en « paramétrage en cours » : installation puis config SANS clic — seule une éventuelle saisie
      *  du code administrateur (élévation système) peut être demandée. */
@@ -1403,7 +1360,7 @@ void MySQLInstaller::avertirPostesAnciensAMettreAJour()
 bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog(m_parent);
-    m_dialog->configurerCreateUserRufus(cfg.minVersion);
+    m_dialog->setMinVersion(cfg.minVersion);
     m_dialog->passerEnConfiguration(
         tr("Réinstallation de MySQL"),
         tr("Installation du serveur MySQL en cours…"));
@@ -1973,7 +1930,6 @@ bool MySQLInstaller::executerEtapesConfig()
             tr("Impossible d'ajouter le chemin de mysql à la variable PATH."));
         return false;
     }
-    if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(1);
 
 #if defined(Q_OS_LINUX)
@@ -1999,7 +1955,7 @@ bool MySQLInstaller::executerEtapesConfig()
      *  Dossier hérité d'une ancienne base : si le nouveau serveur (durci) n'y accède pas, on bascule sur le
      *  dossier par défaut et l'utilisateur sera invité à recopier son imagerie. */
     if (!configurerEtapesDossierPartage(!m_dossierPartageForce.isEmpty())) {
-        if (m_dialog->wasCancelled() || m_dossierPartageForce.isEmpty())
+        if (m_dossierPartageForce.isEmpty())
             return false;
         m_ancienDossierImagerie  = m_dossierPartageForce;
         m_dossierPartageForce.clear();
@@ -2016,7 +1972,6 @@ bool MySQLInstaller::executerEtapesConfig()
             .arg(m_login, missing.join(", ")));
         return false;
     }
-    if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(5);
 
     /*! ── Étape 7 : clés SSL pour l'accès distant ───────────────────────────
@@ -2043,7 +1998,6 @@ bool MySQLInstaller::configurerEtapesDossierPartage(bool silencieux)
                 .arg(sharedFolderPath()));
         return false;
     }
-    if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(2);
 
     /*! ── Étape 4 : secure_file_priv pointe sur le dossier partagé ────────── */
@@ -2057,7 +2011,6 @@ bool MySQLInstaller::configurerEtapesDossierPartage(bool silencieux)
                        : "\n\n" + tr("Détail :") + "\n" + m_secureFilePrivErr.trimmed()));
         return false;
     }
-    if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(3);
 
     /*! ── Étape 5 : mysql lit et écrit dans le dossier partagé (fichier test) ───────
@@ -2077,7 +2030,6 @@ bool MySQLInstaller::configurerEtapesDossierPartage(bool silencieux)
         }
         return false;
     }
-    if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(4);
     return true;
 }

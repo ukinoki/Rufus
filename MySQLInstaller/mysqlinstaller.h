@@ -74,41 +74,29 @@ private:
 
 
 
-/*! MySQLInstallerDialog — la fiche de l'installeur (dérive d'UpDialog).
-    * Haut : titre + sous-titre. Milieu : saisie identifiant + mot de passe (2 UpLineEdit, plus une
-      confirmation en mode création). Bas : checklist des 7 critères (affichage seul, cochée par le
-      moteur MySQLInstaller via checkStep).
-    * Une même fiche, plusieurs contextes : les configurer*() règlent titre / sous-titre / libellé du
-      bouton OK et vident les champs (saisie utilisateur Rufus, compte admin MySQL, nouvel utilisateur).
-    * Deux usages : exec() (modal) pour SAISIR des identifiants ; show() pendant que le moteur déroule
-      les étapes et coche les cases.
+/*! MySQLInstallerDialog — la fiche de l'installeur (dérive d'UpDialog). Purement informative : titre,
+    sous-titre et checklist des 7 critères, cochée en direct par MySQLInstaller (checkStep). Aucun bouton
+    ni saisie — le moteur déroule ses étapes pendant qu'elle est affichée par show().
 */
 class MySQLInstallerDialog : public UpDialog {
     Q_OBJECT
 public:
     explicit MySQLInstallerDialog(QWidget* parent = nullptr);
 
-    /*! ── Configuration selon le contexte (titre / sous-titre / bouton OK + reset des champs) ─────────── */
-    void configurerCreateUserRufus(const QString& minVersion);                      /*!< contexte : saisie du futur utilisateur Rufus */
-    void passerEnConfiguration(const QString& titre, const QString& sousTitre);     /*!< bascule en « paramétrage en cours » (champs figés, boutons masqués) */
+    void passerEnConfiguration(const QString& titre, const QString& sousTitre);     /*!< titre et sous-titre de l'étape en cours */
 
     /*! ── Checklist ──────────────────────────────────────────────────────────────────────────────────── */
     void checkStep(int i);                                                          /*!< coche la case i + repaint */
     void setMinVersion(const QString& v);                                           /*!< re-libelle l'étape 0 */
-    bool wasCancelled() const { return m_cancelled; }                               /*!< l'utilisateur a-t-il annulé ? */
-    void reject() override;                                                         /*!< marque l'annulation (slot public, comme QDialog) */
 
 private:
     QString baseStepLabel(int i) const;                                             /*!< libellé de base de la case i */
     void    applyStepLabel(int i);                                                  /*!< (ré)applique le libellé i (base + detail) */
-    void    configurer(const QString& titre, const QString& sousTitre,
-                       const QString& okLabel);                                     /*!< applique titre/sous-titre/bouton + vide les champs */
 
     UpLabel*       m_title         = nullptr;
     UpLabel*       m_subtitle      = nullptr;
     UpCheckBox*    m_steps[7];                                                      /*!< 0..5 = config ; 6 = clés SSL (accès distant) */
     QString        m_minVersion = VERSION_MYSQL_MINI;                               /*!< seuil commun (8.0.14), écrasé par setMinVersion() */
-    bool           m_cancelled  = false;
 };
 
 
