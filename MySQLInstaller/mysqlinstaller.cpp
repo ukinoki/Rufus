@@ -3693,28 +3693,51 @@ bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
 
 bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
 {
+    static const QStringList REQUIRED = {
+        "SELECT", "INSERT", "UPDATE", "DELETE", "CREATE", "DROP",
+        "RELOAD", "SHUTDOWN", "PROCESS", "FILE", "REFERENCES", "INDEX",
+        "ALTER", "SHOW DATABASES", "SUPER", "CREATE TEMPORARY TABLES",
+        "LOCK TABLES", "EXECUTE", "REPLICATION SLAVE", "REPLICATION CLIENT",
+        "CREATE VIEW", "SHOW VIEW", "CREATE ROUTINE", "ALTER ROUTINE",
+        "CREATE USER", "EVENT", "TRIGGER", "CREATE TABLESPACE",
+        "CREATE ROLE", "DROP ROLE"
+    };
+
     /*! SHOW GRANTS sans clause FOR = celui du compte RÉELLEMENT utilisé par la connexion, quel que soit
      *  son host. Depuis qu'adminrufus n'existe plus en @'%', le nommer en dur ne rendait aucune ligne :
      *  tous les privilèges étaient signalés manquants. */
-    const QString raw = runCmdFull(
+    QString raw = runCmdFull(
         QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
                 "\"SHOW GRANTS;\" 2>&1")
             .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password));
 
-    qDebug() << "checkPrivileges login =" << m_login << " mdp vide =" << m_password.isEmpty()
-             << "\nSHOW GRANTS ->" << raw;
+    QStringList grantedPrivs;
+    bool hasGrantOption = false;
 
-    /*! Rufus crée toujours ses comptes par GRANT ALL PRIVILEGES : énumérer les privilèges un à un liait
-     *  le contrôle à la version du serveur (CREATE ROLE n'existe pas avant 8.0). */
-    outMissing.clear();
-    for (const QString& ligne : raw.split('\n', Qt::SkipEmptyParts))
-    {
-        const QString l = ligne.trimmed().toUpper();
-        if (l.startsWith("GRANT ALL PRIVILEGES ON *.*") && l.contains("WITH GRANT OPTION"))
-            return true;
+    for (const QString& line : raw.split('\n', Qt::SkipEmptyParts)) {
+        QString upper = line.trimmed().toUpper();
+        if (!upper.startsWith("GRANT ")) continue;
+        int onPos = upper.indexOf(" ON ");
+        if (onPos < 0) continue;
+        QString privPart = upper.mid(6, onPos - 6).trimmed();
+        if (privPart == "ALL PRIVILEGES") {
+            grantedPrivs = REQUIRED;
+        } else {
+            for (const QString& p : privPart.split(','))
+                grantedPrivs << p.trimmed();
+        }
+        if (upper.contains("WITH GRANT OPTION"))
+            hasGrantOption = true;
     }
-    outMissing << "ALL PRIVILEGES ON *.* WITH GRANT OPTION";
-    return false;
+    grantedPrivs.removeDuplicates();
+
+    outMissing.clear();
+    for (const QString& priv : REQUIRED)
+        if (!grantedPrivs.contains(priv, Qt::CaseInsensitive))
+            outMissing << priv;
+
+    if (!hasGrantOption) outMissing << "WITH GRANT OPTION";
+    return outMissing.isEmpty();
 }
 
 /*!

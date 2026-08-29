@@ -308,7 +308,7 @@ private:
     bool isServerRunning();                                                 /*!< le serveur répond-il ? */
     bool tryConnect();                                                      /*!< connexion adminrufus (mdp courant) */
     bool tryConnectAs(const QString& login, const QString& mdp);            /*!< connexion avec login/mdp arbitraires (compte admin saisi) */
-    bool checkPrivileges(QStringList& outMissing);                          /*!< adminrufus a-t-il ALL PRIVILEGES + GRANT OPTION ? (sinon -> outMissing) */
+    bool checkPrivileges(QStringList& outMissing);                          /*!< adminrufus a-t-il tous les privilèges requis ? (manquants -> outMissing) */
     bool createUser();                                                      /*!< crée adminrufus/SSL (mode création) */
 
     /*! Crée adminrufus/SSL via le compte admin MySQL fourni ; distingue le manque de CREATE USER des autres erreurs. */
