@@ -4056,16 +4056,16 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     }
 
     //! Un 777 laissé par une version antérieure se retire sans rien demander, quel que soit le mode.
-    MySQLInstaller().retirerEcriturePourTous();
+    MySQLInstaller(parent).retirerEcriturePourTous();
 
     //! COHÉRENCE DE LA CONFIGURATION MySQL (MONOPOSTE uniquement).
-    MySQLInstaller().verifierEtReparerConfigMonoposte();
+    MySQLInstaller(parent).verifierEtReparerConfigMonoposte();
 
     //! CLÉS SSL (MONOPOSTE)
-    MySQLInstaller().controlerClesSSLMonoposte();
+    MySQLInstaller(parent).controlerClesSSLMonoposte();
 
     //! ACCÈS DISTANT : avertir PROACTIVEMENT si les clés SSL approchent de l'expiration.
-    MySQLInstaller().avertirExpirationClesSSLDistant();
+    MySQLInstaller(parent).avertirExpirationClesSSLDistant();
 
     //! Le partage réseau d'imagerie peut ne pas être monté alors que la base répond : les images
     //! seraient introuvables sans explication. On lit le réglage brut, dirimagerie() créerait le dossier.
