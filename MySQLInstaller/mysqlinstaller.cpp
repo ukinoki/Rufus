@@ -2041,6 +2041,19 @@ bool MySQLInstaller::configurerEtapesDossierPartage(bool silencieux)
  */
 bool MySQLInstaller::uninstallMySQL()
 {
+    /*! Indicateur d'activité : la purge est longue et entièrement muette. */
+    MySQLProgressDialog* dlgProgress = new MySQLProgressDialog(
+        tr("Suppression du serveur MySQL en place…\n"
+           "Cela peut durer plusieurs minutes."), m_dialog ? static_cast<QWidget*>(m_dialog) : m_parent);
+    dlgProgress->show();
+    QApplication::processEvents();
+
+    auto fin = [&] {
+        dlgProgress->close();
+        delete dlgProgress;
+        return !isMySQLInstalled();
+    };
+
 #if defined(Q_OS_WIN)
     /*! Ni la version ni le nom du service ne sont codés en dur (« MySQL80 », « MySQL Server 8.0 »… selon
      *  les postes) : on découvre le service réel par son ImagePath, puis on balaie les installations
@@ -2089,7 +2102,7 @@ bool MySQLInstaller::uninstallMySQL()
     }
     runCmdFull("powershell -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"", 300000);
     QFile::remove(script);
-    return !isMySQLInstalled();
+    return fin();
 #elif defined(Q_OS_LINUX)
     /*! On retire le partage de Rufus mais pas samba ni le dossier partagé, dont l'utilisateur peut se
      *  servir. Motifs de purge CIBLÉS : ni 'libmysqlclient.*' ni 'mysql.*', filets trop larges qui
@@ -2132,7 +2145,7 @@ bool MySQLInstaller::uninstallMySQL()
           "systemctl restart smbd 2>/dev/null || true; "
         "fi";
     runCmdElevated(script);
-    return !isMySQLInstalled();
+    return fin();
 #else
     /*! macOS : purge de TOUT serveur — Oracle (.dmg) ET Homebrew (mysql / mariadb). brew refuse de tourner
      *  en root → on le traite hors élévation ; l'Oracle et le kill de secours sont élevés. */
@@ -2152,7 +2165,7 @@ bool MySQLInstaller::uninstallMySQL()
         "for p in com.mysql.launchd com.mysql.mysql com.mysql.prefpane "
                  "com.oracle.oss.mysql.mysqld; do pkgutil --forget \"$p\" 2>/dev/null; done";
     runCmdElevated(script);
-    return !isMySQLInstalled();
+    return fin();
 #endif
 }
 
