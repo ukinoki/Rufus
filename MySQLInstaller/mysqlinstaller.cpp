@@ -1787,17 +1787,13 @@ QString MySQLInstaller::lireSecureFilePriv(const QStringList& log)
 
 /*!
  * \brief MySQLInstaller::preserverDossierImagerieAncienneBase
- * Avant la purge : si une base Rufus existe, on garde son dossier d'imagerie (secure_file_priv) pour le
- * nouveau serveur ; identifiants perdus → on mémorise qu'il faudra inviter l'utilisateur à la recopier.
+ * Avant la purge : si une base Rufus est lisible et range son imagerie ailleurs que dans le dossier
+ * partagé, le nouveau serveur héritera de ce dossier (secure_file_priv).
  * \param log  { mdp, login } d'un compte admin de l'ancien serveur (vide si perdus)
  */
 void MySQLInstaller::preserverDossierImagerieAncienneBase(const QStringList& log)
 {
-    if (log.size() < 2) {
-        m_avertirImagerieAMigrer = true;
-        return;
-    }
-    if (!isBaseRufus(log))                   /*!< pas d'ancienne base → rien à préserver, on écrase tout */
+    if (log.size() < 2 || !isBaseRufus(log))   /*!< pas de base Rufus lisible → rien à préserver */
         return;
     const QString ancien = QDir::cleanPath(lireSecureFilePriv(log));
     if (!ancien.isEmpty() && ancien != QDir::cleanPath(sharedFolderPath()))
@@ -1806,8 +1802,8 @@ void MySQLInstaller::preserverDossierImagerieAncienneBase(const QStringList& log
 
 /*!
  * \brief MySQLInstaller::avertirImagerieAMigrer
- * Identifiants de l'ancien serveur perdus : invite l'utilisateur à vérifier/recopier lui-même son imagerie
- * dans le nouveau dossier partagé, avec un bouton d'explications détaillées.
+ * Dossier d'imagerie hérité inaccessible au nouveau serveur : invite l'utilisateur à recopier lui-même
+ * son imagerie dans le nouveau dossier partagé, avec un bouton d'explications détaillées.
  */
 void MySQLInstaller::avertirImagerieAMigrer()
 {
@@ -1844,20 +1840,14 @@ void MySQLInstaller::avertirImagerieAMigrer()
              "ils étaient. Notez le message et contactez l'assistance : on retrouvera le dossier avec "
              "vous.");
 
-    QString info =
+    const QString info =
           tr("Vos documents d'imagerie (photos du fond d'œil, OCT, champs visuels, scanners…) ne font "
              "pas partie de la sauvegarde de la base de données : ils sont rangés à part, dans un "
-             "dossier.") + "\n\n";
-    if (m_ancienDossierImagerie.isEmpty())
-        info += tr("Si vous utilisiez déjà Rufus sur cet ordinateur, vérifiez qu'ils se trouvent bien "
-                   "dans ce dossier :") + "\n\n" + chemin + "\n\n"
-              + tr("S'ils n'y sont pas, il vous faudra les y recopier vous-même. Le bouton « Plus "
-                   "d'explications » vous montre comment faire, pas à pas.");
-    else
-        info += tr("Vos anciennes images se trouvent dans :") + "\n\n"
-              + m_ancienDossierImagerie + "/Rufus/Imagerie" + "\n\n"
-              + tr("Recopiez-les vous-même dans le nouveau dossier :") + "\n\n" + chemin + "\n\n"
-              + tr("Le bouton « Plus d'explications » vous montre comment faire, pas à pas.");
+             "dossier.") + "\n\n"
+        + tr("Vos anciennes images se trouvent dans :") + "\n\n"
+        + m_ancienDossierImagerie + "/Rufus/Imagerie" + "\n\n"
+        + tr("Recopiez-les vous-même dans le nouveau dossier :") + "\n\n" + chemin + "\n\n"
+        + tr("Le bouton « Plus d'explications » vous montre comment faire, pas à pas.");
 
     UpMessageBox msgbox(m_parent);
     msgbox.setIcon(UpMessageBox::Info);
