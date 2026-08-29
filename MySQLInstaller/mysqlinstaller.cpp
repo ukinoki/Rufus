@@ -3701,6 +3701,9 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
                 "\"SHOW GRANTS;\" 2>&1")
             .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password));
 
+    qDebug() << "checkPrivileges login =" << m_login << " mdp vide =" << m_password.isEmpty()
+             << "\nSHOW GRANTS ->" << raw;
+
     /*! Rufus crée toujours ses comptes par GRANT ALL PRIVILEGES : énumérer les privilèges un à un liait
      *  le contrôle à la version du serveur (CREATE ROLE n'existe pas avant 8.0). */
     outMissing.clear();
