@@ -1283,12 +1283,14 @@ bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified
 
 /*!  Liste des hosts existants d'un compte MySQL
  */
-QStringList Utils::hostsDuCompteSQL(const QString& user)
+std::optional<QStringList> Utils::hostsDuCompteSQL(const QString& user)
 {
-    QStringList hosts;
     bool ok = false;
     const QList<QVariantList> rows = DataBase::I()->StandardSelectSQL(
         QString("SELECT Host FROM mysql.user WHERE User='%1'").arg(user), ok);
+    if (!ok)
+        return std::nullopt;   /*!< requête en échec : à ne pas confondre avec un compte sans host */
+    QStringList hosts;
     for (const QVariantList& r : rows)
         if (!r.isEmpty()) hosts << r.at(0).toString();
     return hosts;

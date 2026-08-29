@@ -30,6 +30,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaEnum>
 #include <QProcess>
 #include <QJsonObject>
+#include <optional>
 #include <QProgressBar>
 #include <QProgressDialog>
 #include <QSerialPortInfo>
@@ -279,8 +280,8 @@ public:
     static bool                     SaisirMDP(QString Msg, QString &mdp, QWidget *parent = nullptr);   /*! saisit un mot de passe sans le vérifier, l'appelant en juge */
     static bool                     SaisirAdresseIP(QString Msg, QString &ip, QWidget *parent = nullptr, bool nomautorise = false);   /*! saisit une IPv4 complète, sans vérifier qu'un poste y répond ; nomautorise accepte aussi un nom DynDNS */
     static bool                     SaisirNouvelUtilisateur(QString &login, QString &mdp, QWidget *parent = nullptr);   /*! saisit l'identifiant du futur utilisateur Rufus, mot de passe confirmé */
-    // liste des hosts connus pour user (adminrufus / adminrufusSSL)
-    static QStringList              hostsDuCompteSQL(const QString& user);
+    //! hosts connus pour user (adminrufus / adminrufusSSL) ; nullopt si la requête échoue
+    static std::optional<QStringList> hostsDuCompteSQL(const QString& user);
 
 
     //! Calcule âge

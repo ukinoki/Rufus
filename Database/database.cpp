@@ -283,7 +283,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         //! jamais en distant. No-op une fois adminrufus@'%' supprimé.
         if (password != QString(MDP_SQL)
             && MySQLInstaller().socleMySQLConforme()                           // < 8.0.14 : pas de double mot de passe
-            && (Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%")      // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
+            && (Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).value_or(QStringList()).contains("%")      // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
                 || MySQLInstaller().unCompteLANaPerduSystemUser()))            // un compte LAN a perdu SYSTEM_USER (revoke ancien) → à régulariser
             MySQLInstaller().entretienComptesAdminrufusLAN(password);          // crée les comptes LAN manquants + retire adminrufus@'%' ; ne touche à AUCUN mot de passe
          return QString();

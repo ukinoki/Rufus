@@ -29,6 +29,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 #include <QLabel>
 #include <QProgressBar>
+#include <optional>
 
 #include "updialog.h"
 #include "upmessagebox.h"
@@ -211,7 +212,7 @@ public:
     bool             recreerMotDePasseApresVerifAdmin(QWidget *parent = nullptr);   /*!< recrée l'aléatoire quand plus aucun poste ne l'a (protégé par mdp Admin) */
 
     /*! ── Compte de secours (et suppression de root) ──────────────────────────────────────────────────── */
-    static bool rootExiste();                                                   /*!< un compte 'root' subsiste-t-il sur ce serveur ? */
+    static std::optional<bool> rootExiste();                                    /*!< un compte 'root' subsiste-t-il ? nullopt si la requête échoue */
     static bool compteDeSecoursExiste();                                        /*!< secoursrufus est-il en place sur TOUS les hosts LAN ? */
     static bool creerCompteDeSecours(QWidget* parent = nullptr);                /*!< demande le mdp confidentiel, crée secoursrufus sur les hosts LAN, l'éprouve puis supprime root */
     static void controlerCompteDeSecours(QWidget *parent = nullptr);            /*!< à chaque mise à jour de la base : met en place le secours s'il manque, et supprime root */

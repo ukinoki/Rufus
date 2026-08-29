@@ -2588,7 +2588,7 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
     auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
 
     /*! Création groupée : un seul témoin, et le plus improbable — localhost peut traîner d'une install ancienne. */
-    if (!Utils::hostsDuCompteSQL(ur).contains("10.%"))
+    if (!Utils::hostsDuCompteSQL(ur).value_or(QStringList()).contains("10.%"))
     {
         /*! Générique encore vivant sur le compte qu'on va supprimer ? On le reconduit, sinon les postes
          *  qui n'ont pas l'aléatoire seraient coupés net. */
@@ -2617,11 +2617,11 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
     exec(QString("FLUSH PRIVILEGES"));
 
     /*! @'%' (joignable du WAN) retiré seulement une fois le relais LAN en place. Seul endroit où on le droppe. */
-    if (!Utils::hostsDuCompteSQL(ur).contains("10.%"))
+    if (!Utils::hostsDuCompteSQL(ur).value_or(QStringList()).contains("10.%"))
         return false;                                            /*!< création ratée : on ne touche à rien */
     exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
     exec(QString("FLUSH PRIVILEGES"));
-    return !Utils::hostsDuCompteSQL(ur).contains("%");
+    return !Utils::hostsDuCompteSQL(ur).value_or(QStringList()).contains("%");
 }
 
 /*!
@@ -2642,7 +2642,7 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire,
     /*! Un seul ALTER : RETAIN garde en 2e le mot de passe courant, le générique, qu'on ne repose donc pas.
      *  securepar voyage dans le même ALTER, isolé il effacerait additional_password. */
     exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(urSSL, "%", aleatoire, attr));
-    for (const QString& h : Utils::hostsDuCompteSQL(ur))
+    for (const QString& h : Utils::hostsDuCompteSQL(ur).value_or(QStringList()))
         exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
     exec(QString("FLUSH PRIVILEGES"));
 
@@ -3058,9 +3058,9 @@ void MySQLInstaller::supprimerGaxt78iySiEchue(QWidget *parent)
 
     /*! Purge de gaxt78iy sur TOUS les hosts (comme la pose de l'aléatoire) : sinon le générique subsisterait
      *  sur @'localhost' / @'192.168.%' et resterait un accès valide en local/LAN. */
-    for (const QString& h : Utils::hostsDuCompteSQL(QString(LOGIN_SQL)))
+    for (const QString& h : Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).value_or(QStringList()))
         DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%1' DISCARD OLD PASSWORD").arg(h));
-    for (const QString& h : Utils::hostsDuCompteSQL(QString(LOGIN_SQL) + "SSL"))
+    for (const QString& h : Utils::hostsDuCompteSQL(QString(LOGIN_SQL) + "SSL").value_or(QStringList()))
         DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%1' DISCARD OLD PASSWORD").arg(h));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
     avertirSuppressionGaxt78iyEffectuee(parent);
@@ -3939,7 +3939,7 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
  */
 void MySQLInstaller::supprimerCompteMySQL(const QString& login)
 {
-    const QStringList hosts = Utils::hostsDuCompteSQL(login);
+    const QStringList hosts = Utils::hostsDuCompteSQL(login).value_or(QStringList());
     if (hosts.isEmpty())
         return;
     for (const QString& h : hosts)
@@ -3947,9 +3947,17 @@ void MySQLInstaller::supprimerCompteMySQL(const QString& login)
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES", "");
 }
 
-bool MySQLInstaller::rootExiste()           { return !Utils::hostsDuCompteSQL("root").isEmpty(); }
+std::optional<bool> MySQLInstaller::rootExiste()
+{
+    const auto hosts = Utils::hostsDuCompteSQL("root");
+    if (!hosts)
+        return std::nullopt;
+    return !hosts->isEmpty();
+}
+
 //! « 10.% » comme témoin : une install antérieure n'avait le secours qu'en loopback, donc incomplet
-bool MySQLInstaller::compteDeSecoursExiste(){ return Utils::hostsDuCompteSQL(LOGIN_SQL_SECOURS).contains("10.%"); }
+bool MySQLInstaller::compteDeSecoursExiste(){ return Utils::hostsDuCompteSQL(LOGIN_SQL_SECOURS)
+                                                     .value_or(QStringList()).contains("10.%"); }
 
 /*!
  * \brief demanderMotDePasseDeSecours
@@ -4079,13 +4087,17 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
     }
 
     /*! Suppression de root, vérification (relecture de mysql.user)*/
-    const bool rootAsupprimer = rootExiste();
+    const std::optional<bool> rootAvant = rootExiste();
     supprimerCompteMySQL("root");
-    if (rootAsupprimer && rootExiste())
+    const std::optional<bool> rootApres = rootExiste();
+    const bool verifImpossible = !rootAvant || !rootApres;
+    if (verifImpossible || (*rootAvant && *rootApres))
     {
         UpMessageBox::Watch(parent, tr("Mot de passe de secours enregistré"),
             tr("Votre mot de passe de secours est en place.") + "\n\n" +
-            tr("En revanche, Rufus n'a pas pu supprimer le compte « root » de MySQL"));
+            (verifImpossible
+                 ? tr("En revanche, Rufus n'a pas pu vérifier le compte « root » de MySQL")
+                 : tr("En revanche, Rufus n'a pas pu supprimer le compte « root » de MySQL")));
         return true;
     }
     UpMessageBox::Watch(parent, tr("Mot de passe de secours enregistré"),
@@ -4104,7 +4116,7 @@ void MySQLInstaller::controlerCompteDeSecours(QWidget *parent)
 {
     if (compteDeSecoursExiste())
     {
-        if (rootExiste())
+        if (rootExiste().value_or(false))
             supprimerCompteMySQL("root");    /*!< root réapparu, typiquement après une mise à jour du serveur */
         return;
     }
