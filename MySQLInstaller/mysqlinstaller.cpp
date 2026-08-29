@@ -1199,6 +1199,18 @@ bool MySQLInstaller::terminerRun(bool ok)
 {
     if (!ok)
         return false;
+
+    /*! Le compte de secours passe par des requêtes Qt : la connexion doit être ouverte ici, l'appelant ne
+     *  l'ouvrant qu'après. */
+    DataBase::I()->setModeacces(Utils::Poste);
+    DataBase::I()->initParametresConnexionSQL("localhost", 3306);
+    const QString erreur = connecterAvecCandidats(DB_RUFUS);
+    if (!erreur.isEmpty()) {
+        UpMessageBox::Watch(m_parent, tr("Erreur de connexion au serveur MySQL"),
+            tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreur);
+        return false;
+    }
+
     inviterANoterMotDePasse(m_password, m_parent);
     creerCompteDeSecours(m_parent);
     return true;
