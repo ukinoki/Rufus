@@ -968,50 +968,34 @@ bool MySQLInstaller::run(bool desinstaller, bool installer)
     m_dialog = new MySQLInstallerDialog(m_parent);
     m_dialog->passerEnConfiguration(tr("Configuration de MySQL"),
                                     tr("Paramétrage du serveur en cours…"));
+    m_dialog->show();
+    QApplication::processEvents();
+    m_dialog->checkStep(0);
 
-    /*! Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : sinon elle se
-     *  fermerait et rouvrirait entre deux coches (clignotement). */
-    bool configReussie = false;
-    QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
-    connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
-        m_dialog->checkStep(0);
+    m_login    = LOGIN_SQL;
+    m_password = genererMotDePasse();
+    if (!isServerRunning()) startMySQL();
 
-        m_login    = LOGIN_SQL;
-        m_password = genererMotDePasse();
-        if (!isServerRunning()) startMySQL();
+    const CreateUserResult r = createUserAvecAdmin(admin.at(0), admin.at(1));
+    if (r != CreateUserResult::Ok) {
+        cleanupDialog();
+        UpMessageBox::Watch(m_parent, tr("Comptes Rufus non créés"),
+            r == CreateUserResult::NoCreateUserRight
+                ? tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs (CREATE USER). "
+                     "Réessayez avec un compte administrateur MySQL (par ex. root).").arg(admin.at(0))
+                : tr("Impossible de créer les comptes Rufus."));
+        return false;
+    }
+    stockerMotDePasse(m_password);
+    m_comptesDejaCrees = true;
 
-        const CreateUserResult r = createUserAvecAdmin(admin.at(0), admin.at(1));
-        if (r == CreateUserResult::NoCreateUserRight) {
-            UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
-                tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
-                   "(CREATE USER). Réessayez avec un compte administrateur MySQL "
-                   "(par ex. root).").arg(admin.at(0)));
-            m_dialog->reject();
-            return;
-        }
-        if (r != CreateUserResult::Ok) {
-            UpMessageBox::Watch(m_dialog, tr("Erreur"),
-                tr("Impossible de créer les comptes Rufus."));
-            m_dialog->reject();
-            return;
-        }
-        stockerMotDePasse(m_password);
-        m_comptesDejaCrees = true;
+    /*! Les bases non-Rufus (données étrangères) sont supprimées ; les bases Rufus seront recréées vierges
+     *  par RestaureBase. */
+    effacerToutesBasesUtilisateur(admin.at(0), admin.at(1));
 
-        /*! Les bases non-Rufus (données étrangères) sont supprimées ; les bases Rufus seront recréées
-         *  vierges par RestaureBase. */
-        effacerToutesBasesUtilisateur(admin.at(0), admin.at(1));
-
-        if (!executerEtapesConfig()) { m_dialog->reject(); return; }
-
-        configReussie = true;
-        m_dialog->accept();
-    });
-
-    QMetaObject::invokeMethod(m_dialog->OKButton, "click", Qt::QueuedConnection);
-    m_dialog->exec();
+    if (!executerEtapesConfig()) { cleanupDialog(); return false; }
     cleanupDialog();
-    return terminerRun(configReussie);
+    return terminerRun(true);
 }
 
 /*!
