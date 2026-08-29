@@ -3734,6 +3734,23 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
     return outMissing.isEmpty();
 }
 
+/*!
+ * \brief MySQLInstaller::executerAvecRepliPlugin
+ * Joue le SQL en imposant mysql_native_password (le driver Qt se connecte en TCP clair), et le rejoue
+ * avec le plugin par défaut si le serveur ne le charge pas — cas de MySQL 8.4 (ERROR 1524).
+ * \param sqlAvecAuth  construit le SQL pour une clause d'authentification donnée
+ * \param executer     exécute le SQL et rend la sortie du client mysql
+ */
+QString MySQLInstaller::executerAvecRepliPlugin(const std::function<QString(const QString&)>& sqlAvecAuth,
+                                                const std::function<QString(const QString&)>& executer)
+{
+    const QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
+    const QString up  = out.toUpper();
+    if (up.contains("ERROR 1524") || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
+        return executer(sqlAvecAuth("IDENTIFIED BY"));
+    return out;
+}
+
 bool MySQLInstaller::createUser()
 {
 #if defined(Q_OS_LINUX)
@@ -3785,12 +3802,7 @@ bool MySQLInstaller::createUser()
     auto executer = [&](const QString& sqlTexte) {
         return runCmdFull(QString("\"%1\" -u root -e \"%2\" 2>&1").arg(mysqlBin("mysql"), sqlTexte));
     };
-    QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
-    const QString up = out.toUpper();
-    /*! Plugin mysql_native_password indisponible (MySQL 8.4 par défaut) → repli sur le plugin serveur. */
-    if (up.contains("ERROR 1524")
-        || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
-        out = executer(sqlAvecAuth("IDENTIFIED BY"));
+    const QString out = executerAvecRepliPlugin(sqlAvecAuth, executer);
     m_createUserErr = out;
     return !out.contains("ERROR", Qt::CaseInsensitive);
 #endif
@@ -3834,16 +3846,9 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
                               .arg(mysqlBin("mysql"), argsServeurCourant(), adminLogin, adminMdp, sql));
     };
 
-    QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
-    QString up  = out.toUpper();
-    /*! Plugin mysql_native_password indisponible (MySQL 8.4 par défaut) → repli plugin serveur. */
-    if (up.contains("ERROR 1524")
-        || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
-    {
-        out = executer(sqlAvecAuth("IDENTIFIED BY"));
-        up  = out.toUpper();
-    }
-    m_createUserErr = out;   /*!< conservé pour le diagnostic, comme dans createUser() */
+    const QString out = executerAvecRepliPlugin(sqlAvecAuth, executer);
+    const QString up  = out.toUpper();
+    m_createUserErr   = out;   /*!< conservé pour le diagnostic, comme dans createUser() */
 
     if (!out.contains("ERROR", Qt::CaseInsensitive))
         return CreateUserResult::Ok;
@@ -4006,12 +4011,7 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
                             .arg(m.mysqlBin("mysql"), argsServeurCourant(), QString(LOGIN_SQL),
                                  motDePasseSQL(), sql));
     };
-    /*! native d'abord, repli silencieux : le plugin est désactivé d'origine sur MySQL 8.4. */
-    QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
-    const QString up = out.toUpper();
-    if (up.contains("ERROR 1524")
-        || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
-        out = executer(sqlAvecAuth("IDENTIFIED BY"));
+    const QString out = executerAvecRepliPlugin(sqlAvecAuth, executer);
 
     /*! Éprouvé avant de supprimer root : sinon un échec silencieux laisserait le poste sans l'un ni l'autre. */
     if (!m.tryConnectAs(LOGIN_SQL_SECOURS, mdp))

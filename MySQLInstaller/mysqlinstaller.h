@@ -30,6 +30,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QProgressBar>
 #include <optional>
+#include <functional>
 
 #include "updialog.h"
 #include "upmessagebox.h"
@@ -245,6 +246,11 @@ private:
 
     /*! ── Phases de run() ─────────────────────────────────────────────────────────────────────────────── */
     bool terminerRun(bool ok);                                              /*!< sortie commune de run() : aléatoire à noter + compte de secours */
+    /*! Joue le SQL en mysql_native_password, le rejoue avec le plugin par défaut si le serveur ne le
+     * charge pas (MySQL 8.4). Renvoie la sortie du client mysql. */
+    static QString executerAvecRepliPlugin(const std::function<QString(const QString&)>& sqlAvecAuth,
+                                           const std::function<QString(const QString&)>& executer);
+
     bool faireCreate(const MySQLRemoteConfig& cfg);                         /*!< chemin création : installe MySQL + crée adminrufus + config */
     bool reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);               /*!< section install de faireCreate, sans saisie (migration) */
     void avertirPostesAnciensAMettreAJour();                                /*!< serveur neuf : prévient qu'un ancien poste devra être mis à jour */
