@@ -173,7 +173,7 @@ private:
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     bool                    InitialisationBaseEtDossiers(bool NouvelleBaseVierge = false, bool Restauration = false, QWidget *parent = nullptr);   //! installe le socle du poste : serveur MySQL, base vierge ou restaurée, dossiers et paramètres
     void                    PremierParametrageMateriel();
-    bool                    InstallationRufus(QWidget *parent = nullptr);             //! crée la base du poste : restauration d'une sauvegarde, sinon base vierge
+    bool                    InstallationRufus(QWidget *parent = nullptr, bool sansQuestion = false);   //! crée la base du poste : restauration d'une sauvegarde (sansQuestion = sans rien demander), sinon base vierge
     void                    ReconstruitIniMinimal();                                  //! vérifie que le Rufus.ini récupéré est exploitable et sinon, le corrige avec un paramétrage minimal et s'il n'y en a pas en crée avec un paramétrage minimal (monoposte et pport3306)
 public:
     enum protoc {BaseExistante, BaseVierge, NoBase};
@@ -429,7 +429,8 @@ signals:
                                  * sous Linux, lance le timer t_timerbackup
                                 */
         QString                 RestaureBase(protoc protocole,bool PremierDemarrage = false, bool VerifPostesConnectes = true, QWidget *parent = nullptr,
-                                             QString cheminRestauration = "");      //! si non vide : restauration AUTOMATIQUE depuis ce dossier (pas de choix ni de mdp à saisir) — pour la migration de base
+                                             QString cheminRestauration = "",       //! si non vide : dossier imposé (migration de base)
+                                             bool sansQuestion = false);            //! restaure sans rien demander (sauvegarde prise à l'instant)
         bool                    ReinitBase(QWidget *parent = nullptr);
         enum                    BkupRestore { BackupOp, RestoreOp}; Q_ENUM(BkupRestore)
 

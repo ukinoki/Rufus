@@ -2894,7 +2894,7 @@ static int compterTablesFichierSQL(const QString& chemin)
     return n;
 }
 
-QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration)
+QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration, bool sansQuestion)
 {
     UpMessageBox    msgbox(parent);
     UpSmallButton   AnnulBouton;
@@ -3034,20 +3034,25 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         {
             /*! Mode AUTOMATIQUE (migration de base) : dossier imposé par l'appelant, aucune
             * interaction (ni choix de dossier ni saisie de mot de passe). */
-            QDate date = QDate::fromString(QDir(cheminRestauration).dirName().left(8), "yyyyMMdd");
-            QString msgdate = "";
-            if (date.isValid())
-                msgdate = QLocale::system().toString(date, (tr ("d MMM yyyy")));
-            const UpSmallButton::StyleBouton rep = UpMessageBox::Question(parent,
-                                    tr("Choix du dossier de sauvegarde"),
-                                    tr("une sauvegarde automatique") + (msgdate == ""? "": " " + tr("datée du") + " " + msgdate) + "<br/><br/>" +
-                                    tr("Voulez-vous l'utiliser ou choirsir un autre dossier de sauvegarde?"),
-                                    UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                                    QStringList() << tr("Choisir une autre sauvegarde") << tr("Utiliser la sauvegarde automatique"));
-            if (rep == UpSmallButton::STARTBUTTON)
-            {
+            if (sansQuestion)
                 dirtorestore = QDir(cheminRestauration);
-                proposerchoix = true;
+            else
+            {
+                QDate date = QDate::fromString(QDir(cheminRestauration).dirName().left(8), "yyyyMMdd");
+                QString msgdate = "";
+                if (date.isValid())
+                    msgdate = QLocale::system().toString(date, (tr ("d MMM yyyy")));
+                const UpSmallButton::StyleBouton rep = UpMessageBox::Question(parent,
+                                        tr("Choix du dossier de sauvegarde"),
+                                        tr("une sauvegarde automatique") + (msgdate == ""? "": " " + tr("datée du") + " " + msgdate) + "<br/><br/>" +
+                                        tr("Voulez-vous l'utiliser ou choirsir un autre dossier de sauvegarde?"),
+                                        UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                        QStringList() << tr("Choisir une autre sauvegarde") << tr("Utiliser la sauvegarde automatique"));
+                if (rep == UpSmallButton::STARTBUTTON)
+                {
+                    dirtorestore = QDir(cheminRestauration);
+                    proposerchoix = true;
+                }
             }
         }
         if (dirtorestore == QDir())
@@ -3125,7 +3130,8 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         AskBupRestore(RestoreOp, dirtorestore.absolutePath(), dirimagerie, OKini, OKImages, OKVideos, OKFactures, parent);
         int result;
         bool erreurRestauration = false;   //! passe à true si la restauration de la BASE échoue (→ pas de redémarrage auto)
-        if (!cheminRestauration.isEmpty() && !proposerchoix)
+        const bool restaurationAuto = sansQuestion || (!cheminRestauration.isEmpty() && !proposerchoix);
+        if (restaurationAuto)
         {
             //! Migration AUTOMATIQUE : on restaure UNIQUEMENT la base, sans afficher la boîte
             //! de choix (dont le bouton OK ne s'active qu'au clic d'une case).
@@ -3148,25 +3154,28 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
                 {
                     if (chk->isChecked())
                     {
-                        UpMessageBox msgbox(parent);
                         QStringList listnomsfilestorestore;
-                        UpSmallButton AnnulBouton(tr("Annuler"));
-                        UpSmallButton OKBouton(tr("J'ai compris\nJe confirme"));
-                        msgbox.setIcon(UpMessageBox::Warning);
-
-                        msgbox.setText(tr("Attention"));
-                        msgbox.setInformativeText(tr("Vous avez choisi de restaurer la base à partir du dosssier") + "\n"
-                                                  + dirtorestore.absolutePath() + ".\n" +
-                                                  tr("Si une base de données Rufus existe sur ce serveur, "
-                                                     "elle sera définitivement effacée pour être remplacée par cette sauvegarde.\n"
-                                                     "Confirmez-vous la suppression des anciennes données?"));
-                        msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
-                        msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
-                        msgbox.exec();
-                        if (msgbox.clickedButton() != &OKBouton)
+                        //! restauration auto : la sauvegarde vient d'être prise sur ce poste, rien à confirmer
+                        if (!restaurationAuto)
                         {
-                            msg += tr("Base non restaurée");
-                            break;
+                            UpMessageBox msgbox(parent);
+                            UpSmallButton AnnulBouton(tr("Annuler"));
+                            UpSmallButton OKBouton(tr("J'ai compris\nJe confirme"));
+                            msgbox.setIcon(UpMessageBox::Warning);
+                            msgbox.setText(tr("Attention"));
+                            msgbox.setInformativeText(tr("Vous avez choisi de restaurer la base à partir du dosssier") + "\n"
+                                                      + dirtorestore.absolutePath() + ".\n" +
+                                                      tr("Si une base de données Rufus existe sur ce serveur, "
+                                                         "elle sera définitivement effacée pour être remplacée par cette sauvegarde.\n"
+                                                         "Confirmez-vous la suppression des anciennes données?"));
+                            msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
+                            msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+                            msgbox.exec();
+                            if (msgbox.clickedButton() != &OKBouton)
+                            {
+                                msg += tr("Base non restaurée");
+                                break;
+                            }
                         }
 
                         bool echecfile = true;
@@ -5407,6 +5416,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         auto abandonner = [&] { delete installeurMySQL; };
 
         //! Diagnostic : y a-t-il un serveur, s'y connecte-t-on, est-il conforme ?
+        bool sauvegardeFaite = false;   /*!< base Rufus sauvegardée à l'instant : on la restaurera sans rien demander */
         QStringList logAdmin;
         const bool serveurPresent = MySQLInstaller::serveurLocalPresent();
         if (serveurPresent)
@@ -5434,11 +5444,14 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
                 return;
             }
             else if (rep == UpSmallButton::RECORDBUTTON)
+            {
                 if (!BackupRufusBaseBeforeInstall(logAdmin.at(0), logAdmin.at(1), &dlg))
                 {
                     abandonner();
                     return;
                 }
+                sauvegardeFaite = true;
+            }
         }
 
         //! Une seule demande d'accord ; serveur injoignable = purge imposée, donc simple avertissement
@@ -5487,7 +5500,11 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
             delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
 
-        if (!InstallationRufus(&dlg))                                   //!< Restauration de la base (vierge ou existante suivant la valeur de m_protoc)
+        //! Sauvegarde prise juste avant : on la restaure sans repasser par le choix de l'utilisateur
+        if (sauvegardeFaite)
+            m_protoc = BaseExistante;
+
+        if (!InstallationRufus(&dlg, sauvegardeFaite))                  //!< Restauration de la base (vierge ou existante suivant la valeur de m_protoc)
         {
             delete installeurMySQL;
             return;
@@ -5534,14 +5551,14 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
  * \param restaurer  restaurer une sauvegarde plutôt que de créer une base vierge
  * \param parent     fiche appelante
  */
-bool Procedures::InstallationRufus(QWidget *parent)
+bool Procedures::InstallationRufus(QWidget *parent, bool sansQuestion)
 {
     const QString dirtorestore = DerniereSauvegardeInstallation();
 
     //! chemin vide : RestaureBase demande alors où se trouve la sauvegarde
     if (m_protoc == BaseExistante)
     {
-        QString pathdirtorestore = RestaureBase(BaseExistante, true, false, parent, dirtorestore);
+        QString pathdirtorestore = RestaureBase(BaseExistante, true, false, parent, dirtorestore, sansQuestion);
         bool a =  pathdirtorestore != "";
         if (!a)
             return false;
