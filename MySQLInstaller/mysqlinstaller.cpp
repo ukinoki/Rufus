@@ -3696,7 +3696,8 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
     static const QStringList REQUIRED = {
         "SELECT", "INSERT", "UPDATE", "DELETE", "CREATE", "DROP",
         "RELOAD", "SHUTDOWN", "PROCESS", "FILE", "REFERENCES", "INDEX",
-        "ALTER", "SHOW DATABASES", "SUPER", "CREATE TEMPORARY TABLES",
+        /*! SUPER, déprécié depuis 8.0, n'est pas exigé : il peut disparaître d'une version future. */
+        "ALTER", "SHOW DATABASES", "CREATE TEMPORARY TABLES",
         "LOCK TABLES", "EXECUTE", "REPLICATION SLAVE", "REPLICATION CLIENT",
         "CREATE VIEW", "SHOW VIEW", "CREATE ROUTINE", "ALTER ROUTINE",
         "CREATE USER", "EVENT", "TRIGGER", "CREATE TABLESPACE",
