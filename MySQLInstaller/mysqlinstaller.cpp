@@ -2562,6 +2562,9 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
         return false;                                            /*!< création ratée : on ne touche à rien */
     exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
     exec(QString("FLUSH PRIVILEGES"));
+    /*! La session courante était peut-être authentifiée comme adminrufus@'%' : sans reconnexion elle
+     *  perdrait tout privilège jusqu'au prochain démarrage. */
+    DataBase::I()->connectToDataBase(DB_RUFUS, ur, mdpCourant);
     return !Utils::hostsDuCompteSQL(ur).value_or(QStringList()).contains("%");
 }
 
