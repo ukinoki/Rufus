@@ -5404,6 +5404,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
     dlg.setWindowModality(Qt::ApplicationModal);
     dlg.setIcon(UpMessageBox::Info);
     dlg.setText(tr("Premier démarrage de Rufus!"));
+    dlg.setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint);
     QString msg = tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
                     tr("1. J'installe Rufus sur ce poste en créant une nouvelle base patients") + "\n" +
                     tr("2. J'installe Rufus sur ce poste et et je vais créer une base patients à partir d'une sauvehgarde");
@@ -5794,6 +5795,7 @@ void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
     //! addButton refermerait la fiche : on pose les boutons soi-même pour garder la main.
     UpMessageBox dlg(parent);
     dlg.setWindowModality(Qt::ApplicationModal);
+    dlg.setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint);
     dlg.setIcon(UpMessageBox::Warning);
     for (UpSmallButton *b : {bAnnuler, bReseau, bPremiere, bRestaurer})
         if (b)
