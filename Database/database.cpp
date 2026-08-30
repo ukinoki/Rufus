@@ -170,7 +170,7 @@ DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port, in
     }
 }
 
-QString DataBase::connectToDataBase(QString basename, QString login, QString password)
+QString DataBase::connectToDataBase(QString basename, QString login, QString password, bool apresEntretien)
 {
     m_codeErreurConnexion.clear();      /*!< sinon un retour anticipé laisserait causeEchecConnexion() sur la tentative précédente */
 
@@ -281,11 +281,17 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         //! mot de passe aléatoire sans créer les comptes restreints au LAN. On rattrape ça dès qu'on
         //! s'est connecté AVEC un aléatoire (donc éprouvé) et en LOCAL — jamais avec le générique,
         //! jamais en distant. No-op une fois adminrufus@'%' supprimé.
-        if (password != QString(MDP_SQL)
+        if (!apresEntretien
+            && password != QString(MDP_SQL)
             && MySQLInstaller().socleMySQLConforme()                           // < 8.0.14 : pas de double mot de passe
             && (Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).value_or(QStringList()).contains("%")      // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
                 || MySQLInstaller().unCompteLANaPerduSystemUser()))            // un compte LAN a perdu SYSTEM_USER (revoke ancien) → à régulariser
+        {
             MySQLInstaller().entretienComptesAdminrufusLAN(password);          // crée les comptes LAN manquants + retire adminrufus@'%' ; ne touche à AUCUN mot de passe
+            //! La session tournait peut-être sous adminrufus@'%', que l'entretien vient de supprimer :
+            //! elle perdrait tout privilège pour le reste du démarrage. On se reconnecte sur le compte LAN.
+            return connectToDataBase(basename, login, password, /*apresEntretien=*/true);
+        }
          return QString();
     }
 
