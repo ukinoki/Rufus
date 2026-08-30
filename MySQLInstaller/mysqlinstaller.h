@@ -139,7 +139,7 @@ public:
     explicit MySQLInstaller(QWidget* parent = nullptr);   /*!< parent des fiches et messages de l'installeur */
 
     bool run(bool desinstaller, bool installer);                                /*!< point d'entrée synchrone : exécute le diagnostic posé par l'appelant */
-    QStringList FindMdpLoginMySQL();                                            /*!< { mdp, login } d'un compte admin MySQL éprouvé, vide s'il n'y en a pas */
+    QStringList FindMdpLoginMySQL(bool sansQuestion = false);                   /*!< { mdp, login } d'un compte admin MySQL éprouvé ; sansQuestion : l'appelant a déjà demandé */
     static bool isBaseRufus(const QStringList& log);                            /*!< une base Rufus est-elle présente sur ce serveur ? */
 
     /*! ── Mot de passe aléatoire / .dbkey (helpers statiques) ─────────────────────────────────────────── */

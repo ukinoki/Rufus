@@ -961,8 +961,9 @@ bool MySQLInstaller::run(bool desinstaller, bool installer)
  * \brief MySQLInstaller::FindMdpLoginMySQL
  * Compte administrateur du serveur MySQL en place, éprouvé : celui de Rufus s'il ouvre encore le serveur,
  * sinon demandé à l'utilisateur. Liste vide s'il n'en a pas ou renonce.
+ * \param sansQuestion  l'appelant a déjà demandé s'il disposait d'un compte : aller droit à la saisie
  */
-QStringList MySQLInstaller::FindMdpLoginMySQL()
+QStringList MySQLInstaller::FindMdpLoginMySQL(bool sansQuestion)
 {
     if (!isServerRunning()) startMySQL();
 
@@ -971,7 +972,8 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
         if (tryConnectAs(LOGIN_SQL, mdp))
             return QStringList() << mdp << QString(LOGIN_SQL);
 
-    if (!askYesNo(tr("Un serveur MySQL est déjà installé"),
+    if (!sansQuestion
+        && !askYesNo(tr("Un serveur MySQL est déjà installé"),
             tr("Rufus peut sauvegarder ce qu'il contient et y créer votre base patients, à condition "
                "de s'y connecter.\n\n"
                "Disposez-vous d'un identifiant et d'un mot de passe administrateur de ce serveur "

@@ -3979,7 +3979,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                 //! compte MySQL fourni par l'utilisateur : même saisie éprouvée que depuis IBD
                 if (issue == MySQLInstaller::IssueMdp::CompteAdmin)
                 {
-                    const QStringList log = MySQLInstaller(parent).FindMdpLoginMySQL();
+                    const QStringList log = MySQLInstaller(parent).FindMdpLoginMySQL(/*sansQuestion=*/true);
                     if (log.size() < 2)
                         continue;
                     errConnexion = db->connectToDataBase(DB_RUFUS, log.at(1), log.at(0));
