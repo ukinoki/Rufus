@@ -966,8 +966,10 @@ QStringList MySQLInstaller::FindMdpLoginMySQL()
 {
     if (!isServerRunning()) startMySQL();
 
-    if (tryConnectAs(LOGIN_SQL, motDePasseSQL()))
-        return QStringList() << motDePasseSQL() << QString(LOGIN_SQL);
+    /*! Un .dbkey périmé masquerait le générique : on essaie les deux, comme connecterAvecCandidats. */
+    for (const QString& mdp : motsDePasseSQLCandidats())
+        if (tryConnectAs(LOGIN_SQL, mdp))
+            return QStringList() << mdp << QString(LOGIN_SQL);
 
     if (!askYesNo(tr("Un serveur MySQL est déjà installé"),
             tr("Rufus peut sauvegarder ce qu'il contient et y créer votre base patients, à condition "
