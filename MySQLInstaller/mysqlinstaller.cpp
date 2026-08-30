@@ -1424,7 +1424,9 @@ bool MySQLInstaller::sauvegarderClesSSLMigration()
     for (const QString& f : pem)
         sh += "[ -f \"$DATA/" + f + "\" ] && cp -f \"$DATA/" + f + "\" \"$STASH/" + f + "\"\n";
     sh += "[ -n \"$OWNER\" ] && chown -R \"$OWNER\" \"$STASH\"\n";
+    qDebug() << "sauvegarderClesSSLMigration : datadir =" << datadir << " -> runCmdElevated";
     runCmdElevated(sh);
+    qDebug() << "sauvegarderClesSSLMigration : runCmdElevated rendu";
 #endif
     return QFile::exists(stash + "/ca.pem");
 }
