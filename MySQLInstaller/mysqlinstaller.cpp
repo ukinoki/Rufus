@@ -888,8 +888,6 @@ bool MySQLInstaller::assurerDroitsAdmin()
  */
 bool MySQLInstaller::run(bool desinstaller, bool installer)
 {
-    qDebug() << "run desinstaller =" << desinstaller << " installer =" << installer;
-
 #if defined(Q_OS_WIN)
     /*! Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et l'installe AVANT toute
      *  opération MySQL. */
@@ -1424,9 +1422,7 @@ bool MySQLInstaller::sauvegarderClesSSLMigration()
     for (const QString& f : pem)
         sh += "[ -f \"$DATA/" + f + "\" ] && cp -f \"$DATA/" + f + "\" \"$STASH/" + f + "\"\n";
     sh += "[ -n \"$OWNER\" ] && chown -R \"$OWNER\" \"$STASH\"\n";
-    qDebug() << "sauvegarderClesSSLMigration : datadir =" << datadir << " -> runCmdElevated";
     runCmdElevated(sh);
-    qDebug() << "sauvegarderClesSSLMigration : runCmdElevated rendu";
 #endif
     return QFile::exists(stash + "/ca.pem");
 }
@@ -1753,21 +1749,15 @@ void MySQLInstaller::avertirExpirationClesSSLDistant()
  */
 bool MySQLInstaller::reinstallerSocleMySQLpourMigration(const QStringList& log)
 {
-    const bool droits = assurerDroitsAdmin();
-    qDebug() << "reinstallerSocleMySQLpourMigration : droits admin =" << droits << " log =" << log;
-    if (!droits)
+    if (!assurerDroitsAdmin())
         return false;
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
     /*! Imagerie : hériter du dossier de l'ancienne base (secure_file_priv) tant que le serveur répond. */
     preserverDossierImagerieAncienneBase(log);
     /*! SSL (étape 7, point 4) : conserver les clés AVANT la désinstallation (qui détruit le datadir). */
     const bool clesConservees = sauvegarderClesSSLMigration();
-    qDebug() << "  cles conservees =" << clesConservees << " -> uninstallMySQL";
-    const bool purge = uninstallMySQL();
-    qDebug() << "  uninstallMySQL =" << purge << " -> reinstallerSocleMySQL";
-    const bool socle = reinstallerSocleMySQL(cfg);
-    qDebug() << "  reinstallerSocleMySQL =" << socle;
-    if (!socle)
+    uninstallMySQL();
+    if (!reinstallerSocleMySQL(cfg))
         return false;
     /*! Réinjecter les anciennes clés (même CA) : les postes distants existants restent valides. */
     if (clesConservees)
