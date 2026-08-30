@@ -129,8 +129,7 @@ public:
     int                     idUserConnected() const             { return m_iduserConnected; }
 
     QString                 versionMySQL();                     /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
-    QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL,
-                                                  bool apresEntretien = false);   //!> apresEntretien : reconnexion qui suit l'entretien des comptes, jamais rejouée
+    QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
     /*! Ce qu'on trouve à une adresse : personne, un poste sans serveur, ou un serveur qui ouvre. */
     enum EtatAdresse { Deserte, PosteSansServeur, ServeurOuvert };
     static EtatAdresse      etatAdresse(const QString &adresse, int port, int delaims = 5000);
