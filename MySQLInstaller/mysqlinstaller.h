@@ -211,7 +211,8 @@ public:
     enum class IssueMdp {
         Obtenu,         /*!< mot de passe récupéré et éprouvé */
         Annule,         /*!< annuler et sortir */
-        Inconnu,        /*!< je n'ai aucun mot de passe */
+        Inconnu,        /*!< tenter la récupération par le mot de passe de secours */
+        CompteAdmin,    /*!< l'utilisateur dispose d'un compte MySQL valide */
         Reinitialiser,  /*!< repartir d'une base neuve */
         EchecSaisie     /*!< mot de passe saisi ou importé, mais il n'ouvre pas la base */
     };

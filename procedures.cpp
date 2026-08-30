@@ -3976,13 +3976,26 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                 }
                 if (issue == MySQLInstaller::IssueMdp::Annule)
                     return false;
+                //! compte MySQL fourni par l'utilisateur : même saisie éprouvée que depuis IBD
+                if (issue == MySQLInstaller::IssueMdp::CompteAdmin)
+                {
+                    const QStringList log = MySQLInstaller(parent).FindMdpLoginMySQL();
+                    if (log.size() < 2)
+                        continue;
+                    errConnexion = db->connectToDataBase(DB_RUFUS, log.at(1), log.at(0));
+                    if (errConnexion.isEmpty())
+                        break;
+                    continue;
+                }
                 if (db->ModeAccesDataBase() == Utils::Distant)
                     break;   //! le secours ne s'atteint pas depuis internet
                 //! Pas de mot de passe valide -> restauration par le mot de passe de secours
                 if (issue == MySQLInstaller::IssueMdp::Inconnu
                  || issue == MySQLInstaller::IssueMdp::EchecSaisie)
                 {
-                    if (UpMessageBox::Question(parent, tr("Aucun mot de passe ne fonctionne"),
+                    //! Inconnu = l'utilisateur vient de demander le secours : ne pas le lui redemander
+                    if (issue == MySQLInstaller::IssueMdp::EchecSaisie
+                     && UpMessageBox::Question(parent, tr("Aucun mot de passe ne fonctionne"),
                             tr("Rufus peut tenter de rétablir l'accès à la base avec le mot de passe de "
                                "SECOURS choisi à l'installation de la base.") + "\n" +
                             tr("Vos données ne seront pas touchées.") + "\n\n" +
