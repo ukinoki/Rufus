@@ -1760,8 +1760,12 @@ bool MySQLInstaller::reinstallerSocleMySQLpourMigration(const QStringList& log)
     preserverDossierImagerieAncienneBase(log);
     /*! SSL (étape 7, point 4) : conserver les clés AVANT la désinstallation (qui détruit le datadir). */
     const bool clesConservees = sauvegarderClesSSLMigration();
-    uninstallMySQL();
-    if (!reinstallerSocleMySQL(cfg))
+    qDebug() << "  cles conservees =" << clesConservees << " -> uninstallMySQL";
+    const bool purge = uninstallMySQL();
+    qDebug() << "  uninstallMySQL =" << purge << " -> reinstallerSocleMySQL";
+    const bool socle = reinstallerSocleMySQL(cfg);
+    qDebug() << "  reinstallerSocleMySQL =" << socle;
+    if (!socle)
         return false;
     /*! Réinjecter les anciennes clés (même CA) : les postes distants existants restent valides. */
     if (clesConservees)
