@@ -2704,11 +2704,6 @@ void Procedures::setPosteImportDocs(QString IPAdress)
     * si a = true, on se met en poste importateur +/_ prioritaire à la fin suivant le contenu de rufus.ini
     * si a = false, on retire le poste en cours et on met NULL à la place. */
 
-    bool oktrace = false;
-    qDebug() << "setPosteImportDocs user ="
-             << db->getFirstRecordFromStandardSelectSQL("SELECT CURRENT_USER()", oktrace)
-             << "\ngrants =" << db->StandardSelectSQL("SHOW GRANTS", oktrace);
-
     QString req = "USE " DB_RUFUS ";";
     db->StandardSQL(req);
 

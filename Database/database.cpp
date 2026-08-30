@@ -281,25 +281,11 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         //! mot de passe aléatoire sans créer les comptes restreints au LAN. On rattrape ça dès qu'on
         //! s'est connecté AVEC un aléatoire (donc éprouvé) et en LOCAL — jamais avec le générique,
         //! jamais en distant. No-op une fois adminrufus@'%' supprimé.
-        bool oktrace = false;
-        const bool aleatoire = password != QString(MDP_SQL);
-        qDebug() << "connectToDataBase user ="
-                 << getFirstRecordFromStandardSelectSQL("SELECT CURRENT_USER()", oktrace)
-                 << " aleatoire =" << aleatoire
-                 << " adminrufus@% =" << Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).value_or(QStringList())
-                 << " perduSystemUser =" << MySQLInstaller().unCompteLANaPerduSystemUser();
-
         if (password != QString(MDP_SQL)
             && MySQLInstaller().socleMySQLConforme()                           // < 8.0.14 : pas de double mot de passe
             && (Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).value_or(QStringList()).contains("%")      // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
                 || MySQLInstaller().unCompteLANaPerduSystemUser()))            // un compte LAN a perdu SYSTEM_USER (revoke ancien) → à régulariser
-        {
-            qDebug() << "connectToDataBase -> entretienComptesAdminrufusLAN";
             MySQLInstaller().entretienComptesAdminrufusLAN(password);          // crée les comptes LAN manquants + retire adminrufus@'%' ; ne touche à AUCUN mot de passe
-            qDebug() << "  apres entretien, user ="
-                     << getFirstRecordFromStandardSelectSQL("SELECT CURRENT_USER()", oktrace)
-                     << " grants =" << StandardSelectSQL("SHOW GRANTS", oktrace);
-        }
          return QString();
     }
 

@@ -888,6 +888,8 @@ bool MySQLInstaller::assurerDroitsAdmin()
  */
 bool MySQLInstaller::run(bool desinstaller, bool installer)
 {
+    qDebug() << "run desinstaller =" << desinstaller << " installer =" << installer;
+
 #if defined(Q_OS_WIN)
     /*! Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et l'installe AVANT toute
      *  opération MySQL. */
@@ -1749,7 +1751,9 @@ void MySQLInstaller::avertirExpirationClesSSLDistant()
  */
 bool MySQLInstaller::reinstallerSocleMySQLpourMigration(const QStringList& log)
 {
-    if (!assurerDroitsAdmin())
+    const bool droits = assurerDroitsAdmin();
+    qDebug() << "reinstallerSocleMySQLpourMigration : droits admin =" << droits << " log =" << log;
+    if (!droits)
         return false;
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
     /*! Imagerie : hériter du dossier de l'ancienne base (secure_file_priv) tant que le serveur répond. */
