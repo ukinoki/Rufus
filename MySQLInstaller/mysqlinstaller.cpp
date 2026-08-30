@@ -148,7 +148,7 @@ void MySQLProgressDialog::setProgressBar(qint64 done, qint64 total)
 
 /*! ═══ MySQLInstallerDialog : checklist des 6 critères (composants Rufus up*) ═════════════════════ */
 MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
-    : UpDialog(parent)
+    : UpDialog(parent, false)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint);
     int row = 0;
@@ -163,6 +163,8 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     m_subtitle  ->setStyleSheet("font-size: 12px; color: #1C1B18;");
     m_subtitle  ->setWordWrap(true);
     dlglayout() ->insertWidget(row++, m_subtitle);
+    int marge = 30;
+    dlglayout()->setContentsMargins(marge, marge+10, marge, marge+10);
 
     /*! Les 7 cases, en affichage seul. */
     for (int i = 0; i < 7; i++) {
@@ -3909,6 +3911,8 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
     UpDialog dlg(parent);
     dlg.setWindowModality(Qt::WindowModal);
     dlg.setWindowTitle("");
+    dlg.setWindowIcon(QIcon(":/icons/lock.png"));
+    dlg.setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint);
 
     UpLabel*    label  = new UpLabel();
     UpLabel*    label2 = new UpLabel();
@@ -3930,8 +3934,8 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
     label2->setFixedHeight(16);
 
     label->setText(avecConfirmation
-        ? QObject::tr("Choisissez un mot de passe de SECOURS pour votre base de données.\n\n"
-                      "Il ne servira qu'à reprendre la main sur votre base si tous les autres\n"
+        ? QObject::tr("Il n'y a pas de mot de passe de SECOURS pour votre base de données MySQL.\n\n"
+                      "Ce mot de passe ne servira qu'à reprendre la main sur votre base si tous les autres\n"
                       "mots de passe sont perdus. Il n'est enregistré NULLE PART :\n"
                       "vous seul le connaissez.\n\n"
                       "Choisissez quelque chose que vous retrouverez dans dix ans\n"
@@ -3952,9 +3956,8 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
     lay ->addWidget(label2);
     lay ->addWidget(Line2);
 
-    dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg.AjouteLayButtons(UpDialog::ButtonOK);
     QObject::connect(dlg.OKButton,     &UpSmallButton::clicked, &dlg, &UpDialog::accept);
-    QObject::connect(dlg.CancelButton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
     dlg.dlglayout()->insertLayout(0, lay);
     dlg.dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     Line->setFocus();

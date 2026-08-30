@@ -3686,7 +3686,6 @@ bool Procedures::VerifVersionBase(QWidget* parent)
         QDir dir(PATH_DIR_RESSOURCES);
         if (dir.exists())
             dir.removeRecursively();
-        MySQLInstaller::controlerCompteDeSecours(parent);
     }
     if (Versionencours > Version)
     {
@@ -4608,6 +4607,8 @@ bool Procedures::IdentificationUser(QWidget *parent)
             if (!vposte.isEmpty())
                 m_parametres->setversion(vposte);
         }
+        if (db->ModeAccesDataBase() == Utils::Poste)
+            MySQLInstaller::controlerCompteDeSecours(parent);
 
         //! Avis « traduction assistée par IA » pour les versions NON françaises. Affiché UNE
         //! SEULE FOIS (marqueur persistant dans Rufus.ini), ici — après l'identification réussie

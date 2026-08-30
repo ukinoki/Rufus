@@ -40,7 +40,7 @@ class UpDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UpDialog(QWidget *parent = nullptr);
+    explicit UpDialog(QWidget *parent = nullptr, bool withbuttons = true);
     enum Button {
                 NoButton                = 0x0,
                 ButtonPrint             = 0x1,
@@ -62,8 +62,9 @@ private:
     bool            m_enregistreposition    = false;
     Mode            m_mode;
     QString         m_nomfichierini;
-    QHBoxLayout     *wdg_buttonslayout;
-    QWidget         *wdg_buttonswidget;
+    QHBoxLayout     *wdg_buttonslayout      = nullptr;
+    QWidget         *wdg_buttonswidget      = nullptr;
+    bool            m_withbuttons           = true;    /*!< true si une fille modale bloque la fiche */
     void            UpdateTabOrder();
     int             m_nbbuttons             = 0;
     int             m_stageheight           = 40;
@@ -74,7 +75,7 @@ private:
     QMargins        m_marges                = QMargins(m_marge,m_marge,m_marge,m_marge);
     QObject*        obj_data;
     QVBoxLayout     *m_globallay            = new QVBoxLayout(this);
-    UpLabel         *wdg_label;
+    UpLabel         *wdg_label              = nullptr;
     UpLineEdit      *wdg_chercheuplineedit;
     QRect           m_originalgeometry      = QRect();
     Buttons         m_Buttons               = NoButton;

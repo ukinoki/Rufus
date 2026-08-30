@@ -19,22 +19,26 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtCore/qdir.h>
 #include <QShowEvent>
 
-UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
+UpDialog::UpDialog(QWidget *parent, bool withbuttons) : QDialog(parent)
 {
     setFont(qApp->font());
     m_globallay->setContentsMargins(m_marges);
     m_globallay->setSpacing(m_marge);
     setWindowModality(Qt::ApplicationModal);
     setMouseTracking(true);
-    wdg_buttonswidget   = new QWidget();
-    wdg_buttonslayout   = new QHBoxLayout();
-    wdg_buttonslayout   ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
-    wdg_buttonslayout   ->setContentsMargins(0,10,0,10);
-    wdg_buttonslayout   ->setSpacing(10);
-    wdg_buttonswidget   ->setLayout(wdg_buttonslayout);
-    int n               = m_globallay->count();
-    m_globallay         ->insertWidget(n,wdg_buttonswidget);
-    setStageCount(0.7);
+    m_withbuttons = withbuttons;
+    if (m_withbuttons)
+    {
+        wdg_buttonswidget   = new QWidget();
+        wdg_buttonslayout   = new QHBoxLayout();
+        wdg_buttonslayout   ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+        wdg_buttonslayout   ->setContentsMargins(0,10,0,10);
+        wdg_buttonslayout   ->setSpacing(10);
+        wdg_buttonswidget   ->setLayout(wdg_buttonslayout);
+        int n               = m_globallay->count();
+        m_globallay         ->insertWidget(n,wdg_buttonswidget);
+        setStageCount(0.7);
+    }
 }
 
 void UpDialog::setSaveGeometry(QString geometryname)
@@ -213,7 +217,8 @@ void UpDialog::showEvent(QShowEvent *event)
     QDialog::showEvent(event);
     //! À l'affichage, le texte des boutons (donc leur hauteur) est fixé : c'est le bon moment pour
     //! aligner la rangée. Idempotent → sans effet aux affichages suivants (déjà uniformes).
-    uniformiserHauteurBoutons();
+    if (m_withbuttons)
+        uniformiserHauteurBoutons();
 }
 
 //! Défaut historique : dans une rangée, un bouton AVEC texte passe en hauteur 45 (UpSmallButton) tandis
@@ -266,7 +271,8 @@ void UpDialog::setStageCount(double nbstages)
 {
     double stages = m_stageheight; //! to cast m_stageheight from int to double
     m_nstages = nbstages;
-    wdg_buttonswidget->setFixedHeight(int(stages * nbstages) + wdg_buttonslayout->contentsMargins().bottom() + wdg_buttonslayout->contentsMargins().top());
+    if (wdg_buttonswidget != nullptr)
+        wdg_buttonswidget->setFixedHeight(int(stages * nbstages) + wdg_buttonslayout->contentsMargins().bottom() + wdg_buttonslayout->contentsMargins().top());
 }
 
 void UpDialog::UpdateTabOrder()
