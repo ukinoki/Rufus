@@ -220,8 +220,7 @@ public:
     /*! Saisie ou clé USB, puis épreuve du mot de passe. titre/corps vides → message d'échec de
      * connexion ; monoposte → 5 boutons au lieu de 3 (cf. initialisation Rufus.txt § II.2). */
     static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(),
-                                             const QString &corps = QString(),
-                                             bool monoposte = false);
+                                             const QString &corps = QString());
 
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };           /*!< résultat de createUserAvecAdmin() */
 

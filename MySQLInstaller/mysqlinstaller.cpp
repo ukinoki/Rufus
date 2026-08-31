@@ -2760,32 +2760,26 @@ void MySQLInstaller::proposerRecuperationAleatoire()
  * \param monoposte  ajoute « je n'ai aucun mot de passe » et « réinitialiser le programme »
  */
 MySQLInstaller::IssueMdp
-MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre,
-                                         const QString &corps, bool monoposte)
+MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre, const QString &corps)
 {
     UpMessageBox msgbox(parent);
     msgbox.setIcon(UpMessageBox::Warning);
-    msgbox.setText(!titre.isEmpty() ? titre : tr("Base de données sécurisée"));
-    msgbox.setInformativeText(!corps.isEmpty() ? corps
-                              : tr("Aucun mot de passe connu ne permet de se connecter à cette base : "
-                                   "elle a été sécurisée sur un autre poste.\n\n"
-                                   "Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB "
-                                   "depuis un poste qui fonctionne, ou le saisir si vous le connaissez."));
+    msgbox.setText(!titre.isEmpty() ? titre : tr("Connexion impossible à la base de données"));
+    msgbox.setInformativeText(!corps.isEmpty() ? corps :
+                                tr("Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées") + "\n" +
+                                tr("Vous pouvez :") + "\n" +
+                                tr(". récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne") + "\n" +
+                                tr(". le saisir si vous le connaissez.") + "\n" +
+                                tr(". tenter une récupération avec le mot de passe de secours si vous le connaissez") + "\n" +
+                                tr(". saisir un identifiant/mot de passe MySQL valide"));
     UpSmallButton *AnnulBouton  = new UpSmallButton(tr("Annuler"));
     UpSmallButton *SaisirBouton = new UpSmallButton(tr("Saisir le mot de passe"));
     UpSmallButton *USBBouton    = new UpSmallButton(tr("Importer depuis une clé USB"));
     UpSmallButton *AdminBouton  = new UpSmallButton(tr("Je dispose d'un identifiant\nMySQL valide"));
-    UpSmallButton *PasserBouton = nullptr;
-    UpSmallButton *ReinitBouton = nullptr;
+    UpSmallButton *PasserBouton = new UpSmallButton(tr("Tenter de récupérer l'accès\navec le mot de passe de secours"));
     msgbox.addButton(AnnulBouton, UpSmallButton::CLOSEBUTTON);
     msgbox.addButton(AdminBouton, UpSmallButton::LOUPEBUTTON);
-    if (monoposte)   //! un client ne répare ni ne remplace la base des autres
-    {
-        PasserBouton = new UpSmallButton(tr("Tenter de récupérer l'accès\navec le mot de passe de secours"));
-        ReinitBouton = new UpSmallButton(tr("Réinitialiser le programme"));
-        msgbox.addButton(PasserBouton, UpSmallButton::SKIPBUTTON);
-        msgbox.addButton(ReinitBouton, UpSmallButton::OUPSBUTTON);
-    }
+    msgbox.addButton(PasserBouton, UpSmallButton::SKIPBUTTON);
     msgbox.addButton(SaisirBouton, UpSmallButton::KEYBOARDBUTTON);
     msgbox.addButton(USBBouton,    UpSmallButton::RECORDBUTTON);
     msgbox.exec();
@@ -2794,8 +2788,6 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre,
         return IssueMdp::CompteAdmin;
     if (PasserBouton && msgbox.clickedButton() == PasserBouton)
         return IssueMdp::Inconnu;
-    if (ReinitBouton && msgbox.clickedButton() == ReinitBouton)
-        return IssueMdp::Reinitialiser;
 
     QString mdp;
     if (msgbox.clickedButton() == USBBouton)

@@ -3967,7 +3967,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
             forever
             {
                 const MySQLInstaller::IssueMdp issue =
-                    MySQLInstaller::RecupererMotDePasseMySQL(parent, QString(), QString(), db->ModeAccesDataBase() == Utils::Poste);
+                    MySQLInstaller::RecupererMotDePasseMySQL(parent, QString(), QString());
 
                 if (issue == MySQLInstaller::IssueMdp::Obtenu)
                 {
