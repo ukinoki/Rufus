@@ -3750,6 +3750,7 @@ bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
             .arg(mysqlBin("mysqladmin"), argsServeurCourant(), login, mdp));
     m_serveurInjoignable = out.contains("ERROR 2002") || out.contains("ERROR 2003")
                         || out.contains("ERROR 2005");
+    qDebug() << "tryConnectAs" << login << argsServeurCourant() << "->" << out.trimmed();
     m_isconnectlogvalid = out.contains("mysqld is alive");
     m_login    = m_isconnectlogvalid ? login : QString();
     m_password = m_isconnectlogvalid ? mdp   : QString();
