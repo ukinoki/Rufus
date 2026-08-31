@@ -2851,8 +2851,11 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
             dlg.accept();
             return;
         }
-        UpMessageBox::Watch(&dlg, tr("Droits insuffisants"),
-            tr("Cet identifiant ne donne pas tous les droits nécessaires sur la base de données."));
+        UpMessageBox::Watch(&dlg, tr("Identifiant inutilisable"),
+            tr("Ce compte MySQL ne permet pas d'ouvrir la base de données, ou n'y a pas tous les droits "
+               "nécessaires.") + "\n\n" +
+            tr("Un compte déclaré pour la seule adresse « %1 » ne convient pas : il doit aussi l'être "
+               "pour « localhost ».").arg("%"));
     });
 
     /*! Éprouvé avant d'écrire le .dbkey : une saisie erronée effacerait l'ancien mot de passe. */
