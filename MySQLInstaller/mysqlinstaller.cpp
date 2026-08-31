@@ -2842,17 +2842,17 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
     if (AdminBouton)
     connect(AdminBouton, &UpSmallButton::clicked, &dlg, [&] {
         issue = IssueMdp::idMySQL;
+        //! FindMdpLoginMySQL a déjà signalé un refus de connexion : ne reste à dire que le manque de droits
         const QStringList log = MySQLInstaller(&dlg).FindMdpLoginMySQL(true);
-        if (log.size() >= 2)
+        if (log.size() < 2)
+            return;
+        if (connexionValide(log.at(1), log.at(0)))
         {
-            if (connexionValide(log.at(1), log.at(0)))
-            {
-                dlg.accept();
-                return;
-            }
+            dlg.accept();
+            return;
         }
-        UpMessageBox::Watch(&dlg, tr("Identifiant refusé"),
-            tr("Cet identifiant ne permet pas d'accéder à la base de données avec tous les droits nécessaires."));
+        UpMessageBox::Watch(&dlg, tr("Droits insuffisants"),
+            tr("Cet identifiant ne donne pas tous les droits nécessaires sur la base de données."));
     });
 
     /*! Éprouvé avant d'écrire le .dbkey : une saisie erronée effacerait l'ancien mot de passe. */
