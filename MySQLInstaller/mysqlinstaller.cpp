@@ -4062,32 +4062,27 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
         return false;
 
     MySQLInstaller m;
+    /*! Par la connexion Qt, donc avec le compte qui a ouvert la session — pas forcément adminrufus. */
+    auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
+
     //! Mêmes hosts qu'adminrufus : un poste du cabinet doit pouvoir lancer le secours quand le serveur
     //! est une boîte sans écran. Jamais @'%' : ce mot de passe mémorisable ne va pas sur internet.
-    auto sqlAvecAuth = [&](const QString& auth) {
-        QString sql;
-        for (const QString& h : hostsLANprives())
-        {
-            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(QString(LOGIN_SQL_SECOURS), h, auth, mdp);
-            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(QString(LOGIN_SQL_SECOURS), h, auth, mdp);
-            sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(QString(LOGIN_SQL_SECOURS), h);
-        }
-        sql += "FLUSH PRIVILEGES;";
-        return sql;
-    };
-    auto executer = [&](const QString& sql) {
-        return m.runCmdFull(QString("\"%1\" %2 -u \"%3\" -p\"%4\" -e \"%5\" 2>&1")
-                            .arg(m.mysqlBin("mysql"), argsServeurCourant(), QString(LOGIN_SQL),
-                                 motDePasseSQL(), sql));
-    };
-    const QString out = executerAvecRepliPlugin(sqlAvecAuth, executer);
+    const QString ur = QString(LOGIN_SQL_SECOURS);
+    for (const QString& h : hostsLANprives())
+    {
+        //! Plugin imposé : le pilote Qt ne sait pas s'authentifier autrement en TCP non chiffré.
+        exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, mdp));
+        exec(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, mdp));
+        exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
+    }
+    exec("FLUSH PRIVILEGES");
 
     /*! Éprouvé avant de supprimer root : sinon un échec silencieux laisserait le poste sans l'un ni l'autre. */
     if (!m.tryConnectAs(LOGIN_SQL_SECOURS, mdp))
     {
         UpMessageBox::Watch(parent, tr("Compte de secours non créé"),
             tr("Rufus n'a pas pu créer le compte de secours sur le serveur MySQL.") + "\n" +
-            tr("Rien n'a été modifié ; Rufus réessaiera au prochain démarrage.") + "\n\n" + out);
+            tr("Rien n'a été modifié ; Rufus réessaiera au prochain démarrage."));
         return false;
     }
 
