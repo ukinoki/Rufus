@@ -3965,8 +3965,26 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
         if (db->ModeAccesDataBase() != Utils::Poste || MySQLInstaller::socleLocalConforme())
         {
             const MySQLInstaller::IssueMdp issue = MySQLInstaller::RecupererMotDePasseMySQL(parent);
+
+            //! Plus aucun accès : il ne reste qu'à repartir d'une base neuve, sur le poste serveur
             if (issue == MySQLInstaller::IssueMdp::Echec)
+            {
+                const bool serveur = db->ModeAccesDataBase() == Utils::Poste;
+                if (UpMessageBox::Question(parent, tr("Réinitialiser le programme"),
+                        tr("Rufus n'a plus aucun moyen d'ouvrir votre base patients.") + "\n\n" +
+                        tr("Il peut installer une base neuve, mais ATTENTION : les données de la base "
+                           "actuelle seront définitivement perdues.") + "\n\n" +
+                        (serveur ? tr("Voulez-vous continuer ?")
+                                 : tr("Cette opération ne peut se faire que depuis le poste qui héberge "
+                                      "la base.")),
+                        UpDialog::ButtonCancel | (serveur ? UpDialog::ButtonOK : UpDialog::NoButton),
+                        serveur ? QStringList() << tr("Annuler") << tr("Créer une nouvelle\nbase patients")
+                                : QStringList() << tr("Annuler"))
+                    != UpSmallButton::STARTBUTTON)
+                    return false;
+                InitialisationBaseEtDossiers(true);
                 return false;
+            }
 
             errConnexion.clear();   //! la fiche a ouvert et éprouvé la connexion
 
