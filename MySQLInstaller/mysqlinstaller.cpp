@@ -982,42 +982,42 @@ QStringList MySQLInstaller::FindMdpLoginMySQL(bool sansQuestion)
 
     /*! Compte MySQL EXISTANT : ni validateur ni confirmation (« root », mdp non alphanumérique…). */
     UpDialog     dlg(m_parent);
-    QVBoxLayout *lay    = new QVBoxLayout();
-    UpLabel     *label  = new UpLabel();
-    UpLabel     *label2 = new UpLabel();
-    UpLineEdit  *Line   = new UpLineEdit();
-    UpLineEdit  *Line2  = new UpLineEdit();
+    QVBoxLayout *lay        = new QVBoxLayout();
+    UpLabel     *labellogin = new UpLabel();
+    UpLabel     *labelmdp   = new UpLabel();
+    UpLineEdit  *Linelogin  = new UpLineEdit();
+    UpLineEdit  *Linemdp    = new UpLineEdit();
 
     dlg     .setWindowModality(Qt::WindowModal);
     dlg     .setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint);
     dlg     .setFixedSize(300, 220);
     dlg     .setWindowTitle("");
 
-    Line    ->setAlignment(Qt::AlignCenter);
-    Line2   ->setAlignment(Qt::AlignCenter);
-    Line    ->setFixedHeight(20);
-    Line2   ->setFixedHeight(20);
-    Line2   ->setEchoMode(QLineEdit::Password);
-    label   ->setMinimumHeight(46);
-    label2  ->setFixedHeight(16);
-    label   ->setAlignment(Qt::AlignCenter);
-    label2  ->setAlignment(Qt::AlignCenter);
+    Linelogin   ->setAlignment(Qt::AlignCenter);
+    Linemdp     ->setAlignment(Qt::AlignCenter);
+    Linelogin   ->setFixedHeight(20);
+    Linemdp     ->setFixedHeight(20);
+    Linemdp     ->setEchoMode(QLineEdit::Password);
+    labellogin  ->setMinimumHeight(46);
+    labelmdp    ->setFixedHeight(16);
+    labellogin  ->setAlignment(Qt::AlignCenter);
+    labelmdp    ->setAlignment(Qt::AlignCenter);
 
-    label   ->setText(tr("Un serveur MySQL existe déjà.\nSaisissez l'identifiant d'un compte MySQL administrateur\n- capable de créer des utilisateurs -"));
-    label2  ->setText(tr("Mot de passe"));
+    labellogin  ->setText(tr("Un serveur MySQL existe déjà.\nSaisissez l'identifiant d'un compte MySQL administrateur\n- capable de créer des utilisateurs -"));
+    labelmdp    ->setText(tr("Mot de passe"));
 
     dlg     .AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlg     .OKButton->setEnabled(false);
 
     QStringList log = QStringList();
-    auto majOK = [&] { dlg.OKButton->setEnabled(!Line->text().trimmed().isEmpty()
-                                             && !Line2->text().isEmpty()); };
-    connect(Line,  &QLineEdit::textChanged, &dlg, majOK);
-    connect(Line2, &QLineEdit::textChanged, &dlg, majOK);
+    auto majOK = [&] { dlg.OKButton->setEnabled(!Linelogin->text().trimmed().isEmpty()
+                                             && !Linemdp->text().isEmpty()); };
+    connect(Linelogin,  &QLineEdit::textChanged, &dlg, majOK);
+    connect(Linemdp, &QLineEdit::textChanged, &dlg, majOK);
 
     QObject::disconnect(dlg.OKButton, &QPushButton::clicked, nullptr, nullptr);
     connect(dlg.OKButton, &QPushButton::clicked, &dlg, [&] {
-        if (!tryConnectAs(Line->text().trimmed(), Line2->text())) {
+        if (!tryConnectAs(Linelogin->text().trimmed(), Linemdp->text())) {
             /*! serveur muet : accuser l'identifiant enverrait chercher au mauvais endroit */
             UpMessageBox::Watch(&dlg, tr("Connexion impossible"),
                 m_serveurInjoignable
@@ -1027,14 +1027,14 @@ QStringList MySQLInstaller::FindMdpLoginMySQL(bool sansQuestion)
                     : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
             return;                                 /*!< fiche ouverte : on réessaie */
         }
-        log << Line->text().trimmed() << Line2->text();
+        log << Linelogin->text().trimmed() << Linemdp->text();
         dlg.accept();
     });
 
-    lay     ->addWidget(label);
-    lay     ->addWidget(Line);
-    lay     ->addWidget(label2);
-    lay     ->addWidget(Line2);
+    lay     ->addWidget(labellogin);
+    lay     ->addWidget(Linelogin);
+    lay     ->addWidget(labelmdp);
+    lay     ->addWidget(Linemdp);
     lay     ->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
     lay     ->setContentsMargins(5, 5, 5, 5);
     lay     ->setSpacing(5);
@@ -1042,7 +1042,7 @@ QStringList MySQLInstaller::FindMdpLoginMySQL(bool sansQuestion)
     dlg.dlglayout() ->insertLayout(0, lay);
     dlg.dlglayout() ->setSizeConstraint(QLayout::SetFixedSize);
 
-    Line->setFocus();
+    Linelogin->setFocus();
     dlg.exec();
     return log;
 }
@@ -2819,6 +2819,7 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
     }
     dlg.AjouteWidgetLayButtons(SaisirBouton);
     dlg.AjouteWidgetLayButtons(USBBouton);
+    dlg.layout()->setContentsMargins(10,30,10,30);
 
     /*! Seuls Annuler et une connexion rétablie ferment la fiche : un essai raté la laisse ouverte. */
     connect(AnnulBouton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
