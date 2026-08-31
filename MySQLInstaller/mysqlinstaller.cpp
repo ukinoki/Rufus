@@ -3405,9 +3405,7 @@ bool MySQLInstaller::installMySQL()
            << "basedir=" << base    << "\n"
            << "datadir=" << dataDir << "\n"
            << "port=3306\n"
-           /*! MySQL 8.4 désactive mysql_native_password par défaut : on le réactive, car createUser() crée
-            *  adminrufus dans ce plugin (le driver Qt ne sait pas authentifier caching_sha2_password en TCP
-            *  non chiffré). Cf. createUser(). */
+           /*! Réactivé car MySQL 8.4 le désactive : les comptes des anciennes bases y sont encore. */
            << "mysql_native_password=ON\n";
     }
 
@@ -3802,23 +3800,6 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
     return outMissing.isEmpty();
 }
 
-/*!
- * \brief MySQLInstaller::executerAvecRepliPlugin
- * Joue le SQL en imposant mysql_native_password (le driver Qt se connecte en TCP clair), et le rejoue
- * avec le plugin par défaut si le serveur ne le charge pas — cas de MySQL 8.4 (ERROR 1524).
- * \param sqlAvecAuth  construit le SQL pour une clause d'authentification donnée
- * \param executer     exécute le SQL et rend la sortie du client mysql
- */
-QString MySQLInstaller::executerAvecRepliPlugin(const std::function<QString(const QString&)>& sqlAvecAuth,
-                                                const std::function<QString(const QString&)>& executer)
-{
-    const QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
-    const QString up  = out.toUpper();
-    if (up.contains("ERROR 1524") || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
-        return executer(sqlAvecAuth("IDENTIFIED BY"));
-    return out;
-}
-
 bool MySQLInstaller::createUser()
 {
 #if defined(Q_OS_LINUX)
@@ -3828,31 +3809,26 @@ bool MySQLInstaller::createUser()
         return true;
 #endif
 
-    /*! Serveur neuf : aléatoire SEUL, pas de générique gaxt78iy en 2e mdp (aucun ancien poste à amorcer).
-     *  Plugin mysql_native_password d'abord (driver Qt en TCP clair), repli sur le défaut (désactivé sur 8.4). */
+    /*! Serveur neuf : aléatoire SEUL, pas de générique gaxt78iy en 2e mdp (aucun ancien poste à amorcer). */
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     /*! adminrufus (NON-SSL) uniquement sur les hosts LOCAUX/PRIVÉS (jamais @'%', joignable du WAN par
      *  redirection de ports) ; adminrufusSSL@'%' (SSL) sert l'accès distant. */
-    auto sqlAvecAuth = [&](const QString& auth) {
-        QString sql;
-        for (const QString& h : hostsLANprives())
-        {
-            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(m_login, h, auth, m_password);
-            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(m_login, h, auth, m_password);
-            sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(m_login, h);
-        }
-        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, m_password);
-        sql += QString("ALTER USER '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, m_password);
-        sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;").arg(sslLogin);
-        sql += "FLUSH PRIVILEGES;\n";
-        return sql;
-    };
+    QString sql;
+    for (const QString& h : hostsLANprives())
+    {
+        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3';").arg(m_login, h, m_password);
+        sql += QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3';").arg(m_login, h, m_password);
+        sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(m_login, h);
+    }
+    sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%2' REQUIRE SSL;").arg(sslLogin, m_password);
+    sql += QString("ALTER USER '%1'@'%' IDENTIFIED BY '%2' REQUIRE SSL;").arg(sslLogin, m_password);
+    sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;").arg(sslLogin);
+    sql += "FLUSH PRIVILEGES;\n";
 
 #if defined(Q_OS_LINUX)
     /*! Sur Ubuntu, root@localhost utilise auth_socket : « mysql -u root » ne fonctionne QUE lancé en tant
      *  que root. On exécute donc mysql via pkexec et on transmet le SQL (qui contient le mot de passe) par
-     *  l'ENTRÉE STANDARD. (MySQL d'apt = 8.0, mysql_native_password actif → pas de repli nécessaire ici.) */
-    const QString sql = sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY");
+     *  l'ENTRÉE STANDARD. */
     QProcess p;
     p.setProcessChannelMode(QProcess::MergedChannels);
     p.start("pkexec", QStringList{ mysqlBin("mysql"), "-u", "root" });
@@ -3867,10 +3843,7 @@ bool MySQLInstaller::createUser()
         && !out.contains("not authorized", Qt::CaseInsensitive)
         && !out.contains("dismissed",      Qt::CaseInsensitive);
 #else
-    auto executer = [&](const QString& sqlTexte) {
-        return runCmdFull(QString("\"%1\" -u root -e \"%2\" 2>&1").arg(mysqlBin("mysql"), sqlTexte));
-    };
-    const QString out = executerAvecRepliPlugin(sqlAvecAuth, executer);
+    const QString out = runCmdFull(QString("\"%1\" -u root -e \"%2\" 2>&1").arg(mysqlBin("mysql"), sql));
     m_createUserErr = out;
     return !out.contains("ERROR", Qt::CaseInsensitive);
 #endif
@@ -3889,32 +3862,24 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
 {
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     const QString legacy   = QString(MDP_SQL);
-    /*! Même schéma que createUser : aléatoire en principal, gaxt78iy retenu en 2e, plugin
-     *  mysql_native_password avec repli (ERROR 1524 sur MySQL 8.4). */
     /*! adminrufus (NON-SSL) uniquement sur les hosts LOCAUX/PRIVÉS (jamais @'%' — cf. createUser) ;
      *  adminrufusSSL@'%' (SSL) pour l'accès distant. Double mot de passe : aléatoire + gaxt78iy (2e). */
-    auto sqlAvecAuth = [&](const QString& auth) {
-        QString sql;
-        for (const QString& h : hostsLANprives())
-        {
-            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
-            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
-            sql += QString("ALTER USER '%1'@'%2' %3 '%4' RETAIN CURRENT PASSWORD;").arg(m_login, h, auth, m_password);
-            sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(m_login, h);
-        }
-        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
-        sql += QString("ALTER USER '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
-        sql += QString("ALTER USER '%1'@'%' %2 '%3' RETAIN CURRENT PASSWORD;").arg(sslLogin, auth, m_password);
-        sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;").arg(sslLogin);
-        sql += "FLUSH PRIVILEGES;";
-        return sql;
-    };
-    auto executer = [&](const QString& sql) {
-        return runCmdFull(QString("\"%1\" %2 -u \"%3\" -p\"%4\" -e \"%5\" 2>&1")
-                              .arg(mysqlBin("mysql"), argsServeurCourant(), adminLogin, adminMdp, sql));
-    };
+    QString sql;
+    for (const QString& h : hostsLANprives())
+    {
+        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3';").arg(m_login, h, legacy);
+        sql += QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3';").arg(m_login, h, legacy);
+        sql += QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD;").arg(m_login, h, m_password);
+        sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(m_login, h);
+    }
+    sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%2' REQUIRE SSL;").arg(sslLogin, legacy);
+    sql += QString("ALTER USER '%1'@'%' IDENTIFIED BY '%2' REQUIRE SSL;").arg(sslLogin, legacy);
+    sql += QString("ALTER USER '%1'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD;").arg(sslLogin, m_password);
+    sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;").arg(sslLogin);
+    sql += "FLUSH PRIVILEGES;";
 
-    const QString out = executerAvecRepliPlugin(sqlAvecAuth, executer);
+    const QString out = runCmdFull(QString("\"%1\" %2 -u \"%3\" -p\"%4\" -e \"%5\" 2>&1")
+                                       .arg(mysqlBin("mysql"), argsServeurCourant(), adminLogin, adminMdp, sql));
     const QString up  = out.toUpper();
     m_createUserErr   = out;   /*!< conservé pour le diagnostic, comme dans createUser() */
 
@@ -4071,9 +4036,8 @@ bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
     const QString ur = QString(LOGIN_SQL_SECOURS);
     for (const QString& h : hostsLANprives())
     {
-        //! Plugin imposé : le pilote Qt ne sait pas s'authentifier autrement en TCP non chiffré.
-        exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, mdp));
-        exec(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, mdp));
+        exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, mdp));
+        exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, mdp));
         exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
     }
     exec("FLUSH PRIVILEGES");
@@ -4180,14 +4144,13 @@ bool MySQLInstaller::prepareCreateModeLinux()
     /*! 1. SQL de création des DEUX utilisateurs (adminrufus + adminrufusSSL). Serveur neuf → aléatoire SEUL
      *  ($PW, injecté par printf %s pour ne pas figurer dans le script), pas de générique gaxt78iy. */
     const QString sslLogin = QString(LOGIN_SQL "SSL");
-    /*! mysql_native_password : cf. createUser() — indispensable pour que le driver Qt (TCP en clair) puisse
-     *  se connecter. %1=adminrufus, %2=adminrufusSSL ; %s (printf) = $PW (aléatoire), 4 occurrences. */
+    /*! %1=adminrufus, %2=adminrufusSSL ; %s (printf) = $PW (aléatoire), 4 occurrences. */
     const QString userSql = QString(
-        "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s'; "
-        "ALTER USER '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s'; "
+        "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED BY '%s'; "
+        "ALTER USER '%1'@'%%' IDENTIFIED BY '%s'; "
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%%' WITH GRANT OPTION; "
-        "CREATE USER IF NOT EXISTS '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' REQUIRE SSL; "
-        "ALTER USER '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' REQUIRE SSL; "
+        "CREATE USER IF NOT EXISTS '%2'@'%%' IDENTIFIED BY '%s' REQUIRE SSL; "
+        "ALTER USER '%2'@'%%' IDENTIFIED BY '%s' REQUIRE SSL; "
         "GRANT ALL PRIVILEGES ON *.* TO '%2'@'%%' WITH GRANT OPTION; "
         "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" \"$PW\" \"$PW\" | mysql -u root; ")
         .arg(m_login, sslLogin);
@@ -4312,9 +4275,7 @@ bool MySQLInstaller::prepareCreateModeMacOS()
     QDir().mkpath(path + "/Rufus/Imagerie");
 
     /*! my.cnf préparé hors élévation (mêmes variables que ensureSecureFilePriv) + réactivation de
-     *  mysql_native_password : sur MySQL 8.4 (installé ici sur macOS) ce plugin est DÉSACTIVÉ par défaut,
-     *  or createUser() en a besoin pour que le driver Qt se connecte en TCP non chiffré. Sans danger : on
-     *  n'écrit jamais ce my.cnf sur un serveur 8.0 préexistant (réservé à l'installation neuve 8.4). */
+     *  mysql_native_password, désactivé par défaut en 8.4 : les comptes des anciennes bases y sont encore. */
     QList<QPair<QString, QString>> cnfVars = rufusCnfVars();
     cnfVars << qMakePair(QStringLiteral("mysql_native_password"), QStringLiteral("ON"));
     const QString cnfTmp = writeCnfToTemp(cnfVars);
