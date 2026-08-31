@@ -6033,8 +6033,10 @@ void Rufus::VerifLastVersion()
                         //! avec repli sur EN puis FR si elle est absente. Si <Comment> ne contient
                         //! aucune de ces sous-sections (ancien format), on prend son texte brut.
                         QString langue = proc->settings()->value(Param_Poste_Version).toString();
-                        if (langue.isEmpty())
-                            langue = QLocale::languageToCode(QLocale::system().language()).toUpper();   //! rufus.ini muet : code ISO du poste, repli FR plus bas s'il manque au XML
+                        if (langue.isEmpty())                                   //! rufus.ini muet : code ISO du poste, repli FR plus bas s'il manque au XML
+                            langue = (QLocale::system().territory() == QLocale::Brazil)     //! seule section du XML nommée par le territoire et non par la langue
+                                    ? "BR"
+                                    : QLocale::languageToCode(QLocale::system().language()).toUpper();
                         QString commentLangue, commentEN, commentFR;
                         bool hassections = false;
                         for (int k=0; k<child.childNodes().size(); k++)
