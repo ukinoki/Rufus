@@ -4025,8 +4025,9 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
     lay ->addWidget(label2);
     lay ->addWidget(Line2);
 
-    dlg.AjouteLayButtons(UpDialog::ButtonOK);
+    dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     QObject::connect(dlg.OKButton,     &UpSmallButton::clicked, &dlg, &UpDialog::accept);
+    QObject::connect(dlg.CancelButton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
     dlg.dlglayout()->insertLayout(0, lay);
     dlg.dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     Line->setFocus();
