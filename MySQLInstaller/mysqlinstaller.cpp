@@ -2752,87 +2752,109 @@ void MySQLInstaller::proposerRecuperationAleatoire()
 
 /*!
  * \brief MySQLInstaller::RecupererMotDePasseMySQL
- * Propose de saisir le mot de passe du cabinet ou de l'importer d'une clé USB, puis l'éprouve avant de
- * l'enregistrer dans le .dbkey.
+ * Cherche à rétablir la connexion : mot de passe du cabinet (saisi ou lu sur une clé USB) ou compte MySQL
+ * de l'utilisateur, chacun éprouvé connexion ET droits. Insiste tant qu'on n'a ni connexion, ni abandon,
+ * ni recours au mot de passe de secours, que l'appelant traitera.
  * \param parent     fenêtre parente
- * \param titre      titre de la boîte, vide → « base sécurisée »
+ * \param titre      titre de la boîte, vide → « connexion impossible »
  * \param corps      texte de la boîte, vide → message d'échec de connexion
- * \param monoposte  ajoute « je n'ai aucun mot de passe » et « réinitialiser le programme »
  */
 MySQLInstaller::IssueMdp
 MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre, const QString &corps)
 {
-    UpMessageBox msgbox(parent);
-    msgbox.setIcon(UpMessageBox::Warning);
-    msgbox.setText(!titre.isEmpty() ? titre : tr("Connexion impossible à la base de données"));
-    msgbox.setInformativeText(!corps.isEmpty() ? corps :
-                                tr("Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées") + "\n" +
-                                tr("Vous pouvez :") + "\n" +
-                                tr(". récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne") + "\n" +
-                                tr(". le saisir si vous le connaissez.") + "\n" +
-                                tr(". tenter une récupération avec le mot de passe de secours si vous le connaissez") + "\n" +
-                                tr(". saisir un identifiant/mot de passe MySQL valide"));
-    UpSmallButton *AnnulBouton  = new UpSmallButton(tr("Annuler"));
-    UpSmallButton *SaisirBouton = new UpSmallButton(tr("Saisir le mot de passe"));
-    UpSmallButton *USBBouton    = new UpSmallButton(tr("Importer depuis une clé USB"));
-    UpSmallButton *AdminBouton  = new UpSmallButton(tr("Je dispose d'un identifiant\nMySQL valide"));
-    UpSmallButton *PasserBouton = new UpSmallButton(tr("Tenter de récupérer l'accès\navec le mot de passe de secours"));
-    msgbox.addButton(AnnulBouton, UpSmallButton::CLOSEBUTTON);
-    msgbox.addButton(AdminBouton, UpSmallButton::LOUPEBUTTON);
-    msgbox.addButton(PasserBouton, UpSmallButton::SKIPBUTTON);
-    msgbox.addButton(SaisirBouton, UpSmallButton::KEYBOARDBUTTON);
-    msgbox.addButton(USBBouton,    UpSmallButton::RECORDBUTTON);
-    msgbox.exec();
+    /*! Un compte qui ouvre la session sans les droits ne servirait à rien : on éprouve les deux. */
+    auto connexionValide = [parent](const QString& login, const QString& mdp) {
+        MySQLInstaller m(parent);
+        QStringList manquants;
+        return m.tryConnectAs(login, mdp) && m.checkPrivileges(manquants)
+            && DataBase::I()->connectToDataBase(DB_RUFUS, login, mdp).isEmpty();
+    };
 
-    if (msgbox.clickedButton() == AdminBouton)
-        return IssueMdp::CompteAdmin;
-    if (PasserBouton && msgbox.clickedButton() == PasserBouton)
-        return IssueMdp::Inconnu;
-
-    QString mdp;
-    if (msgbox.clickedButton() == USBBouton)
+    /*! La fiche ne se ferme que sur Annuler, sur le recours au mot de passe de secours, ou une fois la
+     *  connexion rétablie : toute tentative infructueuse la ramène. */
+    forever
     {
-        const QString fichier = QFileDialog::getOpenFileName(
-                    parent, tr("Sélectionnez le fichier du mot de passe sur la clé USB"));
-        if (fichier.isEmpty())
-            return IssueMdp::EchecSaisie;
-        QFile f(fichier);
-        if (f.open(QIODevice::ReadOnly | QIODevice::Text))
+        UpMessageBox msgbox(parent);
+        msgbox.setIcon(UpMessageBox::Warning);
+        msgbox.setText(!titre.isEmpty() ? titre : tr("Connexion impossible à la base de données"));
+        msgbox.setInformativeText(!corps.isEmpty() ? corps :
+                                    tr("Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées") + "\n" +
+                                    tr("Vous pouvez :") + "\n" +
+                                    tr(". récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne") + "\n" +
+                                    tr(". le saisir si vous le connaissez.") + "\n" +
+                                    tr(". tenter une récupération avec le mot de passe de secours si vous le connaissez") + "\n" +
+                                    tr(". saisir un identifiant/mot de passe MySQL valide"));
+        UpSmallButton *AnnulBouton  = new UpSmallButton(tr("Annuler"));
+        UpSmallButton *SaisirBouton = new UpSmallButton(tr("Saisir le mot de passe"));
+        UpSmallButton *USBBouton    = new UpSmallButton(tr("Importer depuis une clé USB"));
+        UpSmallButton *AdminBouton  = new UpSmallButton(tr("Je dispose d'un identifiant\nMySQL valide"));
+        UpSmallButton *PasserBouton = new UpSmallButton(tr("Tenter de récupérer l'accès\navec le mot de passe de secours"));
+        msgbox.addButton(AnnulBouton,  UpSmallButton::CLOSEBUTTON);
+        msgbox.addButton(AdminBouton,  UpSmallButton::LOUPEBUTTON);
+        msgbox.addButton(PasserBouton, UpSmallButton::SKIPBUTTON);
+        msgbox.addButton(SaisirBouton, UpSmallButton::KEYBOARDBUTTON);
+        msgbox.addButton(USBBouton,    UpSmallButton::RECORDBUTTON);
+        msgbox.exec();
+
+        if (msgbox.clickedButton() == PasserBouton)
+            return IssueMdp::Inconnu;
+
+        /*! Compte MySQL de l'utilisateur : saisie éprouvée, la question ayant déjà été posée ici. */
+        if (msgbox.clickedButton() == AdminBouton)
         {
-            mdp = QString::fromUtf8(f.readAll()).trimmed();
-            f.close();
+            const QStringList log = MySQLInstaller(parent).FindMdpLoginMySQL(true);
+            if (log.size() >= 2 && connexionValide(log.at(1), log.at(0)))
+                return IssueMdp::Obtenu;
+            UpMessageBox::Watch(parent, tr("Identifiant refusé"),
+                tr("Cet identifiant ne permet pas d'accéder à la base de données avec tous les droits nécessaires."));
+            continue;
         }
-        //! un mdp tient sur UNE ligne : tout le reste (un .dbkey pointé par erreur…) est refusé
-        if (mdp.contains('\n') || mdp.contains('\r')
-            || mdp.startsWith("MONO=",   Qt::CaseInsensitive)
-            || mdp.startsWith("LAN=",    Qt::CaseInsensitive)
-            || mdp.startsWith("WAN=",    Qt::CaseInsensitive)
-            || mdp.startsWith("MDPSQL=", Qt::CaseInsensitive))
-            mdp.clear();
-        if (mdp.isEmpty())
-        {
-            UpMessageBox::Watch(parent, tr("Fichier illisible"),
-                                tr("Ce fichier ne contient pas un mot de passe valide."));
-            return IssueMdp::EchecSaisie;
-        }
-    }
-    else if (msgbox.clickedButton() == SaisirBouton)
-    {
-        if (!Utils::SaisirMDP(tr("Entrez le mot de passe MySQL du cabinet :"), mdp, parent))
-            return IssueMdp::EchecSaisie;
-    }
-    else
-        return IssueMdp::Annule;
 
-    //! éprouvé avant d'écrire le .dbkey : une saisie erronée effacerait l'ancien mot de passe
-    if (!DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, mdp).isEmpty())
-    {
-        UpMessageBox::Watch(parent, tr("Mot de passe incorrect"),
-            tr("Ce mot de passe ne permet pas de se connecter à la base de données."));
-        return IssueMdp::EchecSaisie;
+        QString mdp;
+        if (msgbox.clickedButton() == USBBouton)
+        {
+            const QString fichier = QFileDialog::getOpenFileName(
+                        parent, tr("Sélectionnez le fichier du mot de passe sur la clé USB"));
+            if (fichier.isEmpty())
+                continue;
+            QFile f(fichier);
+            if (f.open(QIODevice::ReadOnly | QIODevice::Text))
+            {
+                mdp = QString::fromUtf8(f.readAll()).trimmed();
+                f.close();
+            }
+            //! un mdp tient sur UNE ligne : tout le reste (un .dbkey pointé par erreur…) est refusé
+            if (mdp.contains('\n') || mdp.contains('\r')
+                || mdp.startsWith("MONO=",   Qt::CaseInsensitive)
+                || mdp.startsWith("LAN=",    Qt::CaseInsensitive)
+                || mdp.startsWith("WAN=",    Qt::CaseInsensitive)
+                || mdp.startsWith("MDPSQL=", Qt::CaseInsensitive))
+                mdp.clear();
+            if (mdp.isEmpty())
+            {
+                UpMessageBox::Watch(parent, tr("Fichier illisible"),
+                                    tr("Ce fichier ne contient pas un mot de passe valide."));
+                continue;
+            }
+        }
+        else if (msgbox.clickedButton() == SaisirBouton)
+        {
+            if (!Utils::SaisirMDP(tr("Entrez le mot de passe MySQL du cabinet :"), mdp, parent))
+                continue;
+        }
+        else
+            return IssueMdp::Annule;
+
+        //! éprouvé avant d'écrire le .dbkey : une saisie erronée effacerait l'ancien mot de passe
+        if (!connexionValide(QString(LOGIN_SQL), mdp))
+        {
+            UpMessageBox::Watch(parent, tr("Mot de passe incorrect"),
+                tr("Ce mot de passe ne permet pas de se connecter à la base de données."));
+            continue;
+        }
+        stockerMotDePasse(mdp);
+        return IssueMdp::Obtenu;
     }
-    stockerMotDePasse(mdp);
-    return IssueMdp::Obtenu;
 }
 
 /*!
