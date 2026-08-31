@@ -2755,7 +2755,6 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
  * secours, ou compte MySQL de l'utilisateur — chacun éprouvé connexion ET droits. Insiste jusqu'à réussir
  * ou renoncer, et rend le dernier mode tenté.
  * \param parent  fenêtre parente
- * \param ok      la connexion a-t-elle été rétablie ?
  * \param avecSecoursEtCompteMySQL  propose aussi le mot de passe de secours et un compte MySQL
  */
 MySQLInstaller::IssueMdp
