@@ -3803,6 +3803,7 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
             outMissing << priv;
 
     if (!hasGrantOption) outMissing << "WITH GRANT OPTION";
+    qDebug() << "checkPrivileges" << m_login << " manquants =" << outMissing << "\nSHOW GRANTS ->" << raw;
     return outMissing.isEmpty();
 }
 
