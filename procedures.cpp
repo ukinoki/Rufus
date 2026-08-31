@@ -3966,8 +3966,12 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
         {
             const MySQLInstaller::IssueMdp issue = MySQLInstaller::RecupererMotDePasseMySQL(parent);
 
-            //! Plus aucun accès : il ne reste qu'à repartir d'une base neuve, sur le poste serveur
+            //! Annulation immédiate : l'utilisateur n'a rien tenté, on ne lui propose rien
             if (issue == MySQLInstaller::IssueMdp::Echec)
+                return false;
+
+            //! Tentatives infructueuses : il ne reste qu'à repartir d'une base neuve, sur le poste serveur
+            if (!db->dbase().isOpen())
             {
                 const bool serveur = db->ModeAccesDataBase() == Utils::Poste;
                 if (UpMessageBox::Question(parent, tr("Réinitialiser le programme"),
