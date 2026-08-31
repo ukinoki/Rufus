@@ -217,8 +217,7 @@ public:
 
     /*! Insiste jusqu'à rétablir la connexion ou renoncer ; rend le dernier mode tenté et, par ok, s'il a
      * abouti (cf. initialisation Rufus.txt § II.2). */
-    static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, bool &ok,
-                                             bool avecSecoursEtCompteMySQL = true);
+    static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtCompteMySQL = true);
 
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };           /*!< résultat de createUserAvecAdmin() */
 

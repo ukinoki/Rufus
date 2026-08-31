@@ -2731,8 +2731,7 @@ void MySQLInstaller::proposerRecuperationAleatoire()
             return;
 
         //! message adapté : le générique fonctionne encore, ce n'est pas un échec de connexion
-        bool ok = false;
-        const IssueMdp issue = RecupererMotDePasseMySQL(nullptr, ok, /*avecSecoursEtCompteMySQL=*/false);
+        const IssueMdp issue = RecupererMotDePasseMySQL(nullptr, /*avecSecoursEtCompteMySQL=*/false);
         if (issue != IssueMdp::Echec)   //! obtenu, ou renoncé
             return;
 
@@ -2760,7 +2759,7 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
  * \param avecSecoursEtCompteMySQL  propose aussi le mot de passe de secours et un compte MySQL
  */
 MySQLInstaller::IssueMdp
-MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool &ok, bool avecSecoursEtCompteMySQL)
+MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtCompteMySQL)
 {
     IssueMdp issue = IssueMdp::Echec;
     ok = false;
