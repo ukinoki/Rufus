@@ -2821,7 +2821,7 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
     }
     dlg.AjouteWidgetLayButtons(SaisirBouton);
     dlg.AjouteWidgetLayButtons(USBBouton);
-    dlg.layout()->setContentsMargins(10,30,10,30);
+    dlg.layout()->setContentsMargins(10,10,10,30);
 
     /*! Seuls Annuler et une connexion rétablie ferment la fiche : un essai raté la laisse ouverte. */
     connect(AnnulBouton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
