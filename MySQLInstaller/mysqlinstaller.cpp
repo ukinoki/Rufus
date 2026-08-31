@@ -2833,7 +2833,6 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool &ok, const QStrin
         const QStringList log = MySQLInstaller(&dlg).FindMdpLoginMySQL(true);
         if (log.size() >= 2)
             ok = connexionValide(log.at(1), log.at(0));
-        if (ok) { stockerMotDePasse(log.at(0)); dlg.accept(); return; }
         UpMessageBox::Watch(&dlg, tr("Identifiant refusé"),
             tr("Cet identifiant ne permet pas d'accéder à la base de données avec tous les droits nécessaires."));
     });
