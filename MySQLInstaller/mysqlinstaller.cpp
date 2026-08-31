@@ -2732,10 +2732,7 @@ void MySQLInstaller::proposerRecuperationAleatoire()
 
         //! message adapté : le générique fonctionne encore, ce n'est pas un échec de connexion
         bool ok = false;
-        const IssueMdp issue = RecupererMotDePasseMySQL(nullptr, ok,
-                tr("Récupérer le mot de passe du cabinet"),
-                tr("Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur "
-                   "laquelle il a été copié depuis un poste à jour."));
+        const IssueMdp issue = RecupererMotDePasseMySQL(nullptr, ok, /*avecSecoursEtCompteMySQL=*/false);
         if (issue != IssueMdp::Echec)   //! obtenu, ou renoncé
             return;
 
@@ -2760,11 +2757,10 @@ static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, 
  * ou renoncer, et rend le dernier mode tenté.
  * \param parent  fenêtre parente
  * \param ok      la connexion a-t-elle été rétablie ?
- * \param titre   titre de la boîte, vide → « connexion impossible »
- * \param corps   texte de la boîte, vide → message d'échec de connexion
+ * \param avecSecoursEtCompteMySQL  propose aussi le mot de passe de secours et un compte MySQL
  */
 MySQLInstaller::IssueMdp
-MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool &ok, const QString &titre, const QString &corps)
+MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool &ok, bool avecSecoursEtCompteMySQL)
 {
     IssueMdp issue = IssueMdp::Echec;
     ok = false;
@@ -2782,18 +2778,21 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool &ok, const QStrin
     dlg.setWindowTitle("");
 
     UpLabel *titreLbl = new UpLabel();
-    titreLbl ->setText(!titre.isEmpty() ? titre : tr("Connexion impossible à la base de données"));
+    titreLbl ->setText(avecSecoursEtCompteMySQL ? tr("Connexion impossible à la base de données")
+                                                : tr("Récupérer le mot de passe du cabinet"));
     titreLbl ->setStyleSheet("font-size: 14px; font-weight: 700;");
     titreLbl ->setAlignment(Qt::AlignCenter);
 
     UpLabel *corpsLbl = new UpLabel();
-    corpsLbl ->setText(!corps.isEmpty() ? corps :
-                          tr("Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées") + "\n" +
-                          tr("Vous pouvez :") + "\n" +
-                          tr(". récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne") + "\n" +
-                          tr(". le saisir si vous le connaissez.") + "\n" +
-                          tr(". tenter une récupération avec le mot de passe de secours si vous le connaissez") + "\n" +
-                          tr(". saisir un identifiant/mot de passe MySQL valide"));
+    corpsLbl ->setText(avecSecoursEtCompteMySQL
+        ? tr("Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées") + "\n" +
+          tr("Vous pouvez :") + "\n" +
+          tr(". récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne") + "\n" +
+          tr(". le saisir si vous le connaissez.") + "\n" +
+          tr(". tenter une récupération avec le mot de passe de secours si vous le connaissez") + "\n" +
+          tr(". saisir un identifiant/mot de passe MySQL valide")
+        : tr("Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur "
+             "laquelle il a été copié depuis un poste à jour."));
     corpsLbl ->setWordWrap(true);
 
     QVBoxLayout *lay = new QVBoxLayout();
@@ -2803,21 +2802,30 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool &ok, const QStrin
     lay ->addWidget(corpsLbl);
 
     UpSmallButton *AnnulBouton  = new UpSmallButton(tr("Annuler"));
-    UpSmallButton *AdminBouton  = new UpSmallButton(tr("Je dispose d'un identifiant\nMySQL valide"));
-    UpSmallButton *PasserBouton = new UpSmallButton(tr("Tenter de récupérer l'accès\navec le mot de passe de secours"));
     UpSmallButton *SaisirBouton = new UpSmallButton(tr("Saisir le mot de passe"));
     UpSmallButton *USBBouton    = new UpSmallButton(tr("Importer depuis une clé USB"));
+    UpSmallButton *AdminBouton  = avecSecoursEtCompteMySQL
+            ? new UpSmallButton(tr("Je dispose d'un identifiant\nMySQL valide")) : nullptr;
+    UpSmallButton *PasserBouton = avecSecoursEtCompteMySQL
+            ? new UpSmallButton(tr("Tenter de récupérer l'accès\navec le mot de passe de secours")) : nullptr;
     AnnulBouton  ->setUpButtonStyle(UpSmallButton::CLOSEBUTTON);
-    AdminBouton  ->setUpButtonStyle(UpSmallButton::LOUPEBUTTON);
-    PasserBouton ->setUpButtonStyle(UpSmallButton::SKIPBUTTON);
     SaisirBouton ->setUpButtonStyle(UpSmallButton::KEYBOARDBUTTON);
     USBBouton    ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
-    for (UpSmallButton* b : {AnnulBouton, AdminBouton, PasserBouton, SaisirBouton, USBBouton})
-        dlg.AjouteWidgetLayButtons(b);
+    dlg.AjouteWidgetLayButtons(AnnulBouton);
+    if (AdminBouton)
+    {
+        AdminBouton  ->setUpButtonStyle(UpSmallButton::LOUPEBUTTON);
+        PasserBouton ->setUpButtonStyle(UpSmallButton::SKIPBUTTON);
+        dlg.AjouteWidgetLayButtons(AdminBouton);
+        dlg.AjouteWidgetLayButtons(PasserBouton);
+    }
+    dlg.AjouteWidgetLayButtons(SaisirBouton);
+    dlg.AjouteWidgetLayButtons(USBBouton);
 
     /*! Seuls Annuler et une connexion rétablie ferment la fiche : un essai raté la laisse ouverte. */
     connect(AnnulBouton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
 
+    if (PasserBouton)
     connect(PasserBouton, &UpSmallButton::clicked, &dlg, [&] {
         issue = IssueMdp::Secours;
         QString mdpSecours;
@@ -2828,6 +2836,7 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool &ok, const QStrin
             tr("Ce mot de passe de secours ne permet pas d'accéder à la base de données."));
     });
 
+    if (AdminBouton)
     connect(AdminBouton, &UpSmallButton::clicked, &dlg, [&] {
         issue = IssueMdp::idMySQL;
         const QStringList log = MySQLInstaller(&dlg).FindMdpLoginMySQL(true);
