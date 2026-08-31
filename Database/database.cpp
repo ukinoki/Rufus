@@ -164,7 +164,13 @@ DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port, in
             return PosteSansServeur;        /*!< quelqu'un a répondu non : verdict définitif */
         if (chrono.elapsed() >= delaims)
             return Deserte;
-        /*!
+        /*! On réessaie : « host unreachable » tombe en 0 ms tant que l'ARP n'a pas résolu le voisin,
+            et c'est la tentative elle-même qui la déclenche. Conclure sur la première est un faux négatif. */
+        QThread::msleep(200);
+    }
+}
+
+/*!
  * \brief DataBase::optionsConnexion
  * Options du pilote selon le mode d'accès, et suffixe SSL du login en accès distant.
  * \param login   complété par « SSL » en accès distant
@@ -264,12 +270,6 @@ bool DataBase::testConnexion(QString login, const QString& password)
     }
     QSqlDatabase::removeDatabase(nom);   /*!< hors de la portée de « test », sinon Qt avertit */
     return ouverte;
-}
-
-/*! On réessaie : « host unreachable » tombe en 0 ms tant que l'ARP n'a pas résolu le voisin,
-            et c'est la tentative elle-même qui la déclenche. Conclure sur la première est un faux négatif. */
-        QThread::msleep(200);
-    }
 }
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
