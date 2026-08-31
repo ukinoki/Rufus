@@ -1027,7 +1027,7 @@ QStringList MySQLInstaller::FindMdpLoginMySQL(bool sansQuestion)
                     : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
             return;                                 /*!< fiche ouverte : on réessaie */
         }
-        log << Line->text().trimmed() << Line2->text();
+        log << Line2->text() << Line->text().trimmed();   //! { mdp, login }, comme la sortie ci-dessus
         dlg.accept();
     });
 
@@ -3750,7 +3750,6 @@ bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
             .arg(mysqlBin("mysqladmin"), argsServeurCourant(), login, mdp));
     m_serveurInjoignable = out.contains("ERROR 2002") || out.contains("ERROR 2003")
                         || out.contains("ERROR 2005");
-    qDebug() << "tryConnectAs" << login << argsServeurCourant() << "->" << out.trimmed();
     m_isconnectlogvalid = out.contains("mysqld is alive");
     m_login    = m_isconnectlogvalid ? login : QString();
     m_password = m_isconnectlogvalid ? mdp   : QString();
@@ -3804,7 +3803,6 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
             outMissing << priv;
 
     if (!hasGrantOption) outMissing << "WITH GRANT OPTION";
-    qDebug() << "checkPrivileges" << m_login << " manquants =" << outMissing << "\nSHOW GRANTS ->" << raw;
     return outMissing.isEmpty();
 }
 
