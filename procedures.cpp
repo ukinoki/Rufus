@@ -3964,56 +3964,48 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
          */
         if (db->ModeAccesDataBase() != Utils::Poste || MySQLInstaller::socleLocalConforme())
         {
-            forever
+            const MySQLInstaller::IssueMdp issue = MySQLInstaller::RecupererMotDePasseMySQL(parent);
+            if (issue == MySQLInstaller::IssueMdp::Echec)
+                return false;
+
+            errConnexion.clear();   //! la fiche a ouvert et éprouvé la connexion
+
+            //! Secours ou compte MySQL : la connexion est ouverte, mais pas par la voie normale
+            if (issue != MySQLInstaller::IssueMdp::Obtenu)
             {
-                const MySQLInstaller::IssueMdp issue =
-                    MySQLInstaller::RecupererMotDePasseMySQL(parent);
+                const bool adminrufusSain =
+                        Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).value_or(QStringList()).contains("10.%")
+                     && !MySQLInstaller::unCompteLANaPerduSystemUser();
+                //! secoursrufus n'est à vérifier que si ce n'est pas lui qui vient d'ouvrir la session
+                const bool secoursManquant = issue == MySQLInstaller::IssueMdp::idMySQL
+                                          && !MySQLInstaller::compteDeSecoursExiste();
 
-                if (issue == MySQLInstaller::IssueMdp::Obtenu)
-                {
-                    errConnexion.clear();   //! la fiche a ouvert et éprouvé la connexion
-                    break;
-                }
-                if (issue == MySQLInstaller::IssueMdp::Echec)
-                    return false;
-                //! compte MySQL fourni par l'utilisateur : même saisie éprouvée que depuis IBD
-                if (db->ModeAccesDataBase() == Utils::Distant)
-                    break;   //! le secours ne s'atteint pas depuis internet
-                //! Pas de mot de passe valide -> restauration par le mot de passe de secours
-                if (issue == MySQLInstaller::IssueMdp::Echec)
-                {
-                    //! Inconnu = l'utilisateur vient de demander le secours : ne pas le lui redemander
-                    if (issue == MySQLInstaller::IssueMdp::EchecSaisie
-                     && UpMessageBox::Question(parent, tr("Aucun mot de passe ne fonctionne"),
-                            tr("Rufus peut tenter de rétablir l'accès à la base avec le mot de passe de "
-                               "SECOURS choisi à l'installation de la base.") + "\n" +
-                            tr("Vos données ne seront pas touchées.") + "\n\n" +
-                            tr("Voulez-vous utiliser cette procédure ?"),
-                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                            QStringList() << tr("Annuler") << tr("Rétablir l'accès"))
-                        != UpSmallButton::STARTBUTTON)
-                        continue;
-                    if (MySQLInstaller(parent).restaurerAvecMotDePasseDeSecours(parent))
-                    {
-                        errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
-                        break;
-                    }
-                    continue;
-                }
+                UpMessageBox msgbox(parent);
+                msgbox.setIcon(UpMessageBox::Warning);
+                msgbox.setText(tr("Cette façon de se connecter doit rester exceptionnelle"));
+                msgbox.setInformativeText(
+                    tr("Rufus s'est connecté à la base sans le mot de passe du cabinet.") + "\n\n" +
+                    (adminrufusSain
+                        ? tr("Récupérez ce mot de passe depuis un autre poste du cabinet, puis importez-le "
+                             "sur celui-ci.")
+                        : tr("Les comptes de connexion de la base sont incomplets : le mot de passe du "
+                             "cabinet est à recréer depuis le poste qui héberge la base."))
+                    + (secoursManquant ? "\n\n" + tr("Le mot de passe de secours est également à recréer.")
+                                       : QString()));
 
-                //! « Réinitialiser le programme
-                if (issue == MySQLInstaller::IssueMdp::Reinitialiser)
+                UpSmallButton *OKBouton = new UpSmallButton(tr("OK, j'ai compris"));
+                UpSmallButton *RecreerBouton = db->ModeAccesDataBase() == Utils::Poste
+                        ? new UpSmallButton(tr("Recréer maintenant\nle mot de passe du cabinet")) : nullptr;
+                if (RecreerBouton)
+                    msgbox.addButton(RecreerBouton, UpSmallButton::EDITBUTTON);
+                msgbox.addButton(OKBouton, UpSmallButton::STARTBUTTON);
+                msgbox.exec();
+
+                if (RecreerBouton && msgbox.clickedButton() == RecreerBouton)
                 {
-                    if (UpMessageBox::Question(parent, tr("Réinitialiser le programme"),
-                            tr("Rufus va installer une base patients neuve sur cet ordinateur.") + "\n" +
-                            tr("Les données de la base actuelle ne seront plus accessibles.") + "\n\n" +
-                            tr("Voulez-vous continuer ?"),
-                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                            QStringList() << tr("Annuler") << tr("Créer une nouvelle\nbase patients"))
-                        != UpSmallButton::STARTBUTTON)
-                        continue;
-                    InitialisationBaseEtDossiers(true);
-                    return false;
+                    MySQLInstaller(parent).recreerMotDePasseApresVerifAdmin(parent);
+                    if (secoursManquant)
+                        MySQLInstaller::creerCompteDeSecours(parent);
                 }
             }
         }
