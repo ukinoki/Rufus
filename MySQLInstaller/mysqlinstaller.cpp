@@ -2766,11 +2766,8 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
     auto connexionValide = [parent](const QString& login, const QString& mdp) {
         MySQLInstaller m(parent);
         QStringList manquants;
-        if (!m.tryConnectAs(login, mdp) || !m.checkPrivileges(manquants))
-            return false;
-        const QString err = DataBase::I()->connectToDataBase(DB_RUFUS, login, mdp);
-        qDebug() << "connectToDataBase" << login << "->" << err;
-        return err.isEmpty();
+        return m.tryConnectAs(login, mdp) && m.checkPrivileges(manquants)
+            && DataBase::I()->connectToDataBase(DB_RUFUS, login, mdp).isEmpty();
     };
 
     UpDialog dlg(parent);
@@ -3734,27 +3731,19 @@ bool MySQLInstaller::isServerRunning()
 
 bool MySQLInstaller::tryConnect()
 {
-    QString out = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" ping 2>&1")
-            .arg(mysqlBin("mysqladmin"), m_login, m_password));
-    return out.contains("mysqld is alive");
+    return DataBase::I()->testConnexion(m_login, m_password);
 }
 
 /*!
  * \brief MySQLInstaller::tryConnectAs
- * Éprouve des identifiants arbitraires (compte admin saisi) : le serveur les accepte-t-il ?
+ * Éprouve des identifiants arbitraires (compte admin saisi) dans les conditions d'une vraie connexion.
  * \param login  identifiant à tester
  * \param mdp    mot de passe à tester
  */
 bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
 {
-    const QString out = runCmdFull(
-        QString("\"%1\" %2 -u \"%3\" -p\"%4\" ping 2>&1")
-            .arg(mysqlBin("mysqladmin"), argsServeurCourant(), login, mdp));
-    m_serveurInjoignable = out.contains("ERROR 2002") || out.contains("ERROR 2003")
-                        || out.contains("ERROR 2005");
-    qDebug() << "tryConnectAs" << login << "->" << out.trimmed();
-    m_isconnectlogvalid = out.contains("mysqld is alive");
+    m_isconnectlogvalid  = DataBase::I()->testConnexion(login, mdp);
+    m_serveurInjoignable = DataBase::I()->causeEchecConnexion() == DataBase::ServeurInjoignable;
     m_login    = m_isconnectlogvalid ? login : QString();
     m_password = m_isconnectlogvalid ? mdp   : QString();
     return m_isconnectlogvalid;
@@ -3807,7 +3796,6 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
             outMissing << priv;
 
     if (!hasGrantOption) outMissing << "WITH GRANT OPTION";
-    qDebug() << "checkPrivileges" << m_login << " manquants =" << outMissing << "\nraw =" << raw;
     return outMissing.isEmpty();
 }
 

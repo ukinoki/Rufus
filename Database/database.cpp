@@ -164,42 +164,17 @@ DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port, in
             return PosteSansServeur;        /*!< quelqu'un a répondu non : verdict définitif */
         if (chrono.elapsed() >= delaims)
             return Deserte;
-        /*! On réessaie : « host unreachable » tombe en 0 ms tant que l'ARP n'a pas résolu le voisin,
-            et c'est la tentative elle-même qui la déclenche. Conclure sur la première est un faux négatif. */
-        QThread::msleep(200);
-    }
-}
-
-QString DataBase::connectToDataBase(QString basename, QString login, QString password)
+        /*!
+ * \brief DataBase::optionsConnexion
+ * Options du pilote selon le mode d'accès, et suffixe SSL du login en accès distant.
+ * \param login   complété par « SSL » en accès distant
+ * \param erreur  non vide si les clés SSL sont introuvables
+ */
+QString DataBase::optionsConnexion(QString& login, QString& erreur)
 {
-    m_codeErreurConnexion.clear();      /*!< sinon un retour anticipé laisserait causeEchecConnexion() sur la tentative précédente */
-
-    // Le mode d'accès (Poste / ReseauLocal / Distant) DOIT avoir été fixé par setModeacces()
-    // AVANT toute connexion : il détermine le login (suffixe « SSL ») et l'usage de SSL. S'il
-    // n'a pas été précisé (valeur Undefined), on REFUSE la connexion plutôt que de la tenter
-    // avec des paramètres faux — un appel sans setModeacces() préalable est un bug à corriger.
-    if (m_modeacces == Utils::Undefined)
-    {
-        QString error = "DataBase::connectToDataBase()\n"
-                        + tr("Mode d'accès non défini : appelez setModeacces() avant de vous connecter.");
-        Logs::ERROR(error);
-        return error;
-    }
-
-    // Une connexion homonyme peut déjà exister (cascade de mots de passe candidats,
-    // reconnexion après migration…). addDatabase() avec un nom déjà pris émet l'avertissement
-    // « duplicate connection name » et ne ferme pas proprement l'ancienne. On relâche d'abord
-    // la référence détenue par m_db, puis on retire l'ancienne connexion avant d'en rouvrir une.
-    m_db = QSqlDatabase();
-    if (QSqlDatabase::contains(basename))
-        QSqlDatabase::removeDatabase(basename);
-    m_db = QSqlDatabase::addDatabase("QMYSQL",basename);
-    m_db.setHostName( m_server );
-    m_db.setPort( m_port );
-    //qDebug() << m_server << m_port << m_db.hostName() << m_db.port();
-    bool useSSL = (m_modeacces == Utils::Distant);
+    erreur.clear();
     QString connectSSLoptions = "";
-    if (useSSL)
+    if (m_modeacces == Utils::Distant)
     {
         QString dirkey = "/etc/mysql";
         QSettings m_settings(PATH_FILE_INI, QSettings::IniFormat);
@@ -211,9 +186,9 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         if (!dirtorestore.exists())
         {
             m_codeErreurConnexion = "2026";
-            QString error = "DataBase::connectToDataBase()\n" + tr("Clés SSL introuvables");
-            Logs::ERROR(error);
-            return error;
+            erreur = "DataBase::optionsConnexion()\n" + tr("Clés SSL introuvables");
+            Logs::ERROR(erreur);
+            return QString();
         }
         QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.pem");
         for (int t=0; t<listfichiers.size(); t++)
@@ -255,6 +230,79 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         connectSSLoptions = "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
     }
     connectSSLoptions += "MYSQL_OPT_CONNECT_TIMEOUT=15;";   /*!< sans plafond, le délai TCP du système passe la minute */
+    return connectSSLoptions;
+}
+
+/*!
+ * \brief DataBase::testConnexion
+ * Éprouve un couple identifiant/mot de passe dans les conditions RÉELLES d'une connexion, sur une
+ * connexion Qt à part : la connexion applicative n'est pas touchée, même si le test échoue.
+ * \param login     identifiant à tester
+ * \param password  son mot de passe
+ */
+bool DataBase::testConnexion(QString login, const QString& password)
+{
+    m_codeErreurConnexion.clear();
+    QString erreur;
+    const QString options = optionsConnexion(login, erreur);
+    if (!erreur.isEmpty())
+        return false;
+
+    static const QString nom = "testconnexion";
+    bool ouverte = false;
+    {
+        QSqlDatabase test = QSqlDatabase::addDatabase("QMYSQL", nom);
+        test.setHostName(m_server);
+        test.setPort(m_port);
+        test.setConnectOptions(options);
+        test.setUserName(login);
+        test.setPassword(password);
+        ouverte = test.open();
+        if (!ouverte)
+            m_codeErreurConnexion = test.lastError().nativeErrorCode();
+        test.close();
+    }
+    QSqlDatabase::removeDatabase(nom);   /*!< hors de la portée de « test », sinon Qt avertit */
+    return ouverte;
+}
+
+/*! On réessaie : « host unreachable » tombe en 0 ms tant que l'ARP n'a pas résolu le voisin,
+            et c'est la tentative elle-même qui la déclenche. Conclure sur la première est un faux négatif. */
+        QThread::msleep(200);
+    }
+}
+
+QString DataBase::connectToDataBase(QString basename, QString login, QString password)
+{
+    m_codeErreurConnexion.clear();      /*!< sinon un retour anticipé laisserait causeEchecConnexion() sur la tentative précédente */
+
+    // Le mode d'accès (Poste / ReseauLocal / Distant) DOIT avoir été fixé par setModeacces()
+    // AVANT toute connexion : il détermine le login (suffixe « SSL ») et l'usage de SSL. S'il
+    // n'a pas été précisé (valeur Undefined), on REFUSE la connexion plutôt que de la tenter
+    // avec des paramètres faux — un appel sans setModeacces() préalable est un bug à corriger.
+    if (m_modeacces == Utils::Undefined)
+    {
+        QString error = "DataBase::connectToDataBase()\n"
+                        + tr("Mode d'accès non défini : appelez setModeacces() avant de vous connecter.");
+        Logs::ERROR(error);
+        return error;
+    }
+
+    // Une connexion homonyme peut déjà exister (cascade de mots de passe candidats,
+    // reconnexion après migration…). addDatabase() avec un nom déjà pris émet l'avertissement
+    // « duplicate connection name » et ne ferme pas proprement l'ancienne. On relâche d'abord
+    // la référence détenue par m_db, puis on retire l'ancienne connexion avant d'en rouvrir une.
+    m_db = QSqlDatabase();
+    if (QSqlDatabase::contains(basename))
+        QSqlDatabase::removeDatabase(basename);
+    m_db = QSqlDatabase::addDatabase("QMYSQL",basename);
+    m_db.setHostName( m_server );
+    m_db.setPort( m_port );
+    //qDebug() << m_server << m_port << m_db.hostName() << m_db.port();
+    QString erreurOptions;
+    const QString connectSSLoptions = optionsConnexion(login, erreurOptions);
+    if (!erreurOptions.isEmpty())
+        return erreurOptions;
     m_db.setConnectOptions(connectSSLoptions);
 
     m_db.setUserName(login);

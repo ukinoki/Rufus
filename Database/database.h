@@ -90,6 +90,7 @@ private:
     static DataBase *instance;
 
     bool chargeCotationsXml(QDomDocument &docxml);              //! localise et charge le fichier de cotations ; false si introuvable/invalide
+    QString optionsConnexion(QString& login, QString& erreur);   //! options du pilote selon le mode ; login suffixé SSL en distant
 
     int m_iduserConnected = 0;
     ParametresSysteme *m_parametres = nullptr;
@@ -130,6 +131,7 @@ public:
 
     QString                 versionMySQL();                     /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
     QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
+    bool                    testConnexion(QString login, const QString& password);   //!> éprouve un couple sur une connexion à part, sans toucher à la connexion en cours
     /*! Ce qu'on trouve à une adresse : personne, un poste sans serveur, ou un serveur qui ouvre. */
     enum EtatAdresse { Deserte, PosteSansServeur, ServeurOuvert };
     static EtatAdresse      etatAdresse(const QString &adresse, int port, int delaims = 5000);
