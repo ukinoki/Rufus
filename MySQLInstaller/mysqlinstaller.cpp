@@ -970,7 +970,7 @@ QStringList MySQLInstaller::FindMdpLoginMySQL(bool sansQuestion)
     /*! Un .dbkey périmé masquerait le générique : on essaie les deux, comme connecterAvecCandidats. */
     for (const QString& mdp : motsDePasseSQLCandidats())
         if (tryConnectAs(LOGIN_SQL, mdp))
-            return QStringList() << mdp << QString(LOGIN_SQL);
+            return QStringList() << QString(LOGIN_SQL) << mdp;
 
     if (!sansQuestion
         && !askYesNo(tr("Un serveur MySQL est déjà installé"),
@@ -1027,7 +1027,7 @@ QStringList MySQLInstaller::FindMdpLoginMySQL(bool sansQuestion)
                     : tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
             return;                                 /*!< fiche ouverte : on réessaie */
         }
-        log << Line2->text() << Line->text().trimmed();   //! { mdp, login }, comme la sortie ci-dessus
+        log << Line->text().trimmed() << Line2->text();
         dlg.accept();
     });
 
@@ -1049,7 +1049,7 @@ QStringList MySQLInstaller::FindMdpLoginMySQL(bool sansQuestion)
 
 /*!
  * \brief MySQLInstaller::isBaseRufus
- * \param log  { mdp, login } d'un compte administrateur MySQL
+ * \param log  { login, mdp } d'un compte administrateur MySQL
  */
 bool MySQLInstaller::isBaseRufus(const QStringList& log)
 {
@@ -1058,7 +1058,7 @@ bool MySQLInstaller::isBaseRufus(const QStringList& log)
     MySQLInstaller m;
     const QString out = m.runCmdFull(
         QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e \"SHOW DATABASES;\" 2>&1")
-            .arg(m.mysqlBin("mysql"), argsServeurCourant(), log.at(1), log.at(0)));
+            .arg(m.mysqlBin("mysql"), argsServeurCourant(), log.at(0), log.at(1)));
     return m.lignesResultat(out).contains(DB_RUFUS);
 }
 
@@ -1749,7 +1749,7 @@ void MySQLInstaller::avertirExpirationClesSSLDistant()
  * Orchestration destructive de la migration du socle : (droits admin) → désinstallation de l'ancien MySQL
  * → réinstallation + adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si le
  * nouveau socle est prêt.
- * \param log  { mdp, login } d'un compte admin de l'ancien serveur (vide si perdus)
+ * \param log  { login, mdp } d'un compte admin de l'ancien serveur (vide si perdus)
  */
 bool MySQLInstaller::reinstallerSocleMySQLpourMigration(const QStringList& log)
 {
@@ -1774,7 +1774,7 @@ bool MySQLInstaller::reinstallerSocleMySQLpourMigration(const QStringList& log)
 /*!
  * \brief MySQLInstaller::lireSecureFilePriv
  * secure_file_priv de l'ancien serveur, lu avec un compte admin avant la purge (vide si NULL ou illisible).
- * \param log  { mdp, login } d'un compte administrateur MySQL
+ * \param log  { login, mdp } d'un compte administrateur MySQL
  */
 QString MySQLInstaller::lireSecureFilePriv(const QStringList& log)
 {
@@ -1783,7 +1783,7 @@ QString MySQLInstaller::lireSecureFilePriv(const QStringList& log)
     const QString out = runCmdFull(
         QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
                 "\"SELECT @@GLOBAL.secure_file_priv;\" 2>&1")
-            .arg(mysqlBin("mysql"), argsServeurCourant(), log.at(1), log.at(0)));
+            .arg(mysqlBin("mysql"), argsServeurCourant(), log.at(0), log.at(1)));
     const QStringList l = lignesResultat(out);
     if (l.isEmpty())
         return QString();
@@ -1795,7 +1795,7 @@ QString MySQLInstaller::lireSecureFilePriv(const QStringList& log)
  * \brief MySQLInstaller::preserverDossierImagerieAncienneBase
  * Avant la purge : si une base Rufus est lisible et range son imagerie ailleurs que dans le dossier
  * partagé, le nouveau serveur héritera de ce dossier (secure_file_priv).
- * \param log  { mdp, login } d'un compte admin de l'ancien serveur (vide si perdus)
+ * \param log  { login, mdp } d'un compte admin de l'ancien serveur (vide si perdus)
  */
 void MySQLInstaller::preserverDossierImagerieAncienneBase(const QStringList& log)
 {
@@ -2846,7 +2846,7 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
         const QStringList log = MySQLInstaller(&dlg).FindMdpLoginMySQL(true);
         if (log.size() < 2)
             return;
-        if (connexionValide(log.at(1), log.at(0)))
+        if (connexionValide(log.at(0), log.at(1)))
         {
             dlg.accept();
             return;

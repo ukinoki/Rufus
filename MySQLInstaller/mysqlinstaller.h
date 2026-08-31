@@ -139,7 +139,7 @@ public:
     explicit MySQLInstaller(QWidget* parent = nullptr);   /*!< parent des fiches et messages de l'installeur */
 
     bool run(bool desinstaller, bool installer);                                /*!< point d'entrée synchrone : exécute le diagnostic posé par l'appelant */
-    QStringList FindMdpLoginMySQL(bool sansQuestion = false);                   /*!< { mdp, login } d'un compte admin MySQL éprouvé ; sansQuestion : l'appelant a déjà demandé */
+    QStringList FindMdpLoginMySQL(bool sansQuestion = false);                   /*!< { login, mdp } d'un compte admin MySQL éprouvé ; sansQuestion : l'appelant a déjà demandé */
     static bool isBaseRufus(const QStringList& log);                            /*!< une base Rufus est-elle présente sur ce serveur ? */
 
     /*! ── Mot de passe aléatoire / .dbkey (helpers statiques) ─────────────────────────────────────────── */
@@ -172,7 +172,7 @@ public:
     static bool socleLocalConforme();                                           /*!< idem, mais relevé SANS connexion (serveur LOCAL) : pour les décisions qui précèdent la connexion */
     static bool serveurLocalPresent();                                          /*!< un serveur MySQL local est-il installé ? (avant toute connexion) */
     void        verifierEtReparerConfigMonoposte();                             /*!< monoposte : vérif silencieuse de la config, propose de réparer sinon */
-    bool        reinstallerSocleMySQLpourMigration(const QStringList& log);     /*!< migration DESTRUCTIVE du socle (log = admin de l'ancien serveur, pour hériter de son imagerie) */
+    bool        reinstallerSocleMySQLpourMigration(const QStringList& log);     /*!< migration DESTRUCTIVE du socle ({ login, mdp } de l'ancien serveur, pour hériter de son imagerie) */
     QStringList SqlLog() {return m_isconnectlogvalid?
                                       QStringList()<<m_login<<m_password :
                                       QStringList();}                           /*!< log de connexion éprouvé (adminrufus / adminrufusSSL) ; vide si pas de connexion */
