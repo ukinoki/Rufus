@@ -3971,7 +3971,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
 
                 if (issue == MySQLInstaller::IssueMdp::Obtenu)
                 {
-                    errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+                    errConnexion.clear();   //! la fiche a ouvert et éprouvé la connexion
                     break;
                 }
                 if (issue == MySQLInstaller::IssueMdp::Echec)
