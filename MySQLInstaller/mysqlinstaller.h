@@ -215,8 +215,8 @@ public:
         idMySQL,        /*!< rconnexion récupérée à partir d'un idMySQL*/
     };
 
-    /*! Saisie ou clé USB, puis épreuve du mot de passe. titre/corps vides → message d'échec de
-     * connexion ; monoposte → 5 boutons au lieu de 3 (cf. initialisation Rufus.txt § II.2). */
+    /*! Insiste jusqu'à rétablir la connexion ou renoncer ; rend le dernier mode tenté et, par ok, s'il a
+     * abouti (cf. initialisation Rufus.txt § II.2). */
     static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, bool &ok, const QString &titre = QString(),
                                              const QString &corps = QString());
 
