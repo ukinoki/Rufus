@@ -2731,11 +2731,12 @@ void MySQLInstaller::proposerRecuperationAleatoire()
             return;
 
         //! message adapté : le générique fonctionne encore, ce n'est pas un échec de connexion
-        const IssueMdp issue = RecupererMotDePasseMySQL(nullptr,
+        bool ok = false;
+        const IssueMdp issue = RecupererMotDePasseMySQL(nullptr, ok,
                 tr("Récupérer le mot de passe du cabinet"),
                 tr("Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur "
                    "laquelle il a été copié depuis un poste à jour."));
-        if (issue != IssueMdp::EchecSaisie)   //! obtenu, ou renoncé
+        if (issue != IssueMdp::Echec)   //! obtenu, ou renoncé
             return;
 
         if (distant)   //! il ne peut ni réessayer utilement ni en créer un : on l'oriente et on sort
@@ -2760,8 +2761,10 @@ void MySQLInstaller::proposerRecuperationAleatoire()
  * \param corps      texte de la boîte, vide → message d'échec de connexion
  */
 MySQLInstaller::IssueMdp
-MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre, const QString &corps)
+MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool &ok, const QString &titre, const QString &corps)
 {
+    MySQLInstaller::IssueMdp issue = IssueMdp::Echec;
+    ok = false;
     /*! Un compte qui ouvre la session sans les droits ne servirait à rien : on éprouve les deux. */
     auto connexionValide = [parent](const QString& login, const QString& mdp) {
         MySQLInstaller m(parent);
@@ -2797,7 +2800,8 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre, 
         msgbox.exec();
 
         if (msgbox.clickedButton() == PasserBouton)
-            return IssueMdp::Inconnu;
+            issue = IssueMdp::Secours;
+        /*! =====> demander le mdp de secours et ok = connexionValide(secourrsrufus, mdpde secours)*/
 
         /*! Compte MySQL de l'utilisateur : saisie éprouvée, la question ayant déjà été posée ici. */
         if (msgbox.clickedButton() == AdminBouton)
@@ -2808,6 +2812,8 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre, 
             UpMessageBox::Watch(parent, tr("Identifiant refusé"),
                 tr("Cet identifiant ne permet pas d'accéder à la base de données avec tous les droits nécessaires."));
             continue;
+            /*! =====> ok = connexionValide(loginsql, mdpsql)
+             *  si ok issue = IssueMdp::idMySQL et on enregistre le mdp dans .dbkey */
         }
 
         QString mdp;
@@ -2836,24 +2842,18 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre, 
                                     tr("Ce fichier ne contient pas un mot de passe valide."));
                 continue;
             }
+            /*! =====> ok = connexionValide(LOGIN_SQL, mdp)
+             *  si ok issue = IssueMdp::Obtenu et on enregistre le mdp dans .dbkey */
         }
         else if (msgbox.clickedButton() == SaisirBouton)
         {
             if (!Utils::SaisirMDP(tr("Entrez le mot de passe MySQL du cabinet :"), mdp, parent))
                 continue;
+            /*! =====> ok = connexionValide(LOGIN_SQL, mdp)
+             *  si ok issue = IssueMdp::Obtenu et on enregistre le mdp dans .dbkey */
         }
-        else
-            return IssueMdp::Annule;
 
-        //! éprouvé avant d'écrire le .dbkey : une saisie erronée effacerait l'ancien mot de passe
-        if (!connexionValide(QString(LOGIN_SQL), mdp))
-        {
-            UpMessageBox::Watch(parent, tr("Mot de passe incorrect"),
-                tr("Ce mot de passe ne permet pas de se connecter à la base de données."));
-            continue;
-        }
-        stockerMotDePasse(mdp);
-        return IssueMdp::Obtenu;
+        return issue;   /*!< abandon ou échec de saisie / importation / identifiant MySQL */
     }
 }
 

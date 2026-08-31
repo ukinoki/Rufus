@@ -210,16 +210,14 @@ public:
     /*! ── Récupération du mot de passe du cabinet ─────────────────────────────────────────────────────── */
     enum class IssueMdp {
         Obtenu,         /*!< mot de passe récupéré et éprouvé */
-        Annule,         /*!< annuler et sortir */
-        Inconnu,        /*!< tenter la récupération par le mot de passe de secours */
-        CompteAdmin,    /*!< l'utilisateur dispose d'un compte MySQL valide */
-        Reinitialiser,  /*!< repartir d'une base neuve */
-        EchecSaisie     /*!< mot de passe saisi ou importé, mais il n'ouvre pas la base */
+        Echec,          /*!< pas de mdp récupéré */
+        Secours,        /*!< tenter la récupération par le mot de passe de secours */
+        idMySQL,        /*!< rconnexion récupérée à partir d'un idMySQL*/
     };
 
     /*! Saisie ou clé USB, puis épreuve du mot de passe. titre/corps vides → message d'échec de
      * connexion ; monoposte → 5 boutons au lieu de 3 (cf. initialisation Rufus.txt § II.2). */
-    static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(),
+    static IssueMdp RecupererMotDePasseMySQL(QWidget *parent, bool &ok, const QString &titre = QString(),
                                              const QString &corps = QString());
 
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };           /*!< résultat de createUserAvecAdmin() */

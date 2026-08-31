@@ -3966,32 +3966,22 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
         {
             forever
             {
+                bool ok = false;
                 const MySQLInstaller::IssueMdp issue =
-                    MySQLInstaller::RecupererMotDePasseMySQL(parent, QString(), QString());
+                    MySQLInstaller::RecupererMotDePasseMySQL(parent, ok, QString(), QString());
 
                 if (issue == MySQLInstaller::IssueMdp::Obtenu)
                 {
                     errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
                     break;
                 }
-                if (issue == MySQLInstaller::IssueMdp::Annule)
+                if (issue == MySQLInstaller::IssueMdp::Echec)
                     return false;
                 //! compte MySQL fourni par l'utilisateur : même saisie éprouvée que depuis IBD
-                if (issue == MySQLInstaller::IssueMdp::CompteAdmin)
-                {
-                    const QStringList log = MySQLInstaller(parent).FindMdpLoginMySQL(/*sansQuestion=*/true);
-                    if (log.size() < 2)
-                        continue;
-                    errConnexion = db->connectToDataBase(DB_RUFUS, log.at(1), log.at(0));
-                    if (errConnexion.isEmpty())
-                        break;
-                    continue;
-                }
                 if (db->ModeAccesDataBase() == Utils::Distant)
                     break;   //! le secours ne s'atteint pas depuis internet
                 //! Pas de mot de passe valide -> restauration par le mot de passe de secours
-                if (issue == MySQLInstaller::IssueMdp::Inconnu
-                 || issue == MySQLInstaller::IssueMdp::EchecSaisie)
+                if (issue == MySQLInstaller::IssueMdp::Echec)
                 {
                     //! Inconnu = l'utilisateur vient de demander le secours : ne pas le lui redemander
                     if (issue == MySQLInstaller::IssueMdp::EchecSaisie
@@ -5715,65 +5705,6 @@ void Procedures::SauvegardeIni()
     QDir().mkpath(PATH_DIR_RUFUSKEY);             // ~/.rufus (créé au besoin)
     QFile::remove(PATH_FILE_INI_BACKUP);          // QFile::copy n'écrase pas une cible existante
     QFile::copy(PATH_FILE_INI, PATH_FILE_INI_BACKUP);
-}
-
-/*!
- * \brief Procedures::ReparerIni
- * Rufus.ini absent ou sans mode de connexion valide (§ II.1) : une seule fiche, qui ne fait que
- * construire le fichier — quitter, restaurer la sauvegarde, ou revoir les paramètres. Boucle jusqu'à
- * obtenir un fichier exploitable ; c'est Connexion_A_La_Base qui dira ensuite s'il ouvre la base.
- */
-/*!
- * \brief Procedures::EprouverConnexionApresSaisie
- * Éprouve les paramètres tout juste saisis : mot de passe du cabinet, à défaut le générique.
- */
-bool Procedures::EprouverConnexionApresSaisie(QWidget *parent)
-{
-    const QString base = Utils::getBaseFromMode(db->ModeAccesDataBase());
-    db->initParametresConnexionSQL(m_settings->value(base + Param_Serveur).toString(),
-                                   m_settings->value(base + Param_Port).toInt());
-
-    //! Obtenu = mot de passe éprouvé ET enregistré dans .dbkey
-    if (MySQLInstaller::RecupererMotDePasseMySQL(nullptr, tr("Mot de passe de la base du cabinet"),
-            tr("Indiquez le mot de passe de connexion à la base du cabinet.") + "\n" +
-            tr("Il se récupère sur une clé USB depuis le poste qui héberge la base "
-               "(menu Édition / Paramètres)."))
-        == MySQLInstaller::IssueMdp::Obtenu)
-        return true;
-
-    if (db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MDP_SQL).isEmpty())
-    {
-        UpMessageBox::Watch(parent, tr("Connexion établie sans mot de passe personnel"),
-            tr("La base du cabinet ne s'ouvre qu'avec le mot de passe générique de Rufus.") + "\n" +
-            tr("Faites-la sécuriser depuis le poste qui l'héberge."));
-        return true;
-    }
-
-    QString corps;
-    switch (db->causeEchecConnexion())
-    {
-    case DataBase::ServeurInjoignable:
-        corps = tr("Aucun serveur ne répond à cette adresse.") + "\n\n" +
-                tr("Vérifiez l'adresse du serveur, qu'il est bien allumé et, en accès distant, "
-                   "la redirection de ports de votre box.");
-        break;
-    case DataBase::ClesSSL:
-        corps = tr("Le serveur du cabinet répond, mais il refuse la liaison chiffrée.") + "\n\n" +
-                tr("Les clés SSL de ce poste sont invalides ou périmées : faites-vous en transmettre "
-                   "de nouvelles depuis le poste serveur.");
-        break;
-    case DataBase::Identifiants:
-        corps = tr("Le serveur du cabinet répond, mais il refuse ce mot de passe.") + "\n\n" +
-                tr("L'adresse du serveur est donc correcte : c'est le mot de passe de connexion "
-                   "qu'il faut récupérer sur le poste qui héberge la base.");
-        break;
-    default:
-        corps = tr("Aucun mot de passe n'ouvre la base avec ces paramètres.") + "\n\n" +
-                tr("Vérifiez le mot de passe de connexion, l'adresse du serveur et, en accès distant, "
-                   "le dossier des clés SSL.");
-    }
-    UpMessageBox::Watch(parent, tr("Connexion à la base impossible"), corps);
-    return false;
 }
 
 void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
