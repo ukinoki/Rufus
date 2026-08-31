@@ -6034,18 +6034,7 @@ void Rufus::VerifLastVersion()
                         //! aucune de ces sous-sections (ancien format), on prend son texte brut.
                         QString langue = proc->settings()->value(Param_Poste_Version).toString();
                         if (langue.isEmpty())
-                        {
-                            switch (QLocale::system().language()) {
-                            case QLocale::French:     langue = "FR"; break;
-                            case QLocale::English:    langue = "EN"; break;
-                            case QLocale::Spanish:    langue = "ES"; break;
-                            case QLocale::Portuguese: langue = (QLocale::system().territory() == QLocale::Brazil) ? "BR" : "PT"; break;
-                            case QLocale::Italian:    langue = "IT"; break;
-                            case QLocale::Romanian:   langue = "RO"; break;
-                            case QLocale::Catalan:    langue = "CA"; break;
-                            default:                  langue = "FR"; break;  //! langue non supportée → français par défaut
-                            }
-                        }
+                            langue = QLocale::languageToCode(QLocale::system().language()).toUpper();   //! rufus.ini muet : code ISO du poste, repli FR plus bas s'il manque au XML
                         QString commentLangue, commentEN, commentFR;
                         bool hassections = false;
                         for (int k=0; k<child.childNodes().size(); k++)
