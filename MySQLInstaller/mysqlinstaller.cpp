@@ -2762,7 +2762,6 @@ MySQLInstaller::IssueMdp
 MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtCompteMySQL)
 {
     IssueMdp issue = IssueMdp::Echec;
-    ok = false;
 
     /*! Un compte qui ouvre la session sans les droits ne servirait à rien : on éprouve les deux. */
     auto connexionValide = [parent](const QString& login, const QString& mdp) {
@@ -2829,10 +2828,15 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
         issue = IssueMdp::Secours;
         QString mdpSecours;
         if (demanderMotDePasseDeSecours(&dlg, false, mdpSecours))
-            ok = connexionValide(QString(LOGIN_SQL_SECOURS), mdpSecours);
-        if (ok) { dlg.accept(); return; }
-        UpMessageBox::Watch(&dlg, tr("Mot de passe de secours refusé"),
-            tr("Ce mot de passe de secours ne permet pas d'accéder à la base de données."));
+        {
+            if (connexionValide(QString(LOGIN_SQL_SECOURS), mdpSecours))
+            {
+                dlg.accept();
+                return;
+            }
+            UpMessageBox::Watch(&dlg, tr("Mot de passe de secours refusé"),
+                                tr("Ce mot de passe de secours ne permet pas d'accéder à la base de données."));
+        }
     });
 
     if (AdminBouton)
@@ -2840,15 +2844,20 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
         issue = IssueMdp::idMySQL;
         const QStringList log = MySQLInstaller(&dlg).FindMdpLoginMySQL(true);
         if (log.size() >= 2)
-            ok = connexionValide(log.at(1), log.at(0));
+        {
+            if (connexionValide(log.at(1), log.at(0)))
+            {
+                dlg.accept();
+                return;
+            }
+        }
         UpMessageBox::Watch(&dlg, tr("Identifiant refusé"),
             tr("Cet identifiant ne permet pas d'accéder à la base de données avec tous les droits nécessaires."));
     });
 
     /*! Éprouvé avant d'écrire le .dbkey : une saisie erronée effacerait l'ancien mot de passe. */
     auto eprouverMdpCabinet = [&](const QString& mdp) {
-        ok = connexionValide(QString(LOGIN_SQL), mdp);
-        if (!ok) {
+        if (!connexionValide(QString(LOGIN_SQL), mdp)) {
             UpMessageBox::Watch(&dlg, tr("Mot de passe incorrect"),
                 tr("Ce mot de passe ne permet pas de se connecter à la base de données."));
             return;
