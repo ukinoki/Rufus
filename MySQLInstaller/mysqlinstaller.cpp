@@ -3443,8 +3443,8 @@ bool MySQLInstaller::installMySQL()
            << "basedir=" << base    << "\n"
            << "datadir=" << dataDir << "\n"
            << "port=3306\n"
-           /*! Réactivé car MySQL 8.4 le désactive : les comptes des anciennes bases y sont encore. */
-           << "mysql_native_password=ON\n";
+           << "mysql_native_password=ON"
+              "   # sans quoi les comptes des bases anciennes, créés avec ce plugin, ne se connectent plus\n";
     }
 
     /*! 4. Initialisation du datadir (crée root@localhost SANS mot de passe). */
@@ -4312,10 +4312,10 @@ bool MySQLInstaller::prepareCreateModeMacOS()
     const QString path = sharedFolderPath();            /*!< /Users/Shared */
     QDir().mkpath(path + "/Rufus/Imagerie");
 
-    /*! my.cnf préparé hors élévation (mêmes variables que ensureSecureFilePriv) + réactivation de
-     *  mysql_native_password, désactivé par défaut en 8.4 : les comptes des anciennes bases y sont encore. */
+    /*! my.cnf préparé hors élévation (mêmes variables que ensureSecureFilePriv). */
     QList<QPair<QString, QString>> cnfVars = rufusCnfVars();
-    cnfVars << qMakePair(QStringLiteral("mysql_native_password"), QStringLiteral("ON"));
+    cnfVars << qMakePair(QStringLiteral("mysql_native_password"),
+                         QStringLiteral("ON   # sans quoi les comptes des bases anciennes, créés avec ce plugin, ne se connectent plus"));
     const QString cnfTmp = writeCnfToTemp(cnfVars);
     const QString cnfDst = getCnfPath();                 /*!< /etc/my.cnf (Oracle) */
     if (cnfTmp.isEmpty())
