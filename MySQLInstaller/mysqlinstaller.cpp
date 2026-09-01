@@ -2547,7 +2547,7 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
         {
             if (generiqueEncoreLa)
             {
-                /*! Comptes neufs : l'échéance du générique, lue sur adminrufusSSL@'%', n'est pas déplacée. */
+                /*! Comptes neufs : l'échéance du générique n'est pas déplacée. */
                 exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, QString(MDP_SQL)));
                 exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, mdpCourant));
             }
@@ -2559,6 +2559,10 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
     /*! Redonnés à chaque passage : c'est par eux que revient SYSTEM_USER, qu'une version ancienne révoquait. */
     for (const QString& h : hostsLANprives())
         exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
+
+    /*! adminrufusSSL, absent des bases régularisées par une version ancienne : c'est lui l'accès distant. */
+    exec(QString("CREATE USER IF NOT EXISTS '%1SSL'@'%' IDENTIFIED BY '%2' REQUIRE SSL").arg(ur, mdpCourant));
+    exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1SSL'@'%' WITH GRANT OPTION").arg(ur));
     exec(QString("FLUSH PRIVILEGES"));
 
     /*! @'%' (joignable du WAN) retiré seulement une fois le relais LAN en place. Seul endroit où on le droppe. */
@@ -2574,7 +2578,8 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
 
 /*!
  * \brief MySQLInstaller::securiserAdminrufusEtMdp
- * Pose `aleatoire` sur les comptes adminrufus, le mot de passe courant restant en 2e, puis appelle l'entretien.
+ * Recrée le jeu complet des comptes adminrufus (comme à l'installation) avec `aleatoire`, le mot de passe
+ * courant restant en 2e, puis retire adminrufus@'%'.
  * \param aleatoire     mot de passe à poser
  * \param detailresult  si fourni, résultat but par but
  */
@@ -2587,19 +2592,32 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire,
     const QString attr     = QString(" ATTRIBUTE '{\"securepar\":\"%1\"}'").arg(posteSql);
     auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
 
-    /*! Un seul ALTER : RETAIN garde en 2e le mot de passe courant, le générique, qu'on ne repose donc pas.
-     *  securepar voyage dans le même ALTER, isolé il effacerait additional_password. */
-    exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(urSSL, "%", aleatoire, attr));
-    for (const QString& h : Utils::hostsDuCompteSQL(ur).value_or(QStringList()))
+    /*! Comptes manquants créés sur le générique : les postes qui n'ont pas l'aléatoire restent servis.
+     *  securepar voyage dans l'ALTER, isolé il effacerait additional_password. */
+    for (const QString& h : hostsLANprives())
+    {
+        exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, QString(MDP_SQL)));
         exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
+        exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
+    }
+    exec(QString("CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%2' REQUIRE SSL").arg(urSSL, QString(MDP_SQL)));
+    exec(QString("ALTER USER '%1'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD%3").arg(urSSL, aleatoire, attr));
+    exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION").arg(urSSL));
     exec(QString("FLUSH PRIVILEGES"));
 
-    /*! Comptes LAN éventuellement absents : l'entretien s'en charge avec l'aléatoire qu'on vient de poser. */
-    const bool entretienOK = entretienComptesAdminrufusLAN(aleatoire);
-
+    /*! @'%' (joignable du WAN) retiré seulement une fois le relais LAN en place. Seul endroit où on le droppe. */
     QMap<QString, bool> res;
-    res["adminrufus@% supprimé"]  = entretienOK;
-    res["adminrufusSSL sécurisé"] = adminrufusEstSecurise();
+    res["comptes adminrufus créés"] = Utils::hostsDuCompteSQL(ur).value_or(QStringList()).contains("10.%");
+    if (res.value("comptes adminrufus créés"))
+    {
+        exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
+        exec(QString("FLUSH PRIVILEGES"));
+        /*! La session courante était peut-être authentifiée comme adminrufus@'%' : sans reconnexion elle
+         *  perdrait tout privilège jusqu'au prochain démarrage. */
+        DataBase::I()->connectToDataBase(DB_RUFUS, ur, aleatoire);
+        res["adminrufus@% supprimé"] = !Utils::hostsDuCompteSQL(ur).value_or(QStringList()).contains("%");
+    }
+    res["adminrufus sécurisé"] = adminrufusEstSecurise();
     if (detailresult) *detailresult = res;
     for (bool v : res) if (!v) return false;
     return true;
