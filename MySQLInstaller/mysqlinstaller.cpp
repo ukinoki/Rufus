@@ -3378,12 +3378,18 @@ bool MySQLInstaller::installMySQL()
                << "  }\r\n"
                << "  $zip.Dispose()\r\n"
                << "  New-Item -ItemType Directory -Force -Path (Split-Path $base -Parent) | Out-Null\r\n"
-               /*! Une DLL du dossier peut être chargée par un autre programme : Windows en interdit alors la
-                *  suppression. On copie par-dessus ce qui passe, la version installée étant la même. */
+               /*! Une DLL chargée par un autre programme rend le dossier indestructible : on copie par-dessus,
+                *  et un fichier qui résiste arrête l'installation (VERROU). */
                << "  if (Test-Path $base) { Remove-Item -LiteralPath $base -Recurse -Force -ErrorAction SilentlyContinue }\r\n"
                << "  New-Item -ItemType Directory -Force -Path $base | Out-Null\r\n"
                << "  Copy-Item -Path (Join-Path (Join-Path $dest '" << innerDir << "') '*') "
-                  "-Destination $base -Recurse -Force -ErrorAction SilentlyContinue\r\n"
+                  "-Destination $base -Recurse -Force -ErrorAction SilentlyContinue -ErrorVariable echecs\r\n"
+               << "  if ($echecs.Count -gt 0) {\r\n"
+               << "    $qui = ((Get-Process | ForEach-Object { $p = $_; try { $p.Modules | "
+                  "Where-Object { $_.FileName -like \"$base*\" } | ForEach-Object { $p.ProcessName } } "
+                  "catch {} }) | Sort-Object -Unique) -join ', '\r\n"
+               << "    \"VERROU $qui\" | Out-File -FilePath $log -Encoding utf8 -Force\r\n"
+               << "  }\r\n"
                << "  if (-not (Test-Path (Join-Path $base 'bin\\mysqld.exe'))) {\r\n"
                << "    ('mysqld.exe absent. Contenu extrait : ' + ((Get-ChildItem -LiteralPath $dest -Name) -join ', ')) | Out-File -FilePath $log -Encoding utf8 -Force\r\n"
                << "  }\r\n"
@@ -3399,18 +3405,31 @@ bool MySQLInstaller::installMySQL()
         tr("Extraction des fichiers MySQL…"), 600000);
     QFile::remove(extractPs);
     QFile::remove(zipPath);
-    if (!QFile::exists(mysqld)) {
-        QString detail;
+    QString detail;
+    {
         QFile lf(extractLog);
         if (lf.open(QIODevice::ReadOnly | QIODevice::Text))
             detail = QString::fromUtf8(lf.readAll()).trimmed().left(1500);
-        QFile::remove(extractLog);
+    }
+    QFile::remove(extractLog);
+
+    /*! Un programme tenant un fichier de l'ancienne installation empêche son remplacement : on s'arrête
+     *  plutôt que d'installer un dossier mi-ancien mi-neuf. */
+    if (detail.startsWith("VERROU")) {
+        const QString qui = detail.mid(6).trimmed();
+        UpMessageBox::Watch(m_parent, tr("Installation bloquée"),
+            tr("Un programme utilise des fichiers de l'ancienne installation de MySQL et empêche "
+               "leur remplacement.") + "\n\n" +
+            (qui.isEmpty() ? tr("Fermez les autres programmes puis relancez l'installation.")
+                           : tr("Fermez ce programme puis relancez l'installation : %1").arg(qui)));
+        return false;
+    }
+    if (!QFile::exists(mysqld)) {
         UpMessageBox::Watch(m_parent, tr("Extraction échouée"),
             tr("L'archive MySQL n'a pas pu être extraite (mysqld.exe introuvable).\n\n"
                "Détail : %1").arg(detail.isEmpty() ? tr("(aucun détail)") : detail));
         return false;
     }
-    QFile::remove(extractLog);
 
     /*! 3. Fichier de configuration minimal (basedir + datadir). */
     QDir().mkpath(progData);
