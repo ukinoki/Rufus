@@ -2977,14 +2977,13 @@ void MySQLInstaller::suggererSecurisationDepuisLocal()
  */
 bool MySQLInstaller::adminrufusEstSecurise()
 {
-    /*! On interroge adminrufusSSL@'%' (et NON adminrufus@'%') : référence STABLE. L'Option B supprime
-     *  adminrufus@'%' (restriction au LAN) mais laisse adminrufusSSL@'%' intact ; or les deux sont sécurisés
-     *  EN MÊME TEMPS. Interroger adminrufus@'%' ferait croire, après l'Option B, que la base n'est plus
-     *  sécurisée (et gaxt78iy ne serait jamais purgé). */
+    /*! N'importe quelle entrée adminrufus suffit : elles sont sécurisées ensemble, et aucun host donné n'est
+     *  garanti présent (@'%' droppé par l'Option B, adminrufusSSL absent des bases anciennes). */
     bool ok = false;
     const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
-        "SELECT User_attributes->>'$.additional_password' IS NOT NULL FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
-    return ok && !r.isEmpty() && r.at(0).toInt() == 1;
+        "SELECT COUNT(*) FROM mysql.user WHERE User LIKE '" LOGIN_SQL "%'"
+        " AND User_attributes->>'$.additional_password' IS NOT NULL", ok);
+    return ok && !r.isEmpty() && r.at(0).toInt() > 0;
 }
 
 /*!
@@ -3009,11 +3008,10 @@ bool MySQLInstaller::unCompteLANaPerduSystemUser()
  */
 QDateTime MySQLInstaller::dateSecurisation()
 {
-    /*! adminrufusSSL@'%' : référence stable (cf. adminrufusEstSecurise) — adminrufus@'%' peut avoir été
-     *  supprimé par l'Option B. Les deux comptes sont (re)sécurisés ensemble, donc la date fait foi. */
+    /*! Toutes les entrées adminrufus sont sécurisées ensemble : la plus récente fait foi (cf. adminrufusEstSecurise). */
     bool ok = false;
     QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
-        "SELECT password_last_changed FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
+        "SELECT MAX(password_last_changed) FROM mysql.user WHERE User LIKE '" LOGIN_SQL "%'", ok);
     if (ok && !r.isEmpty())
         return r.at(0).toDateTime();
     return QDateTime();
@@ -3029,7 +3027,8 @@ QString MySQLInstaller::posteSecurisation()
 {
     bool ok = false;
     QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
-        "SELECT User_attributes->>'$.securepar' FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
+        "SELECT User_attributes->>'$.securepar' FROM mysql.user WHERE User LIKE '" LOGIN_SQL "%'"
+        " AND User_attributes->>'$.securepar' IS NOT NULL LIMIT 1", ok);
     if (ok && !r.isEmpty())
         return r.at(0).toString();
     return QString();
