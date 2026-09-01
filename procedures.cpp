@@ -3811,10 +3811,12 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
     if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::serveurLocalPresent())
     {
         if (UpMessageBox::Question(parent,tr("Aucun serveur de base de données"),
-                             tr("Un fichier de paramétrage de Rufus existe déjà sur ce poste") + "\n" +
-                             tr("et indique que ce poste héberge une base patients Rufus") + "\n" +
-                           tr("Cependant aucun serveur MySQL n'est installé.") + "\n" +
-                           tr("Voulez-vous installer un serveur MySQL et une base patients sur ce poste?"))
+                            tr("Un fichier de paramétrage de Rufus existe déjà sur ce poste") + "\n" +
+                            tr("et indique que ce poste héberge une base patients Rufus") + "\n" +
+                            tr("Cependant aucun serveur MySQL n'est installé.") + "\n" +
+                            tr("Voulez-vous installer un serveur MySQL et une base patients sur ce poste?"),
+                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                            QStringList() << tr("Annuler") << tr("Oui, installer un serveur"))
                 != UpSmallButton::STARTBUTTON)
         {
             m_settings->setValue(Utils::getBaseFromMode(Utils::Poste) + Param_Active, "NO");
