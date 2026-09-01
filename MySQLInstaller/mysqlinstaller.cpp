@@ -3378,13 +3378,17 @@ bool MySQLInstaller::installMySQL()
                << "  }\r\n"
                << "  $zip.Dispose()\r\n"
                << "  New-Item -ItemType Directory -Force -Path (Split-Path $base -Parent) | Out-Null\r\n"
+               << "  $diag = 'processus: ' + ((Get-Process mysqld -ErrorAction SilentlyContinue | "
+                  "ForEach-Object { \"$($_.Id) $($_.Path)\" }) -join ' | ') + ' ; services: ' + "
+                  "((Get-Service | Where-Object { $_.Name -like '*mysql*' } | "
+                  "ForEach-Object { \"$($_.Name)=$($_.Status)\" }) -join ' | ')\r\n"
                << "  if (Test-Path $base) { Remove-Item -LiteralPath $base -Recurse -Force }\r\n"
                << "  Move-Item -LiteralPath (Join-Path $dest '" << innerDir << "') -Destination $base -Force\r\n"
                << "  if (-not (Test-Path (Join-Path $base 'bin\\mysqld.exe'))) {\r\n"
                << "    ('mysqld.exe absent. Contenu extrait : ' + ((Get-ChildItem -LiteralPath $dest -Name) -join ', ')) | Out-File -FilePath $log -Encoding utf8 -Force\r\n"
                << "  }\r\n"
                << "} catch {\r\n"
-               << "  \"$($_.Exception.Message) [ligne $($_.InvocationInfo.ScriptLineNumber) : $($_.InvocationInfo.Line.Trim())]\" | Out-File -FilePath $log -Encoding utf8 -Force\r\n"
+               << "  \"$($_.Exception.Message) [ligne $($_.InvocationInfo.ScriptLineNumber) : $($_.InvocationInfo.Line.Trim())] $diag\" | Out-File -FilePath $log -Encoding utf8 -Force\r\n"
                << "}\r\n";
             f.close();
         }
