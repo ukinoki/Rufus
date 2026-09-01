@@ -3384,7 +3384,7 @@ bool MySQLInstaller::installMySQL()
                << "    ('mysqld.exe absent. Contenu extrait : ' + ((Get-ChildItem -LiteralPath $dest -Name) -join ', ')) | Out-File -FilePath $log -Encoding utf8 -Force\r\n"
                << "  }\r\n"
                << "} catch {\r\n"
-               << "  \"$($_.Exception.Message)\" | Out-File -FilePath $log -Encoding utf8 -Force\r\n"
+               << "  \"$($_.Exception.Message) [ligne $($_.InvocationInfo.ScriptLineNumber) : $($_.InvocationInfo.Line.Trim())]\" | Out-File -FilePath $log -Encoding utf8 -Force\r\n"
                << "}\r\n";
             f.close();
         }
