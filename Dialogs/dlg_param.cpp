@@ -2285,13 +2285,15 @@ void dlg_param::DossierClesSSL()
         return;
 
     const QString choisi = url.path();
-    const QStringList cles = { "/ca-cert.pem", "/client-cert.pem", "/client-key.pem" };
+    /*! MySQL génère la CA sous le nom ca.pem, l'export Rufus la renomme ca-cert.pem : les deux valent (cf. DataBase::connectToDataBase). */
+    const QString ca = QFile::exists(choisi + "/ca-cert.pem") ? "/ca-cert.pem" : "/ca.pem";
+    const QStringList cles = { ca, "/client-cert.pem", "/client-key.pem" };
     for (const QString &f : cles)
         if (!QFile::exists(choisi + f))
         {
             UpMessageBox::Watch(this, tr("Clés SSL introuvables"),
                                 tr("Le dossier indiqué ne contient pas les trois clés SSL du cabinet :") + "\n"
-                                + "ca-cert.pem, client-cert.pem, client-key.pem");
+                                + "ca-cert.pem " + tr("(ou ca.pem)") + ", client-cert.pem, client-key.pem");
             return;
         }
 
