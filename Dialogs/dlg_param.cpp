@@ -376,15 +376,14 @@ dlg_param::dlg_param(QWidget *parent) :
        wdg_delaispin                ->setValue(QString(lecturedelai.readAllStandardOutput()).trimmed().toInt());
        UpLabel *delailbl            = new UpLabel();
        delailbl                     ->setText(tr("Délai avant l'alerte « Rufus ne répond pas » (ms)"));
-       QFrame *delaiframe           = new QFrame();
-       delaiframe                   ->setFrameShape(QFrame::StyledPanel);
+       wdg_delaiframe               = new QFrame();
+       wdg_delaiframe               ->setFrameShape(QFrame::StyledPanel);
        QHBoxLayout *delailay        = new QHBoxLayout;
        delailay                     ->addWidget(delailbl);
        delailay                     ->addWidget(wdg_delaispin);
        delailay                     ->addStretch(1);
-       delaiframe                   ->setLayout(delailay);
-       ui->PosteLayout              ->insertWidget(3, delaiframe);
-       //ui->horizontalLayout_8       ->insertWidget(0, delaiframe);
+       wdg_delaiframe               ->setLayout(delailay);
+       ui->PosteLayout              ->insertWidget(3, wdg_delaiframe);
        connect(wdg_delaispin, &QSpinBox::editingFinished, this, [=]{
            QProcess::startDetached("gsettings", {"set", "org.gnome.mutter", "check-alive-timeout",
                                                  QString::number(wdg_delaispin->value())});
@@ -469,6 +468,7 @@ dlg_param::dlg_param(QWidget *parent) :
     EnableWidgContent(ui->Instrmtsframe,false);
     EnableWidgContent(ui->Imprimanteframe,false);
     EnableWidgContent(ui->VilleDefautframe,false);
+    if (wdg_delaiframe) EnableWidgContent(wdg_delaiframe,false);
     ui->CotationsFrancecheckBox         ->setEnabled(false);
     ui->VillesgroupBox                  ->setEnabled(false);
     ui->ComptagroupBox                  ->setEnabled(false);
@@ -1057,6 +1057,7 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->ParamConnexiontabWidget         ->setEnabled(a);
         EnableWidgContent(ui->Imprimanteframe,a);
         EnableWidgContent(ui->VilleDefautframe,a);
+        if (wdg_delaiframe) EnableWidgContent(wdg_delaiframe,a);
         ui->ModifListVillesupPushButton     ->setEnabled(a);
         ui->VillesgroupBox                  ->setEnabled(a);
         ui->ComptagroupBox                  ->setEnabled(a);

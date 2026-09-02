@@ -121,6 +121,7 @@ private:
     QPushButton             *wdg_testlocalstockage, *wdg_testlocalvideo;   /*!< le dossier saisi au clavier est-il joignable ? */
     WidgetButtonFrame       *wdg_cotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;
     QWidget                 *wdg_CCAM;
+    QFrame                  *wdg_delaiframe = nullptr;  /*!< (Linux) cadre du délai avant l'alerte « Rufus ne répond pas » */
     UpDialog                *dlg_lieux;
     UpDialog                *dlg_askappareil, *dlg_askMDP;
 
