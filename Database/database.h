@@ -90,7 +90,7 @@ private:
     static DataBase *instance;
 
     bool chargeCotationsXml(QDomDocument &docxml);              //! localise et charge le fichier de cotations ; false si introuvable/invalide
-    QString optionsConnexion(QString& login, QString& erreur);   //! options du pilote selon le mode ; login suffixé SSL en distant
+    QString optionsConnexion(QString& erreur);                  //! options du pilote selon le mode (clés SSL en distant)
 
     int m_iduserConnected = 0;
     ParametresSysteme *m_parametres = nullptr;
@@ -124,15 +124,15 @@ public:
     Utils::ModeAcces        ModeAccesDataBase() const;          /*! le mode d'accès au serveur
                                                                     \result monoposte = Utils::Poste, reseau local = Utils::ReseauLocal, distant = Utils::Distant */
     void                    setModeacces(const Utils::ModeAcces &modeacces);
-    QString                 loginPourMode(const QString &login) const
-                            {return login + (m_modeacces == Utils::Distant? "SSL" : "");}    /*!< l'accès distant se connecte avec le compte SSL */
+    QString                 Logindb() const
+                            {return QString(LOGIN_SQL) + (m_modeacces == Utils::Distant? "SSL" : "");}  /*!< LE compte technique du mode courant : l'accès distant passe par adminrufusSSL */
     QString                 AdresseServer() const;              /*! l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS */
     int                     port() const;                       /*! le port SQL */
     void                    InfosConnexionSQL();                /*! les infos de connexions SQL : host, database, login, mdp */
     int                     idUserConnected() const             { return m_iduserConnected; }
 
     QString                 versionMySQL();                     /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
-    QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
+    QString                 connectToDataBase(QString basename, QString login, QString password);   //!> le login se prend sur Logindb(), sauf compte admin saisi
     bool                    testConnexion(QString login, const QString& password);   //!> éprouve un couple sur une connexion à part, sans toucher à la connexion en cours
     /*! Ce qu'on trouve à une adresse : personne, un poste sans serveur, ou un serveur qui ouvre. */
     enum EtatAdresse { Deserte, PosteSansServeur, ServeurOuvert };

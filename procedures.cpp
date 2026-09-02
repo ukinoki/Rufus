@@ -798,7 +798,7 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase, QString loginSQL, Q
 {
     if (loginSQL.isEmpty())
     {
-        loginSQL = LOGIN_SQL;
+        loginSQL = db->Logindb();
         mdpSQL   = MySQLInstaller::motDePasseSQL();
     }
     if (!QDir(pathbackupbase).exists())
@@ -1028,9 +1028,7 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts, std::function<void()> 
     else
         host = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
     bool useSSL = (db->ModeAccesDataBase() == Utils::Distant);
-    QString login = LOGIN_SQL;
-    if (useSSL)
-         login += "SSL";
+    QString login = db->Logindb();
      QString keys = "";
      if (useSSL)
      {

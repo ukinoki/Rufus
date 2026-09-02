@@ -172,11 +172,10 @@ DataBase::EtatAdresse DataBase::etatAdresse(const QString &adresse, int port, in
 
 /*!
  * \brief DataBase::optionsConnexion
- * Options du pilote selon le mode d'accès, et suffixe SSL du login en accès distant.
- * \param login   complété par « SSL » en accès distant
+ * Options du pilote selon le mode d'accès (clés SSL en accès distant).
  * \param erreur  non vide si les clés SSL sont introuvables
  */
-QString DataBase::optionsConnexion(QString& login, QString& erreur)
+QString DataBase::optionsConnexion(QString& erreur)
 {
     erreur.clear();
     QString connectSSLoptions = "";
@@ -216,7 +215,6 @@ QString DataBase::optionsConnexion(QString& login, QString& erreur)
         //! Le remplacer par MYSQL_OPT_SSL_MODE=SSL_MODE_REQUIRED (réellement appliqué, lui) CASSE l'accès
         //! distant : on garde donc l'ancien jeton, warning cosmétique inclus. Voir historique du dépôt.
         connectSSLoptions += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
-        login = loginPourMode(login);
     }
     else
     {
@@ -250,7 +248,7 @@ bool DataBase::testConnexion(QString login, const QString& password)
 {
     m_codeErreurConnexion.clear();
     QString erreur;
-    const QString options = optionsConnexion(login, erreur);
+    const QString options = optionsConnexion(erreur);
     if (!erreur.isEmpty())
         return false;
 
@@ -300,7 +298,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     m_db.setPort( m_port );
     //qDebug() << m_server << m_port << m_db.hostName() << m_db.port();
     QString erreurOptions;
-    const QString connectSSLoptions = optionsConnexion(login, erreurOptions);
+    const QString connectSSLoptions = optionsConnexion(erreurOptions);
     if (!erreurOptions.isEmpty())
         return erreurOptions;
     m_db.setConnectOptions(connectSSLoptions);

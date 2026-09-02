@@ -491,7 +491,7 @@ QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
     const QStringList candidats = motsDePasseSQLCandidats();
     for (const QString &mdp : candidats)
     {
-        err = DataBase::I()->connectToDataBase(basename, LOGIN_SQL, mdp);
+        err = DataBase::I()->connectToDataBase(basename, DataBase::I()->Logindb(), mdp);
         if (err.isEmpty())
         {
             setMotDePasseSQL(mdp);                 /*!< mémorise le mdp qui fonctionne */
@@ -969,8 +969,8 @@ QStringList MySQLInstaller::FindMdpLoginMySQL(bool sansQuestion)
 
     /*! Un .dbkey périmé masquerait le générique : on essaie les deux, comme connecterAvecCandidats. */
     for (const QString& mdp : motsDePasseSQLCandidats())
-        if (tryConnectAs(LOGIN_SQL, mdp))
-            return QStringList() << QString(LOGIN_SQL) << mdp;
+        if (tryConnectAs(DataBase::I()->Logindb(), mdp))
+            return QStringList() << DataBase::I()->Logindb() << mdp;
 
     if (!sansQuestion
         && !askYesNo(tr("Un serveur MySQL est déjà installé"),
@@ -2375,7 +2375,7 @@ QString MySQLInstaller::serverVersionString()
         for (const QString& mdp : motsDePasseSQLCandidats()) {
             const QString out = runCmdFull(
                 QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e \"SELECT VERSION();\" 2>&1")
-                    .arg(mysqlBin("mysql"), conn, QString(LOGIN_SQL), mdp), timeoutMs);
+                    .arg(mysqlBin("mysql"), conn, DataBase::I()->Logindb(), mdp), timeoutMs);
             const auto m = re.match(out);
             if (m.hasMatch())
                 return m.captured(1);
@@ -2574,7 +2574,7 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
     exec(QString("FLUSH PRIVILEGES"));
     /*! La session courante était peut-être authentifiée comme adminrufus@'%' : sans reconnexion elle
      *  perdrait tout privilège jusqu'au prochain démarrage. */
-    DataBase::I()->connectToDataBase(DB_RUFUS, ur, mdpCourant);
+    DataBase::I()->connectToDataBase(DB_RUFUS, DataBase::I()->Logindb(), mdpCourant);
     return !Utils::hostsDuCompteSQL(ur).value_or(QStringList()).contains("%");
 }
 
@@ -2616,7 +2616,7 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire,
         exec(QString("FLUSH PRIVILEGES"));
         /*! La session courante était peut-être authentifiée comme adminrufus@'%' : sans reconnexion elle
          *  perdrait tout privilège jusqu'au prochain démarrage. */
-        DataBase::I()->connectToDataBase(DB_RUFUS, ur, aleatoire);
+        DataBase::I()->connectToDataBase(DB_RUFUS, DataBase::I()->Logindb(), aleatoire);
         res["adminrufus@% supprimé"] = !Utils::hostsDuCompteSQL(ur).value_or(QStringList()).contains("%");
     }
     res["adminrufus sécurisé"] = adminrufusEstSecurise();
@@ -2885,7 +2885,7 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
 
     /*! Éprouvé avant d'écrire le .dbkey : une saisie erronée effacerait l'ancien mot de passe. */
     auto eprouverMdpCabinet = [&](const QString& mdp) {
-        if (!connexionValide(QString(LOGIN_SQL), mdp)) {
+        if (!connexionValide(DataBase::I()->Logindb(), mdp)) {
             UpMessageBox::Watch(&dlg, tr("Mot de passe incorrect"),
                 tr("Ce mot de passe ne permet pas de se connecter à la base de données."));
             return;
@@ -3777,7 +3777,7 @@ bool MySQLInstaller::isServerRunning()
 
 bool MySQLInstaller::tryConnect()
 {
-    return DataBase::I()->testConnexion(m_login, m_password);
+    return DataBase::I()->testConnexion(DataBase::I()->Logindb(), m_password);
 }
 
 /*!
@@ -3811,12 +3811,10 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
     /*! SHOW GRANTS sans clause FOR = celui du compte RÉELLEMENT utilisé par la connexion, quel que soit
      *  son host. Depuis qu'adminrufus n'existe plus en @'%', le nommer en dur ne rendait aucune ligne :
      *  tous les privilèges étaient signalés manquants. */
-    /*! Le client mysql ne suffixe rien : en distant, le compte connecté est adminrufusSSL. */
     QString raw = runCmdFull(
         QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
                 "\"SHOW GRANTS;\" 2>&1")
-            .arg(mysqlBin("mysql"), argsServeurCourant(),
-                 DataBase::I()->loginPourMode(m_login), m_password));
+            .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password));
 
     QStringList grantedPrivs;
     bool hasGrantOption = false;
