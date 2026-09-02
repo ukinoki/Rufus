@@ -3811,10 +3811,12 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
     /*! SHOW GRANTS sans clause FOR = celui du compte RÉELLEMENT utilisé par la connexion, quel que soit
      *  son host. Depuis qu'adminrufus n'existe plus en @'%', le nommer en dur ne rendait aucune ligne :
      *  tous les privilèges étaient signalés manquants. */
+    /*! Le client mysql ne suffixe rien : en distant, le compte connecté est adminrufusSSL. */
     QString raw = runCmdFull(
         QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e "
                 "\"SHOW GRANTS;\" 2>&1")
-            .arg(mysqlBin("mysql"), argsServeurCourant(), m_login, m_password));
+            .arg(mysqlBin("mysql"), argsServeurCourant(),
+                 DataBase::I()->loginPourMode(m_login), m_password));
 
     QStringList grantedPrivs;
     bool hasGrantOption = false;

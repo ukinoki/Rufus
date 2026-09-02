@@ -216,7 +216,7 @@ QString DataBase::optionsConnexion(QString& login, QString& erreur)
         //! Le remplacer par MYSQL_OPT_SSL_MODE=SSL_MODE_REQUIRED (réellement appliqué, lui) CASSE l'accès
         //! distant : on garde donc l'ancien jeton, warning cosmétique inclus. Voir historique du dépôt.
         connectSSLoptions += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
-        login += "SSL";
+        login = loginPourMode(login);
     }
     else
     {

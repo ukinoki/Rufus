@@ -124,6 +124,8 @@ public:
     Utils::ModeAcces        ModeAccesDataBase() const;          /*! le mode d'accès au serveur
                                                                     \result monoposte = Utils::Poste, reseau local = Utils::ReseauLocal, distant = Utils::Distant */
     void                    setModeacces(const Utils::ModeAcces &modeacces);
+    QString                 loginPourMode(const QString &login) const
+                            {return login + (m_modeacces == Utils::Distant? "SSL" : "");}    /*!< l'accès distant se connecte avec le compte SSL */
     QString                 AdresseServer() const;              /*! l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS */
     int                     port() const;                       /*! le port SQL */
     void                    InfosConnexionSQL();                /*! les infos de connexions SQL : host, database, login, mdp */
