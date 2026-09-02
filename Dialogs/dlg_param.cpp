@@ -373,7 +373,9 @@ dlg_param::dlg_param(QWidget *parent) :
        QSpinBox *wdg_delaispin      = new QSpinBox();
        wdg_delaispin                ->setRange(5000, 30000);
        wdg_delaispin                ->setSingleStep(1000);
-       wdg_delaispin                ->setValue(QString(lecturedelai.readAllStandardOutput()).trimmed().toInt());
+       /*! gsettings préfixe la valeur de son type (« uint32 10000 ») : on ne garde que le dernier champ. */
+       const QString delailu        = QString(lecturedelai.readAllStandardOutput()).trimmed();
+       wdg_delaispin                ->setValue(delailu.section(' ', -1).toInt());
        UpLabel *delailbl            = new UpLabel();
        delailbl                     ->setText(tr("Délai avant l'alerte « Rufus ne répond pas » (ms)"));
        wdg_delaiframe               = new QFrame();
