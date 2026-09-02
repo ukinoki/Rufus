@@ -1035,7 +1035,9 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts, std::function<void()> 
      if (useSSL)
      {
          QString dirkey = QDir::toNativeSeparators(dirSSLKeys());
-         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
+         /*! MySQL génère la CA sous le nom ca.pem, l'export Rufus la renomme ca-cert.pem : les deux valent. */
+         const QString ca = QFile::exists(dirkey + "/ca-cert.pem") ? "/ca-cert.pem" : "/ca.pem";
+         keys += " --ssl-ca=" + dirkey + ca + " --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
      }
      QStringList args = QStringList()
         << "-u" << login

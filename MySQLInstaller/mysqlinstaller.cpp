@@ -1579,11 +1579,13 @@ bool MySQLInstaller::exporterClesClientSSL(const QString& dest)
  * \brief MySQLInstaller::corrigerDroitsClesSSL
  * Rend les trois clés d'un dossier à l'utilisateur courant : copiées par un compte administrateur, elles
  * lui appartiennent parfois, et client-key.pem en 600 est alors illisible par le client MySQL.
- * \param dossier  dossier contenant ca-cert.pem, client-cert.pem et client-key.pem
+ * \param dossier  dossier contenant la CA (ca-cert.pem ou ca.pem), client-cert.pem et client-key.pem
  */
 bool MySQLInstaller::corrigerDroitsClesSSL(const QString& dossier)
 {
-    const QStringList cles = { "/ca-cert.pem", "/client-cert.pem", "/client-key.pem" };
+    /*! MySQL génère la CA sous le nom ca.pem, l'export Rufus la renomme ca-cert.pem : les deux valent. */
+    const QString ca = QFile::exists(dossier + "/ca-cert.pem") ? "/ca-cert.pem" : "/ca.pem";
+    const QStringList cles = { ca, "/client-cert.pem", "/client-key.pem" };
 #if !defined(Q_OS_WIN)
     QString sh = "DEST='" + dossier + "'\n";
   #if defined(Q_OS_MACOS)
