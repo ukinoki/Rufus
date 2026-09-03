@@ -2789,9 +2789,6 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
         const bool cnx  = m.tryConnectAs(login, mdp);
         const bool priv = cnx && m.checkPrivileges(manquants);
         const QString err = priv ? DataBase::I()->connectToDataBase(DB_RUFUS, login, mdp) : QString("(non tenté)");
-        qDebug() << "connexionValide" << login << "tryConnectAs=" << cnx
-                 << "checkPrivileges=" << priv << "manquants=" << manquants
-                 << "connectToDataBase=" << err;
         return cnx && priv && err.isEmpty();
     };
 
