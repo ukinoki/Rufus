@@ -2016,7 +2016,7 @@ bool MySQLInstaller::configurerEtapesDossierPartage(bool silencieux)
      *  réelle (privilège FILE, droits du dossier), pas le « Full Disk Access » qu'on accusait à tort. */
     if (!testSharedFolderRW()) {
         if (!silencieux) {
-            if (!tryConnect())
+            if (!DataBase::I()->testConnexion(DataBase::I()->Logindb(), m_password))
                 UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
                     tr("Connexion impossible avec le login « %1 ».\n"
                        "Vérifiez le login et le mot de passe.").arg(m_login));
@@ -3773,11 +3773,6 @@ bool MySQLInstaller::isServerRunning()
     const QString out = runCmdFull(QString("\"%1\" ping 2>&1").arg(bin));
     return !out.contains("ERROR 2002") && !out.contains("ERROR 2003")
         && !out.contains("ERROR 2005");
-}
-
-bool MySQLInstaller::tryConnect()
-{
-    return DataBase::I()->testConnexion(DataBase::I()->Logindb(), m_password);
 }
 
 /*!

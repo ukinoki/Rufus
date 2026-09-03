@@ -253,8 +253,9 @@ private:
     bool    configurerEtapesDossierPartage(bool silencieux);                /*!< étapes 3-5 : dossier partagé + secure_file_priv + test R/W */
     void    avertirImagerieAMigrer();                                       /*!< invite l'utilisateur à recopier lui-même son imagerie */
 
-    bool          isMariaDB();                                              /*!< le serveur local est-il MariaDB ? (incompatible) */
-    void          effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);  /*!< supprime toutes les bases non système */
+    bool    isMariaDB();                                                    /*!< le serveur local est-il MariaDB ? (incompatible) */
+    void    effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);
+                                                                            /*!< supprime toutes les bases non système */
 
     bool executerEtapesConfig();                                            /*!< déroule les étapes de config + coche la checklist ; true si tout OK */
     void cleanupDialog();                                                   /*!< ferme et détruit m_dialog */
@@ -298,7 +299,6 @@ private:
 
     /*! ── Identifiants / connexion ────────────────────────────────────────────────────────────────────── */
     bool isServerRunning();                                                 /*!< le serveur répond-il ? */
-    bool tryConnect();                                                      /*!< connexion adminrufus (mdp courant) */
     bool tryConnectAs(const QString& login, const QString& mdp);            /*!< connexion avec login/mdp arbitraires (compte admin saisi) */
     bool checkPrivileges(QStringList& outMissing);                          /*!< adminrufus a-t-il tous les privilèges requis ? (manquants -> outMissing) */
     bool createUser();                                                      /*!< crée adminrufus/SSL (mode création) */

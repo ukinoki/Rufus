@@ -3966,7 +3966,8 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
          */
         if (db->ModeAccesDataBase() != Utils::Poste || MySQLInstaller::socleLocalConforme())
         {
-            const MySQLInstaller::IssueMdp issue = MySQLInstaller::RecupererMotDePasseMySQL(parent);
+            const bool serveurlocal = db->ModeAccesDataBase() != Utils::Distant;
+            const MySQLInstaller::IssueMdp issue = MySQLInstaller::RecupererMotDePasseMySQL(parent, /* avecBoutonsSecoursEtCompteMySQL=*/ serveurlocal);
 
             //! Annulation immédiate : l'utilisateur n'a rien tenté, on ne lui propose rien
             if (issue == MySQLInstaller::IssueMdp::Echec)
@@ -3975,16 +3976,28 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
             //! Tentatives infructueuses : il ne reste qu'à repartir d'une base neuve, sur le poste serveur
             if (!db->dbase().isOpen())
             {
-                const bool serveur = db->ModeAccesDataBase() == Utils::Poste;
+                bool monoposte  = db->ModeAccesDataBase() == Utils::Poste;
+                bool distant    = db->ModeAccesDataBase() == Utils::Distant;
                 if (UpMessageBox::Question(parent, tr("Réinitialiser le programme"),
-                        tr("Rufus n'a plus aucun moyen d'ouvrir votre base patients.") + "\n\n" +
-                        tr("Il peut installer une base neuve, mais ATTENTION : les données de la base "
-                           "actuelle seront définitivement perdues.") + "\n\n" +
-                        (serveur ? tr("Voulez-vous continuer ?")
-                                 : tr("Cette opération ne peut se faire que depuis le poste qui héberge "
-                                      "la base.")),
-                        UpDialog::ButtonCancel | (serveur ? UpDialog::ButtonOK : UpDialog::NoButton),
-                        serveur ? QStringList() << tr("Annuler") << tr("Créer une nouvelle\nbase patients")
+                        tr("Rufus ne peut pas ouvrir votre base patients.") + "\n\n" +
+                        (distant?   tr("Si vous ne disposez réellement d'aucun moyen de vous connecter au serveur depuis ce poste") + "\n" +
+                                    tr("vous pouvez tenter une nouvelle connexion depuis le serveur ou un poste du réseau local") + "\n" +
+                                    tr("avec le mot de passe de secours ou un identifiant MySQL valide") + "\n" +
+                                    tr("Et si toutes les tentatives de vous connecter échouent") + "\n" +
+                                    tr("vous pourrez réintialiser la base de données.") + "\n" +
+                                    tr("La réintialisation des données ne peut se faire que depuis le serveur") + "\n" +
+                                    tr("toutes les données de la base actuelle seront définitivement perdues.") + "\n" +
+                                    tr("mais vous pourrez restaurer vos données à partir d'une sauvegarde.")
+                                    :
+                                    tr("Si vous ne disposez réellement d'aucun moyen de vous connecter au serveur") + "\n" +
+                                    tr("Il ne vous reste plus qu'à installer une base de données neuve") + "\n" +
+                                    tr("toutes les données de la base actuelle seront définitivement perdues.") + "\n" +
+                                    tr("mais vous pourrez restaurer vos données à partir d'une sauvegarde si vous en avez une.") + "\n" +
+                                    (monoposte? "\n" + tr("Voulez-vous continuer et recréer une base neuve?")
+                                                :
+                                                tr("Cette opération ne peut se faire que depuis le poste serveur."))),
+                        UpDialog::ButtonCancel | (monoposte ? UpDialog::ButtonOK : UpDialog::NoButton),
+                        monoposte ? QStringList() << tr("Annuler") << tr("Créer une nouvelle\nbase patients")
                                 : QStringList() << tr("Annuler"))
                     != UpSmallButton::STARTBUTTON)
                     return false;
@@ -5406,30 +5419,7 @@ int Procedures::idCentre()
 
 bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Restauration, QWidget *parent)
 {
-    UpSmallButton *bAnnuler       = new UpSmallButton(tr("Abandonner"));
-    UpSmallButton *bBaseVierge    = new UpSmallButton(tr("Nouvelle base\npatients"));
-    UpSmallButton *bBaseExistante = new UpSmallButton(tr("Base patients restaurée\nà partir d'une sauvegarde"));
-    bAnnuler      ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
-    bBaseVierge   ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
-    bBaseExistante->setUpButtonStyle(UpSmallButton::RECEPTIONBUTTON);
-
     UpMessageBox dlg(parent);
-    dlg.setWindowModality(Qt::ApplicationModal);
-    dlg.setIcon(UpMessageBox::Info);
-    dlg.setText(tr("Premier démarrage de Rufus!"));
-    QString msg = tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
-                    tr("1. J'installe Rufus sur ce poste en créant une nouvelle base patients") + "\n" +
-                    tr("2. J'installe Rufus sur ce poste et et je vais créer une base patients à partir d'une sauvehgarde");
-    if (NouvelleBaseVierge && ! Restauration)
-        msg = tr("Confirmez la création d'une nouvelle base vierge Rufus");
-    else if (!NouvelleBaseVierge && Restauration)
-        msg = tr("Confirmez la restauration d'une sauvegarde de la base Rufus");
-    dlg.setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" + msg);
-    if (NouvelleBaseVierge)
-        dlg.AjouteWidgetLayButtons(bBaseVierge);
-    if (Restauration)
-        dlg.AjouteWidgetLayButtons(bBaseExistante);
-    dlg.AjouteWidgetLayButtons(bAnnuler);
 
     auto installer = [&]()
     {
@@ -5439,15 +5429,15 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         //! Diagnostic : y a-t-il un serveur, s'y connecte-t-on, est-il conforme ?
         bool sauvegardeFaite = false;   /*!< base Rufus sauvegardée à l'instant : on la restaurera sans rien demander */
         QStringList logAdmin;
-        const bool serveurPresent = MySQLInstaller::serveurLocalPresent();
+        const bool serveurPresent   = MySQLInstaller::serveurLocalPresent();
         if (serveurPresent)
             //! adminrufus/gaxt78iy, sinon saisie d'un compte admin : indépendant de la conformité
             logAdmin = installeurMySQL->FindMdpLoginMySQL();
 
-        const bool connectable   = !logAdmin.isEmpty();
-        const bool aInstaller    = !serveurPresent;
-        const bool aDesinstaller = serveurPresent
-                                && (!connectable || !MySQLInstaller::socleLocalConforme());
+        const bool connectable      = !logAdmin.isEmpty();
+        const bool aInstaller       = !serveurPresent;
+        const bool aDesinstaller    = serveurPresent
+                                    && (!connectable || !MySQLInstaller::socleLocalConforme());
 
         //! Base Rufus en place : elle sera effacée, on propose de la sauvegarder
         if (connectable && MySQLInstaller::isBaseRufus(logAdmin))
@@ -5558,11 +5548,45 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
         Utils::Redemarrage();
     };
 
-    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { m_protoc = NoBase;         dlg.accept();});
-    connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { m_protoc = BaseVierge;     installer();    });
-    connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { m_protoc = BaseExistante;  installer(); });
-    dlg.exec();
+    dlg.setWindowModality(Qt::ApplicationModal);
+    dlg.setIcon(UpMessageBox::Info);
+    dlg.setText(tr("Premier démarrage de Rufus!"));
+    QString msg = tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
+                    tr("1. J'installe Rufus sur ce poste et je vais créer une nouvelle base patients vierge sur ce poste") + "\n" +
+                    tr("2. J'installe Rufus sur ce poste et je vais créer une base patients à partir d'une sauvehgarde sur ce poste");
 
+    if (NouvelleBaseVierge && ! Restauration)
+        msg = tr("Confirmez la création d'une nouvelle base vierge Rufus");
+    else if (!NouvelleBaseVierge && Restauration)
+        msg = tr("Confirmez la restauration d'une sauvegarde de la base Rufus");
+    dlg.setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" + msg);
+    bool serveurconforme = MySQLInstaller::serveurLocalPresent() && MySQLInstaller::socleLocalConforme();
+    if (NouvelleBaseVierge)
+    {
+        UpSmallButton *bBaseVierge    = new UpSmallButton(tr("Nouvelle base\npatients vierge"));
+        bBaseVierge         ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
+        bBaseVierge         ->setImmediateToolTip(tr("Ce poste va héberger une nouvelle base patients vierge") + "\n" +
+                                                  tr(serveurconforme? "Cette base sera créée sur le serveur MySQL déjà présent sur ce poste" :
+                                                                     "Un serveur MySQL sera installé sur ce poste et cette nouvelle base y sera créée"));
+        dlg.AjouteWidgetLayButtons(bBaseVierge);
+        connect(bBaseVierge,    &QPushButton::clicked, &dlg, [&] { m_protoc = BaseVierge;     installer();    });
+    }
+    if (Restauration)
+    {
+        UpSmallButton *bBaseExistante = new UpSmallButton(tr("Base patients restaurée\nà partir d'une sauvegarde"));
+        bBaseExistante      ->setUpButtonStyle(UpSmallButton::RECEPTIONBUTTON);
+        bBaseExistante      ->setImmediateToolTip(tr("Ce poste va héberger une nouvelle base patients restaurée à partir d'une sauvegarde") + "\n" +
+                                                  tr(serveurconforme? "Cette base sera créée sur le serveur MySQL déjà présent sur ce poste" :
+                                                                     "Un serveur MySQL sera installé sur ce poste et cette nouvelle base y sera créée"));
+        dlg.AjouteWidgetLayButtons(bBaseExistante);
+        connect(bBaseExistante, &QPushButton::clicked, &dlg, [&] { m_protoc = BaseExistante;  installer(); });
+    }
+    UpSmallButton *bAnnuler       = new UpSmallButton(tr("Abandonner"));
+    bAnnuler      ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
+    connect(bAnnuler,       &QPushButton::clicked, &dlg, [&] { m_protoc = NoBase;         dlg.accept();});
+    dlg.AjouteWidgetLayButtons(bAnnuler);
+
+    dlg.exec();
     return false;
 }
 

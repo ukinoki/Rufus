@@ -121,7 +121,7 @@ public:
                                 QString Server,
                                 int Port);                      /*! initialise les paramètres de connexion au serveur (adresse, port, SSL) */
 
-    Utils::ModeAcces        ModeAccesDataBase() const;          /*! le mode d'accès au serveur
+    Utils::ModeAcces        ModeAccesDataBase() const;          /*! le mode d'accès au serveur tel qu'il est défini dans les paramètres de connexion de Rufus.ini
                                                                     \result monoposte = Utils::Poste, reseau local = Utils::ReseauLocal, distant = Utils::Distant */
     void                    setModeacces(const Utils::ModeAcces &modeacces);
     QString                 Logindb() const
