@@ -3842,7 +3842,7 @@ bool MySQLInstaller::createUser()
 #if defined(Q_OS_LINUX)
     /*! Déjà créé (ex. par prepareCreateModeLinux) ? On court-circuite pour ne pas redemander le mot de
      *  passe système. */
-    if (tryConnect())
+    if (DataBase::I()->testConnexion(DataBase::I()->Logindb(), m_password))
         return true;
 #endif
 
