@@ -240,9 +240,13 @@ public:
     void                    CalcImageDocument(DocExterne *docmt);
 
     QPrinter*               printer() {return m_printer;}
-    void                    MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEnvoi typ = printDOC, QMap<QString, QString> map = QMap<QString, QString>(), int idsite = -1);
+    /*! pdforigin : le pdf d'origine du document, servi tel quel au pdf et au mail — les images en sont
+     *  la rastérisation, cent fois plus lourde. Vide (documents anciens, imagerie) : on repart des images. */
+    void                    MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEnvoi typ = printDOC, QMap<QString, QString> map = QMap<QString, QString>(), int idsite = -1,
+                                           const QByteArray &pdforigin = QByteArray());
     bool                    Print(QList<QImage> listimage, QWidget *parent = nullptr);
     bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> infofilepdf = QMap<QString, QString>(), QWidget *parent = nullptr);
+    bool                    createPdfFromByteArray(const QByteArray &pdf, QMap<QString, QString> infofilepdf = QMap<QString, QString>(), QWidget *parent = nullptr);   /*!< écrit un pdf déjà constitué */
     QByteArray              calcPdfFromListImage(QList<QImage> listimage);   /*!< la même liste d'images, en pdf et sans fichier */
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     /*! un document prêt à être émis : ses textes, son pdf et ses champs pour la table des documents */

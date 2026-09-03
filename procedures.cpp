@@ -2367,7 +2367,35 @@ bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, Q
     return true;
 }
 
-void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEnvoi typ, QMap<QString, QString> map, int idsite)
+/*!
+ * \brief Procedures::createPdfFromByteArray
+ * Écrit tel quel un pdf déjà constitué, sans le repasser par un rendu.
+ * \param pdf           le pdf à écrire
+ * \param infofilepdf   dossier, nom de fichier et message de réussite
+ * \param parent        fenêtre parente du message
+ */
+bool Procedures::createPdfFromByteArray(const QByteArray &pdf, QMap<QString, QString> infofilepdf, QWidget *parent)
+{
+    const QString dirname   = infofilepdf.value("dir");
+    const QString filename  = infofilepdf.value("file");
+    if (Utils::mkpath(dirname))
+    {
+        QFile fic(dirname + "/" + filename);
+        if (fic.open(QIODevice::WriteOnly))
+        {
+            fic         .write(pdf);
+            fic         .close();
+        }
+    }
+    const bool aa           = QFile(dirname + "/" + filename).exists();
+    UpMessageBox::Watch(parent,
+                        aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                        aa? infofilepdf.value("msg") : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
+    return aa;
+}
+
+void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEnvoi typ, QMap<QString, QString> map, int idsite,
+                                const QByteArray &pdforigin)
 {
     switch (QuestionMailPdfOrPrint(parent, typ, idsite))
     {
@@ -2377,11 +2405,14 @@ void Procedures::MailPdfOrPrint(QWidget *parent, QList<QImage> listimage, typeEn
     case SendMAIL: {
         QString destinataire;
         QMap<QString, QByteArray> pieces;
-        pieces.insert(map.value("file"), calcPdfFromListImage(listimage));
+        pieces.insert(map.value("file"), pdforigin.isEmpty()? calcPdfFromListImage(listimage) : pdforigin);
         EnvoiMail(parent, pieces, idsite, nullptr, destinataire);
         break; }
     case createPDF:
-        createPdfFromListImage(listimage, map, parent);
+        if (pdforigin.isEmpty())
+            createPdfFromListImage(listimage, map, parent);
+        else
+            createPdfFromByteArray(pdforigin, map, parent);
         break;
     default:
         break;
