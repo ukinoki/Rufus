@@ -107,6 +107,7 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     wdg_buttonframe = new WidgetButtonFrame(wdg_table);
     wdg_buttonframe ->AddButtons(WidgetButtonFrame::Buttons());   //! aucun bouton : seule la ligne de recherche est voulue
     wdg_buttonframe ->addSearchLine();
+    wdg_buttonframe ->layButtons()->setSpacing(10);   //! AddButtons colle les widgets les uns aux autres
     /*! le tri n'a de sens qu'avec la CCAM, absente de la version internationale */
     const bool ccamutilisee = DataBase::I()->parametres()->cotationsfrance();
     m_proxy         ->setOphtalmoSeule(ccamutilisee);
