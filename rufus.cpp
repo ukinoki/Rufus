@@ -9243,10 +9243,18 @@ void Rufus::ReconstruitCompleterCotations(bool force)
         }
     }
     comp->setModel(m_modelcompletercotations);
-    qDebug() << "source  tip[1]=" << m_modelcompletercotations->data(m_modelcompletercotations->index(1,0), Qt::ToolTipRole)
-             << "popup model=" << (void*)comp->popup()->model()
-             << "lignes=" << comp->popup()->model()->rowCount()
-             << "tip[1] vu du popup=" << comp->popup()->model()->data(comp->popup()->model()->index(1,0), Qt::ToolTipRole);
+    int avectip = 0, premier = -1;
+    for (int i = 0; i < m_modelcompletercotations->rowCount(); ++i)
+        if (!m_modelcompletercotations->item(i)->toolTip().isEmpty())
+        {
+            if (premier < 0) premier = i;
+            ++avectip;
+        }
+    qDebug() << "items=" << m_modelcompletercotations->rowCount() << "avec tip=" << avectip
+             << "premier=" << premier
+             << (premier >= 0? m_modelcompletercotations->item(premier)->text() : QString())
+             << (premier >= 0? m_modelcompletercotations->item(premier)->toolTip() : QString())
+             << "| ccam en mémoire=" << Datas::I()->cotations->ccam()->size();
 }
 
 /*!
