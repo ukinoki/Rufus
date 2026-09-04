@@ -17,8 +17,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QHeaderView>
 
+#include "gbl_datas.h"
 #include "dlg_choixcotation.h"
-#include "cls_datas.h"
 #include "database.h"
 #include "upstandarditem.h"
 
@@ -53,8 +53,6 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
         wdg_table   ->setColumnHidden(ColNonOptam, true);
         wdg_table   ->setColumnHidden(ColOptam, true);
     }
-    wdg_table   ->resizeRowsToContents();
-
     wdg_buttonframe = new WidgetButtonFrame(wdg_table);
     wdg_buttonframe ->AddButtons(WidgetButtonFrame::Buttons());   //! aucun bouton : seule la ligne de recherche est voulue
     wdg_buttonframe ->addSearchLine();
@@ -78,6 +76,12 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     wdg_buttonframe->searchline()->setFocus();
     setEnregPosition(true);
     setSaveGeometry(Nom_fiche_ChoixCotation);
+}
+
+void dlg_choixcotation::showEvent(QShowEvent *event)
+{
+    UpDialog::showEvent(event);
+    wdg_table   ->resizeRowsToContents();   //! la largeur du descriptif, étirée, n'est connue qu'ici
 }
 
 /*!

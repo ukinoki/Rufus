@@ -41,6 +41,9 @@ public:
     explicit    dlg_choixcotation(QWidget *parent = nullptr);
     Cotation*   cotation() const    { return m_cotation; }
 
+protected:
+    void        showEvent(QShowEvent *event) override;   //!< la hauteur des lignes se calcule une fois la largeur du descriptif connue
+
 private:
     enum Colonne { ColCotation, ColDescriptif, ColNonOptam, ColOptam, ColPratique };
 
