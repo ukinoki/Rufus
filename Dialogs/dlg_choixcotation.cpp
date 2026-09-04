@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "dlg_choixcotation.h"
 #include "database.h"
+#include "upmessagebox.h"
 #include "upstandarditem.h"
 
 bool FiltreCotations::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
@@ -46,7 +47,7 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     setWindowTitle(tr("Rechercher une cotation"));
 
     wdg_table = new QTableView(this);
-    wdg_table   ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_table   ->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
     wdg_table   ->setSelectionMode(QAbstractItemView::SingleSelection);
     wdg_table   ->setSelectionBehavior(QAbstractItemView::SelectRows);
     wdg_table   ->setWordWrap(true);
@@ -139,6 +140,25 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
             wdg_table   ->resizeRowsToContents();
             OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
         });
+    /*! itemChanged part aussi sur un changement programmatique : on n'agit sur la case que si elle a
+     *  réellement basculé, c.-à-d. si son état diffère de celui enregistré */
+    connect(m_model, &QStandardItemModel::itemChanged, this, [=, this] (QStandardItem *itm) {
+        UpStandardItem *upit = dynamic_cast<UpStandardItem*>(itm);
+        if (upit == nullptr)
+            return;
+        Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
+        if (itm->column() == ColPratique)
+        {
+            const double montant = QLocale().toDouble(itm->text());
+            MAJMontantPratique(cot, montant);
+            m_model ->blockSignals(true);
+            itm     ->setText(QLocale().toString(montant, 'f', 2));
+            m_model ->blockSignals(false);
+        }
+        else if (itm->column() == ColCotation
+                 && cot != nullptr && (itm->checkState() == Qt::Checked) != cot->isused())
+            MAJCotation(itm);
+    });
     connect(wdg_table,                      &QAbstractItemView::doubleClicked,      this,   &dlg_choixcotation::RetientCotation);
     connect(OKButton,                       &QPushButton::clicked,      this,   [=, this] {
         RetientCotation(wdg_table->currentIndex());
@@ -167,6 +187,9 @@ void dlg_choixcotation::RemplitTable()
     m_model     ->setHorizontalHeaderLabels(QStringList()
                     << tr("Cotation") << tr("Descriptif") << tr("Non OPTAM") << tr("OPTAM") << tr("Pratiqué"));
 
+    //! un remplaçant ne modifie pas les montants de celui qu'il remplace
+    const bool sonparent = Datas::I()->users->userconnected()->idparent()
+                        == Datas::I()->users->userconnected()->id();
     auto ajoute = [&] (Cotation *c, bool ophtalmo) {
         QList<QStandardItem*> ligne;
         ligne << new UpStandardItem(c->typeacte(), c);
@@ -177,10 +200,15 @@ void dlg_choixcotation::RemplitTable()
         ligne << new QStandardItem(c->descriptif());
         ligne << new QStandardItem(QLocale().toString(c->montantnonoptam(), 'f', 2));
         ligne << new QStandardItem(QLocale().toString(c->montantoptam(), 'f', 2));
-        ligne << new QStandardItem(c->isused()? QLocale().toString(c->montantpratique(), 'f', 2) : QString());
+        //! le pratiqué d'un NGAP vaut toujours le conventionnel : il ne se saisit pas
+        ligne << new UpStandardItem(c->isused() && !c->isNGAP()?
+                                    QLocale().toString(c->montantpratique(), 'f', 2) : QString(), c);
         for (int col : {ColNonOptam, ColOptam, ColPratique})
             ligne.at(col)->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
         ligne.at(ColCotation)->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
+        for (QStandardItem *itm : ligne)
+            itm ->setEditable(false);
+        ligne.at(ColPratique)->setEditable(!c->isNGAP() && sonparent && c->isused());
         m_model ->appendRow(ligne);
     };
 
@@ -195,6 +223,88 @@ void dlg_choixcotation::RemplitTable()
         if (!codesvus.contains(c->typeacte()))
             ajoute(c, c->typeacte().startsWith("B", Qt::CaseInsensitive)
                    || c->typeacte().startsWith("EBQF", Qt::CaseInsensitive));   //! les chapitres d'ophtalmologie de la CCAM
+}
+
+/*!
+ * \brief dlg_choixcotation::MAJCotation
+ * Coche/décoche : ajoute ou retire la jointure du user, et propose de supprimer de la table des
+ * cotations celle que plus personne n'utilise. Repris de dlg_param::MAJCotation.
+ * \param itcheck  l'item dont la case vient de basculer
+ */
+void dlg_choixcotation::MAJCotation(QStandardItem *itcheck)
+{
+    UpStandardItem *upit = dynamic_cast<UpStandardItem*>(itcheck);
+    if (upit == nullptr)
+        return;
+    Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
+    if (cot == nullptr)
+        return;
+
+    const int typ       = cot->typcotation();
+    const int iduser    = Datas::I()->users->userconnected()->id();
+    const bool checked  = (itcheck->checkState() == Qt::Checked);
+    QStandardItem *itprat = m_model->item(itcheck->row(), ColPratique);
+    cot     ->setused(checked);
+    m_cotationsmodifiees = true;
+
+    /*! l'éditeur s'ouvre au tour suivant : appelé depuis le clic, celui-ci le refermerait aussitôt */
+    auto ouvreEditionPratique = [&] (double v) {
+        if (itprat == nullptr)
+            return;
+        m_model ->blockSignals(true);
+        itprat  ->setText(QLocale().toString(v, 'f', 2));
+        itprat  ->setEditable(true);
+        m_model ->blockSignals(false);
+        cot     ->setmontantpratique(v);
+        const int row = itcheck->row();
+        QTimer::singleShot(0, this, [this, row] {
+            wdg_table->edit(m_proxy->mapFromSource(m_model->index(row, ColPratique)));});
+    };
+
+    if (!checked)
+    {
+        DataBase::I()->retireJointureCotation(typ, cot->id(), iduser);
+        if (itprat != nullptr)
+        {
+            m_model ->blockSignals(true);
+            itprat  ->setText("");
+            itprat  ->setEditable(false);
+            m_model ->blockSignals(false);
+        }
+        /*! le rechargement est différé : on ne détruit pas le modèle pendant qu'on traite son itemChanged */
+        if (!cot->isNGAP() && !DataBase::I()->cotationUtiliseeParAutreUser(typ, cot->id(), iduser)
+            && UpMessageBox::Question(this, tr("Cotation inutilisée"),
+                   tr("Cette cotation n'est plus utilisée par personne.") + "\n"
+                   + tr("Voulez-vous la supprimer de la liste des cotations ?"),
+                   UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList() << tr("Non") << tr("Oui"))
+               == UpSmallButton::STARTBUTTON)
+        {
+            DataBase::I()->SupprRecordFromTable(cot->id(), CP_ID_COTATIONS, TBL_COTATIONS);
+            QTimer::singleShot(0, this, [=, this] {Datas::I()->cotations->initListe(); RemplitTable();});
+        }
+        return;
+    }
+
+    if (cot->isNGAP())                              //! jointure sans montant, pas d'édition du pratiqué
+    {
+        DataBase::I()->ajouteJointureCotation(typ, cot->id(), iduser, 0);
+        return;
+    }
+    const bool optam = Datas::I()->users->userconnected()->isOPTAM();
+    const double conv = cot->isAutre()? cot->montantoptam()
+                                      : (optam? cot->montantoptam() : cot->montantnonoptam());
+    DataBase::I()->ajouteJointureCotation(typ, cot->id(), iduser, conv, conv);
+    ouvreEditionPratique(conv);
+}
+
+void dlg_choixcotation::MAJMontantPratique(Cotation *cot, double montant)
+{
+    if (cot == nullptr)
+        return;
+    DataBase::I()->majMontantPratiqueCotation(cot->typcotation(), cot->id(),
+                                              Datas::I()->users->userconnected()->id(), montant);
+    cot     ->setmontantpratique(montant);
+    m_cotationsmodifiees = true;
 }
 
 void dlg_choixcotation::RetientCotation(QModelIndex idx)

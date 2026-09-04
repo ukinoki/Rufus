@@ -57,7 +57,8 @@ class dlg_choixcotation : public UpDialog
     Q_OBJECT
 public:
     explicit    dlg_choixcotation(QWidget *parent = nullptr);
-    Cotation*   cotation() const    { return m_cotation; }
+    Cotation*   cotation() const            { return m_cotation; }
+    bool        cotationsmodifiees() const  { return m_cotationsmodifiees; }   //!< les cotations du user ont changé
 
 protected:
     void        showEvent(QShowEvent *event) override;   //!< la hauteur des lignes se calcule une fois la largeur du descriptif connue
@@ -71,8 +72,12 @@ private:
     WidgetButtonFrame       *wdg_buttonframe = nullptr;
     UpCheckBox              *wdg_ophtalmo    = nullptr;   //!< n'afficher que les cotations d'ophtalmologie
 
+    bool        m_cotationsmodifiees = false;
+
     void        RemplitTable();                     //!< une ligne par cotation de référence, puis par code CCAM
     void        RetientCotation(QModelIndex idx);   //!< retient la cotation de la ligne et ferme la fiche
+    void        MAJCotation(QStandardItem *itcheck);                //!< coche/décoche : ajoute ou retire la jointure du user
+    void        MAJMontantPratique(Cotation *cot, double montant);  //!< met à jour le montant pratiqué du user dans sa jointure
 };
 
 #endif // DLG_CHOIXCOTATION_H
