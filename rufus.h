@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define RUFUS_H
 
 #include <ctime>
-#include <QDesktopServices>
+//#include <QDesktopServices>
 #include <QFileSystemWatcher>
 #include <QtGlobal>
 #include <QMainWindow>
