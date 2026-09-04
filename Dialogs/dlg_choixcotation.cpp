@@ -105,7 +105,7 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     majlargeurmini();
 
     wdg_buttonframe = new WidgetButtonFrame(wdg_table);
-    wdg_buttonframe ->AddButtons(WidgetButtonFrame::Buttons());   //! aucun bouton : seule la ligne de recherche est voulue
+    wdg_buttonframe ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     wdg_buttonframe ->addSearchLine();
     wdg_buttonframe ->layButtons()->setSpacing(10);   //! AddButtons colle les widgets les uns aux autres
     /*! le tri n'a de sens qu'avec la CCAM, absente de la version internationale */
@@ -170,6 +170,9 @@ void dlg_choixcotation::RemplitTable()
     auto ajoute = [&] (Cotation *c, bool ophtalmo) {
         QList<QStandardItem*> ligne;
         ligne << new UpStandardItem(c->typeacte(), c);
+        //! cochée : la cotation est dans celles de l'utilisateur courant
+        ligne.at(ColCotation)->setCheckable(true);
+        ligne.at(ColCotation)->setCheckState(c->isused()? Qt::Checked : Qt::Unchecked);
         ligne.at(ColCotation)->setData(ophtalmo, RoleOphtalmo);
         ligne << new QStandardItem(c->descriptif());
         ligne << new QStandardItem(QLocale().toString(c->montantnonoptam(), 'f', 2));
