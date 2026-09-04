@@ -300,6 +300,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         comp->popup()->setFont(ui->ActeMontantlineEdit->font());
         comp->setMaxVisibleItems(5);
         ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
+        qDebug() << "completer posé" << (void*)comp << "items=" << comp->model()->rowCount();
         connect(comp, QOverload<const QString &>::of(&QCompleter::activated), this, &Rufus::RetrouveMontantActe);
     }
 
@@ -9201,7 +9202,13 @@ void    Rufus::ReconstruitComboCotations(User *usr)
             item        ->setToolTip(it.value()->descriptif());
             m_modelcotations->appendRow(item);
         }
+    QCompleter *avant = ui->ActeCotationcomboBox->lineEdit()->completer();
+    qDebug() << "avant setModel : completer" << (void*)avant
+             << "items=" << (avant? avant->model()->rowCount() : -1);
     ui->ActeCotationcomboBox->setModel(m_modelcotations);
+    QCompleter *apres = ui->ActeCotationcomboBox->lineEdit()->completer();
+    qDebug() << "après setModel : completer" << (void*)apres
+             << "items=" << (apres? apres->model()->rowCount() : -1);
 }
 
 Cotation* Rufus::cotationcombo()
