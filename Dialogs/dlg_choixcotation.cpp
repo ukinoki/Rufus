@@ -98,6 +98,10 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     wdg_buttonframe = new WidgetButtonFrame(wdg_table);
     wdg_buttonframe ->AddButtons(WidgetButtonFrame::Buttons());   //! aucun bouton : seule la ligne de recherche est voulue
     wdg_buttonframe ->addSearchLine();
+    /*! AddButtons fige la largeur du conteneur, ce que veut une liste à largeur fixe : ici la table suit
+     *  celle de la fiche */
+    wdg_buttonframe ->widgButtonParent()->setMinimumWidth(0);
+    wdg_buttonframe ->widgButtonParent()->setMaximumWidth(QWIDGETSIZE_MAX);
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout() ->insertWidget(0, wdg_buttonframe->widgButtonParent());
 
