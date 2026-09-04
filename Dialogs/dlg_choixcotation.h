@@ -79,6 +79,12 @@ private:
     void        RegleOKButton();                    //!< actif si une ligne est choisie ou si les cotations ont changé
     void        MAJCotation(QStandardItem *itcheck);                //!< coche/décoche : ajoute ou retire la jointure du user
     void        MAJMontantPratique(Cotation *cot, double montant);  //!< met à jour le montant pratiqué du user dans sa jointure
+    void        ChoixButtonFrame();                 //!< les 3 boutons : créer, modifier, supprimer la cotation
+    void        RegleCotationsBoutons();            //!< leur état selon la cotation en surbrillance
+    Cotation*   cotationEnCours();                  //!< la cotation de la ligne en surbrillance
+    void        NouvCotation();
+    void        ModifCotation();
+    void        SupprimeCotation(Cotation *cot);
 };
 
 #endif // DLG_CHOIXCOTATION_H

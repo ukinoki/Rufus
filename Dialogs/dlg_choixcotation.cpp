@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gbl_datas.h"
 #include "dlg_choixcotation.h"
+#include "dlg_gestioncotations.h"
 #include "database.h"
 #include "upmessagebox.h"
 #include "upstandarditem.h"
@@ -133,7 +134,10 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     });
     connect(wdg_table->selectionModel(),    &QItemSelectionModel::selectionChanged, this,   [=, this] {
         RegleOKButton();
+        RegleCotationsBoutons();
     });
+    connect(wdg_buttonframe,                &WidgetButtonFrame::choix,  this,   &dlg_choixcotation::ChoixButtonFrame);
+    RegleCotationsBoutons();
     if (wdg_ophtalmo)
         connect(wdg_ophtalmo,               &QCheckBox::toggled,        this,   [=, this] (bool coche) {
             m_proxy     ->setOphtalmoSeule(coche);
@@ -325,4 +329,92 @@ void dlg_choixcotation::RetientCotation(QModelIndex idx)
 void dlg_choixcotation::RegleOKButton()
 {
     OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection() || m_cotationsmodifiees);
+}
+
+Cotation* dlg_choixcotation::cotationEnCours()
+{
+    const QModelIndex idx = wdg_table->currentIndex();
+    if (!idx.isValid())
+        return nullptr;
+    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(
+                m_model->itemFromIndex(m_proxy->mapToSource(idx.siblingAtColumn(ColCotation))));
+    return (itm && itm->hasrufusitem())? qobject_cast<Cotation*>(itm->rufusitem()) : nullptr;
+}
+
+/*!
+ * \brief dlg_choixcotation::RegleCotationsBoutons
+ * Repris de dlg_param : tout est réservé à l'utilisateur qui est son propre parent, la modification aux
+ * seules cotations « autre », la suppression à celles que personne d'autre n'utilise.
+ */
+void dlg_choixcotation::RegleCotationsBoutons()
+{
+    const bool sonparent = Datas::I()->users->userconnected()->idparent()
+                        == Datas::I()->users->userconnected()->id();
+    Cotation *cot = cotationEnCours();
+    wdg_buttonframe->wdg_plusBouton ->setEnabled(sonparent);
+    wdg_buttonframe->wdg_modifBouton->setEnabled(sonparent && cot != nullptr && cot->isAutre());
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(sonparent && cot != nullptr && !cot->isNGAP()
+                                                 && !DataBase::I()->cotationUtiliseeParAutreUser(
+                                                        cot->typcotation(), cot->id(),
+                                                        Datas::I()->users->userconnected()->id()));
+}
+
+void dlg_choixcotation::ChoixButtonFrame()
+{
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
+        NouvCotation();
+        break;
+    case WidgetButtonFrame::Modifier:
+        ModifCotation();
+        break;
+    case WidgetButtonFrame::Moins:
+        SupprimeCotation(cotationEnCours());
+        break;
+    }
+}
+
+void dlg_choixcotation::NouvCotation()
+{
+    dlg_gestioncotations dlg(dlg_gestioncotations::Creation, "", this);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+    Datas::I()->cotations->initListe();
+    RemplitTable();
+    m_cotationsmodifiees = true;
+    RegleOKButton();
+}
+
+void dlg_choixcotation::ModifCotation()
+{
+    Cotation *cot = cotationEnCours();
+    if (cot == nullptr)
+        return;
+    dlg_gestioncotations dlg(dlg_gestioncotations::Modification, cot->typeacte(), this);
+    if (dlg.exec() <= 0)
+        return;
+    Datas::I()->cotations->initListe();
+    RemplitTable();
+    m_cotationsmodifiees = true;
+    RegleOKButton();
+}
+
+/*!
+ * \brief dlg_choixcotation::SupprimeCotation
+ * Retire la cotation de la jointure du user, puis la supprime de la table si personne ne l'utilise plus
+ * — sauf une NGAP, qui n'est stockée que là. Repris de dlg_param::supprimeCotation.
+ * \param cot  la cotation à retirer
+ */
+void dlg_choixcotation::SupprimeCotation(Cotation *cot)
+{
+    if (cot == nullptr)
+        return;
+    const int iduser = Datas::I()->users->userconnected()->id();
+    DataBase::I()->retireJointureCotation(cot->typcotation(), cot->id(), iduser);
+    if (!cot->isNGAP() && !DataBase::I()->cotationUtiliseeParAutreUser(cot->typcotation(), cot->id(), iduser))
+        DataBase::I()->SupprRecordFromTable(cot->id(), CP_ID_COTATIONS, TBL_COTATIONS);
+    Datas::I()->cotations->initListe();
+    RemplitTable();
+    m_cotationsmodifiees = true;
+    RegleOKButton();
 }
