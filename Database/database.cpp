@@ -2995,6 +2995,36 @@ QList<Cotation*> DataBase::loadCotations()
 }
 
 /*!
+ * \brief DataBase::loadCCAM
+ * Charge toute la nomenclature CCAM en Cotations (type 1), le libellé servant de descriptif.
+ * Liste vide hors France, où cette table n'est pas utilisée.
+ */
+QList<Cotation*> DataBase::loadCCAM()
+{
+    QList<Cotation*> ccam = QList<Cotation*>();
+    if (!parametres()->cotationsfrance())
+        return ccam;
+    QString req = "select " CP_ID_CCAM ", " CP_CODECCAM_CCAM ", " CP_MONTANTOPTAM_CCAM ", "
+                  CP_MONTANTNONOPTAM_CCAM ", " CP_NOM_CCAM
+                  " from " TBL_CCAM " order by " CP_CODECCAM_CCAM;
+    QList<QVariantList> ccamlist = StandardSelectSQL(req, ok);
+    if (!ok || ccamlist.size() == 0)
+        return ccam;
+    for (int i = 0; i < ccamlist.size(); ++i)
+    {
+        QJsonObject jccam{};
+        jccam[CP_ID_COTATIONS]              = ccamlist.at(i).at(0).toInt();
+        jccam[CP_TYPEACTE_COTATIONS]        = ccamlist.at(i).at(1).toString();
+        jccam[CP_MONTANTOPTAM_COTATIONS]    = ccamlist.at(i).at(2).toDouble();
+        jccam[CP_MONTANTNONOPTAM_COTATIONS] = ccamlist.at(i).at(3).toDouble();
+        jccam[CP_TYPECOTATION_COTATIONS]    = 1;
+        jccam[CP_TIP_COTATIONS]             = ccamlist.at(i).at(4).toString();
+        ccam << new Cotation(jccam);
+    }
+    return ccam;
+}
+
+/*!
  * \brief DataBase::loadMontantsPratiquesByUser
  * retourne, pour un utilisateur, la table idcotation -> montant pratiqué, réunie depuis les 4
  * tables de jointures (toutes clées sur idCotation) - la seule des « autres » (type 4) en version

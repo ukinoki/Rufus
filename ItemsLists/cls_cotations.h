@@ -39,13 +39,17 @@ class Cotations : public ItemsList
 private:
     QMap<int, Cotation*> *map_cotations;        //!< référence : toutes les cotations (clé idcotation)
     QMap<int, Cotation*> *map_usercotations;    //!< vue : les cotations d'un user (réunies des 4 jointures)
+    QMap<QString, Cotation*> *map_ccam;         //!< la nomenclature CCAM entière, clée par son code (vide hors France)
     User* m_userparent = nullptr;               //!< le user dont on a chargé les cotations
 
 public:
     explicit Cotations(QObject *parent = nullptr);
     QMap<int, Cotation *> *cotations() const     { return map_cotations; }
     QMap<int, Cotation *> *usercotations() const { return map_usercotations; }
+    QMap<QString, Cotation *> *ccam() const      { return map_ccam; }
+    Cotation* ccamByCode(const QString &code) const { return map_ccam->value(code, nullptr); }
     void  initListe();                  //!< charge toutes les cotations de la table (avec leur type), sans idUser ni montant pratiqué
+    void  initListeCCAM();              //!< charge la nomenclature CCAM en mémoire — UNE FOIS au lancement
     void  completeTipsManquants();      //!< renseigne les Tip vides (CCAM depuis ccam, NGAP depuis le xml) — UNE FOIS au lancement, pas à chaque initListe
     void  loadUserCotations(User *usr); //!< réunit dans map_usercotations les cotations du user depuis les 4 jointures
     User* userparent()      { return m_userparent; }

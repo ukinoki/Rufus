@@ -295,12 +295,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             disconnect(ui->ActeCotationcomboBox->lineEdit()->completer(), QOverload<const QString &>::of(&QCompleter::activated), nullptr, nullptr);
             delete ui->ActeCotationcomboBox->lineEdit()->completer();
         }
-        QCompleter *comp = new QCompleter(QStringList() << Utils::ConvertitModePaiementtotr(GRATUIT) << db->loadTypesCotations());
+        QCompleter *comp = new QCompleter(this);
         comp->setCaseSensitivity(Qt::CaseInsensitive);
         comp->popup()->setFont(ui->ActeMontantlineEdit->font());
         comp->setMaxVisibleItems(5);
         ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
-        qDebug() << "completer posé" << (void*)comp << "items=" << comp->model()->rowCount();
+        ReconstruitCompleterCotations();
         connect(comp, QOverload<const QString &>::of(&QCompleter::activated), this, &Rufus::RetrouveMontantActe);
     }
 
@@ -4485,9 +4485,10 @@ void Rufus::RetrouveMontantActe()
     if (currentpatient() == nullptr)
         return;
     ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->currentText() != "");
-    Cotation *cot = cotationcombo();
+    Cotation *cot = cotationsaisie();
+    /*! Une cotation que le user ne pratique pas (prise dans la CCAM) n'a que son conventionnel. */
     const double montant = (cot == nullptr? 0.0
-                            : currentpatient()->iscmu()?
+                            : (currentpatient()->iscmu() || !cot->isused())?
                             cot->montantconventionnel() : cot->montantpratique());
     ui->ActeMontantlineEdit->setText(QLocale().toString(montant, 'f', 2));
     AfficheBasculerMontant(montant);
@@ -9202,13 +9203,55 @@ void    Rufus::ReconstruitComboCotations(User *usr)
             item        ->setToolTip(it.value()->descriptif());
             m_modelcotations->appendRow(item);
         }
-    QCompleter *avant = ui->ActeCotationcomboBox->lineEdit()->completer();
-    qDebug() << "avant setModel : completer" << (void*)avant
-             << "items=" << (avant? avant->model()->rowCount() : -1);
     ui->ActeCotationcomboBox->setModel(m_modelcotations);
-    QCompleter *apres = ui->ActeCotationcomboBox->lineEdit()->completer();
-    qDebug() << "après setModel : completer" << (void*)apres
-             << "items=" << (apres? apres->model()->rowCount() : -1);
+    ReconstruitCompleterCotations();       //! setModel vient de rabattre le completer sur le modèle du combo
+}
+
+/*!
+ * \brief Rufus::ReconstruitCompleterCotations
+ * Bâtit le modèle du completer — le gratuit, toutes les cotations de référence, puis les codes CCAM
+ * absents de celles-ci — et le lui rend, chaque item portant sa cotation et son descriptif en infobulle.
+ */
+void Rufus::ReconstruitCompleterCotations()
+{
+    QCompleter *comp = ui->ActeCotationcomboBox->lineEdit()->completer();
+    if (comp == nullptr)
+        return;
+    if (m_modelcompletercotations->rowCount() == 0)
+    {
+        Datas::I()->cotations->initListeCCAM();
+        m_modelcompletercotations->appendRow(new UpStandardItem(Utils::ConvertitModePaiementtotr(GRATUIT)));
+        QStringList codesvus;
+        for (Cotation *c : *Datas::I()->cotations->cotations())
+        {
+            UpStandardItem *item = new UpStandardItem(c->typeacte(), c);
+            item    ->setToolTip(c->descriptif());
+            m_modelcompletercotations->appendRow(item);
+            codesvus << c->typeacte();
+        }
+        //! la CCAM ne fournit que les codes que l'utilisateur n'a pas déjà dans ses cotations
+        for (Cotation *c : *Datas::I()->cotations->ccam())
+        {
+            if (codesvus.contains(c->typeacte()))
+                continue;
+            UpStandardItem *item = new UpStandardItem(c->typeacte(), c);
+            item    ->setToolTip(c->descriptif());
+            m_modelcompletercotations->appendRow(item);
+        }
+    }
+    comp->setModel(m_modelcompletercotations);
+}
+
+/*!
+ * \brief Rufus::cotationsaisie
+ * La cotation correspondant au texte saisi : celle du combo si elle s'y trouve, sinon celle de la CCAM.
+ */
+Cotation* Rufus::cotationsaisie()
+{
+    Cotation *cot = cotationcombo();
+    if (cot != nullptr && cot->typeacte() == ui->ActeCotationcomboBox->currentText())
+        return cot;
+    return Datas::I()->cotations->ccamByCode(ui->ActeCotationcomboBox->currentText());
 }
 
 Cotation* Rufus::cotationcombo()

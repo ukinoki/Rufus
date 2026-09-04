@@ -265,6 +265,7 @@ private:
     // la liste de cotations en cours d'utilisation
     User                *m_combocotationparent = nullptr;               //!> le user propriétaire de la liste des cotations utilisées par ui->ActecotationComboBox
     UpStandardItemModel *m_modelcotations = new UpStandardItemModel;    //!> le modèle de ui->ActeCotationcomboBox : un item par cotation du user, porteur de sa cotation
+    UpStandardItemModel *m_modelcompletercotations = new UpStandardItemModel;   //!> le modèle du QCompleter : toutes les cotations + la CCAM, descriptif en infobulle
 
     // gestion des patients vus dans la journée
     QTimer      *gTimerPatientsVus;
@@ -415,6 +416,8 @@ private:
                                                     //!> si une cotation est choisie, le montant de l'acte est recherché est affiché dans la ligne MontantLineEdit
                                                     //!> un tooltip est affiché décrivant le descriptif de la cotation mise en surbrillance dans la liste déroulante
     void                ReconstruitComboCotations(User* usr = Datas::I()->users->userconnected());  //!> reconstruit la liste des cotations utilisées par l'utilisateur connecté
+    void                ReconstruitCompleterCotations();  //!> (re)bâtit le modèle du completer et le lui rend : QComboBox::setModel le remplace par celui du combo
+    Cotation*           cotationsaisie();                 //!> la cotation correspondant au texte saisi, prise dans le combo puis dans la CCAM
     Cotation*           cotationcombo();   //!> la cotation portée par le currentindex() de  ActeCotationcomboBox
     void                AfficheBasculerMontant(double montantacte);    //!> montre le bouton de bascule si montant de l'acte, conventionnel et pratiqué ne sont pas tous égaux
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);

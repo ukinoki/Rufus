@@ -21,6 +21,20 @@ Cotations::Cotations(QObject *parent) : ItemsList(parent)
 {
     map_cotations     = new QMap<int, Cotation*>();
     map_usercotations = new QMap<int, Cotation*>();
+    map_ccam          = new QMap<QString, Cotation*>();
+}
+
+/*!
+ * \brief Cotations::initListeCCAM
+ * Charge la nomenclature CCAM entière, clée par son code : elle alimente le completer des cotations
+ * (libellé en infobulle) et fournit le montant d'un code que l'utilisateur n'a pas dans ses cotations.
+ */
+void Cotations::initListeCCAM()
+{
+    if (!map_ccam->isEmpty())
+        return;
+    for (Cotation *c : DataBase::I()->loadCCAM())
+        map_ccam->insert(c->typeacte(), c);
 }
 
 /*!
@@ -88,6 +102,7 @@ void Cotations::loadUserCotations(User *usr)
     if (usr == nullptr)
         return;
     const bool optam = usr->isOPTAM();
+    initListeCCAM();                    //! se garde elle-même : la CCAM doit être là pour recevoir son conventionnel
     map_usercotations->clear();
     QMap<int, double> montants = DataBase::I()->loadMontantsPratiquesByUser(usr);
     for (auto it = map_cotations->constBegin(); it != map_cotations->constEnd(); ++it)
@@ -108,6 +123,9 @@ void Cotations::loadUserCotations(User *usr)
         const double conv = (!optam && (c->isCCAM() || c->isAssocCCAM())) ? c->montantnonoptam() : c->montantoptam();
         c->setmontantconventionnel(conv);
     }
+    //! même règle pour la nomenclature entière : un code que le user ne pratique pas n'a que son conventionnel
+    for (Cotation *c : *map_ccam)
+        c->setmontantconventionnel(optam? c->montantoptam() : c->montantnonoptam());
     m_userparent = usr;
 }
 
