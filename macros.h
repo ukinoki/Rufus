@@ -1360,6 +1360,7 @@ public:
 #define Nom_fiche_Archives                              "Archives"
 #define Nom_fiche_AutreDossier                          "AutreDossier"
 #define Nom_fiche_BilanOrtho                            "BilanOrtho"
+#define Nom_fiche_ChoixCotation                         "ChoixCotation"
 #define Nom_fiche_Commentaires                          "Commentaires"
 #define Nom_fiche_Comptes                               "Comptes"
 #define Nom_fiche_Depenses                              "Depenses"

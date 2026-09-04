@@ -479,7 +479,7 @@ void Rufus::ConnectSignals()
 
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
-    connect (ui->CCAMlinklabel,                                     &QLabel::linkActivated,                             this,   [=] {QDesktopServices::openUrl(QUrl(LIEN_CCAM));});
+    connect (ui->ChercheCotationupPushButton,                       &QPushButton::clicked,                              this,   &Rufus::ChercheCotation);
     connect (ui->ModifierCotationActepushButton,                    &QPushButton::clicked,                              this,   &Rufus::ModifCotationActe);
     // Les tabs --------------------------------------------------------------------------------------------------
     connect (ui->tabWidget,                                         &QTabWidget::currentChanged,                        this,   &Rufus::ChangeTabBureau);
@@ -4217,7 +4217,7 @@ void Rufus::ModifCotationActe()
 {
     m_autorModifConsult = true;
     ui->Cotationframe->setEnabled(true);
-    ui->CCAMlinklabel->setVisible(true);
+    ui->ChercheCotationupPushButton->setVisible(true);
     ui->ActeMontantlineEdit->setFocus();
     ui->ActeMontantlineEdit->selectAll();
 }
@@ -6779,7 +6779,7 @@ void Rufus::AfficheActeCompta(Acte *acte)
 
     ui->Comptaframe->setVisible(!a);
     ui->Cotationframe->setEnabled(a && currentuser()->ishisownsupervisor());
-    ui->CCAMlinklabel->setVisible(a && currentuser()->ishisownsupervisor());
+    ui->ChercheCotationupPushButton->setVisible(a && currentuser()->ishisownsupervisor());
     ui->EnregistrePaiementpushButton->setVisible(a && currentuser()->ishisownsupervisor());
     ui->ModifierCotationActepushButton->setVisible(!a && currentuser()->ishisownsupervisor());
     if (a) // seul le superviseur de l'acte ou son parent peuvent modifier sa cotation
@@ -8492,7 +8492,6 @@ void Rufus::InitWidgets()
     dlg_msgRepons = new QDialog();
     dlg_msgBAL = new QDialog();
 
-    ui->CCAMlinklabel->setText("<a href=\"" LIEN_CCAM "\">CCAM...</a>");
 
     QHBoxLayout *hlay = new QHBoxLayout();
     wdg_salledattenteTab  = new QTabBar;
@@ -9208,6 +9207,20 @@ void    Rufus::ReconstruitComboCotations(User *usr)
         }
     ui->ActeCotationcomboBox->setModel(m_modelcotations);
     ReconstruitCompleterCotations();       //! setModel vient de rabattre le completer sur le modèle du combo
+}
+
+/*!
+ * \brief Rufus::ChercheCotation
+ * Ouvre la recherche dans la nomenclature et reporte la cotation retenue dans le combo, son montant
+ * suivant comme pour une saisie au clavier.
+ */
+void Rufus::ChercheCotation()
+{
+    dlg_choixcotation dlg(this);
+    if (dlg.exec() != QDialog::Accepted || dlg.cotation() == nullptr)
+        return;
+    ui->ActeCotationcomboBox->setCurrentText(dlg.cotation()->typeacte());
+    RetrouveMontantActe();
 }
 
 /*!

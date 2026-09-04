@@ -6,6 +6,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_listetypesinterventions.cpp \
     $$PWD/dlg_autresmesures.cpp \
     $$PWD/dlg_bilanortho.cpp \
+    $$PWD/dlg_choixcotation.cpp \
     $$PWD/dlg_choixdate.cpp \
     $$PWD/dlg_comptes.cpp \
     $$PWD/dlg_depenses.cpp \
@@ -53,6 +54,7 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_listetypesinterventions.h \
     $$PWD/dlg_autresmesures.h \
     $$PWD/dlg_bilanortho.h \
+    $$PWD/dlg_choixcotation.h \
     $$PWD/dlg_choixdate.h \
     $$PWD/dlg_comptes.h \
     $$PWD/dlg_depenses.h \

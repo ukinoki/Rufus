@@ -50,6 +50,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <ui_dlg_identificationmanufacturer.h>
 #include <dlg_identificationpatient.h>
 #include <ui_dlg_identificationpatient.h>
+#include <dlg_choixcotation.h>
 #include <dlg_listecorrespondants.h>
 #include <dlg_listeiols.h>
 #include <dlg_listemanufacturers.h>
@@ -419,6 +420,7 @@ private:
     void                ReconstruitComboCotations(User* usr = Datas::I()->users->userconnected());  //!> reconstruit la liste des cotations utilisées par l'utilisateur connecté
     void                ReconstruitCompleterCotations(bool force = false);  //!> (re)bâtit le modèle du completer et le lui rend : QComboBox::setModel le remplace par celui du combo
     void                AfficheTipAuSurvol(QAbstractItemView *vue);         //!> pose l'infobulle de l'item survolé, qu'une fenêtre popup n'affiche pas d'elle-même
+    void                ChercheCotation();                                  //!> recherche dans la nomenclature, et reporte la cotation choisie dans le combo
     Cotation*           cotationsaisie();                 //!> la cotation correspondant au texte saisi, prise dans le combo puis dans la CCAM
     Cotation*           cotationcombo();   //!> la cotation portée par le currentindex() de  ActeCotationcomboBox
     void                AfficheBasculerMontant(double montantacte);    //!> montre le bouton de bascule si montant de l'acte, conventionnel et pratiqué ne sont pas tous égaux

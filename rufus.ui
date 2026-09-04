@@ -3703,26 +3703,43 @@ color : gray;
                      <string>...</string>
                     </property>
                    </widget>
-                   <widget class="QLabel" name="CCAMlinklabel">
+                   <widget class="UpPushButton" name="ChercheCotationupPushButton">
                     <property name="geometry">
                      <rect>
                       <x>111</x>
-                      <y>5</y>
+                      <y>3</y>
                       <width>60</width>
-                      <height>16</height>
+                      <height>22</height>
                      </rect>
                     </property>
-                    <property name="mouseTracking">
-                     <bool>false</bool>
+                    <property name="focusPolicy">
+                     <enum>Qt::FocusPolicy::NoFocus</enum>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QPushButton
+{
+border: 1px solid gray; border-radius: 5px;
+padding-left: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px;
+qproperty-flat: false;
+color : #000000;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 #dadbde);
+}
+QPushButton:focus
+{
+color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
+}
+QPushButton:pressed
+{
+color : gray; background-color: rgb(175, 175, 175);
+}
+QPushButton:!enabled
+{
+color : gray;
+}
+</string>
                     </property>
                     <property name="text">
                      <string>CCAM...</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                    </property>
-                    <property name="openExternalLinks">
-                     <bool>false</bool>
                     </property>
                    </widget>
                    <widget class="UpPushButton" name="GratuitpushButton">
