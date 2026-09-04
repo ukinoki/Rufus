@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QHeaderView>
+#include <QTimer>
 
 #include "gbl_datas.h"
 #include "dlg_choixcotation.h"
@@ -81,7 +82,8 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
 void dlg_choixcotation::showEvent(QShowEvent *event)
 {
     UpDialog::showEvent(event);
-    wdg_table   ->resizeRowsToContents();   //! la largeur du descriptif, étirée, n'est connue qu'ici
+    //! la colonne étirée n'a sa largeur qu'une fois le layout appliqué, donc après ce show
+    QTimer::singleShot(0, this, [=, this] {wdg_table->resizeRowsToContents();});
 }
 
 /*!
