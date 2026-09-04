@@ -3707,7 +3707,7 @@ color : gray;
                     <property name="geometry">
                      <rect>
                       <x>150</x>
-                      <y>5</y>
+                      <y>1</y>
                       <width>18</width>
                       <height>18</height>
                      </rect>
