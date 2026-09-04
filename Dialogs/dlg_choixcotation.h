@@ -23,10 +23,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 
 #include "cls_cotations.h"
+#include "upcheckbox.h"
 #include "updialog.h"
 #include "widgetbuttonframe.h"
 
 enum ColonneCotation { ColCotation, ColDescriptif, ColNonOptam, ColOptam, ColPratique };
+enum { RoleOphtalmo = Qt::UserRole };   /*!< la ligne relève de l'ophtalmologie */
 
 /*! Filtre de la ligne de recherche : le code de la cotation ou son descriptif, jamais les montants. */
 class FiltreCotations : public QSortFilterProxyModel
@@ -34,8 +36,11 @@ class FiltreCotations : public QSortFilterProxyModel
     Q_OBJECT
 public:
     using QSortFilterProxyModel::QSortFilterProxyModel;
+    void setOphtalmoSeule(bool ophtalmo)    {m_ophtalmoseule = ophtalmo; invalidateFilter();}
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+private:
+    bool m_ophtalmoseule = true;
 };
 
 /*!
@@ -64,6 +69,7 @@ private:
     FiltreCotations         *m_proxy    = nullptr;      //!< filtre de la ligne de recherche
     QTableView              *wdg_table  = nullptr;
     WidgetButtonFrame       *wdg_buttonframe = nullptr;
+    UpCheckBox              *wdg_ophtalmo    = nullptr;   //!< n'afficher que les cotations d'ophtalmologie
 
     void        RemplitTable();                     //!< une ligne par cotation de référence, puis par code CCAM
     void        RetientCotation(QModelIndex idx);   //!< retient la cotation de la ligne et ferme la fiche

@@ -29,6 +29,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 bool FiltreCotations::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
+    if (m_ophtalmoseule
+        && !sourceModel()->index(source_row, ColCotation, source_parent).data(RoleOphtalmo).toBool())
+        return false;
     const QRegularExpression rgx = filterRegularExpression();
     if (rgx.pattern().isEmpty())
         return true;
@@ -104,6 +107,9 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     wdg_buttonframe = new WidgetButtonFrame(wdg_table);
     wdg_buttonframe ->AddButtons(WidgetButtonFrame::Buttons());   //! aucun bouton : seule la ligne de recherche est voulue
     wdg_buttonframe ->addSearchLine();
+    wdg_ophtalmo = new UpCheckBox(tr("Uniquement l'ophtalmologie"));
+    wdg_ophtalmo    ->setChecked(true);
+    wdg_buttonframe ->layButtons()->insertWidget(2, wdg_ophtalmo);
     /*! AddButtons fige la largeur du conteneur, ce que veut une liste à largeur fixe : ici la table suit
      *  celle de la fiche */
     wdg_buttonframe ->widgButtonParent()->setMinimumWidth(0);
@@ -118,6 +124,11 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
         OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
     });
     connect(wdg_table->selectionModel(),    &QItemSelectionModel::selectionChanged, this,   [=, this] {
+        OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
+    });
+    connect(wdg_ophtalmo,                   &QCheckBox::toggled,        this,   [=, this] (bool coche) {
+        m_proxy     ->setOphtalmoSeule(coche);
+        wdg_table   ->resizeRowsToContents();
         OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
     });
     connect(wdg_table,                      &QAbstractItemView::doubleClicked,      this,   &dlg_choixcotation::RetientCotation);
@@ -148,9 +159,10 @@ void dlg_choixcotation::RemplitTable()
     m_model     ->setHorizontalHeaderLabels(QStringList()
                     << tr("Cotation") << tr("Descriptif") << tr("Non OPTAM") << tr("OPTAM") << tr("Pratiqué"));
 
-    auto ajoute = [&] (Cotation *c) {
+    auto ajoute = [&] (Cotation *c, bool ophtalmo) {
         QList<QStandardItem*> ligne;
         ligne << new UpStandardItem(c->typeacte(), c);
+        ligne.at(ColCotation)->setData(ophtalmo, RoleOphtalmo);
         ligne << new QStandardItem(c->descriptif());
         ligne << new QStandardItem(QLocale().toString(c->montantnonoptam(), 'f', 2));
         ligne << new QStandardItem(QLocale().toString(c->montantoptam(), 'f', 2));
@@ -164,13 +176,14 @@ void dlg_choixcotation::RemplitTable()
     QStringList codesvus;
     for (Cotation *c : *Datas::I()->cotations->cotations())
     {
-        ajoute(c);
+        ajoute(c, true);                    //! les cotations du cabinet sont toutes retenues
         codesvus << c->typeacte();
     }
     Datas::I()->cotations->initListeCCAM();
     for (Cotation *c : *Datas::I()->cotations->ccam())
         if (!codesvus.contains(c->typeacte()))
-            ajoute(c);
+            ajoute(c, c->typeacte().startsWith("B", Qt::CaseInsensitive)
+                   || c->typeacte().startsWith("EBQF", Qt::CaseInsensitive));   //! les chapitres d'ophtalmologie de la CCAM
 }
 
 void dlg_choixcotation::RetientCotation(QModelIndex idx)
