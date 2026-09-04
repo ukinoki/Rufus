@@ -107,9 +107,15 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     wdg_buttonframe = new WidgetButtonFrame(wdg_table);
     wdg_buttonframe ->AddButtons(WidgetButtonFrame::Buttons());   //! aucun bouton : seule la ligne de recherche est voulue
     wdg_buttonframe ->addSearchLine();
-    wdg_ophtalmo = new UpCheckBox(tr("Uniquement l'ophtalmologie"));
-    wdg_ophtalmo    ->setChecked(true);
-    wdg_buttonframe ->layButtons()->insertWidget(2, wdg_ophtalmo);
+    /*! le tri n'a de sens qu'avec la CCAM, absente de la version internationale */
+    const bool ccamutilisee = DataBase::I()->parametres()->cotationsfrance();
+    m_proxy         ->setOphtalmoSeule(ccamutilisee);
+    if (ccamutilisee)
+    {
+        wdg_ophtalmo = new UpCheckBox(tr("Uniquement l'ophtalmologie"));
+        wdg_ophtalmo    ->setChecked(true);
+        wdg_buttonframe ->layButtons()->insertWidget(2, wdg_ophtalmo);
+    }
     /*! AddButtons fige la largeur du conteneur, ce que veut une liste à largeur fixe : ici la table suit
      *  celle de la fiche */
     wdg_buttonframe ->widgButtonParent()->setMinimumWidth(0);
@@ -126,11 +132,12 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     connect(wdg_table->selectionModel(),    &QItemSelectionModel::selectionChanged, this,   [=, this] {
         OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
     });
-    connect(wdg_ophtalmo,                   &QCheckBox::toggled,        this,   [=, this] (bool coche) {
-        m_proxy     ->setOphtalmoSeule(coche);
-        wdg_table   ->resizeRowsToContents();
-        OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
-    });
+    if (wdg_ophtalmo)
+        connect(wdg_ophtalmo,               &QCheckBox::toggled,        this,   [=, this] (bool coche) {
+            m_proxy     ->setOphtalmoSeule(coche);
+            wdg_table   ->resizeRowsToContents();
+            OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
+        });
     connect(wdg_table,                      &QAbstractItemView::doubleClicked,      this,   &dlg_choixcotation::RetientCotation);
     connect(OKButton,                       &QPushButton::clicked,      this,   [=, this] {
         RetientCotation(wdg_table->currentIndex());
