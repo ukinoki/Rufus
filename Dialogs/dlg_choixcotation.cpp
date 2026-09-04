@@ -201,6 +201,12 @@ void dlg_choixcotation::RemplitTable()
         //! cochée : la cotation est dans celles de l'utilisateur courant
         ligne.at(ColCotation)->setCheckable(true);
         ligne.at(ColCotation)->setCheckState(c->isused()? Qt::Checked : Qt::Unchecked);
+        if (!sonparent)     //! un remplaçant lit les habitudes de son parent, il ne les change pas
+        {
+            Qt::ItemFlags drapeaux = ligne.at(ColCotation)->flags();
+            drapeaux.setFlag(Qt::ItemIsUserCheckable, false);
+            ligne.at(ColCotation)->setFlags(drapeaux);
+        }
         ligne.at(ColCotation)->setData(ophtalmo, RoleOphtalmo);
         ligne << new QStandardItem(c->descriptif());
         ligne << new QStandardItem(QLocale().toString(c->montantnonoptam(), 'f', 2));
