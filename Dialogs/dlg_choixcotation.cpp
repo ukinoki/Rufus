@@ -16,12 +16,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QHeaderView>
+#include <QRegularExpression>
 #include <QTimer>
 
 #include "gbl_datas.h"
 #include "dlg_choixcotation.h"
 #include "database.h"
 #include "upstandarditem.h"
+
+bool FiltreCotations::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    const QRegularExpression rgx = filterRegularExpression();
+    if (rgx.pattern().isEmpty())
+        return true;
+    for (int col : {ColCotation, ColDescriptif})
+        if (sourceModel()->index(source_row, col, source_parent).data().toString().contains(rgx))
+            return true;
+    return false;
+}
 
 dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
 {
@@ -38,10 +50,8 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     m_model = new QStandardItemModel(this);
     RemplitTable();
 
-    /*! le filtre porte sur le descriptif, la colonne que l'utilisateur lit pour trouver son acte */
-    m_proxy = new QSortFilterProxyModel(this);
+    m_proxy = new FiltreCotations(this);
     m_proxy     ->setSourceModel(m_model);
-    m_proxy     ->setFilterKeyColumn(ColDescriptif);
     m_proxy     ->setFilterCaseSensitivity(Qt::CaseInsensitive);
     wdg_table   ->setModel(m_proxy);
 

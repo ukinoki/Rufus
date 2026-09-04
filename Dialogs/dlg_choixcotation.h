@@ -25,6 +25,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "updialog.h"
 #include "widgetbuttonframe.h"
 
+enum ColonneCotation { ColCotation, ColDescriptif, ColNonOptam, ColOptam, ColPratique };
+
+/*! Filtre de la ligne de recherche : le code de la cotation ou son descriptif, jamais les montants. */
+class FiltreCotations : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    using QSortFilterProxyModel::QSortFilterProxyModel;
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+};
+
 /*!
  Recherche d'une cotation dans la nomenclature, en remplacement du lien vers le site de la CCAM.
  La liste est celle du QCompleter des cotations : les cotations de référence puis la CCAM entière.
@@ -45,11 +57,9 @@ protected:
     void        showEvent(QShowEvent *event) override;   //!< la hauteur des lignes se calcule une fois la largeur du descriptif connue
 
 private:
-    enum Colonne { ColCotation, ColDescriptif, ColNonOptam, ColOptam, ColPratique };
-
     Cotation                *m_cotation = nullptr;      //!< la cotation retenue, nullptr si aucune
     QStandardItemModel      *m_model    = nullptr;
-    QSortFilterProxyModel   *m_proxy    = nullptr;      //!< filtre de la ligne de recherche, sur le descriptif
+    FiltreCotations         *m_proxy    = nullptr;      //!< filtre de la ligne de recherche
     QTableView              *wdg_table  = nullptr;
     WidgetButtonFrame       *wdg_buttonframe = nullptr;
 
