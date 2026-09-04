@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QSortFilterProxyModel>
 #include <QTableView>
+#include <QTimer>
 
 #include "cls_cotations.h"
 #include "updialog.h"
@@ -58,6 +59,7 @@ protected:
 
 private:
     Cotation                *m_cotation = nullptr;      //!< la cotation retenue, nullptr si aucune
+    QTimer                  *m_timerhauteurs = nullptr; //!< recalcule les hauteurs une fois le redimensionnement fini
     QStandardItemModel      *m_model    = nullptr;
     FiltreCotations         *m_proxy    = nullptr;      //!< filtre de la ligne de recherche
     QTableView              *wdg_table  = nullptr;

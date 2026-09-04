@@ -87,9 +87,15 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
                 larg += wdg_table->columnWidth(col);
         wdg_table   ->setMinimumWidth(larg);
     };
+    /*! resizeRowsToContents mesure les 8000 lignes : à chaque pixel du redimensionnement, la fiche
+     *  se fige. On attend l'arrêt du mouvement. */
+    m_timerhauteurs = new QTimer(this);
+    m_timerhauteurs ->setSingleShot(true);
+    m_timerhauteurs ->setInterval(120);
+    connect(m_timerhauteurs, &QTimer::timeout, this, [=, this] {wdg_table->resizeRowsToContents();});
     connect(wdg_table->horizontalHeader(), &QHeaderView::sectionResized, this, [=, this] (int col) {
         if (col == ColDescriptif)
-            wdg_table   ->resizeRowsToContents();   //! le texte se replie autrement, la hauteur suit
+            m_timerhauteurs ->start();      //! le texte se replie autrement, la hauteur suit
         else
             majlargeurmini();
     });
