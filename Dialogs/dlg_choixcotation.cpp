@@ -87,8 +87,10 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
                 larg += wdg_table->columnWidth(col);
         wdg_table   ->setMinimumWidth(larg);
     };
-    connect(wdg_table->horizontalHeader(), &QHeaderView::sectionResized, this, [=] (int col) {
-        if (col != ColDescriptif)
+    connect(wdg_table->horizontalHeader(), &QHeaderView::sectionResized, this, [=, this] (int col) {
+        if (col == ColDescriptif)
+            wdg_table   ->resizeRowsToContents();   //! le texte se replie autrement, la hauteur suit
+        else
             majlargeurmini();
     });
     majlargeurmini();
