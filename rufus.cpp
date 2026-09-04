@@ -9243,6 +9243,10 @@ void Rufus::ReconstruitCompleterCotations(bool force)
         }
     }
     comp->setModel(m_modelcompletercotations);
+    qDebug() << "source  tip[1]=" << m_modelcompletercotations->data(m_modelcompletercotations->index(1,0), Qt::ToolTipRole)
+             << "popup model=" << (void*)comp->popup()->model()
+             << "lignes=" << comp->popup()->model()->rowCount()
+             << "tip[1] vu du popup=" << comp->popup()->model()->data(comp->popup()->model()->index(1,0), Qt::ToolTipRole);
 }
 
 /*!
