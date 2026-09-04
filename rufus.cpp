@@ -300,8 +300,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         comp->popup()->setFont(ui->ActeMontantlineEdit->font());
         comp->setMaxVisibleItems(5);
         ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
+        m_completertipconnecte = false;             //! popup neuf : son infobulle est à reconnecter
         ReconstruitCompleterCotations();
         connect(comp, QOverload<const QString &>::of(&QCompleter::activated), this, &Rufus::RetrouveMontantActe);
+        AfficheTipAuSurvol(ui->ActeCotationcomboBox->view());   //! la liste déroulante du combo est un popup, comme celle du completer
     }
 
     //! 12 - Mise à jour des salles d'attente
@@ -9243,19 +9245,29 @@ void Rufus::ReconstruitCompleterCotations(bool force)
         }
     }
     comp->setModel(m_modelcompletercotations);
-    /*! Le popup est une fenêtre Qt::Popup : elle ne reçoit pas les événements d'infobulle, on la pose
-     *  au survol comme la table des cotations de dlg_param. */
     if (!m_completertipconnecte)
     {
         m_completertipconnecte = true;
-        comp->popup()->setMouseTracking(true);
-        connect(comp->popup(), &QAbstractItemView::entered, this, [=] (QModelIndex idx) {
-            const QString tip = idx.data(Qt::ToolTipRole).toString();
-            if (!tip.isEmpty())
-                QToolTip::showText(QCursor::pos(), tip, comp->popup(),
-                                   QRect(QCursor::pos(), QSize(10,10)), 3000);
-        });
+        AfficheTipAuSurvol(comp->popup());
     }
+}
+
+/*!
+ * \brief Rufus::AfficheTipAuSurvol
+ * Pose l'infobulle d'un item au survol : une liste déroulante est une fenêtre Qt::Popup, qui ne reçoit
+ * pas les événements d'infobulle.
+ * \param vue  la vue à équiper
+ */
+void Rufus::AfficheTipAuSurvol(QAbstractItemView *vue)
+{
+    if (vue == nullptr)
+        return;
+    vue     ->setMouseTracking(true);
+    connect(vue, &QAbstractItemView::entered, this, [=] (QModelIndex idx) {
+        const QString tip = idx.data(Qt::ToolTipRole).toString();
+        if (!tip.isEmpty())
+            QToolTip::showText(QCursor::pos(), tip, vue, QRect(QCursor::pos(), QSize(10,10)), 3000);
+    });
 }
 
 /*!
