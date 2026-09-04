@@ -75,7 +75,8 @@ private:
     bool        m_cotationsmodifiees = false;
 
     void        RemplitTable();                     //!< une ligne par cotation de référence, puis par code CCAM
-    void        RetientCotation(QModelIndex idx);   //!< retient la cotation de la ligne et ferme la fiche
+    void        RetientCotation(QModelIndex idx);   //!< retient la cotation portée par la ligne
+    void        RegleOKButton();                    //!< actif si une ligne est choisie ou si les cotations ont changé
     void        MAJCotation(QStandardItem *itcheck);                //!< coche/décoche : ajoute ou retire la jointure du user
     void        MAJMontantPratique(Cotation *cot, double montant);  //!< met à jour le montant pratiqué du user dans sa jointure
 };

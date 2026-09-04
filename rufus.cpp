@@ -9224,9 +9224,21 @@ void    Rufus::ReconstruitComboCotations(User *usr)
 void Rufus::ChercheCotation()
 {
     dlg_choixcotation dlg(this);
-    if (dlg.exec() != QDialog::Accepted || dlg.cotation() == nullptr)
+    if (dlg.exec() != QDialog::Accepted)
         return;
-    ui->ActeCotationcomboBox->setCurrentText(dlg.cotation()->typeacte());
+    //! le code est relevé avant tout rechargement, qui recrée les Cotation
+    const QString code = dlg.cotation()? dlg.cotation()->typeacte() : QString();
+    if (dlg.cotationsmodifiees())
+    {
+        Datas::I()->cotations->initListe();
+        Datas::I()->cotations->loadUserCotations(currentuser());
+        m_combocotationparent = nullptr;            //! sinon ReconstruitComboCotations se croit à jour
+        ReconstruitComboCotations(currentuser());
+        ReconstruitCompleterCotations(true);
+    }
+    if (code.isEmpty())
+        return;
+    ui->ActeCotationcomboBox->setCurrentText(code);
     RetrouveMontantActe();
 }
 

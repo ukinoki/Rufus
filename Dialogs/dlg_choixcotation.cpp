@@ -129,16 +129,16 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=, this] (QString txt) {
         m_proxy     ->setFilterFixedString(txt);
         wdg_table   ->resizeRowsToContents();
-        OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
+        RegleOKButton();
     });
     connect(wdg_table->selectionModel(),    &QItemSelectionModel::selectionChanged, this,   [=, this] {
-        OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
+        RegleOKButton();
     });
     if (wdg_ophtalmo)
         connect(wdg_ophtalmo,               &QCheckBox::toggled,        this,   [=, this] (bool coche) {
             m_proxy     ->setOphtalmoSeule(coche);
             wdg_table   ->resizeRowsToContents();
-            OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection());
+            RegleOKButton();
         });
     /*! itemChanged part aussi sur un changement programmatique : on n'agit sur la case que si elle a
      *  réellement basculé, c.-à-d. si son état diffère de celui enregistré */
@@ -162,6 +162,7 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     connect(wdg_table,                      &QAbstractItemView::doubleClicked,      this,   &dlg_choixcotation::RetientCotation);
     connect(OKButton,                       &QPushButton::clicked,      this,   [=, this] {
         RetientCotation(wdg_table->currentIndex());
+        accept();                       //! OK ferme aussi quand il n'ouvre que sur des modifications
     });
 
     wdg_buttonframe->searchline()->setFocus();
@@ -246,6 +247,7 @@ void dlg_choixcotation::MAJCotation(QStandardItem *itcheck)
     QStandardItem *itprat = m_model->item(itcheck->row(), ColPratique);
     cot     ->setused(checked);
     m_cotationsmodifiees = true;
+    RegleOKButton();
 
     /*! l'éditeur s'ouvre au tour suivant : appelé depuis le clic, celui-ci le refermerait aussitôt */
     auto ouvreEditionPratique = [&] (double v) {
@@ -305,6 +307,7 @@ void dlg_choixcotation::MAJMontantPratique(Cotation *cot, double montant)
                                               Datas::I()->users->userconnected()->id(), montant);
     cot     ->setmontantpratique(montant);
     m_cotationsmodifiees = true;
+    RegleOKButton();
 }
 
 void dlg_choixcotation::RetientCotation(QModelIndex idx)
@@ -317,4 +320,9 @@ void dlg_choixcotation::RetientCotation(QModelIndex idx)
         return;
     m_cotation = qobject_cast<Cotation*>(item->rufusitem());
     accept();
+}
+
+void dlg_choixcotation::RegleOKButton()
+{
+    OKButton    ->setEnabled(wdg_table->selectionModel()->hasSelection() || m_cotationsmodifiees);
 }
