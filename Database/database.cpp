@@ -3179,21 +3179,6 @@ bool DataBase::lisMontantsJointureAutre(int idcotation, int iduser, double &conv
     return false;
 }
 
-QStringList DataBase::loadTypesCotations()
-{
-    QStringList listcotations = QStringList();
-    QString req = "select distinct " CP_TYPEACTE_COTATIONS " as code from " TBL_COTATIONS
-                  " union "
-                  " select " CP_CODECCAM_CCAM " as code from " TBL_CCAM
-                  " order by code asc";
-    QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
-    if(!ok || cotlist.size()==0)
-        return listcotations;
-    for (int i=0; i<cotlist.size(); ++i)
-        listcotations << cotlist.at(i).at(0).toString();
-    return listcotations;
-}
-
 /*
  * Motifs
 */

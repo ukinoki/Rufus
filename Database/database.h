@@ -350,7 +350,6 @@ public:
     /*
      * Cotations
     */
-    QStringList             loadTypesCotations();                       //! charge toutes les cotations possibles à partir des tables cotations et ccam
     QList<Cotation*>        loadCotations();                            //! charge toutes les cotations de la table (avec leur type), sans idUser ni montant pratiqué
     QList<Cotation*>        loadCCAM();                                 //! charge toute la nomenclature CCAM (vide hors France)
     QMap<int, double>       loadMontantsPratiquesByUser(User *usr);     //! idcotation -> montant pratiqué du user, réuni depuis les 4 tables de jointures
