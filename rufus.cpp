@@ -4489,11 +4489,16 @@ void Rufus::RetrouveMontantActe()
         return;
     ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->currentText() != "");
     Cotation *cot = cotationsaisie();
-    /*! Une cotation que le user ne pratique pas (prise dans la CCAM) n'a que son conventionnel. */
-    const double montant = (cot == nullptr? 0.0
-                            : (currentpatient()->iscmu() || !cot->isused())?
-                            cot->montantconventionnel() : cot->montantpratique());
-    ui->ActeMontantlineEdit->setText(QLocale().toString(montant, 'f', 2));
+    /*! le pratiqué, sinon le conventionnel (posé selon l'OPTAM du superviseur par loadUserCotations),
+     *  sinon rien : une cotation sans tarif laisse le montant à saisir */
+    double montant = 0.0;
+    if (cot != nullptr)
+    {
+        montant = currentpatient()->iscmu()? cot->montantconventionnel() : cot->montantpratique();
+        if (montant == 0.0)
+            montant = cot->montantconventionnel();
+    }
+    ui->ActeMontantlineEdit->setText(montant == 0.0? QString() : QLocale().toString(montant, 'f', 2));
     AfficheBasculerMontant(montant);
 
     if (Datas::I()->users->getById(currentacte()->idComptable()) == nullptr)
@@ -9222,14 +9227,6 @@ void Rufus::ChercheCotation()
     if (dlg.exec() != QDialog::Accepted || dlg.cotation() == nullptr)
         return;
     ui->ActeCotationcomboBox->setCurrentText(dlg.cotation()->typeacte());
-    Cotation *choisie = dlg.cotation();
-    qDebug() << "fiche :" << choisie->typeacte() << "used=" << choisie->isused()
-             << "pratique=" << choisie->montantpratique() << "conv=" << choisie->montantconventionnel();
-    Cotation *retenue = cotationsaisie();
-    qDebug() << "retenue :" << (retenue? retenue->typeacte() : QString("(aucune)"))
-             << "meme objet=" << (retenue == choisie)
-             << "used=" << (retenue && retenue->isused())
-             << "| cmu=" << (currentpatient() && currentpatient()->iscmu());
     RetrouveMontantActe();
 }
 
