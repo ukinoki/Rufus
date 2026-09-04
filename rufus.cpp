@@ -9243,18 +9243,19 @@ void Rufus::ReconstruitCompleterCotations(bool force)
         }
     }
     comp->setModel(m_modelcompletercotations);
-    int avectip = 0, premier = -1;
-    for (int i = 0; i < m_modelcompletercotations->rowCount(); ++i)
-        if (!m_modelcompletercotations->item(i)->toolTip().isEmpty())
-        {
-            if (premier < 0) premier = i;
-            ++avectip;
-        }
-    qDebug() << "items=" << m_modelcompletercotations->rowCount() << "avec tip=" << avectip
-             << "premier=" << premier
-             << (premier >= 0? m_modelcompletercotations->item(premier)->text() : QString())
-             << (premier >= 0? m_modelcompletercotations->item(premier)->toolTip() : QString())
-             << "| ccam en mémoire=" << Datas::I()->cotations->ccam()->size();
+    /*! Le popup est une fenêtre Qt::Popup : elle ne reçoit pas les événements d'infobulle, on la pose
+     *  au survol comme la table des cotations de dlg_param. */
+    if (!m_completertipconnecte)
+    {
+        m_completertipconnecte = true;
+        comp->popup()->setMouseTracking(true);
+        connect(comp->popup(), &QAbstractItemView::entered, this, [=] (QModelIndex idx) {
+            const QString tip = idx.data(Qt::ToolTipRole).toString();
+            if (!tip.isEmpty())
+                QToolTip::showText(QCursor::pos(), tip, comp->popup(),
+                                   QRect(QCursor::pos(), QSize(10,10)), 3000);
+        });
+    }
 }
 
 /*!

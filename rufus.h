@@ -266,6 +266,7 @@ private:
     User                *m_combocotationparent = nullptr;               //!> le user propriétaire de la liste des cotations utilisées par ui->ActecotationComboBox
     UpStandardItemModel *m_modelcotations = new UpStandardItemModel;    //!> le modèle de ui->ActeCotationcomboBox : un item par cotation du user, porteur de sa cotation
     UpStandardItemModel *m_modelcompletercotations = new UpStandardItemModel;   //!> le modèle du QCompleter : toutes les cotations + la CCAM, descriptif en infobulle
+    bool                m_completertipconnecte = false;                         //!> l'infobulle du popup du completer n'est connectée qu'une fois
 
     // gestion des patients vus dans la journée
     QTimer      *gTimerPatientsVus;
