@@ -479,7 +479,7 @@ void Rufus::ConnectSignals()
 
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
-    connect (ui->ChercheCotationupPushButton,                       &QPushButton::clicked,                              this,   &Rufus::ChercheCotation);
+    connect (ui->ChercheCotationupLabel,                            &UpLabel::clicked,                                  this,   [=, this] {ChercheCotation();});
     connect (ui->ModifierCotationActepushButton,                    &QPushButton::clicked,                              this,   &Rufus::ModifCotationActe);
     // Les tabs --------------------------------------------------------------------------------------------------
     connect (ui->tabWidget,                                         &QTabWidget::currentChanged,                        this,   &Rufus::ChangeTabBureau);
@@ -4217,7 +4217,7 @@ void Rufus::ModifCotationActe()
 {
     m_autorModifConsult = true;
     ui->Cotationframe->setEnabled(true);
-    ui->ChercheCotationupPushButton->setVisible(true);
+    ui->ChercheCotationupLabel->setVisible(true);
     ui->ActeMontantlineEdit->setFocus();
     ui->ActeMontantlineEdit->selectAll();
 }
@@ -6779,7 +6779,7 @@ void Rufus::AfficheActeCompta(Acte *acte)
 
     ui->Comptaframe->setVisible(!a);
     ui->Cotationframe->setEnabled(a && currentuser()->ishisownsupervisor());
-    ui->ChercheCotationupPushButton->setVisible(a && currentuser()->ishisownsupervisor());
+    ui->ChercheCotationupLabel->setVisible(a && currentuser()->ishisownsupervisor());
     ui->EnregistrePaiementpushButton->setVisible(a && currentuser()->ishisownsupervisor());
     ui->ModifierCotationActepushButton->setVisible(!a && currentuser()->ishisownsupervisor());
     if (a) // seul le superviseur de l'acte ou son parent peuvent modifier sa cotation
@@ -8440,6 +8440,8 @@ void Rufus::InitWidgets()
     "QLineEdit {background-color:white; border-style: none;}"
     "QLineEdit:focus {border-style:none;}");
     ui->ActeCotationcomboBox->lineEdit()->setMaxLength(20);
+    ui->ChercheCotationupLabel->setPixmap(Icons::pxLoupe().scaled(16,16)); //WARNING : icon scaled : pxLoupe 20,20
+    ui->ChercheCotationupLabel->setImmediateToolTip(tr("Rechercher une cotation"));
     ui->ActeCotationcomboBox->lineEdit()->setValidator( new QRegularExpressionValidator(Utils::rgx_cotation,this));
     ui->ActeCotationcomboBox->lineEdit()->setFont(ui->ActeMontantlineEdit->font());
     ui->ActeCotationcomboBox->setFont(ui->ActeMontantlineEdit->font());

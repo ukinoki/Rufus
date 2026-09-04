@@ -3703,43 +3703,20 @@ color : gray;
                      <string>...</string>
                     </property>
                    </widget>
-                   <widget class="UpPushButton" name="ChercheCotationupPushButton">
+                   <widget class="UpLabel" name="ChercheCotationupLabel">
                     <property name="geometry">
                      <rect>
-                      <x>111</x>
-                      <y>3</y>
-                      <width>60</width>
-                      <height>22</height>
+                      <x>150</x>
+                      <y>5</y>
+                      <width>18</width>
+                      <height>18</height>
                      </rect>
                     </property>
-                    <property name="focusPolicy">
-                     <enum>Qt::FocusPolicy::NoFocus</enum>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">QPushButton
-{
-border: 1px solid gray; border-radius: 5px;
-padding-left: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px;
-qproperty-flat: false;
-color : #000000;
-background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 #dadbde);
-}
-QPushButton:focus
-{
-color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
-}
-QPushButton:pressed
-{
-color : gray; background-color: rgb(175, 175, 175);
-}
-QPushButton:!enabled
-{
-color : gray;
-}
-</string>
+                    <property name="cursor">
+                     <cursorShape>PointingHandCursor</cursorShape>
                     </property>
                     <property name="text">
-                     <string>CCAM...</string>
+                     <string/>
                     </property>
                    </widget>
                    <widget class="UpPushButton" name="GratuitpushButton">
