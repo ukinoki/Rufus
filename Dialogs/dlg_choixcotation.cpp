@@ -46,9 +46,19 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     wdg_table   ->setModel(m_proxy);
 
     wdg_table   ->horizontalHeader()->setSectionResizeMode(ColDescriptif, QHeaderView::Stretch);
-    wdg_table   ->setColumnWidth(ColCotation, 90);
+    wdg_table   ->setColumnWidth(ColCotation, 180);
     for (int col : {ColNonOptam, ColOptam, ColPratique})
         wdg_table   ->setColumnWidth(col, 100);
+    /*! largeurs des colonnes, sur le modèle de UpDialog::setSaveGeometry : saveState les porte toutes */
+    QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
+    const QByteArray etatcolonnes = sets.value(DialogColonnes Nom_fiche_ChoixCotation).toByteArray();
+    if (!etatcolonnes.isEmpty())
+        wdg_table   ->horizontalHeader()->restoreState(etatcolonnes);
+    connect(this,   &QDialog::finished, this,   [=, this] {
+        QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
+        sets.setValue(DialogColonnes Nom_fiche_ChoixCotation, wdg_table->horizontalHeader()->saveState());
+    });
+    /*! après restoreState, qui porte aussi la visibilité des colonnes */
     if (!DataBase::I()->parametres()->cotationsfrance())
     {
         wdg_table   ->setColumnHidden(ColNonOptam, true);

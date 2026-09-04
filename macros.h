@@ -1356,6 +1356,7 @@ public:
 
 #define Position_Fiche                                  "PositionsFiches/"
 #define DialogGeometry                                        "Geometry/"
+#define DialogColonnes                                        "Colonnes/"    /*!< largeurs des colonnes d'une table, par fiche */
 #define Nom_fiche_ActesPrecedents                       "ActesPrec"
 #define Nom_fiche_Archives                              "Archives"
 #define Nom_fiche_AutreDossier                          "AutreDossier"
