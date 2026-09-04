@@ -17,7 +17,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QHeaderView>
 #include <QRegularExpression>
+#include <QScrollBar>
 #include <QTimer>
+
+#define LARGEURMINI_DESCRIPTIF  250     /*!< en deçà, le descriptif n'est plus lisible */
 
 #include "gbl_datas.h"
 #include "dlg_choixcotation.h"
@@ -45,7 +48,7 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     wdg_table   ->setSelectionBehavior(QAbstractItemView::SelectRows);
     wdg_table   ->setWordWrap(true);
     wdg_table   ->verticalHeader()->setVisible(false);
-    wdg_table   ->setMinimumSize(700, 400);
+    wdg_table   ->setMinimumHeight(400);
 
     m_model = new QStandardItemModel(this);
     RemplitTable();
@@ -56,7 +59,7 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     wdg_table   ->setModel(m_proxy);
 
     wdg_table   ->horizontalHeader()->setSectionResizeMode(ColDescriptif, QHeaderView::Stretch);
-    wdg_table   ->setColumnWidth(ColCotation, 180);
+    wdg_table   ->setColumnWidth(ColCotation, 153);
     for (int col : {ColNonOptam, ColOptam, ColPratique})
         wdg_table   ->setColumnWidth(col, 100);
     /*! largeurs des colonnes, sur le modèle de UpDialog::setSaveGeometry : saveState les porte toutes */
@@ -74,6 +77,22 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
         wdg_table   ->setColumnHidden(ColNonOptam, true);
         wdg_table   ->setColumnHidden(ColOptam, true);
     }
+    /*! la fiche ne peut pas rétrécir au point de rogner une colonne : seul le descriptif s'étire, sous
+     *  réserve de rester lisible */
+    auto majlargeurmini = [=, this] {
+        int larg = LARGEURMINI_DESCRIPTIF + wdg_table->verticalScrollBar()->sizeHint().width()
+                 + 2 * wdg_table->frameWidth();
+        for (int col : {ColCotation, ColNonOptam, ColOptam, ColPratique})
+            if (!wdg_table->isColumnHidden(col))
+                larg += wdg_table->columnWidth(col);
+        wdg_table   ->setMinimumWidth(larg);
+    };
+    connect(wdg_table->horizontalHeader(), &QHeaderView::sectionResized, this, [=] (int col) {
+        if (col != ColDescriptif)
+            majlargeurmini();
+    });
+    majlargeurmini();
+
     wdg_buttonframe = new WidgetButtonFrame(wdg_table);
     wdg_buttonframe ->AddButtons(WidgetButtonFrame::Buttons());   //! aucun bouton : seule la ligne de recherche est voulue
     wdg_buttonframe ->addSearchLine();
