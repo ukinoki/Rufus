@@ -9296,10 +9296,18 @@ void Rufus::AfficheTipAuSurvol(QAbstractItemView *vue)
  */
 Cotation* Rufus::cotationsaisie()
 {
+    const QString txt = ui->ActeCotationcomboBox->currentText();
     Cotation *cot = cotationcombo();
-    if (cot != nullptr && cot->typeacte() == ui->ActeCotationcomboBox->currentText())
+    if (cot != nullptr && cot->typeacte() == txt)
         return cot;
-    return Datas::I()->cotations->ccamByCode(ui->ActeCotationcomboBox->currentText());
+    /*! le combo est éditable : ni la frappe ni setCurrentText ne déplacent son currentIndex */
+    for (int i = 0; i < m_modelcotations->rowCount(); ++i)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_modelcotations->item(i));
+        if (itm && itm->text() == txt && itm->hasrufusitem())
+            return qobject_cast<Cotation*>(itm->rufusitem());
+    }
+    return Datas::I()->cotations->ccamByCode(txt);
 }
 
 Cotation* Rufus::cotationcombo()
