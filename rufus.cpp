@@ -4451,6 +4451,7 @@ void Rufus::OuvrirParametres()
     if (Dlg_Param->CotationsModifiees())
     {
         Datas::I()->cotations->initListe();
+        ReconstruitCompleterCotations(true);
         User *userparent = Datas::I()->users->getById(currentuser()->idparent());
         if (Datas::I()->cotations->cotations()->size() == 0)
             if (userparent)
@@ -9212,11 +9213,13 @@ void    Rufus::ReconstruitComboCotations(User *usr)
  * Bâtit le modèle du completer — le gratuit, toutes les cotations de référence, puis les codes CCAM
  * absents de celles-ci — et le lui rend, chaque item portant sa cotation et son descriptif en infobulle.
  */
-void Rufus::ReconstruitCompleterCotations()
+void Rufus::ReconstruitCompleterCotations(bool force)
 {
     QCompleter *comp = ui->ActeCotationcomboBox->lineEdit()->completer();
     if (comp == nullptr)
         return;
+    if (force)
+        m_modelcompletercotations->clear();      //! initListe a recréé les Cotation : les items en porteraient des pointeurs morts
     if (m_modelcompletercotations->rowCount() == 0)
     {
         Datas::I()->cotations->initListeCCAM();
