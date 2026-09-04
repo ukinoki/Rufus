@@ -1098,9 +1098,6 @@ public:
 // la couleur des titres
 #define COULEUR_TITRES                          "blue"
 
-// le lien vers la CCAM
-#define LIEN_CCAM                               "https://www.ameli.fr/accueil-de-la-ccam/trouver-un-acte/consultation-par-chapitre.php?chap=a%3A0%3A%7B%7D&add=2#chapitre_2"
-
 // la taille maximale des images
 #define SIZEMAXIMAGES                           262144      // 256 Ko
 #define SIZEMAXIMGIOL                           16284       // 16 Ko
