@@ -128,6 +128,9 @@ private:
     bool                    ChoisirParamConnexion(QWidget *parent = nullptr);           //! fiche du bouton « connexion à une base existante » : import depuis un support ou saisie ; true si Rufus.ini est prêt
     bool                    ImporterDonneesConnexion(Utils::ModeAcces mode,             //! reprend le dossier RufusConnexion et n'enregistre qu'après un test de connexion réussi
                                                      QWidget *parent = nullptr);
+#if defined(Q_OS_MACOS)
+    QString                 MonterPartageAuDemarrage(const QString &chemin);            //! monte un partage SMB du serveur sous le dossier personnel, à chaque ouverture de session
+#endif
     bool                    ClesSSLPresentes() const;         //! client-key.pem et client-cert.pem sont-ils dans le dossier déclaré ?
     bool                    ChoisirDossierClesSSL(QWidget *parent = nullptr);          //! fait désigner le dossier des clés et l'enregistre ; true si les clés y sont
 public:

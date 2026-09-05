@@ -6042,6 +6042,51 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
     return dlg.exec() == QDialog::Accepted;
 }
 
+#if defined(Q_OS_MACOS)
+/*!
+ * \brief Procedures::MonterPartageAuDemarrage
+ * Monte un partage SMB du serveur sous le dossier personnel et pose l'agent qui le remontera à chaque
+ * ouverture de session ; rend le chemin local correspondant, ou le chemin reçu s'il n'est pas SMB.
+ * \param chemin  chemin réseau //serveur/partage[/sous-dossier]
+ */
+QString Procedures::MonterPartageAuDemarrage(const QString &chemin)
+{
+    if (!chemin.startsWith("//"))
+        return chemin;
+    const QStringList segments = chemin.mid(2).split('/', Qt::SkipEmptyParts);
+    if (segments.size() < 2)
+        return chemin;
+
+    const QString hote      = segments.at(0);
+    const QString partage   = segments.at(1);
+    const QString montage   = QDir::homePath() + "/" + partage;
+    const QString label     = "org.rufus.mount-" + partage.toLower();
+    const QString plist     = QDir::homePath() + "/Library/LaunchAgents/" + label + ".plist";
+    //! guest : le partage créé par Rufus sur le serveur est ouvert, aucun mot de passe à conserver ici
+    const QString commande  = "/bin/mkdir -p " + Utils::quoteShell(montage)
+                            + "; /sbin/mount_smbfs //guest@" + hote + "/" + partage + " " + Utils::quoteShell(montage);
+
+    QDir().mkpath(QFileInfo(plist).path());
+    QFile fichier(plist);
+    if (!fichier.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        return chemin;
+    QTextStream(&fichier)
+        << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
+           "<plist version=\"1.0\"><dict>\n"
+           "<key>Label</key><string>" << label << "</string>\n"
+           "<key>ProgramArguments</key><array><string>/bin/sh</string><string>-c</string><string>"
+        << commande.toHtmlEscaped() << "</string></array>\n"
+           "<key>RunAtLoad</key><true/>\n"
+           "</dict></plist>\n";
+    fichier.close();
+
+    QProcess::execute("/bin/launchctl", QStringList() << "unload" << plist);
+    QProcess::execute("/bin/launchctl", QStringList() << "load" << plist);   //! RunAtLoad : monte aussitôt
+    return montage + (segments.size() > 2? "/" + QStringList(segments.mid(2)).join('/') : "");
+}
+#endif
+
 /*!
  * \brief Procedures::ImporterDonneesConnexion
  * Reprend le dossier RufusConnexion exporté par le serveur et éprouve la connexion avant d'enregistrer
@@ -6117,8 +6162,26 @@ bool Procedures::ImporterDonneesConnexion(Utils::ModeAcces mode, QWidget *parent
     if (mode == Utils::ReseauLocal)
     {
         //! chemins réseau du serveur, calculés à l'export : sans eux le poste ne voit pas l'imagerie
-        m_settings  ->setValue(Base + Dossier_Imagerie, connexion.value(CLE_CONNEXION_IMAGERIE).toString());
-        m_settings  ->setValue(Base + Dossier_Videos,   connexion.value(CLE_CONNEXION_VIDEOS).toString());
+        QString imagerie = connexion.value(CLE_CONNEXION_IMAGERIE).toString();
+        QString videos   = connexion.value(CLE_CONNEXION_VIDEOS).toString();
+#if defined(Q_OS_MACOS)
+        //! macOS n'ouvre pas un chemin //serveur/partage : on le monte et on enregistre le point de montage
+        imagerie = MonterPartageAuDemarrage(imagerie);
+        videos   = MonterPartageAuDemarrage(videos);
+#endif
+        m_settings  ->setValue(Base + Dossier_Imagerie, imagerie);
+        m_settings  ->setValue(Base + Dossier_Videos,   videos);
+#if defined(Q_OS_LINUX)
+        const QString lien = "https://www.rufusvision.org/installation-en-reacuteseau-local.html";
+        UpMessageBox::Watch(parent, tr("Montage des dossiers du serveur"),
+                            tr("Les dossiers d'imagerie et de vidéos du serveur doivent être montés automatiquement "
+                               "au démarrage de cet ordinateur, sans quoi Rufus ne les retrouvera pas :") + "\n\n"
+                            + imagerie + "\n" + videos + "\n\n"
+                            + tr("La marche à suivre est décrite au paragraphe « Sur les postes clients — Montage du "
+                                 "dossier d'imagerie du serveur au démarrage du poste » de la page") + "\n"
+                            + "<a href=\"" + lien + "\">" + lien + "</a>",
+                            UpDialog::ButtonOK, lien);
+#endif
     }
     m_settings      ->setValue(Base + Param_Port,   port);
     m_settings      ->setValue(Base + Param_Active, "YES");
