@@ -427,7 +427,7 @@ bool dlg_gestioncotations::VerifFiche()
               CP_MONTANTNONOPTAM_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", "
                CP_TIP_COTATIONS ") VALUES ('"
               + codeSQL + "', " + optamSQL + ", " + nonoptamSQL + ", "
-              + QString::number(m_typecotation) + ", " + tipSQL + "')");
+              + QString::number(m_typecotation) + ", '" + tipSQL + "')");
         QVariantList n = db->getFirstRecordFromStandardSelectSQL(
             "select min(" CP_ID_COTATIONS ") from " TBL_COTATIONS " where " + whereActe, ok);
         idcot = (ok && n.size() > 0 && !n.at(0).isNull()) ? n.at(0).toInt() : 0;
