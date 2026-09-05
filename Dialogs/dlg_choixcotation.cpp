@@ -31,8 +31,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 bool FiltreCotations::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    if (m_ophtalmoseule
-        && !sourceModel()->index(source_row, ColCotation, source_parent).data(RoleOphtalmo).toBool())
+    const QModelIndex idxcot = sourceModel()->index(source_row, ColCotation, source_parent);
+    if (m_ophtalmoseule && !idxcot.data(RoleOphtalmo).toBool())
+        return false;
+    if (!m_types.contains(idxcot.data(RoleTypcotation).toInt()))
         return false;
     const QRegularExpression rgx = filterRegularExpression();
     if (rgx.pattern().isEmpty())
@@ -126,6 +128,29 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout() ->insertWidget(0, wdg_buttonframe->widgButtonParent());
 
+    /*! filtres par type sous la table : leur largeur devient le minimum de la fiche, ils restent visibles */
+    if (ccamutilisee)
+    {
+        const QList<QPair<int, QString>> types = {{1, tr("CCAM")}, {3, tr("NGAP")},
+                                                 {2, tr("Associations CCAM")}, {4, tr("Hors convention")}};
+        QWidget *wdgtypes    = new QWidget(this);
+        QHBoxLayout *laytypes = new QHBoxLayout(wdgtypes);
+        laytypes    ->setContentsMargins(0,0,0,0);
+        for (const auto &typ : types)
+        {
+            UpCheckBox *box = new UpCheckBox(typ.second);
+            box     ->setChecked(true);
+            connect(box, &QCheckBox::toggled, this, [=, this] (bool coche) {
+                m_proxy     ->setTypeAffiche(typ.first, coche);
+                wdg_table   ->resizeRowsToContents();
+                RegleOKButton();
+            });
+            laytypes->addWidget(box);
+        }
+        laytypes    ->addStretch(1);
+        dlglayout() ->insertWidget(1, wdgtypes);
+    }
+
     OKButton    ->setEnabled(false);
     connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=, this] (QString txt) {
         m_proxy     ->setFilterFixedString(txt);
@@ -208,6 +233,7 @@ void dlg_choixcotation::RemplitTable()
             ligne.at(ColCotation)->setFlags(drapeaux);
         }
         ligne.at(ColCotation)->setData(ophtalmo, RoleOphtalmo);
+        ligne.at(ColCotation)->setData(c->typcotation(), RoleTypcotation);
         ligne << new QStandardItem(c->descriptif());
         ligne << new QStandardItem(QLocale().toString(c->montantnonoptam(), 'f', 2));
         ligne << new QStandardItem(QLocale().toString(c->montantoptam(), 'f', 2));

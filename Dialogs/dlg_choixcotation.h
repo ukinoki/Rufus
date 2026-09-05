@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_CHOIXCOTATION_H
 #define DLG_CHOIXCOTATION_H
 
+#include <QSet>
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QTimer>
@@ -28,7 +29,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "widgetbuttonframe.h"
 
 enum ColonneCotation { ColCotation, ColDescriptif, ColNonOptam, ColOptam, ColPratique };
-enum { RoleOphtalmo = Qt::UserRole };   /*!< la ligne relève de l'ophtalmologie */
+enum { RoleOphtalmo = Qt::UserRole,     /*!< la ligne relève de l'ophtalmologie */
+       RoleTypcotation };               /*!< son type : 1=CCAM, 2=association, 3=NGAP, 4=autre */
 
 /*! Filtre de la ligne de recherche : le code de la cotation ou son descriptif, jamais les montants. */
 class FiltreCotations : public QSortFilterProxyModel
@@ -37,10 +39,13 @@ class FiltreCotations : public QSortFilterProxyModel
 public:
     using QSortFilterProxyModel::QSortFilterProxyModel;
     void setOphtalmoSeule(bool ophtalmo)    {m_ophtalmoseule = ophtalmo; invalidateFilter();}
+    void setTypeAffiche(int typ, bool affiche)
+                                            {affiche? m_types.insert(typ) : m_types.remove(typ); invalidateFilter();}
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 private:
     bool m_ophtalmoseule = true;
+    QSet<int> m_types = {1, 2, 3, 4};   //!< les types de cotation affichés
 };
 
 /*!
