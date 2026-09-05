@@ -438,7 +438,10 @@ void dlg_choixcotation::ChoixButtonFrame()
 void dlg_choixcotation::NouvCotation()
 {
     dlg_gestioncotations dlg(dlg_gestioncotations::Creation, "", this);
-    if (dlg.exec() != QDialog::Accepted)
+    qDebug() << "avant exec : table=" << wdg_table->width() << "parent=" << wdg_buttonframe->widgButtonParent()->width();
+    const int issue = dlg.exec();
+    qDebug() << "après exec : table=" << wdg_table->width() << "parent=" << wdg_buttonframe->widgButtonParent()->width();
+    if (issue != QDialog::Accepted)
         return;
     Datas::I()->cotations->initListe();
     RemplitTable();
@@ -452,7 +455,10 @@ void dlg_choixcotation::ModifCotation()
     if (cot == nullptr)
         return;
     dlg_gestioncotations dlg(dlg_gestioncotations::Modification, cot->typeacte(), this);
-    if (dlg.exec() <= 0)
+    qDebug() << "avant exec : table=" << wdg_table->width() << "parent=" << wdg_buttonframe->widgButtonParent()->width();
+    const int issue = dlg.exec();
+    qDebug() << "après exec : table=" << wdg_table->width() << "parent=" << wdg_buttonframe->widgButtonParent()->width();
+    if (issue <= 0)
         return;
     Datas::I()->cotations->initListe();
     RemplitTable();
