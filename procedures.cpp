@@ -6165,9 +6165,18 @@ bool Procedures::ImporterDonneesConnexion(Utils::ModeAcces mode, QWidget *parent
         QString imagerie = connexion.value(CLE_CONNEXION_IMAGERIE).toString();
         QString videos   = connexion.value(CLE_CONNEXION_VIDEOS).toString();
 #if defined(Q_OS_MACOS)
-        //! macOS n'ouvre pas un chemin //serveur/partage : on le monte et on enregistre le point de montage
-        imagerie = MonterPartageAuDemarrage(imagerie);
-        videos   = MonterPartageAuDemarrage(videos);
+        //! macOS n'ouvre pas un chemin //serveur/partage : monté, c'est le point de montage qu'on enregistre
+        if (UpMessageBox::Question(parent, tr("Montage des dossiers du serveur"),
+                                   tr("Les dossiers d'imagerie et de vidéos doivent être montés automatiquement à chaque "
+                                      "démarrage du poste pour que les documents soient lisibles par Rufus.") + "<br />"
+                                   + tr("Voulez-vous que Rufus fasse ce paramétrage ?"),
+                                   UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                   QStringList() << tr("Non") << tr("Oui"))
+                == UpSmallButton::STARTBUTTON)
+        {
+            imagerie = MonterPartageAuDemarrage(imagerie);
+            videos   = MonterPartageAuDemarrage(videos);
+        }
 #endif
         m_settings  ->setValue(Base + Dossier_Imagerie, imagerie);
         m_settings  ->setValue(Base + Dossier_Videos,   videos);
