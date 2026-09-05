@@ -2523,9 +2523,13 @@ void dlg_param::ImporterDonneesConnexion(Utils::ModeAcces mode)
                         tr("Ce poste est paramétré pour joindre le serveur %1.").arg(adresse)
                         + (distant? "\n\n" + tr("Les clés SSL ont été copiées dans :") + "\n" + destcles : QString()));
 
+    const QString technique = distant
+            ? tr("Pour que ce poste joigne le serveur, la box du cabinet doit rediriger le port %1 vers lui.").arg(port)
+            : tr("Pour que ce poste retrouve le serveur, la box du cabinet doit lui réserver une adresse IP fixe (%1).").arg(adresse);
     if (UpMessageBox::Question(this, tr("Effacer les données du support ?"),
                                tr("Les données de connexion sont maintenant enregistrées sur ce poste.") + "<br />"
                                + AlerteDossierConnexion()
+                               + technique + "<br /><br />"
                                + tr("Voulez-vous les effacer du support amovible ?"),
                                UpDialog::ButtonCancel | UpDialog::ButtonOK,
                                QStringList() << tr("Conserver") << tr("Effacer"))
