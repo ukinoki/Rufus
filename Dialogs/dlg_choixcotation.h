@@ -65,6 +65,7 @@ public:
 
 protected:
     void        showEvent(QShowEvent *event) override;   //!< la hauteur des lignes se calcule une fois la largeur du descriptif connue
+    void        resizeEvent(QResizeEvent *event) override;
 
 private:
     Cotation                *m_cotation = nullptr;      //!< la cotation retenue, nullptr si aucune

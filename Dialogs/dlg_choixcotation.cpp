@@ -203,6 +203,14 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     setSaveGeometry(Nom_fiche_ChoixCotation);
 }
 
+void dlg_choixcotation::resizeEvent(QResizeEvent *event)
+{
+    UpDialog::resizeEvent(event);
+    QWidget *parenttable = wdg_buttonframe? wdg_buttonframe->widgButtonParent() : nullptr;
+    qDebug() << "resize fiche=" << width() << "| parent=" << (parenttable? parenttable->width() : -1)
+             << "| table=" << wdg_table->width() << "| descriptif=" << wdg_table->columnWidth(ColDescriptif);
+}
+
 void dlg_choixcotation::showEvent(QShowEvent *event)
 {
     UpDialog::showEvent(event);
@@ -268,7 +276,18 @@ void dlg_choixcotation::RemplitTable()
             ajoute(c, c->typeacte().startsWith("B", Qt::CaseInsensitive)
                    || c->typeacte().startsWith("EBQF", Qt::CaseInsensitive));   //! les chapitres d'ophtalmologie de la CCAM
     if (vueprete)
+    {
         wdg_table   ->horizontalHeader()->restoreState(etatcolonnes);
+        QWidget *parenttable = wdg_buttonframe? wdg_buttonframe->widgButtonParent() : nullptr;
+        qDebug() << "après RemplitTable : stretch descriptif="
+                 << (wdg_table->horizontalHeader()->sectionResizeMode(ColDescriptif) == QHeaderView::Stretch)
+                 << "| table larg=" << wdg_table->width() << "min=" << wdg_table->minimumWidth()
+                 << "max=" << wdg_table->maximumWidth()
+                 << "| parent larg=" << (parenttable? parenttable->width() : -1)
+                 << "min=" << (parenttable? parenttable->minimumWidth() : -1)
+                 << "max=" << (parenttable? parenttable->maximumWidth() : -1)
+                 << "| fiche larg=" << width();
+    }
 }
 
 /*!
