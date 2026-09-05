@@ -69,7 +69,7 @@ private:
 
     /*! sélecteur de mode (création seulement) */
     QGroupBox       *wdg_groupmode = nullptr;
-    QCheckBox       *wdg_chkCCAM = nullptr, *wdg_chkAssoc = nullptr, *wdg_chkAutre = nullptr;
+    QCheckBox       *wdg_chkAssoc = nullptr, *wdg_chkAutre = nullptr;
 
     /*! les champs (uniques, montrés/masqués selon le mode) */
     UpLineEdit      *wdg_codeline = nullptr, *wdg_codeline2 = nullptr;

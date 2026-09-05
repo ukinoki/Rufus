@@ -46,25 +46,21 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
             m_modelCCAM->appendRow(it);
         }
 
-    //! --- sélecteur de mode : QGroupBox « Nouvelle cotation » + 3 cases exclusives ---
+    //! --- sélecteur de mode : QGroupBox « Nouvelle cotation » + 2 cases exclusives ---
     wdg_groupmode   = new QGroupBox(tr("Nouvelle cotation"));
-    wdg_chkCCAM     = new QCheckBox(tr("Ajouter une cotation CCAM"));
     wdg_chkAssoc    = new QCheckBox(tr("Créer une association CCAM"));
     wdg_chkAutre    = new QCheckBox(tr("Créer une cotation"));
     QButtonGroup *grp = new QButtonGroup(this);
     grp             ->setExclusive(true);
-    grp             ->addButton(wdg_chkCCAM);
     grp             ->addButton(wdg_chkAssoc);
     grp             ->addButton(wdg_chkAutre);
     QVBoxLayout *grouplay = new QVBoxLayout;
-    grouplay        ->addWidget(wdg_chkCCAM);
     grouplay        ->addWidget(wdg_chkAssoc);
     grouplay        ->addWidget(wdg_chkAutre);
     wdg_groupmode   ->setLayout(grouplay);
     dlglayout()     ->replaceWidget(widgetbuttons(), wdg_groupmode);
     //! changer de mode réapplique la présentation ET recalcule les montants (remplitDepuisCCAM fait
     //! return en mode « autre », donc inoffensif là)
-    connect(wdg_chkCCAM,    &QCheckBox::toggled, this, [=, this] (bool c) {if (c) {m_typecotation = 1; appliqueMode(); remplitDepuisCCAM();}});
     connect(wdg_chkAssoc,   &QCheckBox::toggled, this, [=, this] (bool c) {if (c) {m_typecotation = 2; appliqueMode(); remplitDepuisCCAM();}});
     connect(wdg_chkAutre,   &QCheckBox::toggled, this, [=, this] (bool c) {if (c) {m_typecotation = 4; appliqueMode(); remplitDepuisCCAM();}});
 
@@ -160,7 +156,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
         wdg_groupmode   ->setVisible(false);
     }
     else
-        wdg_chkCCAM->setChecked(true);              //! création : mode CCAM par défaut
+        wdg_chkAssoc->setChecked(true);             //! une cotation CCAM ne se crée pas, elle se coche dans la liste
 
     if (m_mode == Modification)
     {
