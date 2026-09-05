@@ -193,7 +193,10 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
                  && cot != nullptr && (itm->checkState() == Qt::Checked) != cot->isused())
             MAJCotation(itm);
     });
-    connect(wdg_table,                      &QAbstractItemView::doubleClicked,      this,   &dlg_choixcotation::RetientCotation);
+    connect(wdg_table,                      &QAbstractItemView::doubleClicked,      this,   [=, this] (QModelIndex idx) {
+        if (idx.column() != ColPratique)    //! là, le double-clic ouvre la saisie du montant
+            RetientCotation(idx);
+    });
     connect(OKButton,                       &QPushButton::clicked,      this,   [=, this] {
         RetientCotation(wdg_table->currentIndex());
         accept();                       //! OK ferme aussi quand il n'ouvre que sur des modifications
