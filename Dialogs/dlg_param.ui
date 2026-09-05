@@ -1186,6 +1186,25 @@ du dossier de stockage des videos</string>
               <bool>true</bool>
              </property>
             </widget>
+            <widget class="QPushButton" name="ImportDonneesConnexionLocalupPushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>110</y>
+               <width>305</width>
+               <height>36</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Importer les données de connexion exportées depuis le poste serveur</string>
+             </property>
+             <property name="text">
+              <string>Importer les données de connexion</string>
+             </property>
+            </widget>
            </widget>
            <widget class="QCheckBox" name="LocalServcheckBox">
             <property name="geometry">

@@ -2336,6 +2336,17 @@ static const QString CLE_PORT       = "Port";
 static const QString CLE_LOCAL      = "ServeurLocal";
 static const QString CLE_MDP        = "MotDePasse";
 
+/*! Avertissement affiché à l'export comme à l'import : le dossier ouvre l'accès complet à la base. */
+static QString AlerteDossierConnexion()
+{
+    return "<p><b><span style=\"color:#c00000;\">"
+            + QObject::tr("Ce dossier contient TOUT ce qui permet de se connecter à votre base : mot de passe, "
+                          "adresses, port et clés SSL. Quiconque le récupère peut lire et modifier les dossiers "
+                          "de vos patients.") + "<br/>"
+            + QObject::tr("Effacez-le du support dès que le poste distant est paramétré, et gardez ce support en "
+                          "lieu sûr : ne le laissez pas branché, ne le confiez à personne.") + "</span></b></p>";
+}
+
 /*!
  * \brief dlg_param::AdresseIPPublique
  * Interroge un service extérieur pour connaître l'adresse publique du cabinet, vide s'il ne répond pas.
@@ -2421,15 +2432,9 @@ void dlg_param::ExporterDonneesConnexion()
     }
 
     const QString lien = "https://www.rufusvision.org/installation-en-accegraves-distant.html";
-    const QString alerte = "<p><b><span style=\"color:#c00000;\">"
-            + tr("Ce dossier contient TOUT ce qui permet de se connecter à votre base : mot de passe, "
-                 "adresses, port et clés SSL. Quiconque le récupère peut lire et modifier les dossiers "
-                 "de vos patients.") + "<br/>"
-            + tr("Effacez-le du support dès que le poste distant est paramétré, et gardez ce support en "
-                 "lieu sûr : ne le laissez pas branché, ne le confiez à personne.") + "</span></b></p>";
     UpMessageBox::Watch(this, tr("Données de connexion exportées"),
                         tr("Les données de connexion ont été correctement copiées dans :") + "\n" + dest + "\n\n"
-                        + alerte
+                        + AlerteDossierConnexion()
                         + tr("Sur le poste distant, onglet Accès distant, utilisez « Importer les données de connexion ».") + "\n\n"
                         + tr("Il vous faudra aussi rediriger le port %1 de votre box vers cet ordinateur pour que "
                              "l'accès distant fonctionne, et au besoin demander une adresse IP fixe à votre opérateur.")
@@ -2439,10 +2444,13 @@ void dlg_param::ExporterDonneesConnexion()
                         UpDialog::ButtonOK, lien);
 }
 
-/*! (ACCÈS DISTANT) Réinjecte sur ce poste le dossier exporté par le serveur : clés SSL recopiées en local,
- *  adresse, port et mot de passe enregistrés pour le mode distant, puis effacement proposé du support. */
-void dlg_param::ImporterDonneesConnexion()
+/*! Réinjecte sur ce poste le dossier exporté par le serveur : adresse, port et mot de passe du mode demandé,
+ *  clés SSL recopiées pour le seul accès distant.
+ *  \param mode  Utils::ReseauLocal ou Utils::Distant */
+void dlg_param::ImporterDonneesConnexion(Utils::ModeAcces mode)
 {
+    const bool distant = (mode == Utils::Distant);
+
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Sélectionnez le dossier %1 sur la clé USB").arg(DIR_CONNEXION),
                                               QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
@@ -2451,7 +2459,7 @@ void dlg_param::ImporterDonneesConnexion()
     QString source = url.path();
     if (QDir(source + "/" + DIR_CONNEXION).exists())
         source += "/" + DIR_CONNEXION;              //! la clé elle-même a été désignée, pas le dossier
-    if (!QFile::exists(source + "/" + FIC_ADRESSE) || !QDir(source + "/" + DIR_CLES).exists())
+    if (!QFile::exists(source + "/" + FIC_ADRESSE) || (distant && !QDir(source + "/" + DIR_CLES).exists()))
     {
         UpMessageBox::Watch(this, tr("Dossier incomplet"),
                             tr("Ce dossier ne contient pas les données de connexion exportées par le serveur."));
@@ -2460,52 +2468,64 @@ void dlg_param::ImporterDonneesConnexion()
 
     //! les clés sont recopiées chez Rufus : le support est amovible et ne sera plus là au démarrage suivant
     const QString destcles = QString(PATH_DIR_RUFUS) + "/" + DIR_CLES;
-    if (!QDir().mkpath(destcles))
+    if (distant)
     {
-        UpMessageBox::Watch(this, tr("Dossier inaccessible"),
-                            tr("Impossible de créer le dossier des clés SSL :") + "\n" + destcles);
-        return;
+        if (!QDir().mkpath(destcles))
+        {
+            UpMessageBox::Watch(this, tr("Dossier inaccessible"),
+                                tr("Impossible de créer le dossier des clés SSL :") + "\n" + destcles);
+            return;
+        }
+        QStringList echecs;
+        const QStringList cles = QDir(source + "/" + DIR_CLES).entryList(QStringList() << "*.pem", QDir::Files);
+        for (const QString &f : cles)
+        {
+            const QString cible = destcles + "/" + f;
+            QFile::remove(cible);                   //! QFile::copy échoue si la cible existe déjà
+            if (!QFile::copy(source + "/" + DIR_CLES + "/" + f, cible))
+                echecs << f;
+        }
+        if (!echecs.isEmpty())
+        {
+            UpMessageBox::Watch(this, tr("Import incomplet"),
+                                tr("Certaines clés SSL n'ont pas pu être copiées :") + "\n" + echecs.join(", "));
+            return;
+        }
+        MySQLInstaller(this).corrigerDroitsClesSSL(destcles);
     }
-    QStringList echecs;
-    const QStringList cles = QDir(source + "/" + DIR_CLES).entryList(QStringList() << "*.pem", QDir::Files);
-    for (const QString &f : cles)
-    {
-        const QString cible = destcles + "/" + f;
-        QFile::remove(cible);                       //! QFile::copy échoue si la cible existe déjà
-        if (!QFile::copy(source + "/" + DIR_CLES + "/" + f, cible))
-            echecs << f;
-    }
-    if (!echecs.isEmpty())
-    {
-        UpMessageBox::Watch(this, tr("Import incomplet"),
-                            tr("Certaines clés SSL n'ont pas pu être copiées :") + "\n" + echecs.join(", "));
-        return;
-    }
-    MySQLInstaller(this).corrigerDroitsClesSSL(destcles);
 
     QSettings connexion(source + "/" + FIC_ADRESSE, QSettings::IniFormat);
-    const QString adresse = connexion.value(CLE_SERVEUR).toString();
+    const QString adresse = connexion.value(distant? CLE_SERVEUR : CLE_LOCAL).toString();
     const QString port    = connexion.value(CLE_PORT).toString();
-    const QString Base    = Utils::getBaseFromMode(Utils::Distant);
-    proc->settings()->setValue(Base + Dossier_ClesSSL, destcles);
+    const QString mdp     = connexion.value(CLE_MDP).toString();
+    const QString Base    = Utils::getBaseFromMode(mode);
     proc->settings()->setValue(Base + Param_Serveur,   adresse);
     proc->settings()->setValue(Base + Param_Port,      port);
-
-    const QString mdp = connexion.value(CLE_MDP).toString();
     if (!mdp.isEmpty())
-        MySQLInstaller::stockerMotDePassePourMode(Utils::Distant, mdp);
+        MySQLInstaller::stockerMotDePassePourMode(mode, mdp);
 
-    ui->DossierClesSSLupLineEdit    ->setText(destcles);
-    ui->EmplacementDistantuplineEdit->setText(adresse);
-    ui->SQLPortDistantcomboBox      ->setCurrentText(port);
-    ui->MDPDistantuplineEdit        ->setText(mdp);
+    if (distant)
+    {
+        proc->settings()->setValue(Base + Dossier_ClesSSL, destcles);
+        ui->DossierClesSSLupLineEdit    ->setText(destcles);
+        ui->EmplacementDistantuplineEdit->setText(adresse);
+        ui->SQLPortDistantcomboBox      ->setCurrentText(port);
+        ui->MDPDistantuplineEdit        ->setText(mdp);
+    }
+    else
+    {
+        ui->EmplacementLocaluplineEdit  ->setText(adresse);
+        ui->SQLPortLocalcomboBox        ->setCurrentText(port);
+        ui->MDPLocaluplineEdit          ->setText(mdp);
+    }
 
     UpMessageBox::Watch(this, tr("Données de connexion importées"),
-                        tr("Ce poste est paramétré pour joindre le serveur %1.").arg(adresse) + "\n\n"
-                        + tr("Les clés SSL ont été copiées dans :") + "\n" + destcles);
+                        tr("Ce poste est paramétré pour joindre le serveur %1.").arg(adresse)
+                        + (distant? "\n\n" + tr("Les clés SSL ont été copiées dans :") + "\n" + destcles : QString()));
 
     if (UpMessageBox::Question(this, tr("Effacer les données du support ?"),
                                tr("Les données de connexion sont maintenant enregistrées sur ce poste.") + "<br />"
+                               + AlerteDossierConnexion()
                                + tr("Voulez-vous les effacer du support amovible ?"),
                                UpDialog::ButtonCancel | UpDialog::ButtonOK,
                                QStringList() << tr("Conserver") << tr("Effacer"))
@@ -2921,7 +2941,8 @@ void dlg_param::ConnectSignals()
 
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
     connect(ui->ExportClesSSLPosteupPushButton,     &QPushButton::clicked,                  this,   &dlg_param::ExporterDonneesConnexion);
-    connect(ui->ImportDonneesConnexionupPushButton,&QPushButton::clicked,                  this,   &dlg_param::ImporterDonneesConnexion);
+    connect(ui->ImportDonneesConnexionupPushButton,&QPushButton::clicked,                  this,   [=, this] {ImporterDonneesConnexion(Utils::Distant);});
+    connect(ui->ImportDonneesConnexionLocalupPushButton,&QPushButton::clicked,             this,   [=, this] {ImporterDonneesConnexion(Utils::ReseauLocal);});
     connect(ui->ExportClesSSLDistantupPushButton,   &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLDistantversUSB);
     connect(ui->CreerClesSSLPosteupPushButton,      &QPushButton::clicked,                  this,   &dlg_param::CreerClesSSL);
     //! Recréer le mot de passe de la base (si l'ancien aléatoire est perdu). Protégé par le mot de passe
