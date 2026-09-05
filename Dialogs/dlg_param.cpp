@@ -2436,8 +2436,10 @@ void dlg_param::ExporterDonneesConnexion()
                         tr("Les données de connexion ont été correctement copiées dans :") + "\n" + dest + "\n\n"
                         + AlerteDossierConnexion()
                         + tr("Sur le poste distant, onglet Accès distant, utilisez « Importer les données de connexion ».") + "\n\n"
-                        + tr("Il vous faudra aussi rediriger le port %1 de votre box vers cet ordinateur pour que "
-                             "l'accès distant fonctionne, et au besoin demander une adresse IP fixe à votre opérateur.")
+                        + tr("Pour qu'un poste du réseau local retrouve ce serveur, la box du cabinet doit lui réserver "
+                             "une adresse IP fixe (%1).").arg(Utils::IPAdress()) + "\n"
+                        + tr("Pour qu'un poste distant le joigne, la box doit rediriger le port %1 vers cet ordinateur, "
+                             "et au besoin demander une adresse IP fixe à votre opérateur.")
                           .arg(ui->SQLPortPostecomboBox->currentText()) + "\n"
                         + tr("La marche à suivre est décrite sur :") + "\n"
                         + "<a href=\"" + lien + "\">https://www.rufusvision.org/installation-en-accès-distant.html</a>",
