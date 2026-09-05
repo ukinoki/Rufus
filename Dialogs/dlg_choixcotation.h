@@ -38,9 +38,11 @@ class FiltreCotations : public QSortFilterProxyModel
     Q_OBJECT
 public:
     using QSortFilterProxyModel::QSortFilterProxyModel;
-    void setOphtalmoSeule(bool ophtalmo)    {m_ophtalmoseule = ophtalmo; invalidateFilter();}
+    void setOphtalmoSeule(bool ophtalmo)    {beginFilterChange(); m_ophtalmoseule = ophtalmo; endFilterChange();}
     void setTypeAffiche(int typ, bool affiche)
-                                            {if (affiche) m_types.insert(typ); else m_types.remove(typ); invalidateFilter();}
+                                            {beginFilterChange();
+                                             if (affiche) m_types.insert(typ); else m_types.remove(typ);
+                                             endFilterChange();}
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 private:
