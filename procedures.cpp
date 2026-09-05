@@ -6177,6 +6177,12 @@ bool Procedures::ImporterDonneesConnexion(Utils::ModeAcces mode, QWidget *parent
             imagerie = MonterPartageAuDemarrage(imagerie);
             videos   = MonterPartageAuDemarrage(videos);
         }
+        else
+            UpMessageBox::Watch(parent, tr("Dossiers du serveur non montés"),
+                                tr("Montez vous-même ces dossiers, puis corrigez leur emplacement dans "
+                                   "Edition / Paramètres, onglet Réseau local :") + "\n\n"
+                                + imagerie + "\n" + videos + "\n\n"
+                                + tr("Tant qu'ils ne sont pas montés, Rufus n'affichera pas les documents des patients."));
 #endif
         m_settings  ->setValue(Base + Dossier_Imagerie, imagerie);
         m_settings  ->setValue(Base + Dossier_Videos,   videos);
