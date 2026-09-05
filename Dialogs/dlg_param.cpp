@@ -2330,10 +2330,11 @@ void dlg_param::DossierClesSSL()
 /*! éléments du dossier exporté, communs à l'export et à l'import */
 static const QString DIR_CONNEXION  = "RufusConnexion";
 static const QString DIR_CLES       = "SSLKeys";
-static const QString FIC_MDP        = "rufus-mdp-mysql.txt";   /*!< nom déjà lu par RecupererMotDePasseMySQL */
 static const QString FIC_ADRESSE    = "connexion.ini";
 static const QString CLE_SERVEUR    = "Serveur";
 static const QString CLE_PORT       = "Port";
+static const QString CLE_LOCAL      = "ServeurLocal";
+static const QString CLE_MDP        = "MotDePasse";
 
 /*!
  * \brief dlg_param::AdresseIPPublique
@@ -2409,22 +2410,26 @@ void dlg_param::ExporterDonneesConnexion()
     QSettings connexion(dest + "/" + FIC_ADRESSE, QSettings::IniFormat);
     connexion   .setValue(CLE_SERVEUR, adresse);
     connexion   .setValue(CLE_PORT,    ui->SQLPortPostecomboBox->currentText());
+    connexion   .setValue(CLE_LOCAL,   Utils::IPAdress());
+    connexion   .setValue(CLE_MDP,     ui->MDPMonouplineEdit->text());
     connexion   .sync();
-
-    QFile fic(dest + "/" + FIC_MDP);
-    if (!fic.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+    if (connexion.status() != QSettings::NoError)
     {
         UpMessageBox::Watch(this, tr("Export incomplet"),
-                            tr("Le mot de passe n'a pas pu être écrit sur :") + "\n" + dest);
+                            tr("Les données de connexion n'ont pas pu être écrites sur :") + "\n" + dest);
         return;
     }
-    fic     .write(ui->MDPMonouplineEdit->text().toUtf8());
-    fic     .write("\n");
-    fic     .close();
 
     const QString lien = "https://www.rufusvision.org/installation-en-accegraves-distant.html";
+    const QString alerte = "<p><b><span style=\"color:#c00000;\">"
+            + tr("Ce dossier contient TOUT ce qui permet de se connecter à votre base : mot de passe, "
+                 "adresses, port et clés SSL. Quiconque le récupère peut lire et modifier les dossiers "
+                 "de vos patients.") + "<br/>"
+            + tr("Effacez-le du support dès que le poste distant est paramétré, et gardez ce support en "
+                 "lieu sûr : ne le laissez pas branché, ne le confiez à personne.") + "</span></b></p>";
     UpMessageBox::Watch(this, tr("Données de connexion exportées"),
                         tr("Les données de connexion ont été correctement copiées dans :") + "\n" + dest + "\n\n"
+                        + alerte
                         + tr("Sur le poste distant, onglet Accès distant, utilisez « Importer les données de connexion ».") + "\n\n"
                         + tr("Il vous faudra aussi rediriger le port %1 de votre box vers cet ordinateur pour que "
                              "l'accès distant fonctionne, et au besoin demander une adresse IP fixe à votre opérateur.")
@@ -2486,13 +2491,7 @@ void dlg_param::ImporterDonneesConnexion()
     proc->settings()->setValue(Base + Param_Serveur,   adresse);
     proc->settings()->setValue(Base + Param_Port,      port);
 
-    QString mdp;
-    QFile fic(source + "/" + FIC_MDP);
-    if (fic.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        mdp = QString::fromUtf8(fic.readAll()).trimmed();
-        fic.close();
-    }
+    const QString mdp = connexion.value(CLE_MDP).toString();
     if (!mdp.isEmpty())
         MySQLInstaller::stockerMotDePassePourMode(Utils::Distant, mdp);
 
