@@ -923,7 +923,7 @@
               <string>Recréer le mot de passe de la base</string>
              </property>
             </widget>
-            <widget class="QPushButton" name="ExportClesSSLPosteupPushButton">
+            <widget class="UpPushButton" name="ExportClesSSLPosteupPushButton">
              <property name="geometry">
               <rect>
                <x>10</x>

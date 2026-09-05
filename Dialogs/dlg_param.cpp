@@ -146,6 +146,9 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->ReinitBaseupPushButton      ->setImmediateToolTip(tr("Effacement complet de la base patients et des dossiers d'imagerie"));
     ui->ReinitBaseupPushButton      ->setIcon(Icons::icReinit());
     ui->ChoixFontupPushButton       ->setIconSize(QSize(35,35));
+    ui->ExportClesSSLPosteupPushButton->setImmediateToolTip(tr("Réunit sur une clé USB ou tout autre support toutes les données de connexion "
+                                                              "qui permettront à un autre poste, sur le réseau local du cabinet ou par internet, "
+                                                              "de se connecter à ce serveur"));
     ui->ChercheCotationlabel        ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
     ui->StatutComptaupTextEdit      ->setAttribute( Qt::WA_NoSystemBackground, true );
     ui->StatutComptaupTextEdit      ->setReadOnly(true);
@@ -2438,13 +2441,15 @@ void dlg_param::ExporterDonneesConnexion()
                         + AlerteDossierConnexion()
                         + tr("Cet ordinateur ne doit pas se mettre en veille : les autres postes ne trouveraient "
                              "plus la base.") + "\n\n"
+                        + tr("Pour connecter un autre poste à ce serveur, branchez-y ce support, démarrez Rufus et "
+                             "ouvrez le menu Edition / Paramètres, onglet Ce poste.") + "\n\n"
                         + "<b>" + tr("Poste du réseau local") + "</b>\n"
-                        + tr("Onglet Réseau local du poste, bouton « Importer les données de connexion ».") + "\n"
+                        + tr("Cochez « Cet appareil se connecte à un serveur local », puis « Importer les données de connexion ».") + "\n"
                         + tr("La box du cabinet doit réserver à cet ordinateur une adresse IP fixe (%1).").arg(Utils::IPAdress()) + "\n"
                         + tr("La marche à suivre est décrite sur :") + " "
                         + "<a href=\"" + lienlocal + "\">https://www.rufusvision.org/installation-en-réseau-local.html</a>\n\n"
                         + "<b>" + tr("Poste en accès distant") + "</b>\n"
-                        + tr("Onglet Accès distant du poste, bouton « Importer les données de connexion ».") + "\n"
+                        + tr("Cochez « Cet appareil se connecte à un serveur distant », puis « Importer les données de connexion ».") + "\n"
                         + tr("La box doit rediriger le port %1 vers cet ordinateur, et au besoin demander une adresse "
                              "IP fixe à votre opérateur.").arg(ui->SQLPortPostecomboBox->currentText()) + "\n"
                         + tr("La marche à suivre est décrite sur :") + " "
