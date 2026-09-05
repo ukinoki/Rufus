@@ -2453,8 +2453,9 @@ void dlg_param::ExporterDonneesConnexion()
     UpMessageBox::Watch(this, tr("Données de connexion exportées"),
                         tr("Les données de connexion ont été correctement copiées dans :") + "\n" + dest + "\n\n"
                         + AlerteDossierConnexion()
-                        + tr("Cet ordinateur ne doit pas se mettre en veille : les autres postes ne trouveraient "
-                             "plus la base.") + "\n\n"
+                        + tr("Si cet ordinateur doit faire office de serveur dans un réseau,") + "\n"
+                        + tr("il vous faut bloquer sa mise en veille automatique afin") + "\n"
+                        + tr("qu'il reste toujours disponible pour répondre aux requêtes des autres postes du réseau.") + "\n\n"
                         + tr("Pour connecter un autre poste à ce serveur, branchez-y ce support, démarrez Rufus et "
                              "ouvrez le menu Edition / Paramètres, onglet Ce poste.") + "\n\n"
                         + "<b>" + tr("Poste du réseau local") + "</b>\n"
