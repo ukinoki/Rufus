@@ -189,24 +189,23 @@ dlg_gestioncotations::~dlg_gestioncotations()
 /*!
  * \brief dlg_gestioncotations::appliqueMode
  * montre/masque/retitre les champs, règle leur éditabilité et pose les QCompleter selon le mode
- * courant (m_typecotation : 1 CCAM, 2 association, 4 autre).
+ * courant (m_typecotation : 2 association, 4 autre).
  */
 void dlg_gestioncotations::appliqueMode()
 {
-    const bool ccam  = (m_typecotation == 1);
     const bool assoc = (m_typecotation == 2);
     const bool autre = (m_typecotation == 4);
 
     //! 2e code : association seulement (son bouton « ... » suit avec lui)
     wdg_code2widg   ->setVisible(assoc);
-    //! bouton « ... » du 1er code : présent dès qu'on saisit un code CCAM (modes CCAM et association)
-    wdg_boutonCCAM1 ->setVisible(ccam || assoc);
+    //! bouton « ... » du 1er code : présent dès qu'on saisit un code CCAM
+    wdg_boutonCCAM1 ->setVisible(assoc);
     //! non-OPTAM : masqué en mode autre
     wdg_tarifnooptamwidg->setVisible(!autre);
 
-    //! QCompleter CCAM sur les codes en modes 1 et 2 (on ne peut choisir qu'un code CCAM) ; aucun en mode
-    //! autre. Le completer s'appuie sur m_modelCCAM -> infobulle (libellé de l'acte) dans le popup.
-    QCompleter *comp1 = (ccam || assoc) ? new QCompleter(m_modelCCAM, this) : nullptr;
+    //! QCompleter CCAM sur les codes d'une association ; aucun en mode autre. Il s'appuie sur
+    //! m_modelCCAM -> infobulle (libellé de l'acte) dans le popup.
+    QCompleter *comp1 = assoc ? new QCompleter(m_modelCCAM, this) : nullptr;
     if (comp1) comp1    ->setCaseSensitivity(Qt::CaseInsensitive);
     wdg_codeline        ->setCompleter(comp1);
     QCompleter *comp2 = assoc ? new QCompleter(m_modelCCAM, this) : nullptr;
@@ -219,26 +218,25 @@ void dlg_gestioncotations::appliqueMode()
 
     //! éditabilité : conventionnel saisi seulement en mode autre ; non-OPTAM jamais (repris/calculé) ;
     //! pratiqué TOUJOURS éditable (pré-rempli au conventionnel calculé, l'utilisateur peut le dépasser,
-    //! y compris en association) ; tip non éditable en CCAM (repris)
+    //! y compris en association)
     wdg_tarifnooptamline    ->setFocusPolicy(Qt::NoFocus);
     wdg_tarifoptamline      ->setFocusPolicy(autre? Qt::StrongFocus : Qt::NoFocus);
+    wdg_tipline             ->setFocusPolicy(Qt::StrongFocus);
 
-    wdg_tipline   ->setFocusPolicy(ccam ? Qt::NoFocus : Qt::StrongFocus);
-
-    setWindowTitle(ccam ? tr("Cotation CCAM") : assoc ? tr("Association CCAM") : tr("Cotation"));
+    setWindowTitle(assoc ? tr("Association CCAM") : tr("Cotation"));
 
     regleOK();      //! le changement de mode change les champs requis -> réévalue l'état du bouton OK
 }
 
 /*!
  * \brief dlg_gestioncotations::remplitDepuisCCAM
- * modes 1 et 2 : à partir du (des) code(s) CCAM saisi(s), remplit les montants (association : 1er acte
+ * association : à partir des codes CCAM saisis, remplit les montants (1er acte
  * plein + 2e acte pour moitié), le libellé (repris de ccam) et le pratiqué (conventionnel selon le
  * secteur OPTAM du parent).
  */
 void dlg_gestioncotations::remplitDepuisCCAM()
 {
-    if (m_typecotation != 1 && m_typecotation != 2)
+    if (m_typecotation != 2)
         return;
 
     //! lecteur d'un acte CCAM : rend ses montants (0 si code vide ou inconnu) et son libellé.
@@ -299,10 +297,7 @@ void dlg_gestioncotations::regleOK()
 {
     auto rempli = [] (UpLineEdit *l) { return !l->text().trimmed().isEmpty(); };
     bool complet;
-    if (m_typecotation == 1)                //! CCAM
-        complet = rempli(wdg_codeline) && rempli(wdg_tarifoptamline)
-                  && rempli(wdg_tarifnooptamline) && rempli(wdg_tarifpratiqueline);
-    else if (m_typecotation == 2)           //! association CCAM
+    if (m_typecotation == 2)                //! association CCAM
         complet = rempli(wdg_codeline) && rempli(wdg_codeline2) && rempli(wdg_tarifoptamline)
                   && rempli(wdg_tarifnooptamline) && rempli(wdg_tarifpratiqueline);
     else                                    //! autre : code + pratiqué (conventionnel facultatif)
@@ -355,8 +350,8 @@ bool dlg_gestioncotations::VerifFiche()
         UpMessageBox::Watch(this, msg, tr("Vous avez oublié le code de l'acte"));
         return false;
     }
-    //! modes CCAM / association : les codes doivent exister dans la table ccam
-    if (m_typecotation == 1 || m_typecotation == 2)
+    //! association : les codes doivent exister dans la table ccam
+    if (m_typecotation == 2)
     {
         QStringList codes;  codes << code1;
         if (m_typecotation == 2) codes << code2;

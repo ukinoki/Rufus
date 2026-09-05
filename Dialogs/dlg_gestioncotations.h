@@ -29,20 +29,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  Fiche de création/modification d'une cotation (table cotations, une seule).
 
- EN CRÉATION, un QGroupBox « Nouvelle cotation » propose 3 modes EXCLUSIFS (Cotation::typcotation) :
-    * 1 = CCAM         : on capture un acte de la table CCAM. code + montants NON éditables (repris
-                         de la table ccam), libellé repris (non éditable) ; le pratiqué est éditable
-                         et part du conventionnel (optam si isOPTAM, sinon nonoptam). Un QCompleter
-                         CCAM contraint le code à un acte CCAM existant. Un bouton ouvre la table CCAM.
+ EN CRÉATION, un QGroupBox « Nouvelle cotation » propose 2 modes EXCLUSIFS (Cotation::typcotation) :
     * 2 = association  : DEUX codes CCAM (chacun avec QCompleter CCAM, seuls des codes CCAM acceptés) ;
                          les montants sont CALCULÉS (non éditables).
     * 4 = autre        : tout éditable, pas de CCAM, pas de completer.
+ Un acte CCAM ne se crée pas ici : figé comme une NGAP, il se prend dans la nomenclature.
  EN MODIFICATION, pas de choix : le type est celui de la cotation (2 ou 4 — CCAM/NGAP ne se modifient
  pas), le sélecteur est masqué et les champs sont pré-remplis.
 
  Les champs sont UNIQUES et montrés/masqués/retitrés selon le mode par appliqueMode() :
     * codeLine (+ codeLine2 en association), 3 montants (optam/conventionnel, nonoptam, pratiqué),
-      le tip, et le bouton d'appel de la table CCAM (mode 1 seulement).
+      le tip, et le bouton d'appel de la table CCAM.
 
  TODO : stockage propre d'une association à 2 codes (aujourd'hui « code1+code2 » dans un seul champ).
 */
@@ -63,7 +60,7 @@ private:
     QString         m_codeacte;
     QString         m_codeenregistre;                           //!< code écrit à la validation (création/modif), lu par l'appelant
     int             m_idcotation = 0;                           //!< id de la cotation en modification (clé de l'update)
-    int             m_typecotation = 1;                         //!< mode courant : 1=CCAM, 2=association, 4=autre
+    int             m_typecotation = 2;                         //!< mode courant : 2=association, 4=autre
     QStringList     m_listeCCAM;                                //!< codes de la table ccam (pour valider « c'est bien un code CCAM »)
     QStandardItemModel *m_modelCCAM = nullptr;                //!< code CCAM (DisplayRole) + libellé (ToolTipRole) : source des QCompleter avec infobulle
 
