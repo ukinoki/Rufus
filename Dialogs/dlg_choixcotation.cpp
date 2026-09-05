@@ -67,7 +67,6 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     m_proxy     ->setFilterCaseSensitivity(Qt::CaseInsensitive);
     wdg_table   ->setModel(m_proxy);
 
-    wdg_table   ->horizontalHeader()->setSectionResizeMode(ColDescriptif, QHeaderView::Stretch);
     wdg_table   ->setColumnWidth(ColCotation, 153);
     for (int col : {ColNonOptam, ColOptam, ColPratique})
         wdg_table   ->setColumnWidth(col, 100);
@@ -76,6 +75,8 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     const QByteArray etatcolonnes = sets.value(DialogColonnes Nom_fiche_ChoixCotation).toByteArray();
     if (!etatcolonnes.isEmpty())
         wdg_table   ->horizontalHeader()->restoreState(etatcolonnes);
+    //! restoreState ne porte pas les modes : le descriptif s'étire, il se repose après
+    wdg_table   ->horizontalHeader()->setSectionResizeMode(ColDescriptif, QHeaderView::Stretch);
     connect(this,   &QDialog::finished, this,   [=, this] {
         QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
         sets.setValue(DialogColonnes Nom_fiche_ChoixCotation, wdg_table->horizontalHeader()->saveState());
@@ -203,14 +204,6 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     setSaveGeometry(Nom_fiche_ChoixCotation);
 }
 
-void dlg_choixcotation::resizeEvent(QResizeEvent *event)
-{
-    UpDialog::resizeEvent(event);
-    QWidget *parenttable = wdg_buttonframe? wdg_buttonframe->widgButtonParent() : nullptr;
-    qDebug() << "resize fiche=" << width() << "| parent=" << (parenttable? parenttable->width() : -1)
-             << "| table=" << wdg_table->width() << "| descriptif=" << wdg_table->columnWidth(ColDescriptif);
-}
-
 void dlg_choixcotation::showEvent(QShowEvent *event)
 {
     UpDialog::showEvent(event);
@@ -278,15 +271,7 @@ void dlg_choixcotation::RemplitTable()
     if (vueprete)
     {
         wdg_table   ->horizontalHeader()->restoreState(etatcolonnes);
-        QWidget *parenttable = wdg_buttonframe? wdg_buttonframe->widgButtonParent() : nullptr;
-        qDebug() << "après RemplitTable : stretch descriptif="
-                 << (wdg_table->horizontalHeader()->sectionResizeMode(ColDescriptif) == QHeaderView::Stretch)
-                 << "| table larg=" << wdg_table->width() << "min=" << wdg_table->minimumWidth()
-                 << "max=" << wdg_table->maximumWidth()
-                 << "| parent larg=" << (parenttable? parenttable->width() : -1)
-                 << "min=" << (parenttable? parenttable->minimumWidth() : -1)
-                 << "max=" << (parenttable? parenttable->maximumWidth() : -1)
-                 << "| fiche larg=" << width();
+        wdg_table   ->horizontalHeader()->setSectionResizeMode(ColDescriptif, QHeaderView::Stretch);
     }
 }
 
@@ -438,10 +423,7 @@ void dlg_choixcotation::ChoixButtonFrame()
 void dlg_choixcotation::NouvCotation()
 {
     dlg_gestioncotations dlg(dlg_gestioncotations::Creation, "", this);
-    qDebug() << "avant exec : table=" << wdg_table->width() << "parent=" << wdg_buttonframe->widgButtonParent()->width();
-    const int issue = dlg.exec();
-    qDebug() << "après exec : table=" << wdg_table->width() << "parent=" << wdg_buttonframe->widgButtonParent()->width();
-    if (issue != QDialog::Accepted)
+    if (dlg.exec() != QDialog::Accepted)
         return;
     Datas::I()->cotations->initListe();
     RemplitTable();
@@ -455,10 +437,7 @@ void dlg_choixcotation::ModifCotation()
     if (cot == nullptr)
         return;
     dlg_gestioncotations dlg(dlg_gestioncotations::Modification, cot->typeacte(), this);
-    qDebug() << "avant exec : table=" << wdg_table->width() << "parent=" << wdg_buttonframe->widgButtonParent()->width();
-    const int issue = dlg.exec();
-    qDebug() << "après exec : table=" << wdg_table->width() << "parent=" << wdg_buttonframe->widgButtonParent()->width();
-    if (issue <= 0)
+    if (dlg.exec() <= 0)
         return;
     Datas::I()->cotations->initListe();
     RemplitTable();
