@@ -195,7 +195,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
                 wdg_tarifpratiqueline->setText(QLocale().toString(prat, 'f', 2));
             }
         }
-        wdg_tipline ->setPlainText(tipenregistre);   //! après remplitDepuisCCAM, qui repose le libellé calculé
+        wdg_tipline ->setPlainText(tipenregistre);
     }
 
     appliqueMode();
@@ -297,7 +297,8 @@ void dlg_gestioncotations::remplitDepuisCCAM()
 
     wdg_tarifoptamline  ->setText(QLocale().toString(optam, 'f', 2));
     wdg_tarifnooptamline->setText(QLocale().toString(nonoptam, 'f', 2));
-    wdg_tipline         ->setPlainText(noms.join(" + "));
+    if (m_mode == Creation)                 //! en modification, le libellé saisi fait foi
+        wdg_tipline     ->setPlainText(noms.join(" + "));
 
     //! pratiqué par défaut = conventionnel selon le secteur du PARENT (titulaire) : OPTAM -> optam, sinon nonoptam
     User *u      = Datas::I()->users->userconnected();
