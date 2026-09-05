@@ -2458,6 +2458,8 @@ void dlg_param::ExporterDonneesConnexion()
                         + "<b>" + tr("Poste du réseau local") + "</b>\n"
                         + tr("Cochez « Cet appareil se connecte à un serveur local », puis « Importer les données de connexion ».") + "\n"
                         + tr("La box du cabinet doit réserver à cet ordinateur une adresse IP fixe (%1).").arg(Utils::IPAdress()) + "\n"
+                        + tr("Le dossier d'imagerie partagé par ce serveur doit être monté automatiquement au démarrage "
+                             "du poste, sans quoi Rufus ne le retrouvera pas.") + "\n"
                         + tr("La marche à suivre est décrite sur :") + " "
                         + "<a href=\"" + lienlocal + "\">https://www.rufusvision.org/installation-en-réseau-local.html</a>\n\n"
                         + "<b>" + tr("Poste en accès distant") + "</b>\n"
@@ -2546,7 +2548,9 @@ void dlg_param::ImporterDonneesConnexion(Utils::ModeAcces mode)
 
     UpMessageBox::Watch(this, tr("Données de connexion importées"),
                         tr("Ce poste est paramétré pour joindre le serveur %1.").arg(adresse)
-                        + (distant? "\n\n" + tr("Les clés SSL ont été copiées dans :") + "\n" + destcles : QString()));
+                        + (distant? "\n\n" + tr("Les clés SSL ont été copiées dans :") + "\n" + destcles
+                                  : "\n\n" + tr("Le dossier d'imagerie partagé par le serveur doit être monté automatiquement "
+                                                "au démarrage de cet ordinateur, sans quoi Rufus ne le retrouvera pas.")));
 
     const QString technique = (distant
             ? tr("Pour que ce poste joigne le serveur, la box du cabinet doit rediriger le port %1 vers lui.").arg(port)

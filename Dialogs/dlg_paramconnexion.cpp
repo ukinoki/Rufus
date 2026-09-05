@@ -65,6 +65,34 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     clesSSLlay          ->addWidget(wdg_clesSSLlineedit, 1);
     clesSSLlay          ->addWidget(wdg_clesSSLbouton, 0);
 
+    /*! dossiers partagés par le serveur : le poste du réseau local y lit l'imagerie et les vidéos */
+    wdg_imagerielabel   = new UpLabel();
+    wdg_imagerielabel   ->setText(tr("Dossier d'imagerie du serveur"));
+    wdg_videoslabel     = new UpLabel();
+    wdg_videoslabel     ->setText(tr("Dossier des vidéos du serveur"));
+    wdg_imagerielineedit = new UpLineEdit();
+    wdg_videoslineedit  = new UpLineEdit();
+    wdg_imageriebouton  = new QPushButton("...");
+    wdg_videosbouton    = new QPushButton("...");
+    QHBoxLayout *imagerielay = new QHBoxLayout;
+    QHBoxLayout *videoslay   = new QHBoxLayout;
+    for (UpLineEdit *champ : {wdg_imagerielineedit, wdg_videoslineedit})
+    {
+        champ           ->setAlignment(Qt::AlignCenter);
+        champ           ->useselftextastooltip();
+    }
+    for (QPushButton *butt : {wdg_imageriebouton, wdg_videosbouton})
+    {
+        butt            ->setFixedSize(54, 32);
+        butt            ->setContextMenuPolicy(Qt::NoContextMenu);
+    }
+    imagerielay         ->setContentsMargins(0, 0, 0, 0);
+    imagerielay         ->addWidget(wdg_imagerielineedit, 1);
+    imagerielay         ->addWidget(wdg_imageriebouton, 0);
+    videoslay           ->setContentsMargins(0, 0, 0, 0);
+    videoslay           ->addWidget(wdg_videoslineedit, 1);
+    videoslay           ->addWidget(wdg_videosbouton, 0);
+
     wdg_ipframe         = new QFrame();
     wdg_ipframe         ->setFrameShape(QFrame::StyledPanel);
     QVBoxLayout *iplay  = new QVBoxLayout;
@@ -72,6 +100,10 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     iplay               ->addWidget(wdg_iplineedit);
     iplay               ->addWidget(wdg_clesSSLlabel);
     iplay               ->addLayout(clesSSLlay);
+    iplay               ->addWidget(wdg_imagerielabel);
+    iplay               ->addLayout(imagerielay);
+    iplay               ->addWidget(wdg_videoslabel);
+    iplay               ->addLayout(videoslay);
     wdg_ipframe         ->setLayout(iplay);
     lay                 ->addWidget(wdg_ipframe);
 
@@ -97,6 +129,8 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     connect(OKButton,           &QPushButton::clicked,  this, &dlg_paramconnexion::Verif);
     connect(CancelButton,       &QPushButton::clicked,  this, &QDialog::reject);
     connect(wdg_clesSSLbouton,  &QPushButton::clicked,  this, &dlg_paramconnexion::DossierClesSSL);
+    connect(wdg_imageriebouton, &QPushButton::clicked,  this, [=, this] {DossierPartage(wdg_imagerielineedit);});
+    connect(wdg_videosbouton,   &QPushButton::clicked,  this, [=, this] {DossierPartage(wdg_videoslineedit);});
     for (QRadioButton *radio : {wdg_posteradio, wdg_localradio, wdg_distantradio})
         connect(radio, &QRadioButton::clicked, this, [=, this] {RegleAffichage(radio);});
 
@@ -120,12 +154,32 @@ void dlg_paramconnexion::DossierClesSSL()
     wdg_clesSSLlineedit ->setImmediateToolTip(wdg_clesSSLlineedit->text());
 }
 
+/*!
+ * \brief dlg_paramconnexion::DossierPartage
+ * Fait désigner un dossier partagé par le serveur et le renseigne dans le champ.
+ * \param champ  champ à renseigner
+ */
+void dlg_paramconnexion::DossierPartage(UpLineEdit *champ)
+{
+    const QString dir = champ->text();
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(QDir(dir).exists()? dir : QDir::homePath()), QStringList());
+    if (url == QUrl())
+        return;
+    champ   ->setText(url.path());
+}
+
 void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 {
     wdg_ipframe         ->setVisible(butt != wdg_posteradio);
     wdg_clesSSLbouton   ->setVisible(butt == wdg_distantradio);
     wdg_clesSSLlabel    ->setVisible(butt == wdg_distantradio);
     wdg_clesSSLlineedit ->setVisible(butt == wdg_distantradio);
+    wdg_imagerielabel   ->setVisible(butt == wdg_localradio);
+    wdg_imagerielineedit->setVisible(butt == wdg_localradio);
+    wdg_imageriebouton  ->setVisible(butt == wdg_localradio);
+    wdg_videoslabel     ->setVisible(butt == wdg_localradio);
+    wdg_videoslineedit  ->setVisible(butt == wdg_localradio);
+    wdg_videosbouton    ->setVisible(butt == wdg_localradio);
     if (butt == wdg_distantradio)
     {
         /*! Lien ACTIF : l'URL passe en HTML (<a href>) ET en 5e paramètre « link » de Watch, qui active

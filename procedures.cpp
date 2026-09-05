@@ -5945,6 +5945,11 @@ bool Procedures::VerifParamConnexion(QWidget *parent)
             m_settings->setValue(Base + Param_Serveur,   Utils::calcIP(Dlg_ParamConnex->ip(), false));
         if (mode == Utils::Distant)
             m_settings->setValue(Base + Dossier_ClesSSL, Dlg_ParamConnex->dossierclesSSL());
+        if (mode == Utils::ReseauLocal)
+        {
+            m_settings->setValue(Base + Dossier_Imagerie, Dlg_ParamConnex->dossierimagerie());
+            m_settings->setValue(Base + Dossier_Videos,   Dlg_ParamConnex->dossiervideos());
+        }
         db->setModeacces(mode);
         m_settings->setValue(Base + Param_Active,    "YES");
         m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->port());

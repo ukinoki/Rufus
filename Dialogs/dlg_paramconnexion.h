@@ -48,6 +48,8 @@ public:
                                                                                       : Utils::Poste; }
     QString             ip() const              { return wdg_iplineedit->text(); }
     QString             dossierclesSSL() const  { return wdg_clesSSLlineedit->text(); }
+    QString             dossierimagerie() const { return wdg_imagerielineedit->text(); }
+    QString             dossiervideos() const   { return wdg_videoslineedit->text(); }
     QString             port() const            { return wdg_portcombo->currentText(); }
 
 private:
@@ -55,11 +57,15 @@ private:
     QRadioButton    *wdg_posteradio, *wdg_localradio, *wdg_distantradio;
     QFrame          *wdg_ipframe;                   /*!< adresse du serveur et clés SSL, masqué en monoposte */
     UpLineEdit      *wdg_iplineedit, *wdg_clesSSLlineedit;
+    UpLineEdit      *wdg_imagerielineedit, *wdg_videoslineedit;
     UpLabel         *wdg_clesSSLlabel;
+    UpLabel         *wdg_imagerielabel, *wdg_videoslabel;   /*!< dossiers partagés par le serveur, réseau local seulement */
     QPushButton     *wdg_clesSSLbouton;
+    QPushButton     *wdg_imageriebouton, *wdg_videosbouton;
     QComboBox       *wdg_portcombo;
 
     void            DossierClesSSL();                   /*!< choisit le dossier des clés SSL (accès distant) et le renseigne dans le champ */
+    void            DossierPartage(UpLineEdit *champ);  /*!< choisit un dossier partagé par le serveur et le renseigne dans le champ */
     void            RegleAffichage(QRadioButton *butt); /*!< adapte l'affichage (visibilité des champs, message accès distant) au mode d'accès choisi */
     void            Verif();                            /*!< bouton « OK » : ferme la fiche si la saisie est complète */
     bool            VerifFiche();                       /*!< la saisie est-elle complète (de quoi écrire un Rufus.ini valide) ? */
