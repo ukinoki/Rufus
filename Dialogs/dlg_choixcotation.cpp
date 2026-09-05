@@ -217,6 +217,9 @@ void dlg_choixcotation::showEvent(QShowEvent *event)
  */
 void dlg_choixcotation::RemplitTable()
 {
+    /*! clear réinitialise le modèle : la vue perdrait largeurs et étirement du descriptif */
+    const bool vueprete = wdg_table->model() != nullptr;
+    const QByteArray etatcolonnes = vueprete? wdg_table->horizontalHeader()->saveState() : QByteArray();
     m_model     ->clear();
     m_model     ->setHorizontalHeaderLabels(QStringList()
                     << tr("Cotation") << tr("Descriptif") << tr("Non OPTAM") << tr("OPTAM") << tr("Pratiqué"));
@@ -264,6 +267,8 @@ void dlg_choixcotation::RemplitTable()
         if (!codesvus.contains(c->typeacte()))
             ajoute(c, c->typeacte().startsWith("B", Qt::CaseInsensitive)
                    || c->typeacte().startsWith("EBQF", Qt::CaseInsensitive));   //! les chapitres d'ophtalmologie de la CCAM
+    if (vueprete)
+        wdg_table   ->horizontalHeader()->restoreState(etatcolonnes);
 }
 
 /*!
