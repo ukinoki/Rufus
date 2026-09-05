@@ -385,7 +385,10 @@ void dlg_choixcotation::RegleCotationsBoutons()
     Cotation *cot = cotationEnCours();
     wdg_buttonframe->wdg_plusBouton ->setEnabled(sonparent);
     wdg_buttonframe->wdg_modifBouton->setEnabled(sonparent && cot != nullptr && cot->isAutre());
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(sonparent && cot != nullptr && cot->isAutre());
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(sonparent && cot != nullptr && cot->isAutre()
+                                                 && !DataBase::I()->cotationUtiliseeParAutreUser(
+                                                        cot->typcotation(), cot->id(),
+                                                        Datas::I()->users->userconnected()->id()));
 }
 
 void dlg_choixcotation::ChoixButtonFrame()
