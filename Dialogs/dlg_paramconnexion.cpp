@@ -16,9 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QButtonGroup>
-#include <QSettings>
 #include "dlg_paramconnexion.h"
-#include "mysqlinstaller.h"
 #include "upgroupbox.h"
 
 dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
@@ -67,9 +65,6 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     clesSSLlay          ->addWidget(wdg_clesSSLlineedit, 1);
     clesSSLlay          ->addWidget(wdg_clesSSLbouton, 0);
 
-    wdg_importbouton    = new UpPushButton(tr("Importer les données de connexion"));
-    wdg_importbouton    ->setImmediateToolTip(Utils::tipImportDonneesConnexion());
-
     wdg_ipframe         = new QFrame();
     wdg_ipframe         ->setFrameShape(QFrame::StyledPanel);
     QVBoxLayout *iplay  = new QVBoxLayout;
@@ -77,7 +72,6 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     iplay               ->addWidget(wdg_iplineedit);
     iplay               ->addWidget(wdg_clesSSLlabel);
     iplay               ->addLayout(clesSSLlay);
-    iplay               ->addWidget(wdg_importbouton);
     wdg_ipframe         ->setLayout(iplay);
     lay                 ->addWidget(wdg_ipframe);
 
@@ -103,7 +97,6 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     connect(OKButton,           &QPushButton::clicked,  this, &dlg_paramconnexion::Verif);
     connect(CancelButton,       &QPushButton::clicked,  this, &QDialog::reject);
     connect(wdg_clesSSLbouton,  &QPushButton::clicked,  this, &dlg_paramconnexion::DossierClesSSL);
-    connect(wdg_importbouton,   &QPushButton::clicked,  this, &dlg_paramconnexion::ImporterDonneesConnexion);
     for (QRadioButton *radio : {wdg_posteradio, wdg_localradio, wdg_distantradio})
         connect(radio, &QRadioButton::clicked, this, [=, this] {RegleAffichage(radio);});
 
@@ -125,67 +118,6 @@ void dlg_paramconnexion::DossierClesSSL()
     /*! On renseigne le champ ; c'est VerifParamConnexion qui l'enregistrera avec le reste. */
     wdg_clesSSLlineedit ->setText(url.path());
     wdg_clesSSLlineedit ->setImmediateToolTip(wdg_clesSSLlineedit->text());
-}
-
-/*!
- * \brief dlg_paramconnexion::ImporterDonneesConnexion
- * Reprend le dossier RufusConnexion exporté par le serveur : adresse, port et mot de passe du mode choisi,
- * clés SSL recopiées chez Rufus pour l'accès distant.
- */
-void dlg_paramconnexion::ImporterDonneesConnexion()
-{
-    const bool distant = (modeacces() == Utils::Distant);
-
-    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Sélectionnez le dossier %1 sur la clé USB").arg(QString(NOM_DIR_CONNEXION)),
-                                              QUrl::fromLocalFile(QDir::homePath()), QStringList());
-    if (url == QUrl())
-        return;
-
-    QString source = url.path();
-    if (QDir(source + "/" NOM_DIR_CONNEXION).exists())
-        source += "/" NOM_DIR_CONNEXION;            //! la clé elle-même a été désignée, pas le dossier
-    if (!QFile::exists(source + "/" NOM_FILE_CONNEXION) || (distant && !QDir(source + "/" NOM_DIR_CLESSSL).exists()))
-    {
-        UpMessageBox::Watch(this, tr("Dossier incomplet"),
-                            tr("Ce dossier ne contient pas les données de connexion exportées par le serveur."));
-        return;
-    }
-
-    //! les clés sont recopiées chez Rufus : le support est amovible et ne sera plus là au démarrage suivant
-    const QString destcles = QString(PATH_DIR_RUFUS) + "/" NOM_DIR_CLESSSL;
-    if (distant)
-    {
-        if (!QDir().mkpath(destcles))
-        {
-            UpMessageBox::Watch(this, tr("Dossier inaccessible"),
-                                tr("Impossible de créer le dossier des clés SSL :") + "\n" + destcles);
-            return;
-        }
-        QStringList echecs;
-        const QStringList cles = QDir(source + "/" NOM_DIR_CLESSSL).entryList(QStringList() << "*.pem", QDir::Files);
-        for (const QString &f : cles)
-        {
-            const QString cible = destcles + "/" + f;
-            QFile::remove(cible);                   //! QFile::copy échoue si la cible existe déjà
-            if (!QFile::copy(source + "/" NOM_DIR_CLESSSL "/" + f, cible))
-                echecs << f;
-        }
-        if (!echecs.isEmpty())
-        {
-            UpMessageBox::Watch(this, tr("Import incomplet"),
-                                tr("Certaines clés SSL n'ont pas pu être copiées :") + "\n" + echecs.join(", "));
-            return;
-        }
-        MySQLInstaller(this).corrigerDroitsClesSSL(destcles);
-        wdg_clesSSLlineedit ->setText(destcles);
-    }
-
-    QSettings connexion(source + "/" NOM_FILE_CONNEXION, QSettings::IniFormat);
-    const QString mdp = connexion.value(CLE_CONNEXION_MDP).toString();
-    wdg_iplineedit  ->setText(connexion.value(distant? CLE_CONNEXION_SERVEUR : CLE_CONNEXION_LOCAL).toString());
-    wdg_portcombo   ->setCurrentText(connexion.value(CLE_CONNEXION_PORT).toString());
-    if (!mdp.isEmpty())
-        MySQLInstaller::stockerMotDePassePourMode(modeacces(), mdp);   //! sans lui, la connexion échouerait juste après
 }
 
 void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)

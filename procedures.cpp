@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_identificationsite.h"
 #include "smtpclient.h"
 #include "mysqlinstaller.h"
+#include "upgroupbox.h"
 #include <QBuffer>
 #include <QPdfWriter>
 #include <QElapsedTimer>
@@ -5868,13 +5869,10 @@ void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
     });
 
     connect(bReseau, &QPushButton::clicked, &dlg, [&] {
-        if (VerifParamConnexion(&dlg))
+        if (ChoisirParamConnexion(&dlg))
         {
             m_settings->setValue(Param_Poste_Version, m_version);
             m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
-            UpMessageBox::Watch(&dlg, tr("Rufus.ini reconstruit"),
-                                tr("Les paramètres de connexion de ce poste sont enregistrés.") + "\n"
-                                + tr("Le lancement de Rufus se poursuit."));
             if (Relectureini()) dlg.accept();
         }
     });
@@ -5955,6 +5953,152 @@ bool Procedures::VerifParamConnexion(QWidget *parent)
     }
     delete Dlg_ParamConnex;
     return false;
+}
+
+/*!
+ * \brief Procedures::ChoisirParamConnexion
+ * Fiche du bouton « connexion à une base existante » : reprendre le dossier exporté par le serveur, ou
+ * saisir les paramètres à la main. Elle ne se ferme que sur un Rufus.ini prêt, ou sur Annuler.
+ * \param parent  fenêtre parente
+ */
+bool Procedures::ChoisirParamConnexion(QWidget *parent)
+{
+    UpDialog dlg(parent);
+    dlg     .setWindowModality(Qt::ApplicationModal);
+    dlg     .setWindowTitle(tr("Connexion à une base patients Rufus existante"));
+
+    UpLabel *importlabel    = new UpLabel();
+    importlabel         ->setText(tr("Importer les données de connexion depuis un support externe (clé USB…)"));
+    QRadioButton *posteradio    = new QRadioButton(tr("Monoposte"));
+    QRadioButton *localradio    = new QRadioButton(tr("Réseau local"));
+    QRadioButton *distantradio  = new QRadioButton(tr("Accès distant"));
+    posteradio          ->setChecked(true);
+    UpGroupBox *groupe  = new UpGroupBox();
+    groupe              ->setTitle(tr("Emplacement du serveur"));
+    QVBoxLayout *groupelay = new QVBoxLayout;
+    groupelay           ->setContentsMargins(10, 28, 10, 10);   /*!< le stylesheet UpGroupBox ne réserve pas la place du titre */
+    for (QRadioButton *radio : {posteradio, localradio, distantradio})
+        groupelay       ->addWidget(radio);
+    groupe              ->setLayout(groupelay);
+
+    UpPushButton *dossierbouton = new UpPushButton(tr("Choisir le dossier %1").arg(QString(NOM_DIR_CONNEXION)));
+    dossierbouton       ->setImmediateToolTip(Utils::tipImportDonneesConnexion());
+
+    QFrame *importframe = new QFrame();
+    importframe         ->setFrameShape(QFrame::StyledPanel);
+    QVBoxLayout *importlay = new QVBoxLayout;
+    importlay           ->addWidget(importlabel);
+    importlay           ->addWidget(groupe);
+    importlay           ->addWidget(dossierbouton);
+    importframe         ->setLayout(importlay);
+
+    UpPushButton *saisirbouton = new UpPushButton(tr("Renseigner les données de connexion"));
+    saisirbouton        ->setImmediateToolTip(tr("Saisir vous-même l'adresse du serveur, le port et l'emplacement des clés SSL"));
+
+    QVBoxLayout *lay    = new QVBoxLayout();
+    lay                 ->setContentsMargins(5, 5, 5, 5);
+    lay                 ->setSpacing(5);
+    lay                 ->addWidget(importframe);
+    lay                 ->addWidget(saisirbouton);
+
+    dlg     .AjouteLayButtons(UpDialog::ButtonCancel);
+    dlg     .dlglayout()->insertLayout(0, lay);
+    dlg     .dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+
+    connect(dlg.CancelButton, &QPushButton::clicked, &dlg, &QDialog::reject);
+    connect(dossierbouton,    &QPushButton::clicked, &dlg, [&] {
+        const Utils::ModeAcces mode = localradio->isChecked()?   Utils::ReseauLocal
+                                    : distantradio->isChecked()? Utils::Distant
+                                                               : Utils::Poste;
+        if (ImporterDonneesConnexion(mode, &dlg))
+            dlg.accept();
+    });
+    connect(saisirbouton,     &QPushButton::clicked, &dlg, [&] {
+        if (VerifParamConnexion(&dlg))
+            dlg.accept();
+    });
+
+    return dlg.exec() == QDialog::Accepted;
+}
+
+/*!
+ * \brief Procedures::ImporterDonneesConnexion
+ * Reprend le dossier RufusConnexion exporté par le serveur et éprouve la connexion avant d'enregistrer
+ * quoi que ce soit : Rufus.ini et le mot de passe ne sont écrits que si le serveur répond.
+ * \param mode    mode d'accès choisi sur la fiche
+ * \param parent  fenêtre parente
+ */
+bool Procedures::ImporterDonneesConnexion(Utils::ModeAcces mode, QWidget *parent)
+{
+    QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Sélectionnez le dossier %1 sur le support").arg(QString(NOM_DIR_CONNEXION)),
+                                              QUrl::fromLocalFile(QDir::homePath()), QStringList());
+    if (url == QUrl())
+        return false;
+
+    QString source = url.path();
+    if (QDir(source + "/" NOM_DIR_CONNEXION).exists())
+        source += "/" NOM_DIR_CONNEXION;            //! le support lui-même a été désigné, pas le dossier
+    const bool distant = (mode == Utils::Distant);
+    if (!QFile::exists(source + "/" NOM_FILE_CONNEXION) || (distant && !QDir(source + "/" NOM_DIR_CLESSSL).exists()))
+    {
+        UpMessageBox::Watch(parent, tr("Dossier incomplet"),
+                            tr("Ce dossier ne contient pas les données de connexion exportées par le serveur."));
+        return false;
+    }
+
+    QSettings connexion(source + "/" NOM_FILE_CONNEXION, QSettings::IniFormat);
+    const QString adresse = connexion.value(distant? CLE_CONNEXION_SERVEUR : CLE_CONNEXION_LOCAL).toString();
+    const QString port    = connexion.value(CLE_CONNEXION_PORT).toString();
+    const QString mdp     = connexion.value(CLE_CONNEXION_MDP).toString();
+    const QString Base    = Utils::getBaseFromMode(mode);
+
+    //! les clés sont recopiées chez Rufus : le support est amovible et ne sera plus là au démarrage suivant
+    const QString destcles   = QString(PATH_DIR_RUFUS) + "/" NOM_DIR_CLESSSL;
+    const QString anciencles = m_settings->value(Base + Dossier_ClesSSL).toString();
+    if (distant)
+    {
+        if (!QDir().mkpath(destcles))
+        {
+            UpMessageBox::Watch(parent, tr("Dossier inaccessible"),
+                                tr("Impossible de créer le dossier des clés SSL :") + "\n" + destcles);
+            return false;
+        }
+        const QStringList cles = QDir(source + "/" NOM_DIR_CLESSSL).entryList(QStringList() << "*.pem", QDir::Files);
+        for (const QString &f : cles)
+        {
+            QFile::remove(destcles + "/" + f);      //! QFile::copy échoue si la cible existe déjà
+            QFile::copy(source + "/" NOM_DIR_CLESSSL "/" + f, destcles + "/" + f);
+        }
+        MySQLInstaller(parent).corrigerDroitsClesSSL(destcles);
+        //! seule écriture avant le test : optionsConnexion relit le dossier des clés dans Rufus.ini
+        m_settings  ->setValue(Base + Dossier_ClesSSL, destcles);
+        m_settings  ->sync();
+    }
+
+    db          ->setModeacces(mode);
+    db          ->initParametresConnexionSQL(mode == Utils::Poste? "localhost" : adresse, port.toInt());
+    if (!db->testConnexion(db->Logindb(), mdp))
+    {
+        if (distant)
+        {
+            m_settings  ->setValue(Base + Dossier_ClesSSL, anciencles);
+            m_settings  ->sync();
+        }
+        UpMessageBox::Watch(parent, tr("Connexion impossible"),
+                            tr("Les renseignements figurant sur ce support ne permettent pas de joindre la base "
+                               "de données de votre cabinet.") + "\n\n"
+                            + tr("Vérifiez le mode d'accès choisi, et que le serveur est allumé et joignable."));
+        return false;
+    }
+
+    if (mode != Utils::Poste)
+        m_settings  ->setValue(Base + Param_Serveur, Utils::calcIP(adresse, false));
+    m_settings      ->setValue(Base + Param_Port,   port);
+    m_settings      ->setValue(Base + Param_Active, "YES");
+    m_settings      ->sync();
+    MySQLInstaller::stockerMotDePassePourMode(mode, mdp);
+    ShowMessage::I()->SplashMessage(tr("Connexion à la base établie, le lancement de Rufus se poursuit."), 4000, true);
+    return true;
 }
 
 void Procedures::Ouverture_Appareils_Refraction(QWidget *parent)
