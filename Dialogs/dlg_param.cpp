@@ -2339,12 +2339,12 @@ static const QString CLE_MDP        = "MotDePasse";
 /*! Avertissement affiché à l'export comme à l'import : le dossier ouvre l'accès complet à la base. */
 static QString AlerteDossierConnexion()
 {
-    return "<p><b><span style=\"color:#c00000;\">"
+    return QString("<p align=\"center\" style=\"color:#c00000; font-size:%1pt;\"><b>").arg(qApp->font().pointSize() + 1)
             + QObject::tr("Ce dossier contient TOUT ce qui permet de se connecter à votre base : mot de passe, "
                           "adresses, port et clés SSL. Quiconque le récupère peut lire et modifier les dossiers "
                           "de vos patients.") + "<br/>"
-            + QObject::tr("Effacez-le du support dès que le poste distant est paramétré, et gardez ce support en "
-                          "lieu sûr : ne le laissez pas branché, ne le confiez à personne.") + "</span></b></p>";
+            + QObject::tr("Effacez-le du support dès qu'il a servi, et gardez ce support en lieu sûr : ne le "
+                          "laissez pas branché, ne le confiez à personne.") + "</b></p>";
 }
 
 /*!
@@ -2431,19 +2431,25 @@ void dlg_param::ExporterDonneesConnexion()
         return;
     }
 
-    const QString lien = "https://www.rufusvision.org/installation-en-accegraves-distant.html";
+    const QString lienlocal   = "https://www.rufusvision.org/installation-en-reacuteseau-local.html";
+    const QString liendistant = "https://www.rufusvision.org/installation-en-accegraves-distant.html";
     UpMessageBox::Watch(this, tr("Données de connexion exportées"),
                         tr("Les données de connexion ont été correctement copiées dans :") + "\n" + dest + "\n\n"
                         + AlerteDossierConnexion()
-                        + tr("Sur le poste distant, onglet Accès distant, utilisez « Importer les données de connexion ».") + "\n\n"
-                        + tr("Pour qu'un poste du réseau local retrouve ce serveur, la box du cabinet doit lui réserver "
-                             "une adresse IP fixe (%1).").arg(Utils::IPAdress()) + "\n"
-                        + tr("Pour qu'un poste distant le joigne, la box doit rediriger le port %1 vers cet ordinateur, "
-                             "et au besoin demander une adresse IP fixe à votre opérateur.")
-                          .arg(ui->SQLPortPostecomboBox->currentText()) + "\n"
-                        + tr("La marche à suivre est décrite sur :") + "\n"
-                        + "<a href=\"" + lien + "\">https://www.rufusvision.org/installation-en-accès-distant.html</a>",
-                        UpDialog::ButtonOK, lien);
+                        + tr("Cet ordinateur ne doit pas se mettre en veille : les autres postes ne trouveraient "
+                             "plus la base.") + "\n\n"
+                        + "<b>" + tr("Poste du réseau local") + "</b>\n"
+                        + tr("Onglet Réseau local du poste, bouton « Importer les données de connexion ».") + "\n"
+                        + tr("La box du cabinet doit réserver à cet ordinateur une adresse IP fixe (%1).").arg(Utils::IPAdress()) + "\n"
+                        + tr("La marche à suivre est décrite sur :") + " "
+                        + "<a href=\"" + lienlocal + "\">https://www.rufusvision.org/installation-en-réseau-local.html</a>\n\n"
+                        + "<b>" + tr("Poste en accès distant") + "</b>\n"
+                        + tr("Onglet Accès distant du poste, bouton « Importer les données de connexion ».") + "\n"
+                        + tr("La box doit rediriger le port %1 vers cet ordinateur, et au besoin demander une adresse "
+                             "IP fixe à votre opérateur.").arg(ui->SQLPortPostecomboBox->currentText()) + "\n"
+                        + tr("La marche à suivre est décrite sur :") + " "
+                        + "<a href=\"" + liendistant + "\">https://www.rufusvision.org/installation-en-accès-distant.html</a>",
+                        UpDialog::ButtonOK, liendistant);
 }
 
 /*! Réinjecte sur ce poste le dossier exporté par le serveur : adresse, port et mot de passe du mode demandé,
@@ -2525,9 +2531,10 @@ void dlg_param::ImporterDonneesConnexion(Utils::ModeAcces mode)
                         tr("Ce poste est paramétré pour joindre le serveur %1.").arg(adresse)
                         + (distant? "\n\n" + tr("Les clés SSL ont été copiées dans :") + "\n" + destcles : QString()));
 
-    const QString technique = distant
+    const QString technique = (distant
             ? tr("Pour que ce poste joigne le serveur, la box du cabinet doit rediriger le port %1 vers lui.").arg(port)
-            : tr("Pour que ce poste retrouve le serveur, la box du cabinet doit lui réserver une adresse IP fixe (%1).").arg(adresse);
+            : tr("Pour que ce poste retrouve le serveur, la box du cabinet doit lui réserver une adresse IP fixe (%1).").arg(adresse))
+            + "<br />" + tr("Le serveur ne doit pas non plus se mettre en veille, sinon ce poste ne le trouvera plus.");
     if (UpMessageBox::Question(this, tr("Effacer les données du support ?"),
                                tr("Les données de connexion sont maintenant enregistrées sur ce poste.") + "<br />"
                                + AlerteDossierConnexion()

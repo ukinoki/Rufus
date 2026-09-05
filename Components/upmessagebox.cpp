@@ -330,7 +330,7 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
         msgbox  ->wdg_infolbl   ->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
         msgbox  ->wdg_infolbl   ->setOpenExternalLinks(true);
         connect (msgbox->wdg_infolbl, &QLabel::linkActivated, msgbox,
-                [=] { QDesktopServices::openUrl(QUrl(link)); });
+                [] (const QString &url) { QDesktopServices::openUrl(QUrl(url)); });   //! le texte peut porter plusieurs liens
     }
 
     return ExecMsgBox(msgbox);
