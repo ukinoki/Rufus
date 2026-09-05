@@ -40,7 +40,7 @@ public:
     using QSortFilterProxyModel::QSortFilterProxyModel;
     void setOphtalmoSeule(bool ophtalmo)    {m_ophtalmoseule = ophtalmo; invalidateFilter();}
     void setTypeAffiche(int typ, bool affiche)
-                                            {affiche? m_types.insert(typ) : m_types.remove(typ); invalidateFilter();}
+                                            {if (affiche) m_types.insert(typ); else m_types.remove(typ); invalidateFilter();}
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 private:
