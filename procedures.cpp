@@ -5871,6 +5871,7 @@ void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
     connect(bReseau, &QPushButton::clicked, &dlg, [&] {
         if (ChoisirParamConnexion(&dlg))
         {
+            PremierParametrageMateriel();   //! dossiers d'échange et marges d'impression, absents d'un poste neuf
             m_settings->setValue(Param_Poste_Version, m_version);
             m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
             if (Relectureini()) dlg.accept();
