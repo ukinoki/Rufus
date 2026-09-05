@@ -2436,7 +2436,9 @@ void dlg_param::ExporterDonneesConnexion()
     connexion   .setValue(CLE_LOCAL,    Utils::IPAdress());
     connexion   .setValue(CLE_MDP,      ui->MDPMonouplineEdit->text());
     connexion   .setValue(CLE_IMAGERIE, partage);
-    if (dirvideos.startsWith(dirimagerie))
+    if (dirvideos.startsWith("//") || dirvideos.startsWith("\\\\"))
+        connexion.setValue(CLE_VIDEOS,  dirvideos);                                     //! déjà un chemin réseau (NAS) : les postes le joignent comme le serveur
+    else if (dirvideos.startsWith(dirimagerie))
         connexion.setValue(CLE_VIDEOS,  partage + dirvideos.mid(dirimagerie.length()));
     connexion   .sync();
     if (connexion.status() != QSettings::NoError)
