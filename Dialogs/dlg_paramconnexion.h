@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "updialog.h"
 #include "uplabel.h"
 #include "uplineedit.h"
+#include "uppushbutton.h"
 #include "icons.h"
 #include "utils.h"
 
@@ -35,6 +36,7 @@ Connexion_A_La_Base, juste après (§ II.1). D'où l'absence de bouton « Tester
 
 	* trois modes exclusifs : ce poste, réseau local, accès distant -> modeacces()
 	* le cadre IP/clés SSL n'apparaît qu'en réseau, les clés qu'en distant (RegleAffichage)
+	* hors monoposte, ImporterDonneesConnexion remplit les champs depuis le dossier exporté par le serveur
 	* la fiche n'écrit rien : l'appelant lit la saisie par les accesseurs après exec()
 */
 
@@ -57,9 +59,11 @@ private:
     UpLineEdit      *wdg_iplineedit, *wdg_clesSSLlineedit;
     UpLabel         *wdg_clesSSLlabel;
     QPushButton     *wdg_clesSSLbouton;
+    UpPushButton    *wdg_importbouton;              /*!< reprend le dossier exporté par le serveur, masqué en monoposte */
     QComboBox       *wdg_portcombo;
 
     void            DossierClesSSL();                   /*!< choisit le dossier des clés SSL (accès distant) et le renseigne dans le champ */
+    void            ImporterDonneesConnexion();         /*!< remplit les champs avec le dossier RufusConnexion exporté par le serveur */
     void            RegleAffichage(QRadioButton *butt); /*!< adapte l'affichage (visibilité des champs, message accès distant) au mode d'accès choisi */
     void            Verif();                            /*!< bouton « OK » : ferme la fiche si la saisie est complète */
     bool            VerifFiche();                       /*!< la saisie est-elle complète (de quoi écrire un Rufus.ini valide) ? */

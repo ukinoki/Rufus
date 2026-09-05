@@ -212,6 +212,12 @@ public:
     //! StyleSheet
     static QString                  nullmargingstyle() { return "padding:0 ; margin:0"; };
 
+    //! infobulle commune aux boutons qui importent le dossier exporté par le serveur
+    static QString                  tipImportDonneesConnexion()
+                                    { return tr("Branchez le support qui porte le dossier %1 exporté depuis le poste serveur, "
+                                                "cliquez ici et désignez ce dossier : l'adresse du serveur, le port, le mot de "
+                                                "passe et les clés SSL sont repris automatiquement").arg(QString(NOM_DIR_CONNEXION)); }
+
     //! Fichiers
     static bool                     isFormatRecognized(QFile &fileimg);                                             //! true if image file forat is recognized by Rufus
     static bool                     CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordError = true, int maxsizeimg = SIZEMAXIMAGES);

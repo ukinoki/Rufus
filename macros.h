@@ -1037,6 +1037,15 @@ public:
 #define NOM_FILE_XMLFRONTO                      "/LM.xml"
 #define NOM_FILE_TONO                           "/TO.xml"
 
+//! dossier que le serveur exporte sur un support amovible pour paramétrer un autre poste
+#define NOM_DIR_CONNEXION                       "RufusConnexion"
+#define NOM_DIR_CLESSSL                         "SSLKeys"
+#define NOM_FILE_CONNEXION                      "connexion.ini"
+#define CLE_CONNEXION_SERVEUR                   "Serveur"
+#define CLE_CONNEXION_PORT                      "Port"
+#define CLE_CONNEXION_LOCAL                     "ServeurLocal"
+#define CLE_CONNEXION_MDP                       "MotDePasse"
+
 #define PATH_DIR_RUFUS                          QDir::homePath() + "/Documents" NOM_DIR_RUFUS
 #define PATH_DIR_RUFUSADMIN                     QDir::homePath() + NOM_DIR_RUFUSADMIN
 

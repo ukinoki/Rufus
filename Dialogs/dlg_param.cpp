@@ -149,6 +149,8 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->ExportClesSSLPosteupPushButton->setImmediateToolTip(tr("Réunit sur une clé USB ou tout autre support toutes les données de connexion "
                                                               "qui permettront à un autre poste, sur le réseau local du cabinet ou par internet, "
                                                               "de se connecter à ce serveur"));
+    ui->ImportDonneesConnexionLocalupPushButton->setImmediateToolTip(Utils::tipImportDonneesConnexion());
+    ui->ImportDonneesConnexionupPushButton     ->setImmediateToolTip(Utils::tipImportDonneesConnexion());
     ui->ChercheCotationlabel        ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
     ui->StatutComptaupTextEdit      ->setAttribute( Qt::WA_NoSystemBackground, true );
     ui->StatutComptaupTextEdit      ->setReadOnly(true);
@@ -2331,13 +2333,13 @@ void dlg_param::DossierClesSSL()
 }
 
 /*! éléments du dossier exporté, communs à l'export et à l'import */
-static const QString DIR_CONNEXION  = "RufusConnexion";
-static const QString DIR_CLES       = "SSLKeys";
-static const QString FIC_ADRESSE    = "connexion.ini";
-static const QString CLE_SERVEUR    = "Serveur";
-static const QString CLE_PORT       = "Port";
-static const QString CLE_LOCAL      = "ServeurLocal";
-static const QString CLE_MDP        = "MotDePasse";
+static const QString DIR_CONNEXION  = NOM_DIR_CONNEXION;
+static const QString DIR_CLES       = NOM_DIR_CLESSSL;
+static const QString FIC_ADRESSE    = NOM_FILE_CONNEXION;
+static const QString CLE_SERVEUR    = CLE_CONNEXION_SERVEUR;
+static const QString CLE_PORT       = CLE_CONNEXION_PORT;
+static const QString CLE_LOCAL      = CLE_CONNEXION_LOCAL;
+static const QString CLE_MDP        = CLE_CONNEXION_MDP;
 
 /*! Avertissement affiché à l'export comme à l'import : le dossier ouvre l'accès complet à la base. */
 static QString AlerteDossierConnexion()

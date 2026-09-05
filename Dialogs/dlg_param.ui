@@ -1186,7 +1186,7 @@ du dossier de stockage des videos</string>
               <bool>true</bool>
              </property>
             </widget>
-            <widget class="QPushButton" name="ImportDonneesConnexionLocalupPushButton">
+            <widget class="UpPushButton" name="ImportDonneesConnexionLocalupPushButton">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -1578,7 +1578,7 @@ du dossier de stockage des videos</string>
               <string>Exporter les clés client SSL (clé USB)</string>
              </property>
             </widget>
-            <widget class="QPushButton" name="ImportDonneesConnexionupPushButton">
+            <widget class="UpPushButton" name="ImportDonneesConnexionupPushButton">
              <property name="geometry">
               <rect>
                <x>10</x>
