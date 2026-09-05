@@ -388,8 +388,9 @@ void dlg_choixcotation::RegleCotationsBoutons()
                         == Datas::I()->users->userconnected()->id();
     Cotation *cot = cotationEnCours();
     wdg_buttonframe->wdg_plusBouton ->setEnabled(sonparent);
-    wdg_buttonframe->wdg_modifBouton->setEnabled(sonparent && cot != nullptr && cot->isAutre());
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(sonparent && cot != nullptr && cot->isAutre()
+    const bool modifiable = cot != nullptr && (cot->isAutre() || cot->isAssocCCAM());
+    wdg_buttonframe->wdg_modifBouton->setEnabled(sonparent && modifiable);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(sonparent && modifiable
                                                  && !DataBase::I()->cotationUtiliseeParAutreUser(
                                                         cot->typcotation(), cot->id(),
                                                         Datas::I()->users->userconnected()->id()));
