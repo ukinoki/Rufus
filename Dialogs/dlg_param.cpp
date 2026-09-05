@@ -2340,6 +2340,8 @@ static const QString CLE_SERVEUR    = CLE_CONNEXION_SERVEUR;
 static const QString CLE_PORT       = CLE_CONNEXION_PORT;
 static const QString CLE_LOCAL      = CLE_CONNEXION_LOCAL;
 static const QString CLE_MDP        = CLE_CONNEXION_MDP;
+static const QString CLE_IMAGERIE   = CLE_CONNEXION_IMAGERIE;
+static const QString CLE_VIDEOS     = CLE_CONNEXION_VIDEOS;
 
 /*! Avertissement affiché à l'export comme à l'import : le dossier ouvre l'accès complet à la base. */
 static QString AlerteDossierConnexion()
@@ -2423,11 +2425,19 @@ void dlg_param::ExporterDonneesConnexion()
         return;
     }
 
+    /*! chemins vus du réseau : le partage SMB du dossier d'imagerie, et le dossier des vidéos qu'il contient */
+    const QString dirimagerie = db->dirimagerie();
+    const QString dirvideos   = ui->PosteVideoDirupLineEdit->text();
+    const QString partage     = "//" + Utils::IPAdress() + "/" + MySQLInstaller::nomPartageImagerie();
+
     QSettings connexion(dest + "/" + FIC_ADRESSE, QSettings::IniFormat);
-    connexion   .setValue(CLE_SERVEUR, adresse);
-    connexion   .setValue(CLE_PORT,    ui->SQLPortPostecomboBox->currentText());
-    connexion   .setValue(CLE_LOCAL,   Utils::IPAdress());
-    connexion   .setValue(CLE_MDP,     ui->MDPMonouplineEdit->text());
+    connexion   .setValue(CLE_SERVEUR,  adresse);
+    connexion   .setValue(CLE_PORT,     ui->SQLPortPostecomboBox->currentText());
+    connexion   .setValue(CLE_LOCAL,    Utils::IPAdress());
+    connexion   .setValue(CLE_MDP,      ui->MDPMonouplineEdit->text());
+    connexion   .setValue(CLE_IMAGERIE, partage);
+    if (dirvideos.startsWith(dirimagerie))
+        connexion.setValue(CLE_VIDEOS,  partage + dirvideos.mid(dirimagerie.length()));
     connexion   .sync();
     if (connexion.status() != QSettings::NoError)
     {

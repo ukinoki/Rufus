@@ -153,6 +153,8 @@ public:
     static void        stockerMotDePassePourMode(Utils::ModeAcces mode, const QString& mdp);   /*!< écrit le mdp d'un mode explicite */
     static void        supprimerMotDePassePourMode(Utils::ModeAcces mode);                     /*!< oublie le mdp d'un mode abandonné */
 
+    static QString     nomPartageImagerie();                                                   /*!< nom du partage réseau du dossier d'imagerie */
+
     /*! ── Sécurisation de la base ─────────────────────────────────────────────────────────────────────── */
     bool securiserBaseSiNecessaire();     /*!< pose l'aléatoire si la base ne l'a pas encore (gaxt78iy retenu 2e mdp) ; no-op si déjà fait / socle non compatible */
     bool poserEtSauvegarderAleatoire();   /*!< génère + sauve + pose un aléatoire sur adminrufus/SSL (local, socle conforme) */

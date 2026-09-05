@@ -634,6 +634,11 @@ MySQLInstaller::MySQLInstaller(QWidget* parent)
 /*! ── Multi-plateforme : dossier partagé ───────────────────────────────────────── */
 static const QString NOM_PARTAGE_IMAGERIE = "RufusImagerie";    /*!< sans accent : claviers étrangers, URL, SMB1 */
 
+QString MySQLInstaller::nomPartageImagerie()
+{
+    return NOM_PARTAGE_IMAGERIE;
+}
+
 QString MySQLInstaller::sharedFolderPath()
 {
     if (!m_dossierPartageForce.isEmpty())   /*!< dossier hérité d'une ancienne base Rufus */

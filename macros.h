@@ -1045,6 +1045,8 @@ public:
 #define CLE_CONNEXION_PORT                      "Port"
 #define CLE_CONNEXION_LOCAL                     "ServeurLocal"
 #define CLE_CONNEXION_MDP                       "MotDePasse"
+#define CLE_CONNEXION_IMAGERIE                  "DossierImagerie"
+#define CLE_CONNEXION_VIDEOS                    "DossierVideos"
 
 #define PATH_DIR_RUFUS                          QDir::homePath() + "/Documents" NOM_DIR_RUFUS
 #define PATH_DIR_RUFUSADMIN                     QDir::homePath() + NOM_DIR_RUFUSADMIN

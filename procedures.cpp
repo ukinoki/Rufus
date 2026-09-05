@@ -6094,6 +6094,12 @@ bool Procedures::ImporterDonneesConnexion(Utils::ModeAcces mode, QWidget *parent
 
     if (mode != Utils::Poste)
         m_settings  ->setValue(Base + Param_Serveur, Utils::calcIP(adresse, false));
+    if (mode == Utils::ReseauLocal)
+    {
+        //! chemins réseau du serveur, calculés à l'export : sans eux le poste ne voit pas l'imagerie
+        m_settings  ->setValue(Base + Dossier_Imagerie, connexion.value(CLE_CONNEXION_IMAGERIE).toString());
+        m_settings  ->setValue(Base + Dossier_Videos,   connexion.value(CLE_CONNEXION_VIDEOS).toString());
+    }
     m_settings      ->setValue(Base + Param_Port,   port);
     m_settings      ->setValue(Base + Param_Active, "YES");
     m_settings      ->sync();
