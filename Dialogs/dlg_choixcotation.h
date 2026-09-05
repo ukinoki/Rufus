@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_CHOIXCOTATION_H
 #define DLG_CHOIXCOTATION_H
 
-#include <QSet>
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QTimer>
@@ -39,15 +38,12 @@ class FiltreCotations : public QSortFilterProxyModel
 public:
     using QSortFilterProxyModel::QSortFilterProxyModel;
     void setOphtalmoSeule(bool ophtalmo)    {beginFilterChange(); m_ophtalmoseule = ophtalmo; endFilterChange();}
-    void setTypeAffiche(int typ, bool affiche)
-                                            {beginFilterChange();
-                                             if (affiche) m_types.insert(typ); else m_types.remove(typ);
-                                             endFilterChange();}
+    void setTypeSeul(int typ)               {beginFilterChange(); m_typeseul = typ; endFilterChange();}
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 private:
     bool m_ophtalmoseule = true;
-    QSet<int> m_types = {1, 2, 3, 4};   //!< les types de cotation affichés
+    int  m_typeseul = 0;                //!< le seul type affiché, 0 pour tous
 };
 
 /*!

@@ -15,7 +15,9 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QGroupBox>
 #include <QHeaderView>
+#include <QRadioButton>
 #include <QRegularExpression>
 #include <QScrollBar>
 #include <QTimer>
@@ -34,7 +36,7 @@ bool FiltreCotations::filterAcceptsRow(int source_row, const QModelIndex &source
     const QModelIndex idxcot = sourceModel()->index(source_row, ColCotation, source_parent);
     if (m_ophtalmoseule && !idxcot.data(RoleOphtalmo).toBool())
         return false;
-    if (!m_types.contains(idxcot.data(RoleTypcotation).toInt()))
+    if (m_typeseul && idxcot.data(RoleTypcotation).toInt() != m_typeseul)
         return false;
     const QRegularExpression rgx = filterRegularExpression();
     if (rgx.pattern().isEmpty())
@@ -128,27 +130,29 @@ dlg_choixcotation::dlg_choixcotation(QWidget *parent) : UpDialog(parent)
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout() ->insertWidget(0, wdg_buttonframe->widgButtonParent());
 
-    /*! filtres par type sous la table : leur largeur devient le minimum de la fiche, ils restent visibles */
+    /*! filtre par type sous la table : sa largeur devient le minimum de la fiche, il reste visible */
     if (ccamutilisee)
     {
-        const QList<QPair<int, QString>> types = {{1, tr("CCAM")}, {3, tr("NGAP")},
-                                                 {2, tr("Associations CCAM")}, {4, tr("Hors convention")}};
-        QWidget *wdgtypes    = new QWidget(this);
-        QHBoxLayout *laytypes = new QHBoxLayout(wdgtypes);
-        laytypes    ->setContentsMargins(0,0,0,0);
+        const QList<QPair<int, QString>> types = {{0, tr("Toutes les cotations")}, {1, tr("CCAM")},
+                                                 {3, tr("NGAP")}, {2, tr("Associations CCAM")},
+                                                 {4, tr("Hors convention")}};
+        QGroupBox *gbtypes    = new QGroupBox(this);
+        QHBoxLayout *laytypes = new QHBoxLayout(gbtypes);
         for (const auto &typ : types)
         {
-            UpCheckBox *box = new UpCheckBox(typ.second);
-            box     ->setChecked(true);
-            connect(box, &QCheckBox::toggled, this, [=, this] (bool coche) {
-                m_proxy     ->setTypeAffiche(typ.first, coche);
+            QRadioButton *radio = new QRadioButton(typ.second);
+            radio   ->setChecked(typ.first == 0);
+            connect(radio, &QRadioButton::toggled, this, [=, this] (bool coche) {
+                if (!coche)
+                    return;
+                m_proxy     ->setTypeSeul(typ.first);
                 wdg_table   ->resizeRowsToContents();
                 RegleOKButton();
             });
-            laytypes->addWidget(box);
+            laytypes->addWidget(radio);
         }
         laytypes    ->addStretch(1);
-        dlglayout() ->insertWidget(1, wdgtypes);
+        dlglayout() ->insertWidget(1, gbtypes);
     }
 
     OKButton    ->setEnabled(false);
