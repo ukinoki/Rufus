@@ -147,12 +147,26 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     connect(OKButton,       &QPushButton::clicked,  this,   [=, this] {if (VerifFiche()) accept();});
     connect(CancelButton,   &QPushButton::clicked,  this,   [=, this] {reject();});
 
-    //! pas de mode à choisir dans deux cas : en modification, réservée aux « autres » (on ne modifie
-    //! pas un acte CCAM, ses montants étant figés), et en version internationale, où ni CCAM ni
-    //! association n'existent. Dans les deux, mode « autre » imposé et sélecteur masqué.
+    QString tipenregistre;
+    if (m_mode == Modification)
+    {
+        //! id (clé de l'update), libellé et type, depuis la table partagée
+        QVariantList c = db->getFirstRecordFromStandardSelectSQL(
+            "select " CP_ID_COTATIONS ", " CP_TIP_COTATIONS ", " CP_TYPECOTATION_COTATIONS " from " TBL_COTATIONS
+            " where " CP_TYPEACTE_COTATIONS " = '" + m_codeacte + "'", ok);
+        if (ok && c.size() >= 3)
+        {
+            m_idcotation  = c.at(0).toInt();
+            tipenregistre = c.at(1).toString();
+            m_typecotation = c.at(2).toInt();
+        }
+    }
+
+    //! pas de mode à choisir en modification (il est celui de la cotation) ni en version internationale,
+    //! où ni CCAM ni association n'existent
     if (m_mode == Modification || !m_cotationsfrance)
     {
-        wdg_chkAutre    ->setChecked(true);         //! -> m_typecotation = 4 (via le toggled)
+        (m_mode == Modification && m_typecotation == 2? wdg_chkAssoc : wdg_chkAutre)->setChecked(true);
         wdg_groupmode   ->setVisible(false);
     }
     else
@@ -161,22 +175,27 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     if (m_mode == Modification)
     {
         const int iduser = Datas::I()->users->userconnected()->id();
-        //! id de la cotation (clé de l'update) + libellé, depuis la table partagée
-        QVariantList c = db->getFirstRecordFromStandardSelectSQL(
-            "select " CP_ID_COTATIONS ", " CP_TIP_COTATIONS " from " TBL_COTATIONS
-            " where " CP_TYPEACTE_COTATIONS " = '" + m_codeacte + "'", ok);
-        if (ok && c.size() >= 2)
+        if (m_typecotation == 2)
         {
-            m_idcotation = c.at(0).toInt();
-            wdg_tipline->setPlainText(c.at(1).toString());
-        }
-        //! montants propres à l'utilisateur (conventionnel + pratiqué) depuis SA jointure
-        double conv = 0, prat = 0;
-        if (db->lisMontantsJointureAutre(m_idcotation, iduser, conv, prat))
-        {
-            wdg_tarifoptamline   ->setText(QLocale().toString(conv, 'f', 2));
+            //! le code d'une association réunit ses deux actes ; ses conventionnels s'en recalculent
+            wdg_codeline    ->setText(m_codeacte.section('+', 0, 0));
+            wdg_codeline2   ->setText(m_codeacte.section('+', 1, 1));
+            remplitDepuisCCAM();
+            const double prat = db->loadMontantsPratiquesByUser(Datas::I()->users->userconnected())
+                                  .value(m_idcotation, 0.0);
             wdg_tarifpratiqueline->setText(QLocale().toString(prat, 'f', 2));
         }
+        else
+        {
+            //! montants propres à l'utilisateur (conventionnel + pratiqué) depuis SA jointure
+            double conv = 0, prat = 0;
+            if (db->lisMontantsJointureAutre(m_idcotation, iduser, conv, prat))
+            {
+                wdg_tarifoptamline   ->setText(QLocale().toString(conv, 'f', 2));
+                wdg_tarifpratiqueline->setText(QLocale().toString(prat, 'f', 2));
+            }
+        }
+        wdg_tipline ->setPlainText(tipenregistre);   //! après remplitDepuisCCAM, qui repose le libellé calculé
     }
 
     appliqueMode();
@@ -378,14 +397,16 @@ bool dlg_gestioncotations::VerifFiche()
     const QString codeSQL     = Utils::correctquoteSQL(code);
     bool ok;
 
-    //! --- MODIFICATION (réservée au type 4) : update par idcotation ---
+    //! --- MODIFICATION (types 2 et 4) : update par idcotation ---
     if (m_mode == Modification)
     {
-        //! cotation partagée : code, conventionnel (dans MontantOptam) et libellé, clé = idcotation
+        //! cotation partagée : code, conventionnel (dans MontantOptam) et libellé, clé = idcotation ;
+        //! une association a aussi son non-OPTAM, calculé depuis ses deux actes
         db->StandardSQL("update " TBL_COTATIONS " set "
               CP_TYPEACTE_COTATIONS " = '"    + codeSQL + "', "
               CP_MONTANTOPTAM_COTATIONS " = " + optamSQL + ", "
-              CP_TIP_COTATIONS " = '"         + tipSQL + "'"
+            + (m_typecotation == 4? QString() : CP_MONTANTNONOPTAM_COTATIONS " = " + nonoptamSQL + ", ")
+            + CP_TIP_COTATIONS " = '"         + tipSQL + "'"
               " where " CP_ID_COTATIONS " = " + QString::number(m_idcotation));
         //! montants propres à l'utilisateur (conventionnel + pratiqué) dans SA jointure
         db->ajouteJointureCotation(m_typecotation, m_idcotation, iduser, pratiqueVal, optamVal);
