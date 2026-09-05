@@ -5990,10 +5990,25 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
     UpPushButton *dossierbouton = new UpPushButton(tr("Choisir le dossier %1").arg(QString(NOM_DIR_CONNEXION)));
     dossierbouton       ->setImmediateToolTip(Utils::tipImportDonneesConnexion());
 
+    UpSmallButton *aidebouton = Utils::BoutonAide(
+        tr("<b>Comment récupérer automatiquement vos données de connexion</b><br>")
+      + tr("Sur le poste qui héberge la base, ouvrez Edition / Paramètres, onglet Ce poste, et cliquez sur "
+           "« Exporter les données de connexion » : Rufus copie sur une clé USB un dossier %1 contenant "
+           "l'adresse du serveur, le port, le mot de passe et les clés SSL.<br>").arg(QString(NOM_DIR_CONNEXION))
+      + tr("Branchez cette clé sur ce poste, indiquez ci-contre comment il joint le serveur, puis désignez "
+           "ce dossier : tout est repris et la connexion est éprouvée aussitôt.<br>")
+      + tr("Effacez ensuite ce dossier de la clé : il donne un accès complet à votre base."),
+        tr("Comment récupérer automatiquement vos données de connexion ?"));
+
+    QHBoxLayout *titrelay = new QHBoxLayout;
+    titrelay            ->setContentsMargins(0, 0, 0, 0);
+    titrelay            ->addWidget(importlabel, 1);
+    titrelay            ->addWidget(aidebouton, 0);
+
     QFrame *importframe = new QFrame();
     importframe         ->setFrameShape(QFrame::StyledPanel);
     QVBoxLayout *importlay = new QVBoxLayout;
-    importlay           ->addWidget(importlabel);
+    importlay           ->addLayout(titrelay);
     importlay           ->addWidget(groupe);
     importlay           ->addWidget(dossierbouton);
     importframe         ->setLayout(importlay);
