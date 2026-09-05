@@ -385,10 +385,7 @@ void dlg_choixcotation::RegleCotationsBoutons()
     Cotation *cot = cotationEnCours();
     wdg_buttonframe->wdg_plusBouton ->setEnabled(sonparent);
     wdg_buttonframe->wdg_modifBouton->setEnabled(sonparent && cot != nullptr && cot->isAutre());
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(sonparent && cot != nullptr && !cot->isNGAP()
-                                                 && !DataBase::I()->cotationUtiliseeParAutreUser(
-                                                        cot->typcotation(), cot->id(),
-                                                        Datas::I()->users->userconnected()->id()));
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(sonparent && cot != nullptr && cot->isAutre());
 }
 
 void dlg_choixcotation::ChoixButtonFrame()
@@ -440,6 +437,11 @@ void dlg_choixcotation::ModifCotation()
 void dlg_choixcotation::SupprimeCotation(Cotation *cot)
 {
     if (cot == nullptr)
+        return;
+    if (UpMessageBox::Question(this, tr("Supprimer une cotation"),
+            tr("Voulez-vous vraiment supprimer la cotation %1 ?").arg(cot->typeacte()),
+            UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList() << tr("Annuler") << tr("Supprimer"))
+        != UpSmallButton::STARTBUTTON)
         return;
     const int iduser = Datas::I()->users->userconnected()->id();
     DataBase::I()->retireJointureCotation(cot->typcotation(), cot->id(), iduser);
