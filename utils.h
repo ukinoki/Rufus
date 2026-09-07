@@ -222,6 +222,15 @@ public:
                                                 tr("5. retrouvez le dossier %1 sur ce support amovible").arg(QString(NOM_DIR_CONNEXION))  + ",\n" +
                                                 tr("6. l'adresse du serveur, le port, le mot de passe et les clés SSL sont configurés automatiquement"); }
 
+    //! avertissement commun à l'export et à l'import : le dossier ouvre l'accès complet à la base
+    static QString                  alerteDossierConnexion()
+                                    { return QString("<p align=\"center\" style=\"color:#c00000; font-size:%1pt;\"><b>").arg(qApp->font().pointSize() + 1)
+                                           + tr("Ce dossier contient TOUT ce qui permet de se connecter à votre base : mot de passe, "
+                                                "adresses, port et clés SSL. Quiconque le récupère peut lire et modifier les dossiers "
+                                                "de vos patients.") + "<br/>"
+                                           + tr("Effacez-le du support dès qu'il a servi, et gardez ce support en lieu sûr : ne le "
+                                                "laissez pas branché, ne le confiez à personne.") + "</b></p>"; }
+
     //! Fichiers
     static bool                     isFormatRecognized(QFile &fileimg);                                             //! true if image file forat is recognized by Rufus
     static bool                     CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordError = true, int maxsizeimg = SIZEMAXIMAGES);

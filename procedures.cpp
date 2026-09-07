@@ -6202,6 +6202,18 @@ bool Procedures::ImporterDonneesConnexion(Utils::ModeAcces mode, QWidget *parent
     m_settings      ->setValue(Base + Param_Active, "YES");
     m_settings      ->sync();
     MySQLInstaller::stockerMotDePassePourMode(mode, mdp);
+
+    if (UpMessageBox::Question(parent, tr("Effacer les données du support ?"),
+                               tr("Les données de connexion sont maintenant enregistrées sur ce poste.") + "<br />"
+                               + Utils::alerteDossierConnexion()
+                               + tr("Voulez-vous les effacer du support amovible ?"),
+                               UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                               QStringList() << tr("Conserver") << tr("Effacer"))
+            == UpSmallButton::STARTBUTTON)
+        if (!QDir(source).removeRecursively())
+            UpMessageBox::Watch(parent, tr("Effacement impossible"),
+                                tr("Le dossier n'a pas pu être supprimé du support."));
+
     ShowMessage::I()->SplashMessage(tr("Connexion à la base établie, le lancement de Rufus se poursuit."), 4000, true);
     return true;
 }

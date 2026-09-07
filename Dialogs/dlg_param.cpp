@@ -2343,17 +2343,6 @@ static const QString CLE_MDP        = CLE_CONNEXION_MDP;
 static const QString CLE_IMAGERIE   = CLE_CONNEXION_IMAGERIE;
 static const QString CLE_VIDEOS     = CLE_CONNEXION_VIDEOS;
 
-/*! Avertissement affiché à l'export comme à l'import : le dossier ouvre l'accès complet à la base. */
-static QString AlerteDossierConnexion()
-{
-    return QString("<p align=\"center\" style=\"color:#c00000; font-size:%1pt;\"><b>").arg(qApp->font().pointSize() + 1)
-            + QObject::tr("Ce dossier contient TOUT ce qui permet de se connecter à votre base : mot de passe, "
-                          "adresses, port et clés SSL. Quiconque le récupère peut lire et modifier les dossiers "
-                          "de vos patients.") + "<br/>"
-            + QObject::tr("Effacez-le du support dès qu'il a servi, et gardez ce support en lieu sûr : ne le "
-                          "laissez pas branché, ne le confiez à personne.") + "</b></p>";
-}
-
 /*!
  * \brief dlg_param::AdresseIPPublique
  * Interroge un service extérieur pour connaître l'adresse publique du cabinet, vide s'il ne répond pas.
@@ -2452,7 +2441,7 @@ void dlg_param::ExporterDonneesConnexion()
     const QString liendistant = "https://www.rufusvision.org/installation-en-accegraves-distant.html";
     UpMessageBox::Watch(this, tr("Données de connexion exportées"),
                         tr("Les données de connexion ont été correctement copiées dans :") + "\n" + dest + "\n\n"
-                        + AlerteDossierConnexion()
+                        + Utils::alerteDossierConnexion()
                         + tr("Si cet ordinateur doit faire office de serveur dans un réseau,") + "\n"
                         + tr("il vous faut bloquer sa mise en veille automatique afin") + "\n"
                         + tr("qu'il reste toujours disponible pour répondre aux requêtes des autres postes du réseau.") + "\n\n"
@@ -2561,7 +2550,7 @@ void dlg_param::ImporterDonneesConnexion(Utils::ModeAcces mode)
             + "<br />" + tr("Le serveur ne doit pas non plus se mettre en veille, sinon ce poste ne le trouvera plus.");
     if (UpMessageBox::Question(this, tr("Effacer les données du support ?"),
                                tr("Les données de connexion sont maintenant enregistrées sur ce poste.") + "<br />"
-                               + AlerteDossierConnexion()
+                               + Utils::alerteDossierConnexion()
                                + technique + "<br /><br />"
                                + tr("Voulez-vous les effacer du support amovible ?"),
                                UpDialog::ButtonCancel | UpDialog::ButtonOK,
@@ -2650,7 +2639,7 @@ void dlg_param::ExporterDonneesConnexionDistant()
 
     UpMessageBox::Watch(this, tr("Données de connexion exportées"),
                         tr("Les données de connexion ont été correctement copiées dans :") + "\n" + dest + "\n\n"
-                        + AlerteDossierConnexion()
+                        + Utils::alerteDossierConnexion()
                         + tr("Sur l'autre poste, onglet Accès distant, cochez « Cet appareil se connecte à un serveur "
                              "distant », puis « Importer les données de connexion »."));
 }
