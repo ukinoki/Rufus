@@ -2573,12 +2573,11 @@ void dlg_param::ImporterDonneesConnexion(Utils::ModeAcces mode)
                             tr("Le dossier n'a pas pu être supprimé du support."));
 }
 
-/*! (ACCÈS DISTANT) Copie vers une clé USB les clés SSL d'accès au serveur DISTANT — celles que ce
- *  poste utilise pour joindre cette base (dossier renseigné via « … » → Dossier_ClesSSL) — afin de
- *  les déployer sur un AUTRE poste qui doit accéder au même serveur distant.
+/*! (ACCÈS DISTANT) Rassemble sur un support amovible ce qu'un AUTRE poste doit connaître pour joindre le
+ *  même serveur distant : les clés SSL que ce poste utilise, l'adresse, le port et le mot de passe.
  *  À distinguer de l'export du Poste serveur (ExporterDonneesConnexion), qui exporte, lui, les clés du
  *  serveur que CE poste héberge : un même poste peut détenir les DEUX jeux de clés. */
-void dlg_param::ExporterClesSSLDistantversUSB()
+void dlg_param::ExporterDonneesConnexionDistant()
 {
     const QString source = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
     if (source.isEmpty() || !QDir(source).exists())
@@ -2604,17 +2603,17 @@ void dlg_param::ExporterClesSSLDistantversUSB()
         return;
     }
 
-    //! Destination : la clé USB choisie par l'utilisateur.
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Sélectionnez la clé USB de destination"),
                                               QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
         return;
-    //! Sous-dossier dédié « SSLKeys » dans l'emplacement choisi (même principe que l'export serveur).
-    const QString dest = url.path() + "SSLKeys";
-    if (!QDir().mkpath(dest))
+
+    /*! cleanPath : url.path() finit par un séparateur quand on désigne la racine d'un volume. */
+    const QString dest = QDir::cleanPath(url.path() + "/" + DIR_CONNEXION);
+    if (!QDir().mkpath(dest + "/" + DIR_CLES))
     {
         UpMessageBox::Watch(this, tr("Dossier inaccessible"),
-                            tr("Impossible de créer le sous-dossier SSLKeys dans l'emplacement choisi."));
+                            tr("Impossible de créer le dossier %1 dans l'emplacement choisi.").arg(DIR_CONNEXION));
         return;
     }
 
@@ -2625,7 +2624,7 @@ void dlg_param::ExporterClesSSLDistantversUSB()
     {
         if (!QFile::exists(source + "/" + f))
             continue;                               //! ca.pem / ca-cert.pem facultatifs
-        const QString cible = dest + "/" + f;
+        const QString cible = dest + "/" + DIR_CLES + "/" + f;
         QFile::remove(cible);                       //! QFile::copy échoue si la cible existe déjà
         if (!QFile::copy(source + "/" + f, cible))
             echecs << f;
@@ -2637,9 +2636,23 @@ void dlg_param::ExporterClesSSLDistantversUSB()
         return;
     }
 
-    UpMessageBox::Watch(this, tr("Clés client SSL exportées"),
-                        tr("Les clés SSL d'accès distant ont été copiées sur :") + "\n" + dest + "\n\n"
-                        + tr("Déployez-les sur l'autre poste en accès distant, puis indiquez-y leur dossier."));
+    QSettings connexion(dest + "/" + FIC_ADRESSE, QSettings::IniFormat);
+    connexion   .setValue(CLE_SERVEUR, ui->EmplacementDistantuplineEdit->text());
+    connexion   .setValue(CLE_PORT,    ui->SQLPortDistantcomboBox->currentText());
+    connexion   .setValue(CLE_MDP,     ui->MDPDistantuplineEdit->text());
+    connexion   .sync();
+    if (connexion.status() != QSettings::NoError)
+    {
+        UpMessageBox::Watch(this, tr("Export incomplet"),
+                            tr("Les données de connexion n'ont pas pu être écrites sur :") + "\n" + dest);
+        return;
+    }
+
+    UpMessageBox::Watch(this, tr("Données de connexion exportées"),
+                        tr("Les données de connexion ont été correctement copiées dans :") + "\n" + dest + "\n\n"
+                        + AlerteDossierConnexion()
+                        + tr("Sur l'autre poste, onglet Accès distant, cochez « Cet appareil se connecte à un serveur "
+                             "distant », puis « Importer les données de connexion »."));
 }
 
 /*! (CE POSTE / serveur) Génère DE NOUVELLES clés SSL pour le serveur. Opération DESTRUCTIVE :
@@ -2980,7 +2993,7 @@ void dlg_param::ConnectSignals()
     connect(ui->ExportClesSSLPosteupPushButton,     &QPushButton::clicked,                  this,   &dlg_param::ExporterDonneesConnexion);
     connect(ui->ImportDonneesConnexionupPushButton,&QPushButton::clicked,                  this,   [=, this] {ImporterDonneesConnexion(Utils::Distant);});
     connect(ui->ImportDonneesConnexionLocalupPushButton,&QPushButton::clicked,             this,   [=, this] {ImporterDonneesConnexion(Utils::ReseauLocal);});
-    connect(ui->ExportClesSSLDistantupPushButton,   &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLDistantversUSB);
+    connect(ui->ExportDonneesConnexionDistantupPushButton,   &QPushButton::clicked,                  this,   &dlg_param::ExporterDonneesConnexionDistant);
     connect(ui->CreerClesSSLPosteupPushButton,      &QPushButton::clicked,                  this,   &dlg_param::CreerClesSSL);
     //! Recréer le mot de passe de la base (si l'ancien aléatoire est perdu). Protégé par le mot de passe
     //! Administrateur ; réservé au local + socle conforme (contrôlé dans recreerMotDePasseApresVerifAdmin).

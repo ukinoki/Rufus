@@ -955,7 +955,7 @@
               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="toolTip">
-              <string>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</string>
+              <string>Exporter sur une clé USB les données de connexion à ce serveur distant, pour paramétrer un autre poste</string>
              </property>
              <property name="text">
               <string>Créer de nouvelles clés SSL</string>
@@ -1559,7 +1559,7 @@ du dossier de stockage des videos</string>
               </rect>
              </property>
             </widget>
-            <widget class="QPushButton" name="ExportClesSSLDistantupPushButton">
+            <widget class="QPushButton" name="ExportDonneesConnexionDistantupPushButton">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -1572,10 +1572,10 @@ du dossier de stockage des videos</string>
               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="toolTip">
-              <string>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</string>
+              <string>Exporter sur une clé USB les données de connexion à ce serveur distant, pour paramétrer un autre poste</string>
              </property>
              <property name="text">
-              <string>Exporter les clés client SSL (clé USB)</string>
+              <string>Exporter les données de connexion</string>
              </property>
             </widget>
             <widget class="UpPushButton" name="ImportDonneesConnexionupPushButton">
