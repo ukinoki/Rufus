@@ -214,9 +214,13 @@ public:
 
     //! infobulle commune aux boutons qui importent le dossier exporté par le serveur
     static QString                  tipImportDonneesConnexion()
-                                    { return tr("Branchez le support qui porte le dossier %1 exporté depuis le poste serveur, "
-                                                "cliquez ici et désignez ce dossier : l'adresse du serveur, le port, le mot de "
-                                                "passe et les clés SSL sont repris automatiquement").arg(QString(NOM_DIR_CONNEXION)); }
+                                    { return tr("Pour configurer automatiquement ce poste afin de lui permettre d'accèder à un serveur Rufus") + "\n" +
+                                                tr("1. Enregistrez depuis le serveur les données de connexion sur une clé USB ou tout autre support amovible") + "\n" +
+                                                tr("2. Sur le serveur -> Menu Edition/Paramètres/ Onglet Monoposte - bouton Exporter les données de connexion") + "\n" +
+                                                tr("3. puis, branchez le support amovible sur ce poste") + "\n" +
+                                                tr("4. puis, cliquez sur ce bouton et, dans la fenêtre de navigation qui s'affiche") + ",\n" +
+                                                tr("5. retrouvez le dossier %1 sur ce support amovible").arg(QString(NOM_DIR_CONNEXION))  + ",\n" +
+                                                tr("6. l'adresse du serveur, le port, le mot de passe et les clés SSL sont configurés automatiquement"); }
 
     //! Fichiers
     static bool                     isFormatRecognized(QFile &fileimg);                                             //! true if image file forat is recognized by Rufus

@@ -1199,7 +1199,7 @@ void dlg_impressions::OKpushButtonClicked()
     int         ndocs = 0;      //! clé du document dans map_docsaimprimer
     QStringList listQuestions, listtypeQuestions;
     QStringList ExpARemplacer, Rempla;
-    QString listsoignantsComboBox = "ListSoignants";
+    QString     listsoignantsComboBox = "ListSoignants";
     userentete();
     if (m_userentete == nullptr)
     {
@@ -1310,7 +1310,6 @@ void dlg_impressions::OKpushButtonClicked()
             QList<LigneQuestion> listlignesquestions;
 
             for (int m=0; m<listQuestions.size();m++)
-
             {
                 QHBoxLayout *lay = new QHBoxLayout();
                 lay->setContentsMargins(5,0,5,0);
@@ -1361,9 +1360,6 @@ void dlg_impressions::OKpushButtonClicked()
                 {
                     QDateEdit *Date = new QDateEdit();
                     Date->setDisplayFormat(tr("dd/MM/yyyy"));
-                    Date->setCalendarPopup(false); //précaution héritée de l'ancienne relecture des réponses, qui parcourait les layouts
-                                                   //avec QLayout::count() et plantait quand le calendarpopup était activé
-                                                   //cette relecture n'existe plus : on pourrait probablement réactiver le popup, à tester
                     Date->setContentsMargins(0,0,0,0);
                     Date->setFixedSize(120,30);
                     Date->setDate(m_currentdate);
@@ -1484,9 +1480,6 @@ void dlg_impressions::OKpushButtonClicked()
                 {
                     QDateEdit *Date = new QDateEdit();
                     Date->setDisplayFormat(tr("dd/MM/yyyy"));
-                    Date->setCalendarPopup(false); //précaution héritée de l'ancienne relecture des réponses, qui parcourait les layouts
-                                                   //avec QLayout::count() et plantait quand le calendarpopup était activé
-                                                   //cette relecture n'existe plus : on pourrait probablement réactiver le popup, à tester
                     Date->setContentsMargins(0,0,0,0);
                     Date->setFixedSize(120,30);
                     Date->setDate(m_currentdate);
@@ -2007,7 +2000,7 @@ void dlg_impressions::ConfigMode(Mode mode)
     ui->DossiersupTableView             ->setEnabled(m_mode == Selection);
     ui->OKupPushButton                  ->setEnabled(false);
     ui->textFrame                       ->setVisible(m_mode != CreationDOSS && m_mode!= ModificationDOSS && m_mode != Selection);
-    disconnect (ui->upTextEdit,                 &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
+    disconnect (ui->upTextEdit,         &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
 
     if (m_mode != Selection) {
         disconnect(t_timerefface, &QTimer::timeout, this, nullptr);
@@ -3222,7 +3215,6 @@ void dlg_impressions::Remplir_TableView()
     disconnect(ui->DocsupTableView, &QAbstractItemView::doubleClicked,    this, nullptr);
     disconnect(ui->DocsupTableView, &QWidget::customContextMenuRequested, this, &dlg_impressions::MenuContextuelDocuments);
     disconnect(ui->DocsupTableView, &QAbstractItemView::clicked,          this, nullptr);
-    disconnect(ui->DocsupTableView->selectionModel(),   &QItemSelectionModel::currentRowChanged, this, nullptr);
     disconnect(ui->DocsupTableView->horizontalHeader(), &QHeaderView::sectionClicked,            this, nullptr);
     UpLineDelegate *linedoc = new UpLineDelegate();
     connect(linedoc,   &UpLineDelegate::textEdited, this, [=, this] {ui->OKupPushButton->setEnabled(true);});
@@ -3331,7 +3323,6 @@ void dlg_impressions::Remplir_TableView()
     disconnect(ui->DossiersupTableView, &QAbstractItemView::doubleClicked,    this, nullptr);
     disconnect(ui->DossiersupTableView, &QWidget::customContextMenuRequested, this, &dlg_impressions::MenuContextuelDossiers);
     disconnect(ui->DossiersupTableView, &QAbstractItemView::clicked,          this, nullptr);
-    disconnect(ui->DossiersupTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, nullptr);
     UpLineDelegate *line = new UpLineDelegate();
     connect(line,   &UpLineDelegate::textEdited, this, [=, this] {ui->OKupPushButton->setEnabled(true);});
     connect(line,   &UpLineDelegate::commitData, this, [=, this](QWidget *editor) {
