@@ -1310,6 +1310,7 @@ void dlg_impressions::OKpushButtonClicked()
             QList<LigneQuestion> listlignesquestions;
 
             for (int m=0; m<listQuestions.size();m++)
+
             {
                 QHBoxLayout *lay = new QHBoxLayout();
                 lay->setContentsMargins(5,0,5,0);
@@ -1375,7 +1376,6 @@ void dlg_impressions::OKpushButtonClicked()
                     Time->setContentsMargins(0,0,0,0);
                     Time->setFixedSize(Utils::qtimeeditsize());
                     Time->setTime(QTime::currentTime());
-                    Time->setTimeZone(QTimeZone(QTimeZone::LocalTime));
                     wdgreponse = Time;
                     lay->addWidget(Time);
                 }
@@ -1500,7 +1500,6 @@ void dlg_impressions::OKpushButtonClicked()
                     Time->setContentsMargins(0,0,0,0);
                     Time->setFixedSize(Utils::qtimeeditsize());
                     Time->setTime(QTime::currentTime());
-                    Time->setTimeZone(QTimeZone(QTimeZone::LocalTime));
                     Time->setObjectName(HEUREINTERVENTION);
                     wdgreponse = Time;
                     lay->addWidget(Time);
@@ -1669,7 +1668,7 @@ void dlg_impressions::OKpushButtonClicked()
             delete dlg_ask;
             dlg_ask = nullptr;
         }
-        map_docsaimprimer.clear();      //! un OK précédent sans émission y aurait laissé ses documents
+        map_docsaimprimer.clear();
         for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
             /*! On alimente 5 QMap<DATASAIMPRIMER, QString>.
