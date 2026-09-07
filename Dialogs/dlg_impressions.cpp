@@ -1668,6 +1668,7 @@ void dlg_impressions::OKpushButtonClicked()
             delete dlg_ask;
             dlg_ask = nullptr;
         }
+        int ndocs = 0;      //! clé dans map_docsaimprimer : remise à zéro par document, elle les écrasait tous sauf un
         for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
             /*! On alimente 5 QMap<DATASAIMPRIMER, QString>.
@@ -1681,7 +1682,6 @@ void dlg_impressions::OKpushButtonClicked()
              * ils sont déterminés par la fiche demandeuse de l'impression - rufus.cpp oudlg_programmationinterventions, en appelant les fonctions correspondantes dans procedures.cpp
              */
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
-            int ndocs = 0;
             if (itm)
             {
                 if (itm->ischecked())
