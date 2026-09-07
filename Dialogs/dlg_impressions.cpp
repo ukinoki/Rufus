@@ -1196,6 +1196,7 @@ void dlg_impressions::ChoixMenuContextuelDossier(QString choix)
 void dlg_impressions::OKpushButtonClicked()
 {
     int         c = 0;
+    int         ndocs = 0;      //! clé du document dans map_docsaimprimer
     QStringList listQuestions, listtypeQuestions;
     QStringList ExpARemplacer, Rempla;
     QString listsoignantsComboBox = "ListSoignants";
@@ -1668,7 +1669,7 @@ void dlg_impressions::OKpushButtonClicked()
             delete dlg_ask;
             dlg_ask = nullptr;
         }
-        int ndocs = 0;      //! clé dans map_docsaimprimer : remise à zéro par document, elle les écrasait tous sauf un
+        map_docsaimprimer.clear();      //! un OK précédent sans émission y aurait laissé ses documents
         for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
             /*! On alimente 5 QMap<DATASAIMPRIMER, QString>.
