@@ -2351,12 +2351,16 @@ bool MySQLInstaller::ensureMysqlInPath()
 QString MySQLInstaller::oraclePrefix() const
 {
 #if defined(Q_OS_WIN)
-    /*! Toutes les versions s'installent sous « MySQL Server <x.y> » : on retient la plus récente présente. */
-    const QDir racine("C:/Program Files/MySQL");
-    const QStringList versions = racine.entryList(QStringList() << "MySQL Server *", QDir::Dirs, QDir::Name | QDir::Reversed);
-    for (const QString& v : versions)
-        if (QFile::exists(racine.absoluteFilePath(v) + "/bin/mysql.exe"))
-            return racine.absoluteFilePath(v);
+    /*! Toutes les versions s'installent sous « MySQL Server <x.y> » : on retient la plus récente présente,
+     *  d'abord en 64 bits puis en 32 bits (MySQL 5.7 et antérieurs). */
+    for (const QString& prog : {QString("C:/Program Files/MySQL"), QString("C:/Program Files (x86)/MySQL")})
+    {
+        const QDir racine(prog);
+        const QStringList versions = racine.entryList(QStringList() << "MySQL Server *", QDir::Dirs, QDir::Name | QDir::Reversed);
+        for (const QString& v : versions)
+            if (QFile::exists(racine.absoluteFilePath(v) + "/bin/mysql.exe"))
+                return racine.absoluteFilePath(v);
+    }
     return {};
 #else
     if (QFile::exists("/usr/local/mysql/bin/mysql"))
