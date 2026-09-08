@@ -1933,9 +1933,7 @@ bool MySQLInstaller::executerEtapesConfig()
         m_dialog->checkStep(1);
     else
         UpMessageBox::Watch(m_dialog, tr("PATH non configuré"),
-            tr("Impossible d'ajouter le chemin de mysql à la variable PATH.") + "\n\n"
-            + tr("Rufus fonctionne sans : il appelle les programmes MySQL par leur emplacement.") + "\n"
-            + tr("Seule la commande « mysql » tapée dans un terminal ne sera pas reconnue."));
+            tr("Impossible d'ajouter le chemin de mysql à la variable PATH."));
 
 #if defined(Q_OS_LINUX)
     /*! Installation neuve sous Linux : regrouper TOUT le paramétrage root en UNE seule élévation, pour ne
