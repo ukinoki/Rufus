@@ -2290,6 +2290,18 @@ bool MySQLInstaller::ensureMysqlInPath()
         mysqlPath = runCmd("command -v mysql " + NUL()).trimmed();
 #endif
     }
+    if (!QDir::isAbsolutePath(mysqlPath))
+    {
+        //! ni chez Oracle ni dans le PATH : le dossier des exécutables retenu par Rufus
+        const QString dirini = QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Param_SQLExecutable).toString();
+#if defined(Q_OS_WIN)
+        const QString candidat = dirini + "/mysql.exe";
+#else
+        const QString candidat = dirini + "/mysql";
+#endif
+        if (!dirini.isEmpty() && QFile::exists(candidat))
+            mysqlPath = candidat;
+    }
     const QString binDir = QFileInfo(mysqlPath).absolutePath();
     if (binDir.isEmpty() || binDir == ".")
         return false;
