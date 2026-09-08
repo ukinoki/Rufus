@@ -1927,13 +1927,15 @@ bool MySQLInstaller::executerEtapesConfig()
         prepareCreateModeMacOS();
 #endif
 
-    /*! ── Étape 2 : le chemin de mysql est dans la variable d'environnement PATH ─ */
-    if (!ensureMysqlInPath()) {
+    /*! ── Étape 2 : le chemin de mysql est dans la variable d'environnement PATH ─
+     *  Échec sans conséquence : Rufus appelle les programmes MySQL par leur emplacement. */
+    if (ensureMysqlInPath())
+        m_dialog->checkStep(1);
+    else
         UpMessageBox::Watch(m_dialog, tr("PATH non configuré"),
-            tr("Impossible d'ajouter le chemin de mysql à la variable PATH."));
-        return false;
-    }
-    m_dialog->checkStep(1);
+            tr("Impossible d'ajouter le chemin de mysql à la variable PATH.") + "\n\n"
+            + tr("Rufus fonctionne sans : il appelle les programmes MySQL par leur emplacement.") + "\n"
+            + tr("Seule la commande « mysql » tapée dans un terminal ne sera pas reconnue."));
 
 #if defined(Q_OS_LINUX)
     /*! Installation neuve sous Linux : regrouper TOUT le paramétrage root en UNE seule élévation, pour ne
