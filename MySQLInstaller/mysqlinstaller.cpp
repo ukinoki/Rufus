@@ -2281,9 +2281,17 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
  */
 bool MySQLInstaller::ensureMysqlInPath()
 {
-    //! une seule démarche pour localiser mysql : celle de Procedures (package, Oracle/brew, PATH, rufus.ini)
-    const QString binDir = Procedures::I()->dirSQLExecutable();
-    if (binDir.isEmpty())
+    QString mysqlPath = mysqlBin("mysql");
+    if (!QDir::isAbsolutePath(mysqlPath)) {
+#if defined(Q_OS_WIN)
+        mysqlPath = runCmd("where mysql " + NUL())
+                        .split('\n', Qt::SkipEmptyParts).value(0).trimmed();
+#else
+        mysqlPath = runCmd("command -v mysql " + NUL()).trimmed();
+#endif
+    }
+    const QString binDir = QFileInfo(mysqlPath).absolutePath();
+    if (binDir.isEmpty() || binDir == ".")
         return false;
 
 #if defined(Q_OS_WIN)
@@ -2343,11 +2351,12 @@ bool MySQLInstaller::ensureMysqlInPath()
 QString MySQLInstaller::oraclePrefix() const
 {
 #if defined(Q_OS_WIN)
-    /*! Emplacement par défaut de l'installation MySQL 8.4 sous Windows. */
-    for (const QString& p : {QString("C:/Program Files/MySQL/MySQL Server 8.4"),
-                             QString("C:/Program Files/MySQL/MySQL Server 8.0")})
-        if (QFile::exists(p + "/bin/mysql.exe"))
-            return p;
+    /*! Toutes les versions s'installent sous « MySQL Server <x.y> » : on retient la plus récente présente. */
+    const QDir racine("C:/Program Files/MySQL");
+    const QStringList versions = racine.entryList(QStringList() << "MySQL Server *", QDir::Dirs, QDir::Name | QDir::Reversed);
+    for (const QString& v : versions)
+        if (QFile::exists(racine.absoluteFilePath(v) + "/bin/mysql.exe"))
+            return racine.absoluteFilePath(v);
     return {};
 #else
     if (QFile::exists("/usr/local/mysql/bin/mysql"))
