@@ -5097,10 +5097,17 @@ QString MySQLInstaller::getBrewPrefix()
 
 QString MySQLInstaller::mysqlBin(const QString& binary)
 {
+    /*! dossier retenu par Rufus : sur une installation ancienne, mysql n'est ni chez Oracle ni dans le PATH */
+    const QString dirini = QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Param_SQLExecutable).toString();
+
 #if defined(Q_OS_WIN)
     const QString oracle = oraclePrefix();
     if (!oracle.isEmpty()) {
         const QString full = oracle + "/bin/" + binary + ".exe";
+        if (QFile::exists(full)) return full;
+    }
+    if (!dirini.isEmpty()) {
+        const QString full = dirini + "/" + binary + ".exe";
         if (QFile::exists(full)) return full;
     }
     return binary;   /*!< supposé présent dans le PATH */
@@ -5113,6 +5120,10 @@ QString MySQLInstaller::mysqlBin(const QString& binary)
     QString prefix = getBrewPrefix();
     if (!prefix.isEmpty()) {
         QString full = prefix + "/bin/" + binary;
+        if (QFile::exists(full)) return full;
+    }
+    if (!dirini.isEmpty()) {
+        const QString full = dirini + "/" + binary;
         if (QFile::exists(full)) return full;
     }
     return binary;
