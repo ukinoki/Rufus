@@ -5872,11 +5872,15 @@ void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
     });
 
     connect(bReseau, &QPushButton::clicked, &dlg, [&] {
-        if (ChoisirParamConnexion(&dlg))
+        const bool choisi = ChoisirParamConnexion(&dlg);
+        qDebug() << "VerifierIni : ChoisirParamConnexion" << choisi;
+        if (choisi)
         {
             PremierParametrageMateriel();   //! dossiers d'échange et marges d'impression, absents d'un poste neuf
             m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
-            if (Relectureini()) dlg.accept();
+            const bool relu = Relectureini();
+            qDebug() << "VerifierIni : Relectureini" << relu << QFile::exists(PATH_FILE_INI);
+            if (relu) dlg.accept();
         }
     });
     dlg.exec();
@@ -6214,7 +6218,9 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
         dlg.accept();
     });
 
-    if (dlg.exec() != QDialog::Accepted)
+    const int issue = dlg.exec();
+    qDebug() << "ChoisirParamConnexion : exec" << issue << (issue == QDialog::Accepted);
+    if (issue != QDialog::Accepted)
         return false;
     m_settings          ->setValue(Param_Poste_Version, m_version);   /*!< langue choisie au démarrage, commune aux deux voies */
     return true;
