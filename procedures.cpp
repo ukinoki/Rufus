@@ -5738,21 +5738,22 @@ void Procedures::PremierParametrageMateriel()
     //!                                         /Logs
     //!                                         Rufus.ini                   <- param file of Rufus on this post
 
-
-    /*! Dossiers du serveur : ouverts à tous dès la création, sinon les autres postes n'y écrivent pas
-         *  et mysql ne peut pas les traverser (cf. Utils::rendDossierAccessibleAuServeurSQL). */
-    const QString       dirimagerie = db->dirimagerie();
-    const QStringList   sousdossiers = { NOM_DIR_IMAGES,     NOM_DIR_DOSSIERECHANGEIMAGERIE,
-                                         NOM_DIR_ECHECSTRANSFERTS, NOM_DIR_FACTURES,
-                                         NOM_DIR_FACTURESSANSLIEN, NOM_DIR_ORIGINAUX,
-                                         NOM_DIR_ORIGINAUX NOM_DIR_FACTURES,
-                                         NOM_DIR_ORIGINAUX NOM_DIR_IMAGES, NOM_DIR_VIDEOS };
-    for (const QString &sousdossier : sousdossiers)
+    if (db->ModeAccesDataBase() == Utils::Poste)
     {
-        Utils::mkpath(dirimagerie + sousdossier);
-        Utils::rendDossierAccessibleAuServeurSQL(dirimagerie + sousdossier);
+        /*! Dossiers du serveur : ouverts à tous dès la création, sinon les autres postes n'y écrivent pas
+             *  et mysql ne peut pas les traverser (cf. Utils::rendDossierAccessibleAuServeurSQL). */
+        const QString       dirimagerie = db->dirimagerie();
+        const QStringList   sousdossiers = { NOM_DIR_IMAGES,     NOM_DIR_DOSSIERECHANGEIMAGERIE,
+                                             NOM_DIR_ECHECSTRANSFERTS, NOM_DIR_FACTURES,
+                                             NOM_DIR_FACTURESSANSLIEN, NOM_DIR_ORIGINAUX,
+                                             NOM_DIR_ORIGINAUX NOM_DIR_FACTURES,
+                                             NOM_DIR_ORIGINAUX NOM_DIR_IMAGES, NOM_DIR_VIDEOS };
+        for (const QString &sousdossier : sousdossiers)
+        {
+            Utils::mkpath(dirimagerie + sousdossier);
+            Utils::rendDossierAccessibleAuServeurSQL(dirimagerie + sousdossier);
+        }
     }
-
     Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_AUTOREF);
     Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_FRONTO);
     Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_TONO);
@@ -6216,7 +6217,6 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
 
     if (dlg.exec() != QDialog::Accepted)
         return false;
-    m_settings          ->setValue(Param_Poste_Version, m_version);   /*!< langue choisie au démarrage, commune aux deux voies */
     return true;
 }
 
