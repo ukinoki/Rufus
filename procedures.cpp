@@ -6036,6 +6036,13 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
     UpLineEdit *mdplineedit = new UpLineEdit();
     mdplineedit         ->setAlignment(Qt::AlignCenter);
     mdplineedit         ->setEchoMode(QLineEdit::Password);
+    QAction *oeil = mdplineedit->addAction(Icons::icEye(), QLineEdit::TrailingPosition);
+    oeil                ->setToolTip(tr("Afficher / masquer le mot de passe"));
+    connect(oeil, &QAction::triggered, &dlg, [=] {
+        const bool masque = (mdplineedit->echoMode() == QLineEdit::Password);
+        mdplineedit     ->setEchoMode(masque ? QLineEdit::Normal : QLineEdit::Password);
+        oeil            ->setIcon(masque ? Icons::icEyeBarre() : Icons::icEye());
+    });
 
     UpLabel *portlabel  = new UpLabel();
     portlabel           ->setText(tr("Port"));
