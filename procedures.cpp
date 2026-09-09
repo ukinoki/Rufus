@@ -5642,11 +5642,13 @@ bool Procedures::InstallationRufus(QWidget *parent, bool sansQuestion)
         if (!QDir(pathdirtorestore).isEmpty())
             QDir(pathdirtorestore).removeRecursively();
         if (!QFile::exists(PATH_FILE_INI))
+        {
+            ReconstruitIniMinimal();
             PremierParametrageMateriel();
+        }
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
 
         //! on vérifie que le Rufus.ini récupéré est exploitable et sinon, on en crée un minimal
-        ReconstruitIniMinimal();
         UpMessageBox::Watch(parent, tr("Base restaurée"),
                             tr("Votre base patients a été restaurée. Rufus va redémarrer."));
         Utils::Redemarrage();
@@ -5656,7 +5658,10 @@ bool Procedures::InstallationRufus(QWidget *parent, bool sansQuestion)
     {
         bool a = RestaureBase(BaseVierge, true, true, parent) != "";
         if (a)
+        {
+            ReconstruitIniMinimal();
             PremierParametrageMateriel();
+        }
         return a;
     }
     return false;
@@ -5693,8 +5698,6 @@ void Procedures::ReconstruitIniMinimal()
 -----------------------------------------------------------------------------------------------------------------*/
 void Procedures::PremierParametrageMateriel()
 {
-    ReconstruitIniMinimal();
-
     // Création des dossiers
     //!    on server
     //!    -- dir defined by variable MySQL secure-file-priv (/Users/Shared on macOS/Linux, Users/Public on W10/11)
