@@ -3833,7 +3833,7 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                        "client-cert.pem), à copier depuis le poste serveur sur une clé USB."));
                 if (ListeModesAcces().size() > 1)
                     return false;
-                if (VerifParamConnexion())
+                if (ChoisirParamConnexion())
                     Utils::Redemarrage();
                 return false;
             }
@@ -5930,41 +5930,10 @@ bool Procedures::ChoisirDossierClesSSL(QWidget *parent)
     return ClesSSLPresentes();
 }
 
-/*-----------------------------------------------------------------------------------------------------------------
-    -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
-    -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifParamConnexion(QWidget *parent)
-{
-    dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(parent);
-    Dlg_ParamConnex ->setFont(m_applicationfont);
-    if (Dlg_ParamConnex->exec() == QDialog::Accepted)
-    {
-        const Utils::ModeAcces mode = Dlg_ParamConnex->modeacces();
-        const QString Base = Utils::getBaseFromMode(mode);
-        if (mode != Utils::Poste)
-            m_settings->setValue(Base + Param_Serveur,   Utils::calcIP(Dlg_ParamConnex->ip(), false));
-        if (mode == Utils::Distant)
-            m_settings->setValue(Base + Dossier_ClesSSL, Dlg_ParamConnex->dossierclesSSL());
-        if (mode == Utils::ReseauLocal)
-        {
-            m_settings->setValue(Base + Dossier_Imagerie, Dlg_ParamConnex->dossierimagerie());
-            m_settings->setValue(Base + Dossier_Videos,   Dlg_ParamConnex->dossiervideos());
-        }
-        db->setModeacces(mode);
-        m_settings->setValue(Base + Param_Active,    "YES");
-        m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->port());
-
-        delete Dlg_ParamConnex;
-        return true;
-    }
-    delete Dlg_ParamConnex;
-    return false;
-}
-
 /*!
  * \brief Procedures::ChoisirParamConnexion
  * Fiche du bouton « connexion à une base existante » : reprendre le dossier exporté par le serveur, ou
- * saisir les paramètres à la main. Elle ne se ferme que sur un Rufus.ini prêt, ou sur Annuler.
+ * saisir soi-même les paramètres. Elle ne se ferme que sur un Rufus.ini prêt, ou sur Annuler.
  * \param parent  fenêtre parente
  */
 bool Procedures::ChoisirParamConnexion(QWidget *parent)
@@ -5972,9 +5941,9 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
     UpDialog dlg(parent);
     dlg     .setWindowModality(Qt::ApplicationModal);
     dlg     .setWindowTitle(tr("Connexion à une base patients Rufus existante"));
+    dlg     .setFont(m_applicationfont);
 
-    UpLabel *importlabel    = new UpLabel();
-    importlabel         ->setText(tr("Importer les données de connexion depuis un support externe (clé USB…)"));
+    /*! --- emplacement du serveur : trois modes exclusifs, ils commandent toute la fiche --- */
     QRadioButton *posteradio    = new QRadioButton(tr("Monoposte"));
     QRadioButton *localradio    = new QRadioButton(tr("Réseau local"));
     QRadioButton *distantradio  = new QRadioButton(tr("Accès distant"));
@@ -5986,6 +5955,15 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
     for (QRadioButton *radio : {posteradio, localradio, distantradio})
         groupelay       ->addWidget(radio);
     groupe              ->setLayout(groupelay);
+    groupe              ->setMinimumWidth(350);                 /*!< tient la largeur de la fiche, titre compris */
+
+    auto modeChoisi = [=] { return localradio->isChecked()?   Utils::ReseauLocal
+                                 : distantradio->isChecked()? Utils::Distant
+                                                            : Utils::Poste; };
+
+    /*! --- 1re voie : le dossier exporté par le serveur --- */
+    UpLabel *importlabel    = new UpLabel();
+    importlabel         ->setText(tr("Importer les données de connexion depuis un support externe (clé USB…)"));
 
     UpPushButton *dossierbouton = new UpPushButton(tr("Choisir le dossier %1").arg(QString(NOM_DIR_CONNEXION)));
     dossierbouton       ->setImmediateToolTip(Utils::tipImportDonneesConnexion());
@@ -6009,34 +5987,209 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
     importframe         ->setFrameShape(QFrame::StyledPanel);
     QVBoxLayout *importlay = new QVBoxLayout;
     importlay           ->addLayout(titrelay);
-    importlay           ->addWidget(groupe);
     importlay           ->addWidget(dossierbouton);
     importframe         ->setLayout(importlay);
 
+    /*! --- 2e voie : la saisie, dépliée par le bouton « Renseigner » --- */
     UpPushButton *saisirbouton = new UpPushButton(tr("Renseigner les données de connexion"));
-    saisirbouton        ->setImmediateToolTip(tr("Saisir vous-même l'adresse du serveur, le port et l'emplacement des clés SSL"));
+    saisirbouton        ->setImmediateToolTip(tr("Saisir vous-même l'adresse du serveur, le port, le mot de passe et l'emplacement des clés SSL"));
+
+    UpLabel *iplabel    = new UpLabel();
+    iplabel             ->setText(tr("Adresse IP du serveur"));
+    UpLineEdit *iplineedit = new UpLineEdit();
+    iplineedit          ->setAlignment(Qt::AlignCenter);
+    iplineedit          ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask, &dlg));
+
+    UpLabel *clesSSLlabel = new UpLabel();
+    clesSSLlabel        ->setText(tr("Emplacement clés SSL"));
+    UpLineEdit *clesSSLlineedit = new UpLineEdit();
+    UpLabel *imagerielabel = new UpLabel();
+    imagerielabel       ->setText(tr("Dossier d'imagerie du serveur"));
+    UpLineEdit *imagerielineedit = new UpLineEdit();
+    UpLabel *videoslabel = new UpLabel();
+    videoslabel         ->setText(tr("Dossier des vidéos"));
+    UpLineEdit *videoslineedit = new UpLineEdit();
+    QPushButton *clesSSLbouton   = new QPushButton("...");
+    QPushButton *imageriebouton  = new QPushButton("...");
+    QPushButton *videosbouton    = new QPushButton("...");
+    for (UpLineEdit *champ : {clesSSLlineedit, imagerielineedit, videoslineedit})
+    {
+        champ           ->setAlignment(Qt::AlignCenter);
+        champ           ->useselftextastooltip();
+    }
+    QList<QHBoxLayout*> dossierlays;
+    for (auto duo : {qMakePair(clesSSLlineedit, clesSSLbouton),
+                     qMakePair(imagerielineedit, imageriebouton),
+                     qMakePair(videoslineedit, videosbouton)})
+    {
+        duo.second      ->setFixedSize(54, 32);
+        duo.second      ->setContextMenuPolicy(Qt::NoContextMenu);
+        QHBoxLayout *lay = new QHBoxLayout;
+        lay             ->setContentsMargins(0, 0, 0, 0);
+        lay             ->addWidget(duo.first, 1);
+        lay             ->addWidget(duo.second, 0);
+        dossierlays     << lay;
+    }
+
+    UpLabel *mdplabel   = new UpLabel();
+    mdplabel            ->setText(tr("Mot de passe de connexion à la base"));
+    UpLineEdit *mdplineedit = new UpLineEdit();
+    mdplineedit         ->setAlignment(Qt::AlignCenter);
+    mdplineedit         ->setEchoMode(QLineEdit::Password);
+
+    UpLabel *portlabel  = new UpLabel();
+    portlabel           ->setText(tr("Port"));
+    QComboBox *portcombo = new QComboBox();
+    portcombo           ->addItems(QStringList() << "3306" << "3307");
+    portcombo           ->setFixedWidth(110);
+    QHBoxLayout *portlay = new QHBoxLayout;
+    portlay             ->addWidget(portlabel);
+    portlay             ->addWidget(portcombo);
+    portlay             ->addStretch(1);
+
+    QFrame *saisieframe = new QFrame();
+    saisieframe         ->setFrameShape(QFrame::StyledPanel);
+    QVBoxLayout *saisielay = new QVBoxLayout;
+    saisielay           ->addWidget(iplabel);
+    saisielay           ->addWidget(iplineedit);
+    saisielay           ->addWidget(clesSSLlabel);
+    saisielay           ->addLayout(dossierlays.at(0));
+    saisielay           ->addWidget(imagerielabel);
+    saisielay           ->addLayout(dossierlays.at(1));
+    saisielay           ->addWidget(videoslabel);
+    saisielay           ->addLayout(dossierlays.at(2));
+    saisielay           ->addWidget(mdplabel);
+    saisielay           ->addWidget(mdplineedit);
+    saisielay           ->addLayout(portlay);
+    saisieframe         ->setLayout(saisielay);
+    saisieframe         ->setVisible(false);
 
     QVBoxLayout *lay    = new QVBoxLayout();
     lay                 ->setContentsMargins(5, 5, 5, 5);
     lay                 ->setSpacing(5);
+    lay                 ->addWidget(groupe);
     lay                 ->addWidget(importframe);
     lay                 ->addWidget(saisirbouton);
+    lay                 ->addWidget(saisieframe);
 
-    dlg     .AjouteLayButtons(UpDialog::ButtonCancel);
+    dlg     .AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlg     .dlglayout()->insertLayout(0, lay);
     dlg     .dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    dlg     .OKButton->setVisible(false);   /*!< rien à valider tant que la saisie n'est pas dépliée */
+
+    /*! Champs offerts selon le mode : l'adresse hors monoposte, les clés en distant, l'imagerie en réseau
+     *  local, les vidéos partout sauf en distant. */
+    auto regleAffichage = [=] {
+        const Utils::ModeAcces mode = modeChoisi();
+        iplabel         ->setVisible(mode != Utils::Poste);
+        iplineedit      ->setVisible(mode != Utils::Poste);
+        clesSSLlabel    ->setVisible(mode == Utils::Distant);
+        clesSSLlineedit ->setVisible(mode == Utils::Distant);
+        clesSSLbouton   ->setVisible(mode == Utils::Distant);
+        imagerielabel   ->setVisible(mode == Utils::ReseauLocal);
+        imagerielineedit->setVisible(mode == Utils::ReseauLocal);
+        imageriebouton  ->setVisible(mode == Utils::ReseauLocal);
+        videoslabel     ->setVisible(mode != Utils::Distant);
+        videoslineedit  ->setVisible(mode != Utils::Distant);
+        videosbouton    ->setVisible(mode != Utils::Distant);
+    };
+
+    auto choisirDossier = [&dlg](UpLineEdit *champ) {
+        const QString dir = champ->text();
+        QUrl url = Utils::getExistingDirectoryUrl(&dlg, "", QUrl::fromLocalFile(QDir(dir).exists()? dir : QDir::homePath()), QStringList());
+        if (url == QUrl())
+            return;
+        champ           ->setText(url.path());
+        champ           ->setImmediateToolTip(url.path());
+    };
 
     connect(dlg.CancelButton, &QPushButton::clicked, &dlg, &QDialog::reject);
     connect(dossierbouton,    &QPushButton::clicked, &dlg, [&] {
-        const Utils::ModeAcces mode = localradio->isChecked()?   Utils::ReseauLocal
-                                    : distantradio->isChecked()? Utils::Distant
-                                                               : Utils::Poste;
-        if (ImporterDonneesConnexion(mode, &dlg))
+        if (ImporterDonneesConnexion(modeChoisi(), &dlg))
             dlg.accept();
     });
-    connect(saisirbouton,     &QPushButton::clicked, &dlg, [&] {
-        if (VerifParamConnexion(&dlg))
-            dlg.accept();
+    connect(saisirbouton,     &QPushButton::clicked, &dlg, [=, &dlg] {
+        saisieframe     ->setVisible(true);
+        saisirbouton    ->setVisible(false);
+        dlg.OKButton    ->setVisible(true);
+        regleAffichage();
+    });
+    connect(imageriebouton,   &QPushButton::clicked, &dlg, [=] {choisirDossier(imagerielineedit);});
+    connect(videosbouton,     &QPushButton::clicked, &dlg, [=] {choisirDossier(videoslineedit);});
+    connect(clesSSLbouton,    &QPushButton::clicked, &dlg, [=, &dlg] {
+        const QString dir = clesSSLlineedit->text();
+        QUrl url = Utils::getExistingDirectoryUrl(&dlg, "", QUrl::fromLocalFile(QDir(dir).exists()? dir : QDir::homePath()), QStringList());
+        if (url == QUrl())
+            return;
+        const QDir choisi(url.path());
+        if (!choisi.exists("client-key.pem") || !choisi.exists("client-cert.pem"))
+        {
+            UpMessageBox::Watch(&dlg, tr("Clés SSL introuvables"),
+                                tr("Ce dossier ne contient pas les clés client-key.pem et client-cert.pem."));
+            return;
+        }
+        clesSSLlineedit ->setText(url.path());
+        clesSSLlineedit ->setImmediateToolTip(url.path());
+    });
+    for (QRadioButton *radio : {posteradio, localradio, distantradio})
+        connect(radio, &QRadioButton::clicked, &dlg, [=, &dlg] {
+            regleAffichage();
+            if (radio != distantradio)
+                return;
+            /*! Lien ACTIF : l'URL passe en HTML (<a href>) ET en 5e paramètre « link » de Watch, qui active
+             *  alors l'ouverture externe. Le href est retiré par convertPlainText au calcul de la taille. */
+            const QString url = "https://www.rufusvision.org/configuration-pour-une-connexion-par-internet---le-cryptage-ssl.html";
+            UpMessageBox::Watch(&dlg, tr("Informations importantes sur l'accès par internet"),
+                                tr("Pour des raisons de confidentialité, l'accès distant dans Rufus "
+                                   "fonctionne obligatoirement avec un cryptage de données.") + "\n\n" +
+                                tr("Si vous voulez utiliser l'accès distant sur ce poste, il faut que:") + "\n" +
+                                tr("1. le serveur MySQL soit configuré pour le cryptage") + "\n" +
+                                tr("2. que sur ce poste les clés clientes SSL soient installées.") + "\n\n" +
+                                tr("Reportez-vous à la page internet :") + "\n" +
+                                "<a href=\"" + url + "\">" + url + "</a>" + "\n" +
+                                tr("pour savoir comment modifier la configuration du serveur et générer des clés de cryptage."),
+                                UpDialog::ButtonOK, url);
+        });
+
+    /*! Saisie minimale exigée : l'adresse hors monoposte, les clés en distant, le port et le mot de passe
+     *  toujours. Les dossiers de documents restent facultatifs. */
+    connect(dlg.OKButton, &QPushButton::clicked, &dlg, [&] {
+        const Utils::ModeAcces mode = modeChoisi();
+        if (mode != Utils::Poste && iplineedit->text().isEmpty())
+        {
+            UpMessageBox::Watch(&dlg, tr("Vous n'avez pas précisé l'adresse du serveur."));
+            return;
+        }
+        if (mode == Utils::Distant && clesSSLlineedit->text().isEmpty())
+        {
+            UpMessageBox::Watch(&dlg, tr("Vous n'avez pas précisé le dossier des clés SSL."));
+            return;
+        }
+        if (portcombo->currentText().isEmpty())
+        {
+            UpMessageBox::Watch(&dlg, tr("Vous n'avez pas précisé le port du serveur."));
+            return;
+        }
+        if (mdplineedit->text().isEmpty())
+        {
+            UpMessageBox::Watch(&dlg, tr("Vous n'avez pas précisé le mot de passe de connexion à la base."));
+            return;
+        }
+
+        const QString Base = Utils::getBaseFromMode(mode);
+        if (mode != Utils::Poste)
+            m_settings  ->setValue(Base + Param_Serveur,    Utils::calcIP(iplineedit->text(), false));
+        if (mode == Utils::Distant)
+            m_settings  ->setValue(Base + Dossier_ClesSSL,  clesSSLlineedit->text());
+        if (mode == Utils::ReseauLocal)
+            m_settings  ->setValue(Base + Dossier_Imagerie, imagerielineedit->text());
+        if (mode != Utils::Distant)
+            m_settings  ->setValue(Base + Dossier_Videos,   videoslineedit->text());
+        db              ->setModeacces(mode);
+        m_settings      ->setValue(Base + Param_Active,     "YES");
+        m_settings      ->setValue(Base + Param_Port,       portcombo->currentText());
+        MySQLInstaller::stockerMotDePassePourMode(mode, mdplineedit->text());
+        dlg.accept();
     });
 
     return dlg.exec() == QDialog::Accepted;

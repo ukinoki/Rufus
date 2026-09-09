@@ -36,7 +36,6 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_listevilles.cpp \
     $$PWD/dlg_message.cpp \
     $$PWD/dlg_motifs.cpp \
-    $$PWD/dlg_paramconnexion.cpp \
     $$PWD/dlg_param.cpp \
     $$PWD/dlg_programmationinterventions.cpp \
     $$PWD/dlg_recettesspeciales.cpp \
@@ -84,7 +83,6 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_listevilles.h \
     $$PWD/dlg_message.h \
     $$PWD/dlg_motifs.h \
-    $$PWD/dlg_paramconnexion.h \
     $$PWD/dlg_param.h \
     $$PWD/dlg_programmationinterventions.h \
     $$PWD/dlg_recettesspeciales.h \

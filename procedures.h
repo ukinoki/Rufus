@@ -57,7 +57,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <textprinter.h>
 #include <ostask.h>
 #include "database.h"
-#include <dlg_paramconnexion.h>
 #include <dlg_choixdate.h>
 #include <ui_dlg_choixdate.h>
 #include <dlg_gestionusers.h>
@@ -124,7 +123,6 @@ private:
     bool                    CreerOuRestaurerBase(QString msg = "", QString msgInfo = "",   //! créer une base patients, éventuellement la restaurer, ou quitter
                                     bool proposerRestauration = false,
                                     QWidget *parent = nullptr);
-    bool                    VerifParamConnexion(QWidget *parent = nullptr);             //! true =  le choix accès distant est validé ou non
     bool                    ChoisirParamConnexion(QWidget *parent = nullptr);           //! fiche du bouton « connexion à une base existante » : import depuis un support ou saisie ; true si Rufus.ini est prêt
     bool                    ImporterDonneesConnexion(Utils::ModeAcces mode,             //! reprend le dossier RufusConnexion et n'enregistre qu'après un test de connexion réussi
                                                      QWidget *parent = nullptr);
