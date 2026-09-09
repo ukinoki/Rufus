@@ -6185,6 +6185,7 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
             return;
         }
 
+        /*! Enregistrement de Rufus.ini */
         const QString Base = Utils::getBaseFromMode(mode);
         if (mode != Utils::Poste)
             m_settings  ->setValue(Base + Param_Serveur,    Utils::calcIP(iplineedit->text(), false));
@@ -6197,6 +6198,18 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
         db              ->setModeacces(mode);
         m_settings      ->setValue(Base + Param_Active,     "YES");
         m_settings      ->setValue(Base + Param_Port,       portcombo->currentText());
+
+        //! paramétrage de l'imprimanete par défaut pour un poste neuf : marges, taille de police, aperçu avant impression
+        m_settings->setValue(Imprimante_TailleEnTete,"45");
+        m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
+        m_settings->setValue(Imprimante_TaillePieddePage,"20");
+        m_settings->setValue(Imprimante_TailleTopMarge,"3");
+        m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
+
+        /*! Sans participant, les blobs déposés par les postes distants ne sont jamais déversés sur le disque. */
+        m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
+        m_settings->setValue(Param_Poste_Version, m_version);
+
         MySQLInstaller::stockerMotDePassePourMode(mode, mdplineedit->text());
         dlg.accept();
     });
