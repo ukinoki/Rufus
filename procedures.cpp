@@ -6131,7 +6131,19 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
     connect(dlg.CancelButton, &QPushButton::clicked, &dlg, &QDialog::reject);
     connect(dossierbouton,    &QPushButton::clicked, &dlg, [&] {
         if (ImporterDonneesConnexion(modeChoisi(), &dlg))
+        {
+            //! paramétrage de l'imprimanete par défaut pour un poste neuf : marges, taille de police, aperçu avant impression
+            m_settings->setValue(Imprimante_TailleEnTete,"45");
+            m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
+            m_settings->setValue(Imprimante_TaillePieddePage,"20");
+            m_settings->setValue(Imprimante_TailleTopMarge,"3");
+            m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
+
+            /*! Sans participant, les blobs déposés par les postes distants ne sont jamais déversés sur le disque. */
+            m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
+            m_settings->setValue(Param_Poste_Version, m_version);
             dlg.accept();
+        }
     });
     connect(saisirbouton,     &QPushButton::clicked, &dlg, [=, &dlg] {
         saisieframe     ->setVisible(true);
