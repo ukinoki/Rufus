@@ -25,7 +25,9 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     m_currentchiracte       = act;
 
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    setWindowTitle(tr("Programmer une intervention pour ") + m_currentchirpatient->prenom() + " " + m_currentchirpatient->nom());
+    setWindowTitle(m_currentchirpatient?
+                        tr("Programmer une intervention pour ") + m_currentchirpatient->prenom() + " " + m_currentchirpatient->nom() :
+                        tr("Programme opératoire"));
 
     wdg_listmedecinscombo           = new QComboBox();
     QHBoxLayout *choixmedecinLay    = new QHBoxLayout();
@@ -163,7 +165,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
         ChoixMedecin(0);
     }
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
-    connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
+    connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventions);
     setEnregPosition(true);
     setSaveGeometry(Nom_fiche_ProgramIntervention);
 }
@@ -219,7 +221,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
      * on définit comme intervention en cours
      * la dernière intervention de ce patient qui a été faite par ce chirurgien
      */
-    if (!currentintervention())
+    if (!currentintervention() && m_currentchirpatient)
     {
         Datas::I()->patients->initListeIdInterventions(m_currentchirpatient);
         if (m_currentchirpatient->listidinterventions().size()>0)
@@ -312,7 +314,7 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
     setcurrentsession(qobject_cast<SessionOperatoire*>(upitem->rufusitem()));
     wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(currentsession() != nullptr);
     wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(currentsession() != nullptr);
-    wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(currentsession() != nullptr);
+    wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(currentsession() != nullptr && m_currentchirpatient);
     if (currentsession() != nullptr)
     {
         Datas::I()->interventions->initListebySessionId(currentsession()->id());
@@ -1809,15 +1811,15 @@ void dlg_programmationinterventions::VerifExistIntervention(UpDialog * dlg, bool
     ok = false;
 };
 
-void dlg_programmationinterventions::MenuContextuelInterventionsions()
+void dlg_programmationinterventions::MenuContextuelInterventions()
 {
     m_ctxtmenuinterventions = new QMenu(this);
     QModelIndex psortindx   = wdg_interventionstreeView->indexAt(wdg_interventionstreeView->viewport()->mapFromGlobal(cursor().pos()));
     UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel->itemFromIndex(psortindx));
-    if (upitem == nullptr)
+    if (upitem == nullptr && m_currentchirpatient)
     {
-        QAction *pAction_CreerSession = m_ctxtmenuinterventions->addAction(tr("Créer une intervention"));
-        connect (pAction_CreerSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::CreerFicheIntervention);
+        QAction *pAction_CreerIntervention = m_ctxtmenuinterventions->addAction(tr("Créer une intervention"));
+        connect (pAction_CreerIntervention,        &QAction::triggered,    this,    &dlg_programmationinterventions::CreerFicheIntervention);
     }
     else
     {

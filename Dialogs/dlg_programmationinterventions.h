@@ -121,7 +121,7 @@ private:
     void                SupprimeIntervention();
     void                RemplirTreeInterventions(Intervention *intervention = nullptr);
     void                PositionneTreeInterventionsSurIntervention(Intervention* interv);
-    void                MenuContextuelInterventionsions();
+    void                MenuContextuelInterventions();
     void                VerifExistIntervention(UpDialog *dlg, bool &ok, QComboBox *box);
 private slots:
     void                CreerFicheIntervention();

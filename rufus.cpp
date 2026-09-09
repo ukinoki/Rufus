@@ -1197,6 +1197,7 @@ void Rufus::AfficheMenu(QMenu *menu)
             menuDocuments       ->addSeparator();
             actionExportActe    ->setVisible(ui->Acteframe->isVisible());
         }
+        menuDocuments->addAction(actionProgrammeOPeratoire);
         menuDocuments->addAction(actionEnvoiMailGroupe);
         menuDocuments->addAction(actionRechercheCourrier);
         menuDocuments->addAction(actionCorrespondants);
@@ -6779,19 +6780,39 @@ void Rufus::AfficheActeCompta(Acte *acte)
 {
     if (acte == nullptr)
         return;
+    if (db->parametres()->sanscompta())
+    {
+        ui->Comptaframe                     ->setVisible(false);
+        ui->EnregistrePaiementpushButton    ->setVisible(false);
+        ui->Cotationframe                   ->setVisible(false);
+        ui->ModifierCotationActepushButton  ->setVisible(false);
+        return;
+    }
 
     bool a = (acte->paiementType() == "");
-
-    ui->Comptaframe->setVisible(!a);
-    ui->Cotationframe->setEnabled(a && currentuser()->ishisownsupervisor());
-    ui->ChercheCotationupLabel->setVisible(a && currentuser()->ishisownsupervisor());
-    ui->EnregistrePaiementpushButton->setVisible(a && currentuser()->ishisownsupervisor());
-    ui->ModifierCotationActepushButton->setVisible(!a && currentuser()->ishisownsupervisor());
-    if (a) // seul le superviseur de l'acte ou son parent peuvent modifier sa cotation
+    ui->GratuitpushButton                   ->setVisible(a && currentuser()->ishisownsupervisor());
+    if (db->parametres()->comptareduite())
     {
-        int iduser = currentacte()->idUserSuperviseur();
-        int idparent = currentacte()->idParent();
-        ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->lineEdit()->text()!=""
+        ui->Comptaframe                     ->setVisible(false);
+        ui->EnregistrePaiementpushButton    ->setVisible(false);
+    }
+    else
+    {
+        ui->Comptaframe                     ->setVisible(!a);
+        ui->EnregistrePaiementpushButton    ->setVisible(a && currentuser()->ishisownsupervisor());
+    }
+
+    ui->ChercheCotationupLabel              ->setVisible(a && currentuser()->ishisownsupervisor());
+    ui->ModifierCotationActepushButton      ->setVisible(!a && currentuser()->ishisownsupervisor());    //! seuls le superviseur de l'acte ou son parent peuvent modifier sa cotation
+    ui->Cotationframe                       ->setEnabled(a && currentuser()->ishisownsupervisor());
+    if (db->parametres()->comptareduite())
+        return;
+
+    if (a)
+    {
+        int iduser      = currentacte()->idUserSuperviseur();
+        int idparent    = currentacte()->idParent();
+        ui->EnregistrePaiementpushButton    ->setEnabled(ui->ActeCotationcomboBox->lineEdit()->text()!=""
                                                     && ( iduser == currentuser()->id() || idparent == currentuser()->id()));
         return;
     }
@@ -7089,7 +7110,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier, QWidget *parent)
         focusWidget()->clearFocus();      //!> Valide les changements dans les champs du dossier en cours d'affichage
 
     /*! 1. On vérifie si on peut quitter la cohérence de la cotation et des renseignements comptablessans quitter le dossier (il n'est pas obligatoire d'avoir la ligne correspondante dans typepaiementactes */
-    if (db->parametres()->sanscompta())
+    if (db->parametres()->sanscompta()  && currentacte()->paiementType() == "")
     {
         QString requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ")"
                           " VALUES (" + QString::number(currentacte()->id()) + ",'G')";
@@ -7802,6 +7823,7 @@ void Rufus::CreerMenu()
         connect (actionExportActe,                  &QAction::triggered,        this,                   [=, this] {ExporteActe(currentacte());});
         connect (actionRechercheCourrier,           &QAction::triggered,        this,                   &Rufus::AfficheCourriersAFaire);
         connect (actionEnvoiMailGroupe,             &QAction::triggered,        this,                   &Rufus::EnvoiMailGroupe);
+        connect (actionProgrammeOPeratoire,         &QAction::triggered,        this,                   [=, this] {ProgrammationIntervention();});
         // Comptabilité
         connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   &Rufus::GestionComptes);
         connect (actionPaiementDirect,              &QAction::triggered,        this,                   [=, this] {AppelPaiementDirect(Menu);});
@@ -8607,9 +8629,7 @@ void Rufus::InitWidgets()
     ui->AccueilupTableWidget        ->FixLargeurTotale();
     ui->PatientsVusupTableWidget    ->FixLargeurTotale();
 
-    ui->GratuitpushButton   ->setImmediateToolTip(Utils::ConvertitModePaiementtotr(GRATUIT));
-    ui->Cotationframe       ->setVisible(db->parametres()->compta() != 3);
-    ui->Comptaframe         ->setVisible(db->parametres()->compta() != 3);
+    ui->GratuitpushButton               ->setImmediateToolTip(Utils::ConvertitModePaiementtotr(GRATUIT));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9120,21 +9140,23 @@ void Rufus::ModeCreationDossier()
 
 void Rufus::ProgrammationIntervention(Patient *pat, Acte *act)
 {
-    if (pat == nullptr)
-        return;
     Acte *chiract = nullptr;
     if (act)
         if (act->isintervention())
             chiract = act;
     dlg_programmationinterventions *dlg_progr = new dlg_programmationinterventions(pat, chiract, this);
-    connect(dlg_progr, &dlg_programmationinterventions::updateHtml, this, [&](Patient *chirpat) {
-        if (chirpat->id() == pat->id())
-            ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(pat));
+    if (pat)
+        connect(dlg_progr, &dlg_programmationinterventions::updateHtml, this, [&](Patient *chirpat) {
+            if (chirpat->id() == pat->id())
+                ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(pat));
     });
     dlg_progr->exec();
-    if (dlg_progr->docimprime())
-        MAJDocsExternes();                  //ProgrammationIntervention()
-    disconnect(dlg_progr, &dlg_programmationinterventions::updateHtml, nullptr, nullptr);
+    if (pat)
+    {
+        if (dlg_progr->docimprime())
+            MAJDocsExternes();                  //ProgrammationIntervention()
+        disconnect(dlg_progr, &dlg_programmationinterventions::updateHtml, nullptr, nullptr);
+    }
     delete dlg_progr;
 }
 
@@ -11208,6 +11230,7 @@ void Rufus::retranslateActions() {
     actionEnregistrerVideo = retranslateAction(actionEnregistrerVideo, tr("Enregistrer une video"));
     actionRechercheCourrier = retranslateAction(actionRechercheCourrier, tr("Afficher les courriers en attente"));
     actionEnvoiMailGroupe = retranslateAction(actionEnvoiMailGroupe, tr("Envoyer un mail groupé"));
+    actionProgrammeOPeratoire = retranslateAction(actionProgrammeOPeratoire, tr("Programmes opératoires"));
     actionCorrespondants = retranslateAction(actionCorrespondants, tr("Liste des correspondants"));
     actionFabricants = retranslateAction(actionFabricants, tr("Liste des fabricants"));
     actionIOLs = retranslateAction(actionIOLs, tr("Liste des implants"));

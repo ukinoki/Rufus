@@ -356,6 +356,12 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     ui->NoActelabel->setText(QString::number(listid.indexOf(acte->id()) + 1) + " / " + QString::number(map_actes->size()));
 
     //4. Afficher les renseignements comptables
+    if (DataBase::I()->parametres()->sanscompta())
+    {
+        ui->Comptawidget->setVisible(false);
+        return;
+    }
+
     ui->ActeCotationlineEdit->setText(acte->cotation());
     if( acte->isFactureEnFranc() )
     {
@@ -369,71 +375,74 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     }
     ui->ActeMontantlineEdit->setText( QLocale().toString(acte->montant(),'f',2) ) ;
 
-    if (acte->paiementType().isEmpty() )
+    ui->Comptaframe->setVisible(true);
+    if (acte->paiementType().isEmpty() || DataBase::I()->parametres()->comptareduite())  // sans compta, on ne montre pas le mode de paiement
     {
-        ui->Comptaframe->setVisible(false);
+        ui->PaiementLabel->setVisible(false);
+        ui->PaiementlineEdit->setVisible(false);
+        ui->PayeLabel->setVisible(false);
+        ui->PayelineEdit->setVisible(false);
+        ui->Comptaframe->setFixedHeight(30);
     }
-    else
+    if (DataBase::I()->parametres()->comptareduite())
+        return;
+
+    ui->PaiementlineEdit->setVisible(true);
+    //2. on recherche ensuite le type de paiement : espèces, chèque, tiers, cb, impayé, gratuit
+    QString txtpaiement = Utils::ModePaiementtotr(acte->paiementType());
+    if (acte->paiementType() == TRS
+        && acte->paiementTiers() == "CB") txtpaiement = Utils::ConvertitModePaiementtotr(CARTECREDIT);
+    else if (acte->paiementType() == TRS) txtpaiement = acte->paiementTiers();
+    ui->PaiementlineEdit->setText(txtpaiement);
+
+    // on calcule le montant payé pour l'acte
+    if (acte->paiementType() != GRAT || acte->paiementType() != IMP)
     {
-        ui->Comptaframe->setVisible(true);
-        ui->PaiementlineEdit->setVisible(true);
-
-        //2. on recheche ensuite le type de paiement : espèces, chèque, tiers, cb, impayé, gratuit
-        QString txtpaiement = Utils::ModePaiementtotr(acte->paiementType());
-        if (acte->paiementType() == TRS
-                && acte->paiementTiers() == "CB") txtpaiement = Utils::ConvertitModePaiementtotr(CARTECREDIT);
-         else if (acte->paiementType() == TRS) txtpaiement = acte->paiementTiers();
-        ui->PaiementlineEdit->setText(txtpaiement);
-
-        // on calcule le montant payé pour l'acte
-        if (acte->paiementType() != GRAT || acte->paiementType() != IMP)
+        double TotalPaye = 0;
+        for (auto it = m_listepaiements->lignespaiements()->constBegin(); it != m_listepaiements->lignespaiements()->constEnd(); ++it)
         {
-            double TotalPaye = 0;
-            for (auto it = m_listepaiements->lignespaiements()->constBegin(); it != m_listepaiements->lignespaiements()->constEnd(); ++it)
+            LignePaiement *lign = const_cast<LignePaiement*>(it.value());
+            if (lign->idacte() == acte->id())
             {
-                LignePaiement *lign = const_cast<LignePaiement*>(it.value());
-                if (lign->idacte() == acte->id())
-                {
-                    if (lign->monnaie() == "F")
-                        TotalPaye += lign->paye() / 6.55957;
-                    else
-                        TotalPaye += lign->paye();
-                }
+                if (lign->monnaie() == "F")
+                    TotalPaye += lign->paye() / 6.55957;
+                else
+                    TotalPaye += lign->paye();
             }
-            ui->PayelineEdit->setText(QLocale().toString(TotalPaye,'f',2));
         }
+        ui->PayelineEdit->setText(QLocale().toString(TotalPaye,'f',2));
+    }
 
 
-        if ((acte->paiementType() == TRS && acte->paiementTiers() == "CB")
-              || acte->paiementType() == CHQ
-              || acte->paiementType() == ESP)
-        {
-            ui->PaiementLabel->setVisible(true);
-            ui->PaiementLabel->setText("Paiement:");
-            ui->PayeLabel->setVisible(true);
-            ui->PayelineEdit->setVisible(true);
-            ui->Comptaframe->setFixedHeight(74);
-            ui->PaiementlineEdit->setGeometry(79,25,91,18);
-        }
-        else if (acte->paiementType() == GRAT
-                 || acte->paiementType() == IMP)
-        {
-            ui->PaiementLabel->setVisible(false);
-            ui->PayeLabel->setVisible(false);
-            ui->PayelineEdit->setVisible(false);
-            ui->Comptaframe->setFixedHeight(50);
-            ui->PaiementlineEdit->setGeometry(8,25,164,18);
-        }
-        if (acte->paiementType() == TRS && acte->paiementTiers() != "CB")
-        {
-            ui->PaiementLabel->setText("Tiers");
-            ui->PaiementLabel->setVisible(true);
-            ui->PaiementlineEdit->setVisible(true);
-            ui->PayeLabel->setVisible(true);
-            ui->PayelineEdit->setVisible(true);
-            ui->Comptaframe->setFixedHeight(74);
-            ui->PaiementlineEdit->setGeometry(79,25,91,18);
-        }
+    if ((acte->paiementType() == TRS && acte->paiementTiers() == "CB")
+        || acte->paiementType() == CHQ
+        || acte->paiementType() == ESP)
+    {
+        ui->PaiementLabel->setVisible(true);
+        ui->PaiementLabel->setText("Paiement:");
+        ui->PayeLabel->setVisible(true);
+        ui->PayelineEdit->setVisible(true);
+        ui->Comptaframe->setFixedHeight(74);
+        ui->PaiementlineEdit->setGeometry(79,25,91,18);
+    }
+    else if (acte->paiementType() == GRAT
+             || acte->paiementType() == IMP)
+    {
+        ui->PaiementLabel->setVisible(false);
+        ui->PayeLabel->setVisible(false);
+        ui->PayelineEdit->setVisible(false);
+        ui->Comptaframe->setFixedHeight(50);
+        ui->PaiementlineEdit->setGeometry(8,25,164,18);
+    }
+    if (acte->paiementType() == TRS && acte->paiementTiers() != "CB")
+    {
+        ui->PaiementLabel->setText("Tiers");
+        ui->PaiementLabel->setVisible(true);
+        ui->PaiementlineEdit->setVisible(true);
+        ui->PayeLabel->setVisible(true);
+        ui->PayelineEdit->setVisible(true);
+        ui->Comptaframe->setFixedHeight(74);
+        ui->PaiementlineEdit->setGeometry(79,25,91,18);
     }
 }
 

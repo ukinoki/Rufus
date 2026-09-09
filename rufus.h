@@ -408,7 +408,7 @@ private:
     void                ImprimeDocument(Patient *pat);                                             //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
-    void                ProgrammationIntervention(Patient *pat, Acte *act = nullptr);
+    void                ProgrammationIntervention(Patient *pat = nullptr, Acte *act = nullptr);
     void                RecopierDossier(Patient *patient = nullptr);
     void                RecaleTableView(Patient *pat, QAbstractItemView::ScrollHint scrollhint = QAbstractItemView::PositionAtCenter);
     int                 RecherchePatient(QString lPatNom, QString lPatPrenom, QString lPatDDN, QString MessageErreur);
@@ -482,7 +482,8 @@ private:
     QAction         *actionEnregistrerDocument    = nullptr;
     QAction         *actionEnregistrerVideo         = nullptr;
     QAction         *actionRechercheCourrier        = nullptr;
-    QAction         *actionEnvoiMailGroupe         = nullptr;
+    QAction         *actionEnvoiMailGroupe          = nullptr;
+    QAction         *actionProgrammeOPeratoire      = nullptr;
     QAction         *actionExportActe               = nullptr;
     QAction         *actionGestionComptesBancaires  = nullptr;
     QAction         *actionPaiementDirect           = nullptr;
