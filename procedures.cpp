@@ -5873,16 +5873,27 @@ void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
     });
 
     connect(bReseau, &QPushButton::clicked, &dlg, [&] {
-        const bool choisi = ChoisirParamConnexion(&dlg);
-        qDebug() << "VerifierIni : ChoisirParamConnexion" << choisi;
-        if (choisi)
+        if (!ChoisirParamConnexion(&dlg))
+            return;
+        m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
+
+        //! PremierParametrageMateriel lit secure_file_priv sur le serveur : la base doit être ouverte
+        const Utils::ModeAcces mode = db->ModeAccesDataBase();
+        const QString Base = Utils::getBaseFromMode(mode);
+        db      ->initParametresConnexionSQL(mode == Utils::Poste? "localhost"
+                                                                 : m_settings->value(Base + Param_Serveur).toString(),
+                                             m_settings->value(Base + Param_Port).toInt());
+        const QString err = db->connectToDataBase(DB_RUFUS, db->Logindb(), MySQLInstaller::motDePasseSQL());
+        if (!err.isEmpty())
         {
-            PremierParametrageMateriel();   //! dossiers d'échange et marges d'impression, absents d'un poste neuf
-            m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
-            const bool relu = Relectureini();
-            qDebug() << "VerifierIni : Relectureini" << relu << QFile::exists(PATH_FILE_INI);
-            if (relu) dlg.accept();
+            UpMessageBox::Watch(&dlg, tr("Connexion impossible"),
+                                tr("Ces paramètres ne permettent pas de joindre la base de données de votre cabinet.")
+                                + "\n\n" + err);
+            return;
         }
+        PremierParametrageMateriel();   //! dossiers d'échange et marges d'impression, absents d'un poste neuf
+        db      ->dbase().close();      /*!< Connexion_A_La_Base rouvrira proprement au démarrage */
+        if (Relectureini()) dlg.accept();
     });
     dlg.exec();
 }
@@ -6219,9 +6230,7 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
         dlg.accept();
     });
 
-    const int issue = dlg.exec();
-    qDebug() << "ChoisirParamConnexion : exec" << issue << (issue == QDialog::Accepted);
-    if (issue != QDialog::Accepted)
+    if (dlg.exec() != QDialog::Accepted)
         return false;
     return true;
 }
