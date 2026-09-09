@@ -6198,6 +6198,7 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
         db              ->setModeacces(mode);
         m_settings      ->setValue(Base + Param_Active,     "YES");
         m_settings      ->setValue(Base + Param_Port,       portcombo->currentText());
+        m_settings      ->setValue(Param_Poste_Version,     m_version);
         MySQLInstaller::stockerMotDePassePourMode(mode, mdplineedit->text());
         dlg.accept();
     });
