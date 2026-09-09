@@ -5875,7 +5875,6 @@ void Procedures::VerifierIni(QTranslator *traducteur, QWidget *parent)
         if (ChoisirParamConnexion(&dlg))
         {
             PremierParametrageMateriel();   //! dossiers d'échange et marges d'impression, absents d'un poste neuf
-            m_settings->setValue(Param_Poste_Version, m_version);
             m_settings->sync();   //! connectToDataBase relit le fichier pour le dossier des clés SSL
             if (Relectureini()) dlg.accept();
         }
@@ -6198,12 +6197,14 @@ bool Procedures::ChoisirParamConnexion(QWidget *parent)
         db              ->setModeacces(mode);
         m_settings      ->setValue(Base + Param_Active,     "YES");
         m_settings      ->setValue(Base + Param_Port,       portcombo->currentText());
-        m_settings      ->setValue(Param_Poste_Version,     m_version);
         MySQLInstaller::stockerMotDePassePourMode(mode, mdplineedit->text());
         dlg.accept();
     });
 
-    return dlg.exec() == QDialog::Accepted;
+    if (dlg.exec() != QDialog::Accepted)
+        return false;
+    m_settings          ->setValue(Param_Poste_Version, m_version);   /*!< langue choisie au démarrage, commune aux deux voies */
+    return true;
 }
 
 #if defined(Q_OS_MACOS)
