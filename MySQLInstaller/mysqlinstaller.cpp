@@ -2814,7 +2814,7 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
 
     UpLabel *corpsLbl = new UpLabel();
     corpsLbl ->setText(avecSecoursEtCompteMySQL
-        ? tr("Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées") + "\n" +
+        ? tr("Aucun mot de passe connu ne permet de connecter Rufus à la base de données") + "\n" +
           tr("Vous pouvez :") + "\n" +
           tr(". récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne") + "\n" +
           tr(". le saisir si vous le connaissez.") + "\n" +

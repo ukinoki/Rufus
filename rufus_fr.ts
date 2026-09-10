@@ -1952,7 +1952,7 @@ mot de passe</source>
     </message>
     <message>
         <location line="+6"/>
-        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées</source>
+        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de données</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2540,7 +2540,7 @@ Fermeture du programme.</source>
     <message>
         <location line="-54"/>
         <location line="+54"/>
-        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;éxécuter!</source>
+        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;exécuter!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2966,7 +2966,7 @@ je dispose d&apos;une sauvegarde</source>
     </message>
     <message>
         <location line="+27"/>
-        <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
+        <source>Pour exécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3671,7 +3671,7 @@ Confirmez-vous la suppression des anciennes données?
     </message>
     <message>
         <location line="-578"/>
-        <source>Impossible d&apos;éxécuter la restauration!</source>
+        <source>Impossible d&apos;exécuter la restauration!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3954,13 +3954,7 @@ Sortie du programme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-58"/>
-        <source>Cette version de Rufus nécessite une version plus récente du serveur MySQL.</source>
-        <oldsource>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour vers la version</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+63"/>
+        <location line="+5"/>
         <source>et une sauvegarde de la base actuelle est fortement conseillée</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4144,12 +4138,12 @@ Sortie du programme</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>vous pourrez réintialiser la base de données.</source>
+        <source>vous pourrez réinitialiser la base de données.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>La réintialisation des données ne peut se faire que depuis le serveur</source>
+        <source>La réinitialisation des données ne peut se faire que depuis le serveur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4440,7 +4434,7 @@ Voulez-vous l&apos;installer maintenant ?</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvehgarde sur ce poste</source>
+        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvegarde sur ce poste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11839,11 +11833,6 @@ Voulez vous remplir automatiquement les champs avec des coordonnées factices?.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>Créer une association CCAM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>Créer une cotation</source>
         <translation type="unfinished"></translation>
@@ -18433,7 +18422,7 @@ par défaut pour cet appareil</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvlles clés</source>
+        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvelles clés</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

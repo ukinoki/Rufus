@@ -1975,7 +1975,7 @@ contraseña</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées</source>
+        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de données</source>
         <translation>Ninguna contraseña conocida permite conectar Rufus a la base de datos</translation>
     </message>
     <message>
@@ -2624,7 +2624,7 @@ Cerrando el programa.</translation>
     <message>
         <location line="-54"/>
         <location line="+54"/>
-        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;éxécuter!</source>
+        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;exécuter!</source>
         <translation>Si cancela, la función solicitada no podrá ejecutarse!</translation>
     </message>
     <message>
@@ -2990,7 +2990,7 @@ Cerrando el programa.</translation>
     </message>
     <message>
         <location line="+334"/>
-        <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
+        <source>Pour exécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
         <translation>Para ejecutar esta versión de Rufus, la base de datos debe actualizarse desde la versión</translation>
     </message>
     <message>
@@ -3030,12 +3030,12 @@ Cerrando el programa.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>vous pourrez réintialiser la base de données.</source>
+        <source>vous pourrez réinitialiser la base de données.</source>
         <translation>podrá restablecer la base de datos.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>La réintialisation des données ne peut se faire que depuis le serveur</source>
+        <source>La réinitialisation des données ne peut se faire que depuis le serveur</source>
         <translation>El restablecimiento de los datos solo puede hacerse desde el servidor</translation>
     </message>
     <message>
@@ -3180,7 +3180,7 @@ Voulez-vous l&apos;installer maintenant ?</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvehgarde sur ce poste</source>
+        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvegarde sur ce poste</source>
         <translation>2. Instalo Rufus en este equipo y voy a crear una base de pacientes a partir de una copia de seguridad en él</translation>
     </message>
     <message>
@@ -3604,7 +3604,7 @@ Confirmo</translation>
     </message>
     <message>
         <location line="-578"/>
-        <source>Impossible d&apos;éxécuter la restauration!</source>
+        <source>Impossible d&apos;exécuter la restauration!</source>
         <translation>¡Imposible ejecutar la restauración!</translation>
     </message>
     <message>
@@ -18699,7 +18699,7 @@ por defecto para este dispositivo</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvlles clés</source>
+        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvelles clés</source>
         <translation>En el cuadro siguiente, valide el registro de las nuevas claves</translation>
     </message>
     <message>

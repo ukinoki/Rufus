@@ -1738,7 +1738,7 @@ Aceasta poate dura câteva minute.</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées</source>
+        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de données</source>
         <translation>Nicio parolă cunoscută nu permite conectarea Rufus la baza de date</translation>
     </message>
     <message>
@@ -2629,7 +2629,7 @@ Fermeture du programme.</source>
     <message>
         <location line="-54"/>
         <location line="+54"/>
-        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;éxécuter!</source>
+        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;exécuter!</source>
         <translation>Dacă anulați, funcția cerută nu va putea fi executată!</translation>
     </message>
     <message>
@@ -3085,7 +3085,7 @@ Confirm</translation>
     </message>
     <message>
         <location line="-578"/>
-        <source>Impossible d&apos;éxécuter la restauration!</source>
+        <source>Impossible d&apos;exécuter la restauration!</source>
         <translation>Imposibil de executat restaurarea!</translation>
     </message>
     <message>
@@ -3416,7 +3416,7 @@ Ieșire din program</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvehgarde sur ce poste</source>
+        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvegarde sur ce poste</source>
         <translation>2. Instalez Rufus pe această stație și voi crea o bază de pacienți dintr-o copie de siguranță pe această stație</translation>
     </message>
     <message>
@@ -3449,7 +3449,7 @@ de pacienți goală</translation>
     </message>
     <message>
         <location line="-2283"/>
-        <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
+        <source>Pour exécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
         <translation>Pentru a executa această versiune de Rufus, baza de date trebuie actualizată de la versiunea</translation>
     </message>
     <message>
@@ -4406,12 +4406,12 @@ dintr-o copie de siguranță</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>vous pourrez réintialiser la base de données.</source>
+        <source>vous pourrez réinitialiser la base de données.</source>
         <translation>veți putea reinițializa baza de date.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>La réintialisation des données ne peut se faire que depuis le serveur</source>
+        <source>La réinitialisation des données ne peut se faire que depuis le serveur</source>
         <translation>Reinițializarea datelor se poate face numai de pe server</translation>
     </message>
     <message>
@@ -18539,7 +18539,7 @@ pentru a putea lua în considerare modificările aduse!</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvlles clés</source>
+        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvelles clés</source>
         <translation>În caseta următoare, validați înregistrarea noilor chei</translation>
     </message>
     <message>

@@ -2318,7 +2318,7 @@ void dlg_param::DossierClesSSL()
     if (!lisibles)
     {
         UpMessageBox::Watch(this, tr("Enregistrement des clés SSL"),
-                            tr("Dans la boîte suivante, validez l'enregistrement des nouvlles clés") + "\n"
+                            tr("Dans la boîte suivante, validez l'enregistrement des nouvelles clés") + "\n"
                             + tr("en entrant le mot de passe administrateur de l'ordinateur."));
         if (!MySQLInstaller(this).corrigerDroitsClesSSL(choisi))
         {

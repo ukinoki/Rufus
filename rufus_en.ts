@@ -1976,7 +1976,7 @@ password</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées</source>
+        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de données</source>
         <translation>No known password lets Rufus connect to the database</translation>
     </message>
     <message>
@@ -2579,7 +2579,7 @@ Le poste </oldsource>
     <message>
         <location line="-54"/>
         <location line="+54"/>
-        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;éxécuter!</source>
+        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;exécuter!</source>
         <translation>If you cancel, the requested function will not be executed!</translation>
     </message>
     <message>
@@ -3025,7 +3025,7 @@ Do you confirm that the old data will be deleted?
     </message>
     <message>
         <location line="-578"/>
-        <source>Impossible d&apos;éxécuter la restauration!</source>
+        <source>Impossible d&apos;exécuter la restauration!</source>
         <translation>Unable to execute restore!</translation>
     </message>
     <message>
@@ -3471,7 +3471,7 @@ Program exit</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
+        <source>Pour exécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
         <translation>To run this version of Rufus, the database must be updated from version</translation>
     </message>
     <message>
@@ -4031,12 +4031,12 @@ I have a backup</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>vous pourrez réintialiser la base de données.</source>
+        <source>vous pourrez réinitialiser la base de données.</source>
         <translation>you will be able to reset the database.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>La réintialisation des données ne peut se faire que depuis le serveur</source>
+        <source>La réinitialisation des données ne peut se faire que depuis le serveur</source>
         <translation>Resetting the data can only be done from the server</translation>
     </message>
     <message>
@@ -5161,7 +5161,7 @@ Do you want to install it now?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvehgarde sur ce poste</source>
+        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvegarde sur ce poste</source>
         <translation>2. I am installing Rufus on this computer and I will create a patient database from a backup on it</translation>
     </message>
     <message>
@@ -18737,7 +18737,7 @@ settings for this device</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvlles clés</source>
+        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvelles clés</source>
         <translation>In the next box, confirm the saving of the new keys</translation>
     </message>
     <message>

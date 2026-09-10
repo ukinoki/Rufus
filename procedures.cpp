@@ -940,7 +940,7 @@ void Procedures::setDirSQLExecutable(QWidget *parent)
         {
             if (UpMessageBox::Question(parent,
                                        tr("le chemin choisi (") + urlexecutabledir + tr(") n'est pas valide"),
-                                       tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
+                                       tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'exécuter!"),
                                        UpDialog::ButtonCancel | UpDialog::ButtonOK,
                                        QStringList() << tr("Annuler") << tr("Reprendre"))
                 != UpSmallButton::STARTBUTTON)
@@ -994,7 +994,7 @@ void Procedures::setDirSSLKeys(QWidget *parent)
             {
                 if (UpMessageBox::Question(parent,
                                            tr("le chemin choisi") + " \"" + urlkeys.path() + "\" " + tr("n'est pas valide"),
-                                           tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
+                                           tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'exécuter!"),
                                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
                                            QStringList() << tr("Annuler") << tr("Reprendre"))
                         != UpSmallButton::STARTBUTTON)
@@ -2998,7 +2998,7 @@ QString Procedures::RestaureBase(protoc protocole, bool PremierDemarrage, bool V
         }
         if (msg != "")
         {
-            UpMessageBox::Watch(parent, tr("Impossible d'éxécuter la restauration!"), msg);
+            UpMessageBox::Watch(parent, tr("Impossible d'exécuter la restauration!"), msg);
             dir.removeRecursively();
             return "";
         }
@@ -3604,7 +3604,7 @@ bool Procedures::VerifVersionBase(QWidget* parent)
             {
                 UpMessageBox msgbox(parent);
                 msgbox.setText(tr("Mise à jour de la base nécessaire"));
-                msgbox.setInformativeText(tr("Pour éxécuter cette version de Rufus, la base de données doit être mise à jour depuis la version") +
+                msgbox.setInformativeText(tr("Pour exécuter cette version de Rufus, la base de données doit être mise à jour depuis la version") +
                                             " <b>" + QString::number(m_parametres->versionbase()) + "</b><br />" +
                                             tr("vers la version") +
                                             " <b>" + QString::number(VERSION_BASE) + "</b><br />" +
@@ -4016,8 +4016,8 @@ bool Procedures::Connexion_A_La_Base(QWidget *parent)
                                     tr("vous pouvez tenter une nouvelle connexion depuis le serveur ou un poste du réseau local") + "\n" +
                                     tr("avec le mot de passe de secours ou un identifiant MySQL valide") + "\n" +
                                     tr("Et si toutes les tentatives de vous connecter échouent") + "\n" +
-                                    tr("vous pourrez réintialiser la base de données.") + "\n" +
-                                    tr("La réintialisation des données ne peut se faire que depuis le serveur") + "\n" +
+                                    tr("vous pourrez réinitialiser la base de données.") + "\n" +
+                                    tr("La réinitialisation des données ne peut se faire que depuis le serveur") + "\n" +
                                     tr("toutes les données de la base actuelle seront définitivement perdues.") + "\n" +
                                     tr("mais vous pourrez restaurer vos données à partir d'une sauvegarde.")
                                     :
@@ -5585,7 +5585,7 @@ bool Procedures::InitialisationBaseEtDossiers(bool NouvelleBaseVierge, bool Rest
     dlg.setText(tr("Premier démarrage de Rufus!"));
     QString msg = tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
                     tr("1. J'installe Rufus sur ce poste et je vais créer une nouvelle base patients vierge sur ce poste") + "\n" +
-                    tr("2. J'installe Rufus sur ce poste et je vais créer une base patients à partir d'une sauvehgarde sur ce poste");
+                    tr("2. J'installe Rufus sur ce poste et je vais créer une base patients à partir d'une sauvegarde sur ce poste");
 
     if (NouvelleBaseVierge && ! Restauration)
         msg = tr("Confirmez la création d'une nouvelle base vierge Rufus");

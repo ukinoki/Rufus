@@ -1737,7 +1737,7 @@ Això pot durar diversos minuts.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2817"/>
-        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées</source>
+        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de données</source>
         <translation>Cap contrasenya coneguda permet connectar Rufus a la base de dades</translation>
     </message>
     <message>
@@ -2628,7 +2628,7 @@ Tancant el programa.</translation>
     <message>
         <location filename="procedures.cpp" line="943"/>
         <location filename="procedures.cpp" line="997"/>
-        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;éxécuter!</source>
+        <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;exécuter!</source>
         <translation>Si cancel·leu, la funció sol·licitada no es podrà executar!</translation>
     </message>
     <message>
@@ -3084,7 +3084,7 @@ Ho confirmo</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3001"/>
-        <source>Impossible d&apos;éxécuter la restauration!</source>
+        <source>Impossible d&apos;exécuter la restauration!</source>
         <translation>Impossible executar la restauració!</translation>
     </message>
     <message>
@@ -3415,7 +3415,7 @@ Sortida del programa</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="5588"/>
-        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvehgarde sur ce poste</source>
+        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvegarde sur ce poste</source>
         <translation>2. Instal·lo Rufus en aquest equip i crearé una base de pacients a partir d&apos;una còpia de seguretat en aquest equip</translation>
     </message>
     <message>
@@ -3719,7 +3719,7 @@ de pacients buida</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3607"/>
-        <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
+        <source>Pour exécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
         <translation>Per executar aquesta versió de Rufus, la base de dades s&apos;ha d&apos;actualitzar des de la versió</translation>
     </message>
     <message>
@@ -4495,12 +4495,12 @@ a partir d&apos;una còpia de seguretat</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4019"/>
-        <source>vous pourrez réintialiser la base de données.</source>
+        <source>vous pourrez réinitialiser la base de données.</source>
         <translation>podreu reinicialitzar la base de dades.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4020"/>
-        <source>La réintialisation des données ne peut se faire que depuis le serveur</source>
+        <source>La réinitialisation des données ne peut se faire que depuis le serveur</source>
         <translation>La reinicialització de les dades només es pot fer des del servidor</translation>
     </message>
     <message>
@@ -18540,7 +18540,7 @@ per poder tenir en compte les modificacions fetes!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2321"/>
-        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvlles clés</source>
+        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvelles clés</source>
         <translation>En el quadre següent, valideu el desament de les claus noves</translation>
     </message>
     <message>
