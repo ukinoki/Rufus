@@ -103,7 +103,7 @@
     </message>
     <message>
         <location line="+26"/>
-        <location line="+407"/>
+        <location line="+453"/>
         <location line="+89"/>
         <location line="+35"/>
         <source>
@@ -114,7 +114,7 @@ Error
 </translation>
     </message>
     <message>
-        <location line="-531"/>
+        <location line="-577"/>
         <source>
 requete = </source>
         <translation>
@@ -126,17 +126,17 @@ query = </translation>
         <translation>query = </translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+155"/>
         <source>Mode d&apos;accès non défini : appelez setModeacces() avant de vous connecter.</source>
         <translation>Access mode not defined: call setModeacces() before connecting.</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="-90"/>
         <source>Clés SSL introuvables</source>
         <translation>SSL keys not found</translation>
     </message>
     <message>
-        <location line="+145"/>
+        <location line="+211"/>
         <source>Le dossier de sauvegarde d&apos;imagerie </source>
         <translation>Imaging backup folder </translation>
     </message>
@@ -226,7 +226,7 @@ query = </translation>
         <translation>Miscellaneous and other income</translation>
     </message>
     <message>
-        <location line="+515"/>
+        <location line="+530"/>
         <source>Ville déjà enregistrée</source>
         <translation>City already registered</translation>
     </message>
@@ -949,7 +949,7 @@ query = </translation>
 <context>
     <name>MySQLInstaller</name>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+942"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+761"/>
         <source>Téléchargement de Visual C++ Redistributable 2022…</source>
         <translation>Downloading Visual C++ Redistributable 2022…</translation>
     </message>
@@ -1001,7 +1001,7 @@ Connectez-vous avec un compte administrateur (ou demandez à un administrateur d
 Log in with an administrator account (or ask an administrator to run it), then restart.</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+23"/>
         <source>Visual C++ Redistributable requis</source>
         <translation>Visual C++ Redistributable required</translation>
     </message>
@@ -1023,55 +1023,33 @@ Check your Internet connection and restart.</translation>
         <translation>This program requires Ubuntu 22.04 or a later version.</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <location line="+344"/>
+        <location line="+358"/>
         <source>Installation de MySQL</source>
         <translation>Installing MySQL</translation>
     </message>
     <message>
-        <location line="-343"/>
-        <source>Pour installer Rufus, il est nécessaire d&apos;installer une base de données MySQL sur cet ordinateur.
-
-Voulez-vous l&apos;installer maintenant ?</source>
-        <translation>To install Rufus, a MySQL database must be installed on this computer.
-
-Do you want to install it now?</translation>
-    </message>
-    <message>
-        <location line="+50"/>
-        <location line="+223"/>
-        <location line="+624"/>
+        <location line="-244"/>
+        <location line="+998"/>
         <source>Connexion impossible</source>
         <translation>Connection failed</translation>
     </message>
     <message>
-        <location line="-842"/>
-        <location line="+223"/>
+        <location line="-993"/>
         <source>Connexion refusée avec cet identifiant / mot de passe. Réessayez.</source>
         <translation>Connection refused with this username / password. Try again.</translation>
     </message>
     <message>
-        <location line="+13"/>
-        <source>Droits insuffisants</source>
-        <translation>Insufficient rights</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="-84"/>
         <source>Le compte MySQL « %1 » n&apos;a pas le droit de créer des utilisateurs (CREATE USER). Réessayez avec un compte administrateur MySQL (par ex. root).</source>
         <translation>The MySQL account &quot;%1&quot; does not have the right to create users (CREATE USER). Try again with a MySQL administrator account (e.g. root).</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Erreur</source>
-        <translation>Error</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Impossible de créer les comptes Rufus.</source>
         <translation>Unable to create the Rufus accounts.</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+357"/>
         <source>Paramétrage de l&apos;installation pour Rufus en cours…</source>
         <translation>Setting up the installation for Rufus…</translation>
     </message>
@@ -1081,21 +1059,7 @@ Do you want to install it now?</translation>
         <translation>Downloading and installing the MySQL server…</translation>
     </message>
     <message>
-        <location line="-330"/>
-        <source>Installation d&apos;un serveur MySQL neuf</source>
-        <translation>Installing a new MySQL server</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Rufus doit installer un serveur MySQL neuf sur cet ordinateur.
-
-Le serveur actuel et tout ce qu&apos;il contient seront supprimés. Voulez-vous continuer ?</source>
-        <translation>Rufus must install a new MySQL server on this computer.
-
-The current server and everything it contains will be deleted. Do you want to continue?</translation>
-    </message>
-    <message>
-        <location line="+20"/>
+        <location line="-291"/>
         <source>Un serveur MySQL est déjà installé</source>
         <translation>A MySQL server is already installed</translation>
     </message>
@@ -1109,19 +1073,17 @@ Disposez-vous d&apos;un identifiant et d&apos;un mot de passe administrateur de 
 Do you have an administrator login and password for this MySQL server?</translation>
     </message>
     <message>
-        <location line="+16"/>
-        <location line="+223"/>
+        <location line="+47"/>
         <source>Le serveur MySQL de cet ordinateur ne répond pas.</source>
         <translation>The MySQL server on this computer is not responding.</translation>
     </message>
     <message>
-        <location line="-222"/>
-        <location line="+223"/>
+        <location line="+1"/>
         <source>Il est installé mais non démarré : ni l&apos;identifiant ni le mot de passe ne sont en cause.</source>
         <translation>It is installed but not started: neither the login nor the password is at fault.</translation>
     </message>
     <message>
-        <location line="-18"/>
+        <location line="-97"/>
         <source>Configuration de MySQL</source>
         <translation>MySQL configuration</translation>
     </message>
@@ -1131,12 +1093,121 @@ Do you have an administrator login and password for this MySQL server?</translat
         <translation>Setting up the server…</translation>
     </message>
     <message>
-        <location line="+119"/>
+        <location line="+12"/>
+        <source>Comptes Rufus non créés</source>
+        <translation>Rufus accounts not created</translation>
+    </message>
+    <message>
+        <location line="+65"/>
+        <source>Un serveur MySQL existe déjà.
+Saisissez l&apos;identifiant d&apos;un compte MySQL administrateur
+- capable de créer des utilisateurs -</source>
+        <translation>A MySQL server already exists.
+Enter the login of an administrator MySQL account
+- able to create users -</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Mot de passe</source>
+        <translation>Password</translation>
+    </message>
+    <message>
+        <location line="+149"/>
+        <source>Erreur de connexion au serveur MySQL</source>
+        <translation>MySQL server connection error</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La connexion à MySQL a échoué après l&apos;installation.</source>
+        <translation>The connection to MySQL failed after installation.</translation>
+    </message>
+    <message>
+        <location line="+144"/>
         <source>Serveur MySQL installé</source>
         <translation>MySQL server installed</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+22"/>
+        <location line="+505"/>
+        <source>&lt;b&gt;Pourquoi ce message ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Why this message?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="-504"/>
+        <source>Pour protéger vos données, ce serveur est protégé par un mot de passe unique et aléatoire, créé à l&apos;instant et propre à votre cabinet — Rufus n&apos;utilise plus de mot de passe générique connu.</source>
+        <translation>To protect your data, this server is secured by a unique random password, just created and specific to your practice — Rufus no longer uses a known generic password.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&lt;b&gt;Qu&apos;est-ce que ça change pour les autres postes ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;What does it change for the other computers?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Si d&apos;autres ordinateurs consultent ce serveur, ils doivent utiliser la même version de Rufus que celle-ci et connaître ce mot de passe sécurisé. Un poste équipé d&apos;une ancienne version ne pourra pas se connecter.</source>
+        <translation>If other computers use this server, they must run the same version of Rufus as this one and know this secure password. A computer with an older version will not be able to connect.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&lt;b&gt;Que faire pour connecter un autre poste ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;How to connect another computer?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>1. Installez ou mettez à jour Rufus sur cet autre poste avec la présente version.</source>
+        <translation>1. Install or update Rufus on that other computer with this very version.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. Munissez-vous du mot de passe sécurisé (celui que Rufus vient de vous inviter à noter).</source>
+        <translation>2. Have the secure password at hand (the one Rufus has just asked you to write down).</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>3. Au premier lancement, saisissez-le lorsque Rufus le demande (ou importez-le depuis la clé USB si vous l&apos;y avez enregistré).</source>
+        <translation>3. On first start-up, enter it when Rufus asks for it (or import it from the USB stick if you saved it there).</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;b&gt;Où est ce mot de passe ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Where is this password?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>C&apos;est le mot de passe que Rufus vous a demandé de conserver en lieu sûr (papier ou clé USB) juste après l&apos;installation. Gardez-le : il est nécessaire pour tout nouveau poste.</source>
+        <translation>It is the password Rufus asked you to keep in a safe place (on paper or a USB stick) right after installation. Keep it: it is needed for every new computer.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Connexion des autres postes</source>
+        <translation>Connecting the other computers</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ce serveur utilise un mot de passe sécurisé.</source>
+        <translation>This server uses a secure password.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Si d&apos;autres postes doivent se connecter à ce serveur avec une ancienne version de Rufus, ils ne pourront pas : il faudra d&apos;abord les mettre à jour avec cette version, puis leur fournir ce mot de passe sécurisé.</source>
+        <translation>If other computers have to connect to this server with an older version of Rufus, they will not be able to: they must first be updated to this version, then given this secure password.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <location line="+1"/>
+        <location line="+515"/>
+        <location line="+1"/>
+        <source>Plus d&apos;explications</source>
+        <translation>More explanations</translation>
+    </message>
+    <message>
+        <location line="-515"/>
+        <location line="+516"/>
+        <source>OK, j&apos;ai compris</source>
+        <translation>OK, I understand</translation>
+    </message>
+    <message>
+        <location line="-496"/>
         <source>Réinstallation de MySQL</source>
         <translation>Reinstalling MySQL</translation>
     </message>
@@ -1146,7 +1217,7 @@ Do you have an administrator login and password for this MySQL server?</translat
         <translation>Installing the MySQL server…</translation>
     </message>
     <message>
-        <location line="+305"/>
+        <location line="+318"/>
         <source>Certificats SSL expirés</source>
         <translation>SSL certificates expired</translation>
     </message>
@@ -1251,7 +1322,97 @@ Do you have an administrator login and password for this MySQL server?</translat
         <translation>Have new keys generated ON THE SERVER WORKSTATION (Edit / Settings / This computer menu → &quot;Create new SSL keys&quot;), then have the new keys sent to you and specify their folder here.</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+76"/>
+        <source>l&apos;Explorateur de fichiers</source>
+        <translation>File Explorer</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>le Finder</source>
+        <translation>the Finder</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>le gestionnaire de fichiers « Fichiers »</source>
+        <translation>the &quot;Files&quot; file manager</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Rufus vient de réinstaller son moteur de base de données. La base (vos patients, vos consultations) a été sauvegardée et remise en place automatiquement. En revanche, les images (fond d&apos;œil, OCT, champ visuel, documents scannés) ne sont pas dans la base : ce sont des fichiers rangés dans un dossier de l&apos;ordinateur. Rufus ne peut pas deviner où se trouvaient vos anciennes images ; c&apos;est pourquoi il vous demande de vérifier.</source>
+        <translation>Rufus has just reinstalled its database engine. The database (your patients, your consultations) has been backed up and restored automatically. The images, however (fundus, OCT, visual field, scanned documents), are not in the database: they are files stored in a folder of the computer. Rufus cannot guess where your old images were; this is why it asks you to check.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&lt;b&gt;Où doivent être vos images maintenant ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Where must your images be now?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Dans ce dossier, et nulle part ailleurs :</source>
+        <translation>In this folder, and nowhere else:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;b&gt;Comment vérifier et, au besoin, recopier vos images ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;How to check and, if needed, copy your images back?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>1. Ouvrez le gestionnaire de fichiers de votre ordinateur (%1).</source>
+        <translation>1. Open your computer&apos;s file manager (%1).</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. Cherchez le dossier où étaient rangées vos images avant (souvent un dossier nommé Rufus puis Imagerie, à l&apos;endroit que vous aviez choisi lors de la première installation).</source>
+        <translation>2. Look for the folder where your images used to be (often a folder named Rufus then Imagerie, at the place you chose during the first installation).</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>3. Si ce dossier contient bien vos images et qu&apos;il n&apos;est pas celui indiqué ci-dessus, sélectionnez tout son contenu, faites Copier, puis Collez le tout dans le dossier indiqué ci-dessus.</source>
+        <translation>3. If that folder does contain your images and is not the one shown above, select all its content, choose Copy, then Paste it all into the folder shown above.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>4. Vous pouvez copier (et non déplacer) : vos fichiers d&apos;origine restent en place, rien n&apos;est perdu si vous vous trompez.</source>
+        <translation>4. You can copy (not move): your original files stay where they are, nothing is lost if you make a mistake.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;b&gt;Et si je ne trouve pas mes anciennes images ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;And if I cannot find my old images?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ne supprimez rien et ne réinstallez rien. Vos fichiers sont toujours sur le disque, là où ils étaient. Notez le message et contactez l&apos;assistance : on retrouvera le dossier avec vous.</source>
+        <translation>Do not delete anything and do not reinstall anything. Your files are still on the disk, where they were. Write the message down and contact support: we will find the folder with you.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Vos documents d&apos;imagerie (photos du fond d&apos;œil, OCT, champs visuels, scanners…) ne font pas partie de la sauvegarde de la base de données : ils sont rangés à part, dans un dossier.</source>
+        <translation>Your imaging documents (fundus photographs, OCT, visual fields, scans…) are not part of the database backup: they are stored separately, in a folder.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Vos anciennes images se trouvent dans :</source>
+        <translation>Your old images are in:</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Recopiez-les vous-même dans le nouveau dossier :</source>
+        <translation>Copy them yourself into the new folder:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le bouton « Plus d&apos;explications » vous montre comment faire, pas à pas.</source>
+        <translation>The &quot;More explanations&quot; button shows you how to do it, step by step.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Vos documents d&apos;imagerie</source>
+        <translation>Your imaging documents</translation>
+    </message>
+    <message>
+        <location line="+68"/>
         <source>PATH non configuré</source>
         <translation>PATH not configured</translation>
     </message>
@@ -1261,7 +1422,7 @@ Do you have an administrator login and password for this MySQL server?</translat
         <translation>Unable to add the mysql path to the PATH variable.</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+13"/>
         <source>Création d&apos;utilisateur impossible</source>
         <translation>User creation failed</translation>
     </message>
@@ -1272,7 +1433,7 @@ Do you have an administrator login and password for this MySQL server?</translat
     </message>
     <message>
         <location line="+3"/>
-        <location line="+21"/>
+        <location line="+61"/>
         <source>Détail :</source>
         <translation>Details:</translation>
     </message>
@@ -1304,7 +1465,7 @@ Vérifiez le login et le mot de passe.</source>
 Check the username and password.</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+3"/>
         <source>Écriture impossible</source>
         <translation>Write failed</translation>
     </message>
@@ -1318,7 +1479,14 @@ Vérifiez que le compte « %2 » possède le privilège FILE et que les droits d
 Check that the &quot;%2&quot; account has the FILE privilege and that the folder permissions allow writing.</translation>
     </message>
     <message>
-        <location line="+214"/>
+        <location line="+19"/>
+        <source>Suppression du serveur MySQL en place…
+Cela peut durer plusieurs minutes.</source>
+        <translation>Removing the MySQL server in place…
+This may take several minutes.</translation>
+    </message>
+    <message>
+        <location line="+198"/>
         <source>Mise à jour du partage réseau</source>
         <translation>Updating the network share</translation>
     </message>
@@ -1344,7 +1512,7 @@ Check that the &quot;%2&quot; account has the FILE privilege and that the folder
         <translation>Depending on the size of the imaging folder, the operation may take one to two minutes, during which the screen may appear frozen.</translation>
     </message>
     <message>
-        <location line="+409"/>
+        <location line="+434"/>
         <source>Ce poste utilise un mot de passe sécurisé pour accèder au serveur de base de données.</source>
         <translation>This computer uses a secure password to access the database server.</translation>
     </message>
@@ -1393,7 +1561,7 @@ en créer un nouveau</source>
 create a new one</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+24"/>
         <source>Mot de passe non récupéré</source>
         <translation>Password not retrieved</translation>
     </message>
@@ -1408,21 +1576,7 @@ create a new one</translation>
         <translation>Connect from a computer on the local network or from the server to retrieve or recreate the practice&apos;s secure password.</translation>
     </message>
     <message>
-        <location line="+22"/>
-        <source>Base de données sécurisée</source>
-        <translation>Secured database</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Aucun mot de passe connu ne permet de se connecter à cette base : elle a été sécurisée sur un autre poste.
-
-Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne, ou le saisir si vous le connaissez.</source>
-        <translation>No known password can connect to this database: it was secured on another computer.
-
-You can retrieve the practice password copied to a USB drive from a working computer, or enter it if you know it.</translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+61"/>
         <source>Saisir le mot de passe</source>
         <translation>Enter the password</translation>
     </message>
@@ -1432,22 +1586,12 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>Import from a USB drive</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Je n&apos;ai aucun mot de passe</source>
-        <translation>I have no password</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Réinitialiser le programme</source>
-        <translation>Reset the program</translation>
-    </message>
-    <message>
-        <location line="+17"/>
+        <location line="+79"/>
         <source>Sélectionnez le fichier du mot de passe sur la clé USB</source>
         <translation>Select the password file on the USB drive</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+17"/>
         <source>Fichier illisible</source>
         <translation>Unreadable file</translation>
     </message>
@@ -1457,12 +1601,12 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>This file does not contain a valid password.</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-25"/>
         <source>Entrez le mot de passe MySQL du cabinet :</source>
         <translation>Enter the practice&apos;s MySQL password:</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="-11"/>
         <source>Mot de passe incorrect</source>
         <translation>Incorrect password</translation>
     </message>
@@ -1472,7 +1616,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>This password does not allow connection to the database.</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+57"/>
         <source>Impossible depuis un poste distant</source>
         <translation>Not possible from a remote workstation</translation>
     </message>
@@ -1517,7 +1661,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>This securing cannot be done from a remote workstation.</translation>
     </message>
     <message>
-        <location line="+91"/>
+        <location line="+90"/>
         <source>Mot de passe générique à désactiver</source>
         <translation>Generic password to be deactivated</translation>
     </message>
@@ -1537,7 +1681,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>It cannot be deactivated from a remote workstation: connect from a workstation on the local network or from the server to trigger it.</translation>
     </message>
     <message>
-        <location line="+528"/>
+        <location line="+547"/>
         <source>Étape : %1</source>
         <translation>Step: %1</translation>
     </message>
@@ -1582,7 +1726,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>checking the server variable after restart</translation>
     </message>
     <message>
-        <location line="+437"/>
+        <location line="+401"/>
         <source>Compte de secours non créé</source>
         <translation>Emergency account not created</translation>
     </message>
@@ -1597,15 +1741,20 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>Nothing has been changed; Rufus will try again at the next start-up.</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <location line="+5"/>
+        <location line="+12"/>
+        <location line="+7"/>
         <source>Mot de passe de secours enregistré</source>
         <translation>Emergency password saved</translation>
     </message>
     <message>
-        <location line="-4"/>
+        <location line="-6"/>
         <source>Votre mot de passe de secours est en place.</source>
         <translation>Your emergency password is in place.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>En revanche, Rufus n&apos;a pas pu vérifier le compte « root » de MySQL</source>
+        <translation>However, Rufus could not check the MySQL &quot;root&quot; account</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1623,7 +1772,8 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>Do not forget it: it is written nowhere, and it is what will let you regain access to your database if all the other passwords are lost.</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="-1249"/>
+        <location line="+1282"/>
         <source>Mot de passe de secours refusé</source>
         <translation>Emergency password rejected</translation>
     </message>
@@ -1648,7 +1798,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>The emergency connection works, but Rufus could not rewrite the database access accounts.</translation>
     </message>
     <message>
-        <location line="+377"/>
+        <location line="+367"/>
         <source>Dossier d&apos;imagerie déplacé</source>
         <translation>Imaging folder moved</translation>
     </message>
@@ -1703,7 +1853,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>and will configure it automatically for its use.</translation>
     </message>
     <message>
-        <location line="-2963"/>
+        <location line="-3107"/>
         <source>Privilèges manquants</source>
         <translation>Missing privileges</translation>
     </message>
@@ -1713,7 +1863,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>Missing privilege(s) for &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <location line="+214"/>
+        <location line="+284"/>
         <source>Correction de la configuration MySQL</source>
         <translation>Correcting the MySQL configuration</translation>
     </message>
@@ -1748,7 +1898,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
         <translation>Rufus continues; some features (imaging, backup) may be affected.</translation>
     </message>
     <message>
-        <location line="+384"/>
+        <location line="+410"/>
         <source>Mot de passe générique bientôt désactivé</source>
         <translation>Generic password soon to be disabled</translation>
     </message>
@@ -1815,9 +1965,44 @@ mot de passe</source>
 password</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+65"/>
+        <source>Connexion impossible à la base de données</source>
+        <translation>Cannot connect to the database</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Récupérer le mot de passe du cabinet</source>
         <translation>Retrieve the practice password</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées</source>
+        <translation>No known password lets Rufus connect to the database</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Vous pouvez :</source>
+        <translation>You can:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>. récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne</source>
+        <translation>. get the practice password copied onto a USB stick from a computer that works</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>. le saisir si vous le connaissez.</source>
+        <translation>. enter it if you know it.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>. tenter une récupération avec le mot de passe de secours si vous le connaissez</source>
+        <translation>. try a recovery with the emergency password if you know it</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>. saisir un identifiant/mot de passe MySQL valide</source>
+        <translation>. enter a valid MySQL login/password</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1825,7 +2010,41 @@ password</translation>
         <translation>Enter the practice&apos;s secure password, or import it from the USB drive onto which it was copied from an up-to-date workstation.</translation>
     </message>
     <message>
-        <location line="+320"/>
+        <location line="+14"/>
+        <source>Je dispose d&apos;un identifiant
+MySQL valide</source>
+        <translation>I have a valid
+MySQL login</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Tenter de récupérer l&apos;accès
+avec le mot de passe de secours</source>
+        <translation>Try to recover access
+with the emergency password</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Ce mot de passe de secours ne permet pas d&apos;accéder à la base de données.</source>
+        <translation>This emergency password does not give access to the database.</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Identifiant inutilisable</source>
+        <translation>Unusable login</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce compte MySQL ne permet pas d&apos;ouvrir la base de données, ou n&apos;y a pas tous les droits nécessaires.</source>
+        <translation>This MySQL account cannot open the database, or does not have all the required rights on it.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Un compte déclaré pour la seule adresse « %1 » ne convient pas : il doit aussi l&apos;être pour « localhost ».</source>
+        <translation>An account declared for the address &quot;%1&quot; alone will not do: it must also be declared for &quot;localhost&quot;.</translation>
+    </message>
+    <message>
+        <location line="+267"/>
         <source>Téléchargement de MySQL %1 (Oracle)…</source>
         <translation>Downloading MySQL %1 (Oracle)…</translation>
     </message>
@@ -1842,12 +2061,32 @@ password</translation>
         <translation>Downloading MySQL %1…</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+62"/>
         <source>Extraction des fichiers MySQL…</source>
         <translation>Extracting the MySQL files…</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+15"/>
+        <source>Installation bloquée</source>
+        <translation>Installation blocked</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Un programme utilise des fichiers de l&apos;ancienne installation de MySQL et empêche leur remplacement.</source>
+        <translation>A program is using files from the old MySQL installation and prevents them from being replaced.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Fermez les autres programmes puis relancez l&apos;installation.</source>
+        <translation>Close the other programs then restart the installation.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Fermez ce programme puis relancez l&apos;installation : %1</source>
+        <translation>Close this program then restart the installation: %1</translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Extraction échouée</source>
         <translation>Extraction failed</translation>
     </message>
@@ -1866,7 +2105,7 @@ Details: %1</translation>
         <translation>(no details)</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+9"/>
         <source>Configuration échouée</source>
         <translation>Configuration failed</translation>
     </message>
@@ -1876,7 +2115,7 @@ Details: %1</translation>
         <translation>Unable to write %1.</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+15"/>
         <source>Initialisation de la base de données,
 cela peut prendre quelques instants…</source>
         <translation>Initializing the database,
@@ -1956,13 +2195,13 @@ Details (%2):
         <translation>Restarting MySQL…</translation>
     </message>
     <message>
-        <location line="-702"/>
+        <location line="-762"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location line="+1378"/>
-        <location line="+142"/>
+        <location line="+1399"/>
+        <location line="+140"/>
         <source>Préparation du serveur…
 Cela peut durer plusieurs minutes.</source>
         <translation>Preparing the server…
@@ -2010,88 +2249,12 @@ Closing the program.</translation>
 <context>
     <name>MySQLInstallerDialog</name>
     <message>
-        <location line="-4805"/>
-        <location line="+5"/>
+        <location line="-4900"/>
         <source>Préparation de MySQL pour Rufus</source>
         <translation>Preparing MySQL for Rufus</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <source>Identifiant :</source>
-        <translation>Username:</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Mot de passe :</source>
-        <translation>Password:</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Confirmez le mot de passe :</source>
-        <translation>Confirm the password:</translation>
-    </message>
-    <message>
-        <location line="+26"/>
-        <source>Supprimer MySQL</source>
-        <translation>Remove MySQL</translation>
-    </message>
-    <message>
-        <location line="+75"/>
-        <source>Création de la base Rufus</source>
-        <translation>Creating the Rufus database</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Choisissez l&apos;identifiant et le mot de passe que vous utiliserez dans Rufus.</source>
-        <translation>Choose the username and password you will use in Rufus.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Installer</source>
-        <translation>Install</translation>
-    </message>
-    <message>
-        <location line="+23"/>
-        <source>Connexion à MySQL</source>
-        <translation>Connecting to MySQL</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Un serveur MySQL existe déjà. Saisissez l&apos;identifiant et le mot de passe d&apos;un compte MySQL administrateur (capable de créer des utilisateurs).</source>
-        <translation>A MySQL server already exists. Enter the username and password of a MySQL administrator account (able to create users).</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Se connecter</source>
-        <translation>Connect</translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Connexion OK</source>
-        <translation>Connection OK</translation>
-    </message>
-    <message>
-        <location line="+27"/>
-        <source>Saisie incomplète</source>
-        <translation>Incomplete entry</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Veuillez renseigner un identifiant et un mot de passe.</source>
-        <translation>Please enter a username and a password.</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Confirmation incorrecte</source>
-        <translation>Incorrect confirmation</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Le mot de passe et sa confirmation ne sont pas identiques.</source>
-        <translation>The password and its confirmation are not identical.</translation>
-    </message>
-    <message>
-        <location line="+11"/>
+        <location line="+41"/>
         <source>MySQL %1 (ou ultérieur) installé</source>
         <translation>MySQL %1 (or later) installed</translation>
     </message>
@@ -2129,7 +2292,7 @@ Closing the program.</translation>
 <context>
     <name>MySQLProgressDialog</name>
     <message>
-        <location line="-317"/>
+        <location line="-134"/>
         <source>MySQL Installer</source>
         <translation>MySQL Installer</translation>
     </message>
@@ -2274,7 +2437,7 @@ Closing the program.</translation>
 <context>
     <name>Procedures</name>
     <message>
-        <location filename="procedures.cpp" line="+276"/>
+        <location filename="procedures.cpp" line="+278"/>
         <source>Choisir une période</source>
         <translation>Choose a period</translation>
     </message>
@@ -2325,15 +2488,15 @@ Le poste </oldsource>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+2580"/>
+        <location line="+2633"/>
         <source>table </source>
         <translation>table </translation>
     </message>
     <message>
-        <location line="-2564"/>
-        <location line="+2309"/>
+        <location line="-2617"/>
+        <location line="+2353"/>
         <location line="+33"/>
-        <location line="+186"/>
+        <location line="+195"/>
         <location line="+49"/>
         <location line="+23"/>
         <location line="+16"/>
@@ -2343,7 +2506,7 @@ Le poste </oldsource>
         <translation>Messages</translation>
     </message>
     <message>
-        <location line="-2643"/>
+        <location line="-2696"/>
         <source>Fichier de paramétrage Rufus.ini sauvegardé
 </source>
         <translation>Settings file Rufus.ini saved
@@ -2422,22 +2585,23 @@ Le poste </oldsource>
     <message>
         <location line="-52"/>
         <location line="+54"/>
-        <location line="+1750"/>
+        <location line="+1794"/>
         <location line="+156"/>
-        <location line="+236"/>
-        <location line="+555"/>
-        <location line="+152"/>
+        <location line="+245"/>
+        <location line="+561"/>
+        <location line="+96"/>
+        <location line="+58"/>
         <location line="+51"/>
-        <location line="+65"/>
-        <location line="+19"/>
-        <location line="+756"/>
-        <location line="+689"/>
-        <location line="+644"/>
+        <location line="+72"/>
+        <location line="+1"/>
+        <location line="+798"/>
+        <location line="+652"/>
+        <location line="+1090"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location line="-5127"/>
+        <location line="-5628"/>
         <location line="+54"/>
         <source>Reprendre</source>
         <translation>Resume</translation>
@@ -2472,12 +2636,12 @@ Le poste </oldsource>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+3663"/>
+        <location line="+3755"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation>Who records fees for </translation>
     </message>
     <message>
-        <location line="-3601"/>
+        <location line="-3693"/>
         <source>remplacé par</source>
         <translation>replaced by</translation>
     </message>
@@ -2498,12 +2662,12 @@ Le poste </oldsource>
     </message>
     <message>
         <location line="+0"/>
-        <location line="+650"/>
+        <location line="+663"/>
         <source>d MMMM yyyy</source>
         <translation>MMMM d,yyyy</translation>
     </message>
     <message>
-        <location line="-586"/>
+        <location line="-599"/>
         <source>Erreur d&apos;accès au fichier:
 </source>
         <translation>File access error:
@@ -2515,7 +2679,13 @@ Le poste </oldsource>
         <translation>Unable to save printout in database</translation>
     </message>
     <message>
-        <location line="+314"/>
+        <location line="+204"/>
+        <location line="+4297"/>
+        <source>Afficher / masquer le mot de passe</source>
+        <translation>Show / hide the password</translation>
+    </message>
+    <message>
+        <location line="-4174"/>
         <source>Imprimer</source>
         <translation>Print</translation>
     </message>
@@ -2552,23 +2722,26 @@ Le poste </oldsource>
     <message>
         <location line="+6"/>
         <location line="+134"/>
+        <location line="+27"/>
         <source>Enregistrement pdf</source>
         <translation>Saving pdf</translation>
     </message>
     <message>
-        <location line="-134"/>
+        <location line="-161"/>
         <location line="+134"/>
+        <location line="+27"/>
         <source>Echec enregistrement pdf</source>
         <translation>Registration failure pdf</translation>
     </message>
     <message>
-        <location line="-133"/>
+        <location line="-160"/>
         <location line="+134"/>
+        <location line="+27"/>
         <source>Impossible d&apos;enregistrer le fichier </source>
         <translation>Unable to save file </translation>
     </message>
     <message>
-        <location line="+127"/>
+        <location line="+131"/>
         <source>Vos données enregistrées pour cette session</source>
         <translation>Your saved data for this session</translation>
     </message>
@@ -2589,12 +2762,12 @@ Le poste </oldsource>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+2013"/>
+        <location line="+2059"/>
         <source>Ophtalmologiste</source>
         <translation>Ophtalmologist</translation>
     </message>
     <message>
-        <location line="-2011"/>
+        <location line="-2057"/>
         <source>Orthoptiste</source>
         <translation>Orthoptist</translation>
     </message>
@@ -2679,11 +2852,13 @@ Le poste </oldsource>
     <message>
         <location line="+0"/>
         <location line="+30"/>
+        <location line="+2879"/>
+        <location line="+864"/>
         <source>Oui</source>
         <translation>Yes</translation>
     </message>
     <message>
-        <location line="-30"/>
+        <location line="-3773"/>
         <location line="+30"/>
         <source>Sans</source>
         <translation>Without</translation>
@@ -2712,7 +2887,7 @@ Le poste </oldsource>
         <translation>Status :</translation>
     </message>
     <message>
-        <location line="-2219"/>
+        <location line="-2263"/>
         <source>Le poste </source>
         <translation>The workstation </translation>
     </message>
@@ -2733,7 +2908,7 @@ Le poste </oldsource>
         <translation>the chosen path</translation>
     </message>
     <message>
-        <location line="+1596"/>
+        <location line="+1640"/>
         <source>Membre d&apos;une AGA :</source>
         <translation></translation>
     </message>
@@ -2815,58 +2990,58 @@ Do you confirm that the old data will be deleted?
     <message>
         <location line="+43"/>
         <location line="+2"/>
-        <location line="+223"/>
+        <location line="+232"/>
         <location line="+2"/>
         <source>Echec de la restauration</source>
         <translation>Restoration failed</translation>
     </message>
     <message>
-        <location line="-227"/>
+        <location line="-236"/>
         <location line="+2"/>
-        <location line="+223"/>
+        <location line="+232"/>
         <location line="+2"/>
         <source>Le fichier </source>
         <translation>The file </translation>
     </message>
     <message>
-        <location line="-227"/>
-        <location line="+225"/>
+        <location line="-236"/>
+        <location line="+234"/>
         <source> n&apos;a pas été trouvé!</source>
         <translation> has not been found!</translation>
     </message>
     <message>
-        <location line="-223"/>
-        <location line="+225"/>
+        <location line="-232"/>
+        <location line="+234"/>
         <source> est vide!</source>
         <translation> is empty!</translation>
     </message>
     <message>
-        <location line="-221"/>
-        <location line="+205"/>
-        <location line="+20"/>
-        <location line="+346"/>
+        <location line="-230"/>
+        <location line="+213"/>
+        <location line="+21"/>
+        <location line="+350"/>
         <source>Base non restaurée</source>
         <translation>Unrestored database</translation>
     </message>
     <message>
-        <location line="-565"/>
+        <location line="-578"/>
         <source>Impossible d&apos;éxécuter la restauration!</source>
         <translation>Unable to execute restore!</translation>
     </message>
     <message>
         <location line="+8"/>
-        <location line="+219"/>
+        <location line="+228"/>
         <source>Suppression de l&apos;ancienne base Rufus en cours</source>
         <translation>Removal of old Rufus base in progress</translation>
     </message>
     <message>
-        <location line="-185"/>
-        <location line="+235"/>
+        <location line="-194"/>
+        <location line="+244"/>
         <source>Incident pendant la restauration</source>
         <translation>Incident during restore</translation>
     </message>
     <message>
-        <location line="-229"/>
+        <location line="-238"/>
         <source>Base vierge créée</source>
         <translation>Empty base created</translation>
     </message>
@@ -2876,18 +3051,18 @@ Do you confirm that the old data will be deleted?
         <translation>Creation of blank database has succeeded.</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+27"/>
         <source>d MMM yyyy</source>
         <translation>MMM d yyyy</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Choix du dossier de sauvegarde</source>
         <translation>choice of backup folder</translation>
     </message>
     <message>
-        <location line="-13"/>
+        <location line="-14"/>
         <source>une sauvegarde automatique</source>
         <translation>an automatic backup</translation>
     </message>
@@ -2912,20 +3087,20 @@ Do you confirm that the old data will be deleted?
         <translation>Use the automatic backup</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+18"/>
         <source>Restaurer à partir du dossier</source>
         <translation>Restore from folder</translation>
     </message>
     <message>
-        <location line="-145"/>
-        <location line="+236"/>
+        <location line="-150"/>
+        <location line="+245"/>
         <source>J&apos;ai compris
 Je confirme</source>
         <translation>I understand
 I confirm</translation>
     </message>
     <message>
-        <location line="-2742"/>
+        <location line="-2795"/>
         <source>Fichier de paramètrage Rufus.ini</source>
         <translation>Settings file Rufus.ini</translation>
     </message>
@@ -2951,24 +3126,24 @@ I confirm</translation>
     </message>
     <message>
         <location line="+59"/>
-        <location line="+2863"/>
+        <location line="+2916"/>
         <source>Choisissez un dossier de sauvegarde</source>
         <translation>Choose a backup folder</translation>
     </message>
     <message>
-        <location line="-2856"/>
-        <location line="+2836"/>
+        <location line="-2909"/>
+        <location line="+2889"/>
         <location line="+30"/>
         <source>Sauvegarde impossible</source>
         <translation>Backup failed</translation>
     </message>
     <message>
-        <location line="-2865"/>
+        <location line="-2918"/>
         <source>Impossible de créer le dossier de sauvegarde.</source>
         <translation>Unable to create the backup folder.</translation>
     </message>
     <message>
-        <location line="+2576"/>
+        <location line="+2628"/>
         <source>Attention</source>
         <translation>Attention</translation>
     </message>
@@ -2985,7 +3160,7 @@ Confirmez-vous la suppression des anciennes données?</source>
 Do you confirm that the old data will be deleted?</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+91"/>
         <source>Base de données Rufus restaurée
 </source>
         <translation>Rufus database restored
@@ -3118,7 +3293,7 @@ Do you confirm that the old data will be deleted?</translation>
         <translation>Incomplete backup</translation>
     </message>
     <message>
-        <location line="-1756"/>
+        <location line="-1809"/>
         <source>le lieu d&apos;exercice du document est inconnu</source>
         <translation>the place of practice of the document is unknown</translation>
     </message>
@@ -3144,12 +3319,12 @@ Do you confirm that the old data will be deleted?</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+174"/>
+        <location line="+187"/>
         <source>Envoi par mail impossible, il manque:</source>
         <translation>Sending by e-mail impossible, missing:</translation>
     </message>
     <message>
-        <location line="-173"/>
+        <location line="-186"/>
         <source>Voulez-vous compléter les coordonnées d&apos;envoi de ce lieu?</source>
         <translation>Do you want to complete the sending details of this place?</translation>
     </message>
@@ -3170,12 +3345,12 @@ Do you confirm that the old data will be deleted?</translation>
     </message>
     <message>
         <location line="+27"/>
-        <location line="+126"/>
+        <location line="+139"/>
         <source>Envoyer par mail</source>
         <translation>Send by e-mail</translation>
     </message>
     <message>
-        <location line="-107"/>
+        <location line="-112"/>
         <source>Effacer le mot de passe de cet ordinateur</source>
         <translation>Delete the password from this computer</translation>
     </message>
@@ -3195,7 +3370,7 @@ Do you confirm that the old data will be deleted?</translation>
         <translation>Password of the account </translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+25"/>
         <source>Document </source>
         <translation>Document </translation>
     </message>
@@ -3257,7 +3432,7 @@ Do you confirm that the old data will be deleted?</translation>
         <translation>No printer registered on this computer</translation>
     </message>
     <message>
-        <location line="+1120"/>
+        <location line="+1156"/>
         <source>Dans la fiche suivante, choisissez le dossier (format &quot;YYYYMMDD-HHmm&quot;)</source>
         <translation>In the next page, choose the folder (format &quot;YYYYMMDD-HHmm&quot;)</translation>
     </message>
@@ -3267,7 +3442,7 @@ Do you confirm that the old data will be deleted?</translation>
         <translation>containing the database backup.</translation>
     </message>
     <message>
-        <location line="+467"/>
+        <location line="+473"/>
         <source>Réinstallation impossible</source>
         <translation>Reinstallation failed</translation>
     </message>
@@ -3278,7 +3453,7 @@ Do you confirm that the old data will be deleted?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+9"/>
+        <location line="+11"/>
         <source>Votre sauvegarde est conservée dans :</source>
         <translation>Your backup is kept in:</translation>
     </message>
@@ -3296,8 +3471,13 @@ Program exit</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour vers la version</source>
-        <translation>To run this version of Rufus, the database must be updated to version</translation>
+        <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
+        <translation>To run this version of Rufus, the database must be updated from version</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>vers la version</source>
+        <translation>to version</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -3391,11 +3571,12 @@ Program exit</translation>
     </message>
     <message>
         <location line="+42"/>
+        <location line="+1713"/>
         <source>Installation de MySQL</source>
         <translation>Installing MySQL</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-1712"/>
         <source>Rufus va maintenant installer un serveur MySQL neuf sur ce poste, puis créer une nouvelle base patients.</source>
         <translation>Rufus will now install a new MySQL server on this computer, then create a new patient database.</translation>
     </message>
@@ -3417,11 +3598,12 @@ Program exit</translation>
     <message>
         <location line="+2"/>
         <location line="+3"/>
+        <location line="+2333"/>
         <source>Clés SSL introuvables</source>
         <translation>SSL keys not found</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="-2318"/>
         <source>Un fichier de paramétrage de Rufus existe déjà sur ce poste</source>
         <translation>A Rufus configuration file already exists on this computer</translation>
     </message>
@@ -3439,6 +3621,11 @@ Program exit</translation>
         <location line="+1"/>
         <source>Voulez-vous installer un serveur MySQL et une base patients sur ce poste?</source>
         <translation>Do you want to install a MySQL server and a patient database on this computer?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Oui, installer un serveur</source>
+        <translation>Yes, install a server</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -3571,12 +3758,11 @@ the right keys</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1822"/>
         <source>Le serveur du cabinet répond, mais il refuse la liaison chiffrée.</source>
         <translation>The practice server answers, but it refuses the encrypted link.</translation>
     </message>
     <message>
-        <location line="-1821"/>
+        <location line="+1"/>
         <source>Les clés SSL de ce poste sont invalides ou périmées.</source>
         <translation>The SSL keys of this computer are invalid or expired.</translation>
     </message>
@@ -3596,54 +3782,19 @@ the right keys</translation>
         <translation>On this computer: copy the files from the USB drive (ca-cert.pem, client-cert.pem, client-key.pem) into a folder, then point Rufus to it.</translation>
     </message>
     <message>
-        <location line="+40"/>
-        <source>Aucun mot de passe ne fonctionne</source>
-        <translation>No password works</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Vos données ne seront pas touchées.</source>
-        <translation>Your data will not be affected.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Voulez-vous utiliser cette procédure ?</source>
-        <translation>Do you want to use this procedure?</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Rétablir l&apos;accès</source>
-        <translation>Restore access</translation>
-    </message>
-    <message>
-        <location line="+14"/>
+        <location line="+34"/>
         <source>Réinitialiser le programme</source>
         <translation>Reset the program</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Rufus va installer une base patients neuve sur cet ordinateur.</source>
-        <translation>Rufus is going to install a new patient database on this computer.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Les données de la base actuelle ne seront plus accessibles.</source>
-        <translation>The data of the current database will no longer be accessible.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Voulez-vous continuer ?</source>
-        <translation>Do you want to continue?</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+19"/>
         <source>Créer une nouvelle
 base patients</source>
         <translation>Create a new
 patient database</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+52"/>
         <source>Version de MySQL trop ancienne</source>
         <translation>MySQL version too old</translation>
     </message>
@@ -3664,14 +3815,13 @@ patient database</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1373"/>
         <source>Annuler, je vais
 sauvegarder les données</source>
         <translation>Cancel, I will
 back up the data</translation>
     </message>
     <message>
-        <location line="-1372"/>
+        <location line="+1"/>
         <source>Installer un
 serveur neuf</source>
         <translation>Install a
@@ -3728,54 +3878,26 @@ new server</translation>
         <translation>Rufus starts anyway, but images will be neither read nor saved.</translation>
     </message>
     <message>
-        <location line="+644"/>
+        <location line="+646"/>
         <source>La base de cotations Rufus a été mise à jour.</source>
         <translation>The Rufus quotation database has been updated.</translation>
     </message>
     <message>
         <location line="+59"/>
         <location line="+11"/>
-        <location line="+743"/>
+        <location line="+717"/>
         <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
         <translation>The program will restart so that the changes to the Rufus database can be taken into account.</translation>
     </message>
     <message>
-        <location line="-145"/>
-        <source>L&apos;installation d&apos;une base Rufus va effacer les données</source>
-        <translation>Installing a Rufus database will erase the data</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Cet ordinateur héberge un serveur MySQL
-
-Les données déjà présentes sur ce serveur MySQL seront perdues.
-
-Rufus sauvegardera une base patients qu&apos;il y trouverait, mais pas d&apos;autres données : si elles vous importent, renoncez et sauvegardez-les vous-même.</source>
-        <translation>This computer hosts a MySQL server
-
-The data already present on this MySQL server will be lost.
-
-Rufus will back up a patient database it might find there, but no other data: if that data matters to you, give up and back it up yourself.</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Continuer</source>
-        <translation>Continue</translation>
-    </message>
-    <message>
-        <location line="+11"/>
+        <location line="+29"/>
         <source>Base patients restaurée
 à partir d&apos;une sauvegarde</source>
         <translation>Patient database restored
 from a backup</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <source>2. J&apos;installe Rufus sur ce poste et et je vais créer une base patients à partir d&apos;une sauvehgarde</source>
-        <translation>2. I am installing Rufus on this computer and I will create a patient database from a backup</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="-17"/>
         <source>Confirmez la création d&apos;une nouvelle base vierge Rufus</source>
         <translation>Confirm the creation of a new empty Rufus database</translation>
     </message>
@@ -3785,7 +3907,7 @@ from a backup</translation>
         <translation>Confirm the restoration of a backup of the Rufus database</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="-114"/>
         <source>Une base patients Rufus est présente sur ce serveur</source>
         <translation>A Rufus patient database is present on this server</translation>
     </message>
@@ -3814,7 +3936,7 @@ sauvegarder la base</source>
 back up the database</translation>
     </message>
     <message>
-        <location line="+67"/>
+        <location line="+80"/>
         <source>Erreur de création du compte utilisateur</source>
         <translation>User account creation error</translation>
     </message>
@@ -3824,72 +3946,7 @@ back up the database</translation>
         <translation>Unable to create a user account for the patient database</translation>
     </message>
     <message>
-        <location line="+208"/>
-        <source>Mot de passe de la base du cabinet</source>
-        <translation>Practice database password</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Indiquez le mot de passe de connexion à la base du cabinet.</source>
-        <translation>Enter the connection password for the practice database.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Il se récupère sur une clé USB depuis le poste qui héberge la base (menu Édition / Paramètres).</source>
-        <translation>It is retrieved on a USB drive from the computer hosting the database (Edit / Settings menu).</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Connexion établie sans mot de passe personnel</source>
-        <translation>Connection established without a personal password</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>La base du cabinet ne s&apos;ouvre qu&apos;avec le mot de passe générique de Rufus.</source>
-        <translation>The practice database only opens with the generic Rufus password.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Faites-la sécuriser depuis le poste qui l&apos;héberge.</source>
-        <translation>Have it secured from the computer that hosts it.</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Aucun serveur ne répond à cette adresse.</source>
-        <translation>No server answers at this address.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Vérifiez l&apos;adresse du serveur, qu&apos;il est bien allumé et, en accès distant, la redirection de ports de votre box.</source>
-        <translation>Check the server address, that it is switched on and, for remote access, the port forwarding of your router.</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Les clés SSL de ce poste sont invalides ou périmées : faites-vous en transmettre de nouvelles depuis le poste serveur.</source>
-        <translation>The SSL keys of this computer are invalid or expired: have new ones sent to you from the server computer.</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Le serveur du cabinet répond, mais il refuse ce mot de passe.</source>
-        <translation>The practice server answers, but it refuses this password.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>L&apos;adresse du serveur est donc correcte : c&apos;est le mot de passe de connexion qu&apos;il faut récupérer sur le poste qui héberge la base.</source>
-        <translation>The server address is therefore correct: it is the connection password that must be retrieved from the computer hosting the database.</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Aucun mot de passe n&apos;ouvre la base avec ces paramètres.</source>
-        <translation>No password opens the database with these settings.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Vérifiez le mot de passe de connexion, l&apos;adresse du serveur et, en accès distant, le dossier des clés SSL.</source>
-        <translation>Check the connection password, the server address and, for remote access, the SSL keys folder.</translation>
-    </message>
-    <message>
-        <location line="+85"/>
+        <location line="+300"/>
         <source>Rufus.ini restauré</source>
         <translation>Rufus.ini restored</translation>
     </message>
@@ -3900,22 +3957,11 @@ back up the database</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+16"/>
         <source>Le lancement de Rufus se poursuit.</source>
         <translation>Rufus continues starting up.</translation>
     </message>
     <message>
-        <location line="-2"/>
-        <source>Rufus.ini reconstruit</source>
-        <translation>Rufus.ini rebuilt</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Les paramètres de connexion de ce poste sont enregistrés.</source>
-        <translation>This computer&apos;s connection settings are saved.</translation>
-    </message>
-    <message>
-        <location line="+12"/>
+        <location line="+39"/>
         <source>Créer une base patients</source>
         <translation>Create a patient database</translation>
     </message>
@@ -3925,12 +3971,12 @@ back up the database</translation>
         <translation>Specify the SSL keys folder (client-key.pem and client-cert.pem)</translation>
     </message>
     <message>
-        <location line="-2120"/>
+        <location line="-2113"/>
         <source>L&apos;accès distant nécessite les clés SSL du cabinet (client-key.pem, client-cert.pem), à copier depuis le poste serveur sur une clé USB.</source>
         <translation>Remote access requires the practice&apos;s SSL keys (client-key.pem, client-cert.pem), to be copied from the server workstation onto a USB drive.</translation>
     </message>
     <message>
-        <location line="-277"/>
+        <location line="-283"/>
         <source>Rufus va sauvegarder votre base, désinstaller l&apos;ancien MySQL, installer la nouvelle version, puis vous proposer de restaurer votre base.</source>
         <translation>Rufus will back up your database, uninstall the old MySQL, install the new version, then offer to restore your database.</translation>
     </message>
@@ -3949,17 +3995,125 @@ je dispose d&apos;une sauvegarde</source>
 I have a backup</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+26"/>
         <source>Le serveur MySQL a été mis à jour, mais votre base n&apos;a pas été restaurée.</source>
         <translation>The MySQL server has been updated, but your database has not been restored.</translation>
     </message>
     <message>
-        <location line="+263"/>
+        <location line="+265"/>
         <source>Aucun serveur de base de données</source>
         <translation>No database server</translation>
     </message>
     <message>
-        <location line="+282"/>
+        <location line="+169"/>
+        <source>Rufus ne peut pas ouvrir votre base patients.</source>
+        <translation>Rufus cannot open your patient database.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Si vous ne disposez réellement d&apos;aucun moyen de vous connecter au serveur depuis ce poste</source>
+        <translation>If you really have no way to connect to the server from this computer</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>vous pouvez tenter une nouvelle connexion depuis le serveur ou un poste du réseau local</source>
+        <translation>you can try a new connection from the server or from a computer on the local network</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>avec le mot de passe de secours ou un identifiant MySQL valide</source>
+        <translation>with the emergency password or a valid MySQL login</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Et si toutes les tentatives de vous connecter échouent</source>
+        <translation>And if every attempt to connect fails</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>vous pourrez réintialiser la base de données.</source>
+        <translation>you will be able to reset the database.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La réintialisation des données ne peut se faire que depuis le serveur</source>
+        <translation>Resetting the data can only be done from the server</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+5"/>
+        <source>toutes les données de la base actuelle seront définitivement perdues.</source>
+        <translation>all the data of the current database will be permanently lost.</translation>
+    </message>
+    <message>
+        <location line="-4"/>
+        <source>mais vous pourrez restaurer vos données à partir d&apos;une sauvegarde.</source>
+        <translation>but you will be able to restore your data from a backup.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Si vous ne disposez réellement d&apos;aucun moyen de vous connecter au serveur</source>
+        <translation>If you really have no way to connect to the server</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Il ne vous reste plus qu&apos;à installer une base de données neuve</source>
+        <translation>All that is left is to install a brand new database</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>mais vous pourrez restaurer vos données à partir d&apos;une sauvegarde si vous en avez une.</source>
+        <translation>but you will be able to restore your data from a backup if you have one.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Voulez-vous continuer et recréer une base neuve?</source>
+        <translation>Do you want to continue and create a brand new database?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Cette opération ne peut se faire que depuis le poste serveur.</source>
+        <translation>This operation can only be done from the server computer.</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Cette façon de se connecter doit rester exceptionnelle</source>
+        <translation>This way of connecting must remain exceptional</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Rufus s&apos;est connecté à la base sans le mot de passe du cabinet.</source>
+        <translation>Rufus connected to the database without the practice password.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Récupérez ce mot de passe depuis un autre poste du cabinet, puis importez-le sur celui-ci.</source>
+        <translation>Get this password from another computer of the practice, then import it onto this one.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Les comptes de connexion de la base sont incomplets : le mot de passe du cabinet est à recréer depuis le poste qui héberge la base.</source>
+        <translation>The database connection accounts are incomplete: the practice password must be recreated from the computer that hosts the database.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Le mot de passe de secours est également à recréer.</source>
+        <translation>The emergency password must be recreated as well.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>OK, j&apos;ai compris</source>
+        <translation>OK, I understand</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Recréer maintenant
+le mot de passe du cabinet</source>
+        <translation>Recreate the practice
+password now</translation>
+    </message>
+    <message>
+        <location line="+91"/>
         <location line="+8"/>
         <source>Base de données endommagée</source>
         <translation>Damaged database</translation>
@@ -3978,18 +4132,18 @@ I have a backup</translation>
     <message>
         <location line="+24"/>
         <location line="+1"/>
-        <location line="+1349"/>
+        <location line="+1338"/>
         <source>Impossible de trouver l&apos;exécutable MySQL</source>
         <translation>Unable to find mysql executable</translation>
     </message>
     <message>
-        <location line="-1349"/>
-        <location line="+1348"/>
+        <location line="-1338"/>
+        <location line="+1337"/>
         <source>Erreur de connexion</source>
         <translation>Connexion error</translation>
     </message>
     <message>
-        <location line="-1348"/>
+        <location line="-1337"/>
         <source>Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base</source>
         <translation>The program will not be able to perform any backup, restore or update operations on the database</translation>
     </message>
@@ -4098,12 +4252,11 @@ I have a backup</translation>
     <message>
         <location line="-479"/>
         <location line="+3"/>
-        <location line="+1719"/>
         <source>Connexion à la base impossible</source>
         <translation>Cannot connect to the database</translation>
     </message>
     <message>
-        <location line="-1002"/>
+        <location line="+719"/>
         <source>Restaurer la base depuis une sauvegarde</source>
         <translation>Restore database from a backup</translation>
     </message>
@@ -4134,11 +4287,12 @@ I have a backup</translation>
     </message>
     <message>
         <location line="+0"/>
+        <location line="+1052"/>
         <source>Réseau local</source>
         <translation>Local network</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="-1042"/>
         <source>Le dossier de sauvegarde d&apos;imagerie enregistré dans les paramètres était invalide</source>
         <translation>Imaging backup folder saved in settings was invalid</translation>
     </message>
@@ -4220,52 +4374,319 @@ who can supervise your actions</translation>
         <translation>Everybody</translation>
     </message>
     <message>
-        <location line="+153"/>
+        <location line="+252"/>
         <source>Premier démarrage de Rufus!</source>
         <translation>First start of Rufus!</translation>
     </message>
     <message>
-        <location line="+118"/>
+        <location line="-7"/>
         <source>Redémarrage nécessaire</source>
         <translation>Restart required</translation>
     </message>
     <message>
-        <location line="+339"/>
+        <location line="+325"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation>Giving up and
 leaving Rufus</translation>
     </message>
     <message>
-        <location line="-398"/>
-        <location line="+44"/>
+        <location line="-371"/>
+        <location line="+33"/>
         <source>Le programme ne pourra pas s&apos;intialiser</source>
         <translation>The program won&apos;t be able to intialize</translation>
     </message>
     <message>
-        <location line="-1538"/>
-        <source>Rufus peut tenter de rétablir l&apos;accès à la base avec le mot de passe de SECOURS choisi à l&apos;installation de la base.</source>
-        <translation>Rufus can try to restore access to the database with the EMERGENCY password chosen when the database was installed.</translation>
-    </message>
-    <message>
-        <location line="+1504"/>
-        <source>Erreur de connexion au serveur MySQL</source>
-        <translation>MySQL server connection error</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>La connexion à MySQL a échoué après l&apos;installation.</source>
-        <translation>The connection to MySQL failed after installation.</translation>
-    </message>
-    <message>
-        <location line="+93"/>
+        <location line="+88"/>
         <source>Votre base patients a été restaurée. Rufus va redémarrer.</source>
         <oldsource>Restaurer les paramétrages de Rufus
 à partir d&apos;une sauvegarde</oldsource>
         <translation>Your patient database has been restored. Rufus will restart.</translation>
     </message>
     <message>
-        <location line="+419"/>
+        <location line="+236"/>
+        <location line="+469"/>
+        <source>Connexion impossible</source>
+        <translation>Connection failed</translation>
+    </message>
+    <message>
+        <location line="-468"/>
+        <source>Ces paramètres ne permettent pas de joindre la base de données de votre cabinet.</source>
+        <translation>These settings do not reach your practice&apos;s database.</translation>
+    </message>
+    <message>
+        <location line="+71"/>
+        <source>Connexion à une base patients Rufus existante</source>
+        <translation>Connecting to an existing Rufus patient database</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Monoposte</source>
+        <translation>Single station</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Accès distant</source>
+        <translation>Remote access</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Emplacement du serveur</source>
+        <translation>Server location</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Importer les données de connexion depuis un support externe (clé USB…)</source>
+        <translation>Import the connection details from an external medium (USB stick…)</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Choisir le dossier %1</source>
+        <translation>Choose the %1 folder</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;b&gt;Comment récupérer automatiquement vos données de connexion&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;How to retrieve your connection details automatically&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Sur le poste qui héberge la base, ouvrez Edition / Paramètres, onglet Ce poste, et cliquez sur « Exporter les données de connexion » : Rufus copie sur une clé USB un dossier %1 contenant l&apos;adresse du serveur, le port, le mot de passe et les clés SSL.&lt;br&gt;</source>
+        <translation>On the computer that hosts the database, open Edit / Settings, This computer tab, and click &quot;Export the connection details&quot;: Rufus copies onto a USB stick a %1 folder containing the server address, the port, the password and the SSL keys.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Branchez cette clé sur ce poste, indiquez ci-contre comment il joint le serveur, puis désignez ce dossier : tout est repris et la connexion est éprouvée aussitôt.&lt;br&gt;</source>
+        <translation>Plug that stick into this computer, indicate opposite how it reaches the server, then point to that folder: everything is taken over and the connection is tested at once.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Effacez ensuite ce dossier de la clé : il donne un accès complet à votre base.</source>
+        <translation>Then delete that folder from the stick: it gives full access to your database.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Comment récupérer automatiquement vos données de connexion ?</source>
+        <translation>How to retrieve your connection details automatically?</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Renseigner les données de connexion</source>
+        <translation>Fill in the connection details</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Saisir vous-même l&apos;adresse du serveur, le port, le mot de passe et l&apos;emplacement des clés SSL</source>
+        <translation>Type in yourself the server address, the port, the password and the location of the SSL keys</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Adresse IP du serveur</source>
+        <translation>Server IP Adress</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Emplacement clés SSL</source>
+        <translation>SSL Keys location</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Dossier d&apos;imagerie du serveur</source>
+        <translation>Server imaging folder</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Dossier des vidéos</source>
+        <translation>Videos folder</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Mot de passe de connexion à la base</source>
+        <translation>Database connection password</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location line="+99"/>
+        <source>Ce dossier ne contient pas les clés client-key.pem et client-cert.pem.</source>
+        <translation>This folder does not contain the client-key.pem and client-cert.pem keys.</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Informations importantes sur l&apos;accès par internet</source>
+        <translation>Important information about Internet access</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Pour des raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données.</source>
+        <translation>For privacy reasons, remote access in Rufus always works with data encryption.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:</source>
+        <translation>If you want to use remote access on this computer, you must:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>1. le serveur MySQL soit configuré pour le cryptage</source>
+        <translation>1. the MySQL server is configured for encryption</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. que sur ce poste les clés clientes SSL soient installées.</source>
+        <translation>2. the SSL client keys are installed on this computer.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Reportez-vous à la page internet :</source>
+        <translation>Refer to the web page:</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>pour savoir comment modifier la configuration du serveur et générer des clés de cryptage.</source>
+        <translation>to find out how to change the server configuration and generate encryption keys.</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Vous n&apos;avez pas précisé l&apos;adresse du serveur.</source>
+        <translation>You didn&apos;t specify the server adress.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Vous n&apos;avez pas précisé le dossier des clés SSL.</source>
+        <translation>You did not specify the SSL keys folder.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Vous n&apos;avez pas précisé le port du serveur.</source>
+        <translation>You did not specify the server port.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Vous n&apos;avez pas précisé le mot de passe de connexion à la base.</source>
+        <translation>You did not specify the database connection password.</translation>
+    </message>
+    <message>
+        <location line="+92"/>
+        <source>Sélectionnez le dossier %1 sur le support</source>
+        <translation>Select the %1 folder on the medium</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Dossier incomplet</source>
+        <translation>Incomplete folder</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce dossier ne contient pas les données de connexion exportées par le serveur.</source>
+        <translation>This folder does not contain the connection details exported by the server.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Dossier inaccessible</source>
+        <translation>Folder not accessible</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Impossible de créer le dossier des clés SSL :</source>
+        <translation>The SSL keys folder cannot be created:</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Les renseignements figurant sur ce support ne permettent pas de joindre la base de données de votre cabinet.</source>
+        <translation>The details on this medium do not reach your practice&apos;s database.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Vérifiez le mode d&apos;accès choisi, et que le serveur est allumé et joignable.</source>
+        <translation>Check the access mode chosen, and that the server is switched on and reachable.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <location line="+22"/>
+        <source>Montage des dossiers du serveur</source>
+        <translation>Mounting the server folders</translation>
+    </message>
+    <message>
+        <location line="-21"/>
+        <source>Les dossiers d&apos;imagerie et de vidéos doivent être montés automatiquement à chaque démarrage du poste pour que les documents soient lisibles par Rufus.</source>
+        <translation>The imaging and video folders must be mounted automatically every time the computer starts, so that Rufus can read the documents.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Voulez-vous que Rufus fasse ce paramétrage ?</source>
+        <translation>Do you want Rufus to make this setting?</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Dossiers du serveur non montés</source>
+        <translation>Server folders not mounted</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Montez vous-même ces dossiers, puis corrigez leur emplacement dans Edition / Paramètres, onglet Réseau local :</source>
+        <translation>Mount these folders yourself, then correct their location in Edit / Settings, Local network tab:</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Tant qu&apos;ils ne sont pas montés, Rufus n&apos;affichera pas les documents des patients.</source>
+        <translation>As long as they are not mounted, Rufus will not display the patients&apos; documents.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Les dossiers d&apos;imagerie et de vidéos du serveur doivent être montés automatiquement au démarrage de cet ordinateur, sans quoi Rufus ne les retrouvera pas :</source>
+        <translation>The server&apos;s imaging and video folders must be mounted automatically when this computer starts, otherwise Rufus will not find them:</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>La marche à suivre est décrite au paragraphe « Sur les postes clients — Montage du dossier d&apos;imagerie du serveur au démarrage du poste » de la page</source>
+        <translation>The procedure is described in the section &quot;On the client computers — Mounting the server&apos;s imaging folder at computer start-up&quot; of the page</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Effacer les données du support ?</source>
+        <translation>Erase the data from the medium?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Les données de connexion sont maintenant enregistrées sur ce poste.</source>
+        <translation>The connection details are now saved on this computer.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Voulez-vous les effacer du support amovible ?</source>
+        <translation>Do you want to erase them from the removable medium?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Conserver</source>
+        <translation>Keep</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Effacer</source>
+        <translation>Erase</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Effacement impossible</source>
+        <translation>Erasing impossible</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le dossier n&apos;a pas pu être supprimé du support.</source>
+        <translation>The folder could not be deleted from the medium.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Connexion à la base établie, le lancement de Rufus se poursuit.</source>
+        <translation>Connection to the database established, Rufus continues starting up.</translation>
+    </message>
+    <message>
+        <location line="+55"/>
         <source>Erreur connexion série</source>
         <translation>Error serial connexion</translation>
     </message>
@@ -4576,7 +4997,7 @@ Unfortunately, none of these connections seem to work.</translation>
         <translation>Autoref</translation>
     </message>
     <message>
-        <location line="-6469"/>
+        <location line="-6926"/>
         <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers d&apos;imagerie seront réalisés puis le programme sera arrêté.
 Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.
 Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage à partir de la sauvegarde (fichier RufusBackup.ini).</source>
@@ -4593,7 +5014,7 @@ You can still cancel the reset by restoring the configuration file from the back
         <translation>Creating the database…</translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+64"/>
         <source>Une fois le dossier sélectionné, la sauvegarde commencera automatiquement.</source>
         <translation>Once the folder has been selected, the backup will begin automatically.</translation>
     </message>
@@ -4618,7 +5039,7 @@ You can still cancel the reset by restoring the configuration file from the back
         <translation>Missing file(s):</translation>
     </message>
     <message>
-        <location line="+141"/>
+        <location line="+145"/>
         <location line="+20"/>
         <source>Restauration de la base en cours…</source>
         <translation>Restoring the database…</translation>
@@ -4644,12 +5065,12 @@ You can still cancel the reset by restoring the configuration file from the back
         <translation>Choose another backup medium (USB drive, external disk…).</translation>
     </message>
     <message>
-        <location line="+647"/>
+        <location line="+684"/>
         <source>Vous pouvez la restaurer depuis une sauvegarde, créer une nouvelle base patients, ou quitter.</source>
         <translation>You can restore it from a backup, create a new patient database, or quit.</translation>
     </message>
     <message>
-        <location line="+671"/>
+        <location line="+673"/>
         <source>Nouvelle base patients</source>
         <translation>New patient database</translation>
     </message>
@@ -4667,77 +5088,106 @@ a backup, or create a blank patient database?
 </translation>
     </message>
     <message>
-        <location line="+639"/>
+        <location line="+779"/>
         <source>Abandonner</source>
         <translation>Give up</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Nouvelle base
-patients</source>
-        <translation>New
-patient database</translation>
-    </message>
-    <message>
-        <location line="+17"/>
+        <location line="-22"/>
         <source>Cette étape va vous permettre de configurer le logiciel en quelques secondes</source>
         <translation>This step lets you configure the software in just a few seconds</translation>
     </message>
     <message>
-        <location line="-7"/>
+        <location line="-8"/>
         <source>Commencez par choisir la situation qui décrit le mieux votre installation de Rufus</source>
         <translation>Start by choosing the situation that best describes your Rufus installation</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>1. J&apos;installe Rufus sur ce poste en créant une nouvelle base patients</source>
-        <translation>1. I am installing Rufus on this computer by creating a new patient database</translation>
-    </message>
-    <message>
-        <location line="+118"/>
-        <source>IMPORTANT — un mot de passe de connexion à votre base de données a été créé</source>
-        <translation>IMPORTANT — a password for connecting to your database has been created</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)</source>
-        <translation>Note it down and keep it in a safe place (on paper or on a USB drive)</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.</source>
-        <translation>it is required to connect another workstation to the practice, or to troubleshoot this computer.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Mot de passe :</source>
-        <translation>Password:</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Vous pourrez aussi l&apos;enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste ».</source>
-        <translation>You can also save it to a USB drive at any time from Edit/Settings/&quot;This computer&quot; tab.</translation>
-    </message>
-    <message>
-        <location line="+333"/>
+        <location line="+318"/>
         <source>Restaurer la base de données
 à partir d&apos;une sauvegarde</source>
         <translation>Restore the database
 from a backup</translation>
     </message>
     <message>
-        <location line="-296"/>
-        <location line="+315"/>
+        <location line="-252"/>
+        <location line="+271"/>
         <source>Base restaurée</source>
         <translation>Database restored</translation>
     </message>
     <message>
+        <location line="-421"/>
+        <source>Serveur MySQL inaccessible</source>
+        <translation>MySQL server unreachable</translation>
+    </message>
+    <message>
         <location line="+1"/>
+        <source>Rufus ne parvient pas à se connecter au serveur MySQL de cet ordinateur.</source>
+        <translation>Rufus cannot connect to this computer&apos;s MySQL server.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce serveur et tout ce qu&apos;il contient vont être supprimés, puis un serveur neuf sera installé.</source>
+        <translation>This server and everything it contains will be deleted, then a brand new server will be installed.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Rufus doit installer un serveur MySQL neuf sur cet ordinateur.
+
+Le serveur actuel et tout ce qu&apos;il contient seront supprimés. Voulez-vous continuer ?</source>
+        <translation>Rufus must install a new MySQL server on this computer.
+
+The current server and everything it contains will be deleted. Do you want to continue?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Pour installer Rufus, il est nécessaire d&apos;installer une base de données MySQL sur cet ordinateur.
+
+Voulez-vous l&apos;installer maintenant ?</source>
+        <translation>To install Rufus, a MySQL database must be installed on this computer.
+
+Do you want to install it now?</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <location line="+864"/>
+        <source>Non</source>
+        <translation>No</translation>
+    </message>
+    <message>
+        <location line="-792"/>
+        <source>1. J&apos;installe Rufus sur ce poste et je vais créer une nouvelle base patients vierge sur ce poste</source>
+        <translation>1. I am installing Rufus on this computer and I will create a new blank patient database on it</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvehgarde sur ce poste</source>
+        <translation>2. I am installing Rufus on this computer and I will create a patient database from a backup on it</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Nouvelle base
+patients vierge</source>
+        <translation>New blank
+patient database</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ce poste va héberger une nouvelle base patients vierge</source>
+        <translation>This computer will host a new blank patient database</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Ce poste va héberger une nouvelle base patients restaurée à partir d&apos;une sauvegarde</source>
+        <translation>This computer will host a new patient database restored from a backup</translation>
+    </message>
+    <message>
+        <location line="+314"/>
         <source>La base de données a été restaurée. Rufus va redémarrer.</source>
         <translation>The database has been restored. Rufus will restart.</translation>
     </message>
     <message>
-        <location line="+1556"/>
+        <location line="+2005"/>
         <location line="+13"/>
         <location line="+26"/>
         <source>Echec</source>
@@ -4912,7 +5362,7 @@ from a backup</translation>
         <translation>HH:mm:ss</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="-4076"/>
+        <location filename="procedures.cpp" line="-4537"/>
         <source>Le fichier d&apos;initialisation</source>
         <translation>Initialization file</translation>
     </message>
@@ -4932,7 +5382,7 @@ from a backup</translation>
         <translation>If so, choose the &quot;%1&quot; option</translation>
     </message>
     <message>
-        <location line="-2133"/>
+        <location line="-2114"/>
         <source>Vous utilisez sur ce poste une version de Rufus prévue pour la version</source>
         <translation>On this workstation, you are using a version of Rufus designed for the</translation>
     </message>
@@ -4962,7 +5412,7 @@ from a backup</translation>
         <translation>You can download the latest version from the Downloads page of the site</translation>
     </message>
     <message>
-        <location line="+2115"/>
+        <location line="+2096"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation>Give up and
@@ -5015,7 +5465,7 @@ patient database</translation>
         <translation>This absence is normal if you are starting the application for the first time on this computer.</translation>
     </message>
     <message>
-        <location line="+865"/>
+        <location line="+1326"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation>Unknown default settings for the device</translation>
     </message>
@@ -5046,7 +5496,7 @@ patient database</translation>
         <translation>plano</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="+350"/>
+        <location filename="rufus.cpp" line="+353"/>
         <source>Problème Autoref Huvitz</source>
         <translation>Problem with autoref Huvitz</translation>
     </message>
@@ -5071,7 +5521,7 @@ patient database</translation>
         <translation>we invite you to contact us for further information</translation>
     </message>
     <message>
-        <location line="+5587"/>
+        <location line="+5596"/>
         <source>La nouvelle version est datée du </source>
         <translation>The new version is dated from </translation>
     </message>
@@ -5126,7 +5576,7 @@ patient database</translation>
         <translation>Error backup folder </translation>
     </message>
     <message>
-        <location line="+595"/>
+        <location line="+596"/>
         <source>Saisissez le mot de passe Administrateur Rufus</source>
         <translation>Enter the Rufus Administrator password</translation>
     </message>
@@ -5142,7 +5592,7 @@ patient database</translation>
         <translation>Invalid password!</translation>
     </message>
     <message>
-        <location line="+255"/>
+        <location line="+257"/>
         <location line="+13"/>
         <source>Espèces</source>
         <translation>Cash</translation>
@@ -5190,7 +5640,7 @@ patient database</translation>
         <translation>Unpaid</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+1121"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+1006"/>
         <source>Notez le mot de passe de la base de données</source>
         <translation>Note down the database password</translation>
     </message>
@@ -5212,7 +5662,7 @@ Keep it in a safe place (on paper or on a USB drive): it is required to connect 
         <translation>You can also save it to a USB drive at any time from Settings ▸ &quot;This computer&quot; tab.</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+70"/>
         <source>Sécurisation de la base de données</source>
         <translation>Securing the database</translation>
     </message>
@@ -5268,10 +5718,10 @@ Keep it in a safe place (on paper or on a USB drive): it is required to connect 
         <translation>IMPORTANT: the generic password for accessing the database has just been deleted.</translation>
     </message>
     <message>
-        <location line="+2567"/>
-        <source>Choisissez un mot de passe de SECOURS pour votre base de données.
+        <location line="+2769"/>
+        <source>Il n&apos;y a pas de mot de passe de SECOURS pour votre base de données MySQL.
 
-Il ne servira qu&apos;à reprendre la main sur votre base si tous les autres
+Ce mot de passe ne servira qu&apos;à reprendre la main sur votre base si tous les autres
 mots de passe sont perdus. Il n&apos;est enregistré NULLE PART :
 vous seul le connaissez.
 
@@ -5279,9 +5729,9 @@ Choisissez quelque chose que vous retrouverez dans dix ans
 (le nom de votre premier chien, de votre rue d&apos;enfance…)
 - mini 5 maxi 12 caractères -
 - pas de caractères spéciaux ou accentués -</source>
-        <translation>Choose an EMERGENCY password for your database.
+        <translation>There is no EMERGENCY password for your MySQL database.
 
-It will only be used to regain control of your database if all the other
+This password will only be used to take back control of your database if all the other
 passwords are lost. It is stored NOWHERE:
 you alone know it.
 
@@ -5303,7 +5753,7 @@ was installed.</translation>
         <translation>Please enter a password.</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="-393"/>
+        <location filename="utils.cpp" line="-395"/>
         <source>Choisissez un login pour le nouvel utilisateur
 - mini 5 maxi 15 caractères -
 - pas de caractères spéciaux ou accentués -</source>
@@ -5350,7 +5800,7 @@ was installed.</translation>
         <translation>The password and its confirmation do not match.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="-3656"/>
+        <location filename="procedures.cpp" line="-4117"/>
         <location line="+9"/>
         <source>Langue de l&apos;interface</source>
         <translation>Interface language</translation>
@@ -5464,7 +5914,7 @@ will be copied automatically</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location filename="rufus.cpp" line="+5063"/>
+        <location filename="rufus.cpp" line="+5240"/>
         <source>Recopier</source>
         <translation>Recopy</translation>
     </message>
@@ -5505,7 +5955,7 @@ list - F5</translation>
     </message>
     <message>
         <location line="+22"/>
-        <location filename="rufus.cpp" line="-440"/>
+        <location filename="rufus.cpp" line="-549"/>
         <source>Créer
 le dossier</source>
         <translation>Create
@@ -5522,8 +5972,8 @@ birth date</translation>
     <message>
         <location line="+128"/>
         <location line="+2059"/>
-        <location filename="rufus.cpp" line="-5239"/>
-        <location line="+1004"/>
+        <location filename="rufus.cpp" line="-5314"/>
+        <location line="+1011"/>
         <source>Envoyer un message</source>
         <translation>Send a message</translation>
     </message>
@@ -5642,12 +6092,12 @@ correspondents</translation>
     </message>
     <message>
         <location line="+50"/>
-        <location line="+985"/>
+        <location line="+979"/>
         <source>Créer un nouvel acte</source>
         <translation>Create new act</translation>
     </message>
     <message>
-        <location line="-863"/>
+        <location line="-857"/>
         <source>remettre le dossier en salle d&apos;attente</source>
         <translation>Put file back in waiting room</translation>
     </message>
@@ -5721,26 +6171,26 @@ act</translation>
     </message>
     <message>
         <location line="+32"/>
-        <location line="+694"/>
+        <location line="+688"/>
         <source>Tonometrie</source>
         <translation>Tonometry</translation>
     </message>
     <message>
-        <location line="-668"/>
+        <location line="-662"/>
         <source>Tonométrie - F4</source>
         <translation>Tonometry - F4</translation>
     </message>
     <message>
         <location line="+54"/>
-        <location filename="rufus.cpp" line="+3781"/>
+        <location filename="rufus.cpp" line="+3808"/>
         <source>Cotation</source>
         <translation>Quotation</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location filename="rufus.cpp" line="-1863"/>
+        <location filename="rufus.cpp" line="-1886"/>
         <location line="+4"/>
-        <location line="+1860"/>
+        <location line="+1883"/>
         <source>Montant</source>
         <translation>Amount</translation>
     </message>
@@ -5750,12 +6200,7 @@ act</translation>
         <translation>...</translation>
     </message>
     <message>
-        <location line="+16"/>
-        <source>CCAM...</source>
-        <translation>CCAM...</translation>
-    </message>
-    <message>
-        <location line="+45"/>
+        <location line="+55"/>
         <source>G</source>
         <translation>F</translation>
     </message>
@@ -5796,7 +6241,7 @@ act</translation>
     </message>
     <message>
         <location line="+39"/>
-        <location filename="rufus.cpp" line="-4557"/>
+        <location filename="rufus.cpp" line="-4591"/>
         <source>Enregistrer le paiement</source>
         <translation>Save payment</translation>
     </message>
@@ -5818,7 +6263,7 @@ act</translation>
     <message>
         <location line="+44"/>
         <location filename="rufus.cpp" line="-940"/>
-        <location line="+8046"/>
+        <location line="+8232"/>
         <source>Acte</source>
         <translation>Act</translation>
     </message>
@@ -5829,8 +6274,8 @@ act</translation>
     </message>
     <message>
         <location line="+26"/>
-        <location filename="rufus.cpp" line="-2127"/>
-        <location line="+2130"/>
+        <location filename="rufus.cpp" line="-2238"/>
+        <location line="+2241"/>
         <source>Documents</source>
         <translation>Documents</translation>
     </message>
@@ -5860,7 +6305,7 @@ act</translation>
         <translation>Treatments in progress</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="-11032"/>
+        <location filename="rufus.cpp" line="-11223"/>
         <source>Erreur fichier Rufus.ini</source>
         <translation>Error file Rufus.ini</translation>
     </message>
@@ -5893,7 +6338,7 @@ Program exit</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1995"/>
+        <location line="+2000"/>
         <location line="+77"/>
         <location line="+51"/>
         <location line="+6"/>
@@ -5901,19 +6346,19 @@ Program exit</translation>
         <location line="+108"/>
         <location line="+54"/>
         <location line="+6"/>
-        <location line="+1894"/>
+        <location line="+1901"/>
         <location line="+13"/>
         <location line="+64"/>
         <location line="+836"/>
         <location line="+22"/>
         <location line="+193"/>
         <location line="+279"/>
-        <location line="+4980"/>
+        <location line="+5157"/>
         <source>Messages</source>
         <translation>Messages</translation>
     </message>
     <message>
-        <location line="-10730"/>
+        <location line="-10919"/>
         <source>Connexion TCP OK</source>
         <translation>TCP Connexion OK</translation>
     </message>
@@ -5933,7 +6378,7 @@ Program exit</translation>
         <translation>Remote connection - no use of TCP</translation>
     </message>
     <message>
-        <location line="+142"/>
+        <location line="+145"/>
         <source>Vous n&apos;avez aucun dossier de patient enregistré!</source>
         <translation>You don&apos;t have any patient records!</translation>
     </message>
@@ -5944,13 +6389,13 @@ Program exit</translation>
     </message>
     <message>
         <location line="+657"/>
-        <location line="+3111"/>
+        <location line="+3113"/>
         <location line="+61"/>
         <source>Urgence</source>
         <translation>Emergency</translation>
     </message>
     <message>
-        <location line="-3118"/>
+        <location line="-3120"/>
         <source>Impossible de remplir la salle d&apos;attente!</source>
         <translation>Impossible to fill the waiting room!</translation>
     </message>
@@ -5960,7 +6405,7 @@ Program exit</translation>
         <translation>Card</translation>
     </message>
     <message>
-        <location line="+137"/>
+        <location line="+139"/>
         <source>Le ou les actes que vous avez sélectionnés
 sont déjà en cours d&apos;enregistrement!</source>
         <translation>The act(s) you have selected
@@ -5968,26 +6413,26 @@ are already being recorded!</translation>
     </message>
     <message>
         <location line="+10"/>
-        <location line="+5850"/>
+        <location line="+5881"/>
         <location line="+6"/>
         <location line="+19"/>
         <location line="+14"/>
-        <location line="+3002"/>
+        <location line="+3155"/>
         <source>Il manque la cotation!</source>
         <translation>The quotation is missing!</translation>
     </message>
     <message>
-        <location line="-8889"/>
-        <location line="+5850"/>
+        <location line="-9073"/>
+        <location line="+5881"/>
         <location line="+25"/>
         <location line="+17"/>
         <location line="+62"/>
-        <location line="+2935"/>
+        <location line="+3088"/>
         <source>Il manque le montant!</source>
         <translation>The amount is missing!</translation>
     </message>
     <message>
-        <location line="-8886"/>
+        <location line="-9070"/>
         <source>Vous ne pouvez pas enregistrer le paiement de cet acte !</source>
         <translation>You cannot record payment for this act!</translation>
     </message>
@@ -6003,68 +6448,68 @@ are already being recorded!</translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+5901"/>
-        <location line="+906"/>
+        <location line="+5932"/>
+        <location line="+908"/>
         <source>Consultation gratuite</source>
         <translation>Free consultation</translation>
     </message>
     <message>
-        <location line="-6806"/>
-        <location line="+5897"/>
-        <location line="+906"/>
+        <location line="-6839"/>
+        <location line="+5928"/>
+        <location line="+908"/>
         <source>Vous avez entré un montant nul !</source>
         <translation>You&apos;ve entered a zero amount!</translation>
     </message>
     <message>
-        <location line="-6802"/>
+        <location line="-6835"/>
         <source>Enregistrer cette consultation comme gratuite?</source>
         <translation>Save this consultation as free?</translation>
     </message>
     <message>
-        <location line="-895"/>
-        <location line="+896"/>
+        <location line="-897"/>
+        <location line="+898"/>
         <location line="+318"/>
-        <location line="+5445"/>
+        <location line="+5476"/>
         <location line="+599"/>
         <location line="+49"/>
-        <location line="+496"/>
-        <location line="+605"/>
-        <location line="+1417"/>
+        <location line="+498"/>
+        <location line="+604"/>
+        <location line="+1569"/>
         <location line="+154"/>
         <location line="+199"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location line="-9273"/>
+        <location line="-9457"/>
         <source>Impossible d&apos;enregister cet acte comme gratuit</source>
         <translation>Impossible to save this act as a free act</translation>
     </message>
     <message>
         <location line="+108"/>
-        <location line="+9663"/>
+        <location line="+9849"/>
         <source>Gestion des tiers payants</source>
         <translation>Third-party payment management</translation>
     </message>
     <message>
-        <location line="-9644"/>
+        <location line="-9830"/>
         <source>Autre Dossier</source>
         <translation>Other file</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+7771"/>
+        <location line="+7955"/>
         <source>Revenir au tarif conventionnel</source>
         <translation>Returning to the conventional rate</translation>
     </message>
     <message>
-        <location line="-7766"/>
-        <location line="+7765"/>
+        <location line="-7950"/>
+        <location line="+7949"/>
         <source>Revenir au tarif habituellement pratiqué</source>
         <translation>Return to the usual rate</translation>
     </message>
     <message>
-        <location line="-7604"/>
+        <location line="-7788"/>
         <source>Reprendre</source>
         <translation>Resume</translation>
     </message>
@@ -6091,23 +6536,23 @@ or create a new checkup with today&apos;s date?</translation>
         <location line="+113"/>
         <location line="+35"/>
         <location line="+266"/>
-        <location line="+2710"/>
+        <location line="+2717"/>
         <location line="+21"/>
         <source>Dossier de sauvegarde </source>
         <oldsource>Le dossier de sauvegarde d&apos;imagerie</oldsource>
         <translation>Backup folder </translation>
     </message>
     <message>
-        <location line="-3032"/>
+        <location line="-3039"/>
         <location line="+35"/>
         <location line="+266"/>
-        <location line="+2710"/>
+        <location line="+2717"/>
         <location line="+21"/>
         <source> invalide</source>
         <translation> invalid</translation>
     </message>
     <message>
-        <location line="-3020"/>
+        <location line="-3027"/>
         <source>Nombreux documents à convertir</source>
         <translation>Many documents to convert</translation>
     </message>
@@ -6202,36 +6647,36 @@ or create a new checkup with today&apos;s date?</translation>
         <location line="+76"/>
         <location line="+2"/>
         <location line="+127"/>
-        <location line="+4350"/>
+        <location line="+4381"/>
         <source>d MMM yyyy</source>
         <translation>MM/dd/yyyy</translation>
     </message>
     <message>
-        <location line="-4540"/>
-        <location line="+4556"/>
+        <location line="-4571"/>
+        <location line="+4587"/>
         <source>Tél.</source>
         <translation></translation>
     </message>
     <message>
-        <location line="-4554"/>
-        <location line="+4556"/>
+        <location line="-4585"/>
+        <location line="+4587"/>
         <source>Portable</source>
         <translation>Cellphone</translation>
     </message>
     <message>
-        <location line="-4554"/>
-        <location line="+4556"/>
+        <location line="-4585"/>
+        <location line="+4587"/>
         <source>Mail</source>
         <translation>email</translation>
     </message>
     <message>
-        <location line="-4554"/>
-        <location line="+4556"/>
+        <location line="-4585"/>
+        <location line="+4587"/>
         <source>NNI</source>
         <translation>national insurance number</translation>
     </message>
     <message>
-        <location line="-4545"/>
+        <location line="-4576"/>
         <source>Antécédents ophtalmologiques: </source>
         <translation>Ophtalmological history: </translation>
     </message>
@@ -6363,7 +6808,7 @@ or create a new checkup with today&apos;s date?</translation>
         <translation>Unable to save file </translation>
     </message>
     <message>
-        <location line="-2989"/>
+        <location line="-2994"/>
         <source>Le fichier rufus.ini est endommagé</source>
         <translation>The rufus.ini file is damaged</translation>
     </message>
@@ -6373,7 +6818,7 @@ or create a new checkup with today&apos;s date?</translation>
         <translation>the program will be restarted</translation>
     </message>
     <message>
-        <location line="+297"/>
+        <location line="+300"/>
         <source>Paramètres d&apos;impression incorrects</source>
         <translation>Incorrect print settings</translation>
     </message>
@@ -6423,7 +6868,7 @@ or create a new checkup with today&apos;s date?</translation>
         <translation>%1 files kept and anonymised</translation>
     </message>
     <message>
-        <location line="+1049"/>
+        <location line="+1051"/>
         <source>Le processus d&apos;importation automatique des images a été stoppé en raison de l&apos;erreur</source>
         <translation>The automatic image import process was stopped due to the error</translation>
     </message>
@@ -6613,12 +7058,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+31"/>
-        <location line="+3831"/>
+        <location line="+3862"/>
         <source>dossiers</source>
         <translation>files</translation>
     </message>
     <message>
-        <location line="-3782"/>
+        <location line="-3813"/>
         <location line="+53"/>
         <source>Visualiser le dossier</source>
         <translation>View file</translation>
@@ -6638,12 +7083,12 @@ on a folder to open it</translation>
     <message>
         <location line="+5"/>
         <location line="+203"/>
-        <location line="+7100"/>
+        <location line="+7284"/>
         <source>Créer un dossier de la même famille</source>
         <translation>Create a file of same family</translation>
     </message>
     <message>
-        <location line="-7292"/>
+        <location line="-7476"/>
         <location line="+247"/>
         <source>Programmer une intervention</source>
         <translation>Schedule surgery</translation>
@@ -6672,12 +7117,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+7283"/>
+        <location line="+7467"/>
         <source>Enregistrer une video</source>
         <translation>Save a video</translation>
     </message>
     <message>
-        <location line="-7258"/>
+        <location line="-7442"/>
         <source>Pas de consultation enregistrée pour </source>
         <translation>No act registered for </translation>
     </message>
@@ -6703,13 +7148,13 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+8"/>
-        <location line="+3783"/>
-        <location line="+3132"/>
+        <location line="+3814"/>
+        <location line="+3285"/>
         <source>Ouvrir le dossier</source>
         <translation>Open the file</translation>
     </message>
     <message>
-        <location line="-6870"/>
+        <location line="-7054"/>
         <source>Reprendre le dossier</source>
         <translation>Resume file</translation>
     </message>
@@ -6780,12 +7225,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+91"/>
-        <location line="+6588"/>
+        <location line="+6772"/>
         <source>Paramètres</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location line="-6513"/>
+        <location line="-6690"/>
         <location line="+913"/>
         <source>Vous avez oublié de rédiger le texte de votre message!</source>
         <translation>You forgot to write the text of your message!</translation>
@@ -6803,12 +7248,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="-843"/>
-        <location line="+3835"/>
+        <location line="+3863"/>
         <source>dd/MM/yyyy</source>
         <translation>MM/dd/yyyy</translation>
     </message>
     <message>
-        <location line="-3812"/>
+        <location line="-3840"/>
         <source>A propos de </source>
         <translation>About </translation>
     </message>
@@ -6819,12 +7264,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+5097"/>
+        <location line="+5274"/>
         <source>Tout le monde</source>
         <translation>Everybody</translation>
     </message>
     <message>
-        <location line="-5011"/>
+        <location line="-5188"/>
         <source>Tâche à accomplir avant le </source>
         <translation>Task to be completed before </translation>
     </message>
@@ -6942,12 +7387,12 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+15"/>
-        <location line="+1360"/>
+        <location line="+1364"/>
         <source> pour </source>
         <translation> for </translation>
     </message>
     <message>
-        <location line="-1341"/>
+        <location line="-1345"/>
         <source>Modifier</source>
         <translation>Modify</translation>
     </message>
@@ -6980,26 +7425,26 @@ on a folder to open it</translation>
         <location line="+129"/>
         <location line="+8"/>
         <location line="+11"/>
-        <location line="+5259"/>
+        <location line="+5436"/>
         <source>Vous avez </source>
         <translation>You have </translation>
     </message>
     <message>
-        <location line="-5278"/>
+        <location line="-5455"/>
         <location line="+19"/>
-        <location line="+5259"/>
+        <location line="+5436"/>
         <source> nouveaux messages</source>
         <translation> new messages</translation>
     </message>
     <message>
-        <location line="-5276"/>
+        <location line="-5453"/>
         <location line="+19"/>
-        <location line="+5259"/>
+        <location line="+5436"/>
         <source>Vous avez 1 nouveau message</source>
         <translation>You have 1 new message</translation>
     </message>
     <message>
-        <location line="-5272"/>
+        <location line="-5449"/>
         <source> messages</source>
         <translation> messages</translation>
     </message>
@@ -7020,13 +7465,13 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+262"/>
-        <location line="+4158"/>
+        <location line="+4335"/>
         <location line="+13"/>
         <source>inconnu</source>
         <translation>unknown</translation>
     </message>
     <message>
-        <location line="-4161"/>
+        <location line="-4338"/>
         <source>administrateur</source>
         <translation>administrator</translation>
     </message>
@@ -7041,7 +7486,7 @@ on a folder to open it</translation>
         <translation> has been removed from the list of workstations currently connected to the server</translation>
     </message>
     <message>
-        <location line="+505"/>
+        <location line="+509"/>
         <source>Impossible de mettre à jour le champ </source>
         <translation>Unable to update the field </translation>
     </message>
@@ -7066,7 +7511,7 @@ on a folder to open it</translation>
         <translation>View previous consultations of </translation>
     </message>
     <message>
-        <location line="+283"/>
+        <location line="+303"/>
         <source>Il existe </source>
         <translation>There are </translation>
     </message>
@@ -7118,24 +7563,24 @@ on a folder to open it</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+906"/>
+        <location line="+908"/>
         <source>Enregistrer cet acte comme gratuit?</source>
         <translation>Save this act as free of charge?</translation>
     </message>
     <message>
-        <location line="-903"/>
-        <location line="+906"/>
+        <location line="-905"/>
+        <location line="+908"/>
         <source>Non</source>
         <translation>No</translation>
     </message>
     <message>
-        <location line="-890"/>
-        <location line="+2950"/>
+        <location line="-892"/>
+        <location line="+3103"/>
         <source>il manque les informations de paiement</source>
         <translation>missing payment information</translation>
     </message>
     <message>
-        <location line="-2859"/>
+        <location line="-3012"/>
         <source>Fermer quand même</source>
         <translation>Close anyway</translation>
     </message>
@@ -7208,12 +7653,12 @@ name and first name</translation>
     </message>
     <message>
         <location line="+15"/>
-        <location line="+3161"/>
+        <location line="+3314"/>
         <source>Ce patient est déjà venu!</source>
         <translation>This patient has been here before!</translation>
     </message>
     <message>
-        <location line="-3155"/>
+        <location line="-3308"/>
         <source>Ouverture du dossier de </source>
         <translation>Openig file from </translation>
     </message>
@@ -7255,42 +7700,42 @@ Create it anyway?</translation>
     </message>
     <message>
         <location line="+34"/>
-        <location line="+611"/>
-        <location line="+2521"/>
+        <location line="+613"/>
+        <location line="+2672"/>
         <source>Dossier </source>
         <translation>File </translation>
     </message>
     <message>
-        <location line="-3132"/>
-        <location line="+3132"/>
+        <location line="-3285"/>
+        <location line="+3285"/>
         <source> créé</source>
         <translation> created</translation>
     </message>
     <message>
-        <location line="-3131"/>
-        <location line="+611"/>
-        <location line="+2521"/>
+        <location line="-3284"/>
+        <location line="+613"/>
+        <location line="+2672"/>
         <source>Ouvrir le dossier ou inscrire le dossier en salle d&apos;attente?</source>
         <translation>Open the file or put it in the waiting room?</translation>
     </message>
     <message>
-        <location line="-3130"/>
-        <location line="+612"/>
-        <location line="+2520"/>
+        <location line="-3283"/>
+        <location line="+614"/>
+        <location line="+2671"/>
         <source>Inscrire le dossier
 en salle d&apos;attente</source>
         <translation>Save the file
 in waiting room</translation>
     </message>
     <message>
-        <location line="-3130"/>
-        <location line="+612"/>
-        <location line="+2520"/>
+        <location line="-3283"/>
+        <location line="+614"/>
+        <location line="+2671"/>
         <source>Ne rien faire</source>
         <translation>Do nothing</translation>
     </message>
     <message>
-        <location line="-2755"/>
+        <location line="-2906"/>
         <source>Impossible d&apos;enregistrer la recette de cet acte</source>
         <translation>Unable to save the income for this act</translation>
     </message>
@@ -7315,7 +7760,42 @@ in waiting room</translation>
         <translation>They have been deleted.</translation>
     </message>
     <message>
-        <location line="+2873"/>
+        <location line="+279"/>
+        <source>Rechercher une cotation</source>
+        <translation>Search for a quotation</translation>
+    </message>
+    <message>
+        <location line="+483"/>
+        <source>Choisir les fichiers à envoyer</source>
+        <translation>Choose the files to send</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Impossible de lire le fichier</source>
+        <translation>Cannot read the file</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Envoi trop lourd</source>
+        <translation>Message too large</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Les fichiers choisis font un mail de </source>
+        <translation>The chosen files make up an e-mail of </translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source> Mo</source>
+        <translation> MB</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La plupart des serveurs refusent au-delà de 5 Mo</source>
+        <translation>Most servers refuse anything over 5 MB</translation>
+    </message>
+    <message>
+        <location line="+2239"/>
         <location line="+8"/>
         <source>Créer</source>
         <translation>Create</translation>
@@ -7433,6 +7913,16 @@ Check those to replace:</translation>
     </message>
     <message>
         <location line="+3"/>
+        <source>Envoyer un mail groupé</source>
+        <translation>Send a grouped e-mail</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Programmes opératoires</source>
+        <translation>Surgical programs</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Liste des correspondants</source>
         <translation>Correspondent list</translation>
     </message>
@@ -7534,8 +8024,8 @@ Check those to replace:</translation>
         <translation>Quit</translation>
     </message>
     <message>
-        <location line="-3299"/>
-        <location line="+3191"/>
+        <location line="-3454"/>
+        <location line="+3344"/>
         <source>Information statut</source>
         <translation>Status information</translation>
     </message>
@@ -7545,7 +8035,7 @@ Check those to replace:</translation>
         <translation>Show pending letters</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+53"/>
         <source>Dossier</source>
         <translation>File</translation>
     </message>
@@ -7570,7 +8060,7 @@ Check those to replace:</translation>
         <translation>Help</translation>
     </message>
     <message>
-        <location line="-3269"/>
+        <location line="-3422"/>
         <source>Copier</source>
         <translation>Copy</translation>
     </message>
@@ -7645,13 +8135,13 @@ the file</translation>
     </message>
     <message>
         <location line="+107"/>
-        <location line="+1197"/>
+        <location line="+1348"/>
         <location line="+1454"/>
         <source>dd-MM-yyyy</source>
         <translation>MM-dd-yyyy</translation>
     </message>
     <message>
-        <location line="-2649"/>
+        <location line="-2800"/>
         <source>yyyyMMdd</source>
         <translation>yyyyMMdd</translation>
     </message>
@@ -7663,7 +8153,7 @@ the file</translation>
 the file</translation>
     </message>
     <message>
-        <location line="+117"/>
+        <location line="+119"/>
         <source>Liste des patients</source>
         <translation>Patients list</translation>
     </message>
@@ -7673,7 +8163,7 @@ the file</translation>
         <translation>View messages</translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+69"/>
         <source>Heure</source>
         <translation>Hour</translation>
     </message>
@@ -7693,15 +8183,15 @@ the file</translation>
         <translation>Payment</translation>
     </message>
     <message>
-        <location line="+143"/>
-        <location line="+283"/>
+        <location line="+141"/>
+        <location line="+326"/>
         <source>Ouvrir
 le dossier</source>
         <translation>Open
 the file</translation>
     </message>
     <message>
-        <location line="-234"/>
+        <location line="-277"/>
         <source>Correspondant inconnu! Souhaitez-vous l&apos;enregistrer?</source>
         <translation>Unknown correspondent! Would you like to save him?</translation>
     </message>
@@ -7711,7 +8201,7 @@ the file</translation>
         <translation>Save</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+187"/>
         <source>Impossible d&apos;imprimer</source>
         <translation>Unable to print</translation>
     </message>
@@ -7721,7 +8211,7 @@ the file</translation>
         <translation>No sender is specified for printing</translation>
     </message>
     <message>
-        <location line="+177"/>
+        <location line="+179"/>
         <source>Aucun dossier sélectionné!</source>
         <translation>No file selected!</translation>
     </message>
@@ -7731,7 +8221,7 @@ the file</translation>
         <translation>First select a file to copy.</translation>
     </message>
     <message>
-        <location line="+949"/>
+        <location line="+1056"/>
         <source>ServeurTCP</source>
         <translation>TCPServer</translation>
     </message>
@@ -7939,13 +8429,13 @@ You need to modify the corresponding entry to be able to delete the act.</transl
 <context>
     <name>SmtpClient</name>
     <message>
-        <location filename="smtpclient.cpp" line="+49"/>
+        <location filename="smtpclient.cpp" line="+50"/>
         <location line="+7"/>
         <source>le serveur ne répond plus</source>
         <translation>the server is no longer responding</translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+56"/>
         <location line="+9"/>
         <source>connexion impossible à </source>
         <translation>cannot connect to </translation>
@@ -8148,7 +8638,7 @@ to the nearest conforming value!</translation>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location line="+233"/>
+        <location line="+235"/>
         <source>Nom de dossier non conforme</source>
         <translation>Non-conforming folder name</translation>
     </message>
@@ -8173,12 +8663,12 @@ to the nearest conforming value!</translation>
         <translation>monthes</translation>
     </message>
     <message>
-        <location line="-1540"/>
+        <location line="-1543"/>
         <source>Redémarrage du programme</source>
         <translation>Restarting the program</translation>
     </message>
     <message>
-        <location line="+1541"/>
+        <location line="+1544"/>
         <source>moissingulier</source>
         <translation>month</translation>
     </message>
@@ -8206,6 +8696,51 @@ with a high risk of data corruption</translation>
         <location line="+434"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>File access error:</translation>
+    </message>
+    <message>
+        <location filename="utils.h" line="+217"/>
+        <source>Pour configurer automatiquement ce poste afin de lui permettre d&apos;accèder à un serveur Rufus</source>
+        <translation>To set this computer up automatically so that it can access a Rufus server</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>1. Enregistrez depuis le serveur les données de connexion sur une clé USB ou tout autre support amovible</source>
+        <translation>1. From the server, save the connection details onto a USB stick or any other removable medium</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. Sur le serveur -&gt; Menu Edition/Paramètres/ Onglet Monoposte - bouton Exporter les données de connexion</source>
+        <translation>2. On the server -&gt; Edit/Settings menu / Single station tab - Export the connection details button</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>3. puis, branchez le support amovible sur ce poste</source>
+        <translation>3. then plug the removable medium into this computer</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>4. puis, cliquez sur ce bouton et, dans la fenêtre de navigation qui s&apos;affiche</source>
+        <translation>4. then click this button and, in the browsing window that appears</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>5. retrouvez le dossier %1 sur ce support amovible</source>
+        <translation>5. find the %1 folder on that removable medium</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>6. l&apos;adresse du serveur, le port, le mot de passe et les clés SSL sont configurés automatiquement</source>
+        <translation>6. the server address, the port, the password and the SSL keys are set up automatically</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Ce dossier contient TOUT ce qui permet de se connecter à votre base : mot de passe, adresses, port et clés SSL. Quiconque le récupère peut lire et modifier les dossiers de vos patients.</source>
+        <translation>This folder contains EVERYTHING needed to connect to your database: password, addresses, port and SSL keys. Anyone who gets it can read and change your patients&apos; files.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Effacez-le du support dès qu&apos;il a servi, et gardez ce support en lieu sûr : ne le laissez pas branché, ne le confiez à personne.</source>
+        <translation>Erase it from the medium as soon as it has been used, and keep that medium in a safe place: do not leave it plugged in, do not lend it to anyone.</translation>
     </message>
 </context>
 <context>
@@ -9491,7 +10026,7 @@ contributions</translation>
 <context>
     <name>dlg_choixccam</name>
     <message>
-        <location filename="Dialogs/dlg_gestioncotations.cpp" line="+459"/>
+        <location filename="Dialogs/dlg_gestioncotations.cpp" line="+472"/>
         <location line="+3"/>
         <source>Actes CCAM</source>
         <translation>CCAM acts</translation>
@@ -9515,6 +10050,114 @@ contributions</translation>
         <location line="+1"/>
         <source>non OPTAM</source>
         <translation>non OPTAM</translation>
+    </message>
+</context>
+<context>
+    <name>dlg_choixcotation</name>
+    <message>
+        <location filename="Dialogs/dlg_choixcotation.cpp" line="+52"/>
+        <source>Rechercher une cotation</source>
+        <translation>Search for a quotation</translation>
+    </message>
+    <message>
+        <location line="+71"/>
+        <source>Uniquement l&apos;ophtalmologie</source>
+        <translation>Ophthalmology only</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Toutes les cotations</source>
+        <translation>All the quotations</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>CCAM</source>
+        <translation>CCAM</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>NGAP</source>
+        <translation>NGAP</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Associations CCAM</source>
+        <translation>CCAM combinations</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Hors convention</source>
+        <translation>Outside the agreement</translation>
+    </message>
+    <message>
+        <location line="+90"/>
+        <source>Cotation</source>
+        <translation>Quotation</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Descriptif</source>
+        <translation>Description</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Non OPTAM</source>
+        <translation>Non OPTAM</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>OPTAM</source>
+        <translation>OPTAM</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Pratiqué</source>
+        <translation>Usual</translation>
+    </message>
+    <message>
+        <location line="+101"/>
+        <source>Cotation inutilisée</source>
+        <translation>Unused quotation</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cette cotation n&apos;est plus utilisée par personne.</source>
+        <translation>This quotation is no longer used by anyone.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Voulez-vous la supprimer de la liste des cotations ?</source>
+        <translation>Do you want to delete it from the list of quotations?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Non</source>
+        <translation>No</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Oui</source>
+        <translation>Yes</translation>
+    </message>
+    <message>
+        <location line="+128"/>
+        <source>Supprimer une cotation</source>
+        <translation>Delete a quotation</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Voulez-vous vraiment supprimer la cotation %1 ?</source>
+        <translation>Do you really want to delete the quotation %1?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Annuler</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Supprimer</source>
+        <translation>Delete</translation>
     </message>
 </context>
 <context>
@@ -11382,19 +12025,15 @@ Would you like to automatically fill in the fields with dummy details?.
 <context>
     <name>dlg_gestioncotations</name>
     <message>
-        <location filename="Dialogs/dlg_gestioncotations.cpp" line="-508"/>
+        <location filename="Dialogs/dlg_gestioncotations.cpp" line="-521"/>
         <source>Nouvelle cotation</source>
         <translation>New quotation</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Ajouter une cotation CCAM</source>
-        <translation>Add a CCAM quotation</translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Créer une association CCAM</source>
-        <translation>Create a CCAM combination</translation>
+        <oldsource>Ajouter une cotation CCAM</oldsource>
+        <translation>Add a CCAM quotation</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11402,7 +12041,7 @@ Would you like to automatically fill in the fields with dummy details?.
         <translation>Create a quotation</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+27"/>
         <source>Choisir un code CCAM</source>
         <translation>Choose a CCAM code</translation>
     </message>
@@ -11417,7 +12056,7 @@ Would you like to automatically fill in the fields with dummy details?.
         <translation>Standard non-OPTAM fee</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="+117"/>
         <source>Montant conventionnel</source>
         <translation>Standard amount</translation>
     </message>
@@ -11432,12 +12071,7 @@ Would you like to automatically fill in the fields with dummy details?.
         <translation>Standard OPTAM fee</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Cotation CCAM</source>
-        <translation>CCAM quotation</translation>
-    </message>
-    <message>
-        <location line="+0"/>
+        <location line="+9"/>
         <source>Association CCAM</source>
         <translation>CCAM combination</translation>
     </message>
@@ -11447,7 +12081,7 @@ Would you like to automatically fill in the fields with dummy details?.
         <translation>Quotation</translation>
     </message>
     <message>
-        <location line="+118"/>
+        <location line="+116"/>
         <source>Renseignements incomplets</source>
         <translation>Incomplete information</translation>
     </message>
@@ -11467,7 +12101,7 @@ Would you like to automatically fill in the fields with dummy details?.
         <translation>You have forgotten the fee charged</translation>
     </message>
     <message>
-        <location line="-253"/>
+        <location line="-268"/>
         <source>Tarif pratiqué</source>
         <translation>Used price</translation>
     </message>
@@ -13586,14 +14220,14 @@ to find out how to modify this secure-file-priv variable in your server configur
     </message>
     <message>
         <location line="+16"/>
-        <location filename="Dialogs/dlg_impressions.cpp" line="+2797"/>
+        <location filename="Dialogs/dlg_impressions.cpp" line="+2788"/>
         <location line="+45"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
     <message>
         <location line="+26"/>
-        <location filename="Dialogs/dlg_impressions.cpp" line="-1581"/>
+        <location filename="Dialogs/dlg_impressions.cpp" line="-1579"/>
         <source>Imprimer
 la sélection</source>
         <translation>Print
@@ -13622,19 +14256,19 @@ et documents publics</oldsource>
         <translation>PDF</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_impressions.cpp" line="-2025"/>
+        <location filename="Dialogs/dlg_impressions.cpp" line="-2018"/>
         <source>Préparer un document pour </source>
         <translation>Prepare a document for </translation>
     </message>
     <message>
         <location line="+12"/>
-        <location line="+1314"/>
-        <location line="+124"/>
+        <location line="+1315"/>
+        <location line="+120"/>
         <source>dd/MM/yyyy</source>
         <translation>MM/dd/yyyy</translation>
     </message>
     <message>
-        <location line="-1437"/>
+        <location line="-1434"/>
         <source>Cocher cette case pour visualiser les dossiers et documents rendus publics par leurs créateurs
 Ces dossiers et documents sont affichés en caractères italiques bleus</source>
         <translation>Check this box to view folders and documents made public by their creators.
@@ -13952,12 +14586,12 @@ in a window before printing</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+2496"/>
+        <location line="+2488"/>
         <source>Document administratif</source>
         <translation>Administrative document</translation>
     </message>
     <message>
-        <location line="-2490"/>
+        <location line="-2482"/>
         <source>Recopier ce document</source>
         <translation>Copy this document</translation>
     </message>
@@ -13987,7 +14621,7 @@ in a window before printing</translation>
         <translation>What caregiver?</translation>
     </message>
     <message>
-        <location line="+248"/>
+        <location line="+249"/>
         <source>Pas d&apos;émetteur pour ce document</source>
         <translation>No sender for this document</translation>
     </message>
@@ -14007,27 +14641,27 @@ in a window before printing</translation>
         <translation>You haven&apos;t selected a document.</translation>
     </message>
     <message>
-        <location line="+153"/>
-        <location line="+125"/>
+        <location line="+149"/>
+        <location line="+121"/>
         <source>chaque oeil</source>
         <translation>each eye</translation>
     </message>
     <message>
-        <location line="-125"/>
-        <location line="+125"/>
+        <location line="-121"/>
+        <location line="+121"/>
         <location line="+1438"/>
         <source>l&apos;oeil droit</source>
         <translation>the right eye</translation>
     </message>
     <message>
-        <location line="-1563"/>
-        <location line="+125"/>
+        <location line="-1559"/>
+        <location line="+121"/>
         <location line="+1440"/>
         <source>l&apos;oeil gauche</source>
         <translation>the left eye</translation>
     </message>
     <message>
-        <location line="-1552"/>
+        <location line="-1548"/>
         <source>Droit</source>
         <translation>Right</translation>
     </message>
@@ -14053,24 +14687,24 @@ in a window before printing</translation>
     </message>
     <message>
         <location line="+25"/>
-        <location line="+1524"/>
+        <location line="+1520"/>
         <source>Locale</source>
         <translation>Local</translation>
     </message>
     <message>
-        <location line="-1523"/>
-        <location line="+1525"/>
+        <location line="-1519"/>
+        <location line="+1521"/>
         <source>LocoRegionale</source>
         <translation>LocoRegional</translation>
     </message>
     <message>
-        <location line="-1524"/>
-        <location line="+1526"/>
+        <location line="-1520"/>
+        <location line="+1522"/>
         <source>Générale</source>
         <translation>General</translation>
     </message>
     <message>
-        <location line="-1525"/>
+        <location line="-1521"/>
         <source>Sans objet</source>
         <translation>Not applicable</translation>
     </message>
@@ -14105,7 +14739,7 @@ in a window before printing</translation>
         <translation>Emergency</translation>
     </message>
     <message>
-        <location line="+161"/>
+        <location line="+157"/>
         <location line="+1149"/>
         <location line="+11"/>
         <location line="+156"/>
@@ -14444,7 +15078,7 @@ which is a private document!</translation>
         <translation>To whom should I send this letter?</translation>
     </message>
     <message>
-        <location line="+95"/>
+        <location line="+94"/>
         <source>TITRES DES DOCUMENTS</source>
         <translation>DOCUMENT TITLES</translation>
     </message>
@@ -14459,7 +15093,7 @@ which is a private document!</translation>
         <translation>Document editable before printing</translation>
     </message>
     <message>
-        <location line="+96"/>
+        <location line="+95"/>
         <source>DOSSIERS</source>
         <translation>FOLDERS</translation>
     </message>
@@ -16770,14 +17404,14 @@ Do you confirm the entry?</translation>
     </message>
     <message>
         <location line="+35"/>
-        <location line="+510"/>
+        <location line="+482"/>
         <location line="+253"/>
-        <location line="+384"/>
+        <location line="+399"/>
         <source>Mot de passe</source>
         <translation>Password</translation>
     </message>
     <message>
-        <location line="-861"/>
+        <location line="-848"/>
         <source>Modifier mes données</source>
         <translation>Modify my datas</translation>
     </message>
@@ -16787,43 +17421,76 @@ Do you confirm the entry?</translation>
         <translation>Change screen font</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+222"/>
+        <source>Exporter les données de connexion pour paramétrer un accès distant</source>
+        <translation>Export the connection details to set up a remote access</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <location line="+633"/>
+        <source>Exporter les données de connexion</source>
+        <translation>Export the connection details</translation>
+    </message>
+    <message>
+        <location line="-617"/>
+        <location line="+614"/>
+        <source>Exporter sur une clé USB les données de connexion à ce serveur distant, pour paramétrer un autre poste</source>
+        <translation>Export onto a USB stick the details for connecting to this remote server, to set up another computer</translation>
+    </message>
+    <message>
+        <location line="-370"/>
+        <location line="+389"/>
+        <source>Importer les données de connexion</source>
+        <translation>Import the connection details</translation>
+    </message>
+    <message>
+        <location line="-375"/>
+        <source>Cet appareil se connecte à un serveur local</source>
+        <translation>This device connects to a local server</translation>
+    </message>
+    <message>
+        <location line="+392"/>
+        <source>Cet appareil se connecte à un serveur distant</source>
+        <translation>This device connects to a remote server</translation>
+    </message>
+    <message>
+        <location line="+2374"/>
         <source>T</source>
         <translation>T</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="-3225"/>
         <source>Ce poste</source>
         <translation>This workstation</translation>
     </message>
     <message>
         <location line="+61"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3794"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+4046"/>
         <source>Monoposte</source>
         <translation>Single station</translation>
     </message>
     <message>
         <location line="+37"/>
         <location line="+253"/>
-        <location line="+280"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3130"/>
+        <location line="+295"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3340"/>
         <source>Port</source>
         <translation>Port</translation>
     </message>
     <message>
-        <location line="-413"/>
+        <location line="-428"/>
         <source>Cet appareil héberge un serveur</source>
         <translation>This device hosts a server</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+226"/>
-        <location line="+379"/>
+        <location line="+241"/>
+        <location line="+395"/>
         <source>Emplacement des dossiers des documents émis par chaque appareil d&apos;imagerie</source>
         <translation>Location of document files issued by each imaging device</translation>
     </message>
     <message>
-        <location line="-589"/>
+        <location line="-620"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Emplacement du dossier d&apos;imagerie&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Imaging folder location&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -16834,39 +17501,32 @@ Do you confirm the entry?</translation>
     </message>
     <message>
         <location line="+57"/>
-        <location line="+233"/>
-        <location line="+379"/>
+        <location line="+248"/>
+        <location line="+395"/>
         <source>Chemin depuis ce poste
 du dossier de stockage des videos</source>
         <translation>Path from this workstation
 to the video files folder</translation>
     </message>
     <message>
-        <location line="-605"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3131"/>
+        <location line="-636"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3341"/>
         <source>Réseau local</source>
         <translation>Local network</translation>
     </message>
     <message>
         <location line="+89"/>
-        <location line="+234"/>
-        <location line="+1595"/>
+        <location line="+249"/>
+        <location line="+1548"/>
         <source>Emplacement</source>
         <translation>Location</translation>
     </message>
     <message>
-        <location line="-1799"/>
-        <source>Cet appareil peut se connecter à
-un serveur hébergé sur le réseau local</source>
-        <translation>This device can connect to
-a server hosted on the local network</translation>
-    </message>
-    <message>
-        <location line="-142"/>
-        <location line="+233"/>
+        <location line="-1909"/>
+        <location line="+248"/>
         <location line="+58"/>
         <location line="+109"/>
-        <location line="+187"/>
+        <location line="+203"/>
         <location line="+83"/>
         <location line="+260"/>
         <location line="+44"/>
@@ -16874,19 +17534,19 @@ a server hosted on the local network</translation>
         <location line="+44"/>
         <location line="+72"/>
         <location line="+16"/>
-        <location line="+809"/>
+        <location line="+746"/>
         <location line="+589"/>
         <location line="+13"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location line="-3080"/>
+        <location line="-3020"/>
         <source>Cotations</source>
         <translation>Quotations</translation>
     </message>
     <message>
-        <location line="+409"/>
+        <location line="+381"/>
         <source>Recréer le mot de passe de la base si l&apos;ancien est perdu (protégé par le mot de passe Administrateur)</source>
         <translation>Recreate the database password if the old one is lost (protected by the Administrator password)</translation>
     </message>
@@ -16896,25 +17556,12 @@ a server hosted on the local network</translation>
         <translation>Recreate the database password</translation>
     </message>
     <message>
-        <location line="+16"/>
-        <location line="+19"/>
-        <location line="+599"/>
-        <source>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</source>
-        <translation>Copy the SSL client keys to a USB drive, to deploy them on remote-access workstations</translation>
-    </message>
-    <message>
-        <location line="-615"/>
-        <location line="+618"/>
-        <source>Exporter les clés client SSL (clé USB)</source>
-        <translation>Export the SSL client keys (USB drive)</translation>
-    </message>
-    <message>
-        <location line="-599"/>
+        <location line="+38"/>
         <source>Créer de nouvelles clés SSL</source>
         <translation>Create new SSL keys</translation>
     </message>
     <message>
-        <location line="+313"/>
+        <location line="+328"/>
         <source>Chemin depuis ce poste
 du dossier d&apos;imagerie sur le serveur</source>
         <translation>Path from this workstation
@@ -16932,12 +17579,7 @@ to the imaging folder on the server</translation>
         <translation>Location of SSL client keys</translation>
     </message>
     <message>
-        <location line="+103"/>
-        <source>Cet appareil peut se connecter à un serveur distant</source>
-        <translation>This device can connect to a remote server</translation>
-    </message>
-    <message>
-        <location line="+51"/>
+        <location line="+170"/>
         <source>Emplacement du dossier de copie des originaux
 des fichiers image importés depuis ce poste</source>
         <translation>Folder location for copying originals
@@ -17033,7 +17675,7 @@ of image files imported from this workstation</translation>
         <translation>This device does not participate in the import of imaging documents</translation>
     </message>
     <message>
-        <location line="+133"/>
+        <location line="+70"/>
         <source>Général</source>
         <translation>General</translation>
     </message>
@@ -17117,8 +17759,8 @@ the data</translation>
     </message>
     <message>
         <location line="+100"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3159"/>
-        <location line="+1028"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3369"/>
+        <location line="+1029"/>
         <source>Appareils connectés au réseau</source>
         <translation>Devices connected to network</translation>
     </message>
@@ -17234,7 +17876,7 @@ management</translation>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="-1483"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-1517"/>
         <source>Emplacement du dossier de stockage des documents d&apos;imagerie &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;SUR CE POSTE SERVEUR&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Cet emplacement n&apos;est pas modifiable et correspond à la variable secure_file_priv de MySQL</source>
         <translation>Imaging document storage folder location&lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;ON THIS SERVER STATION&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;This location cannot be modified and corresponds to MySQL&apos;s secure_file_priv variable</translation>
     </message>
@@ -17274,7 +17916,7 @@ management</translation>
         <translation>Location of tonometer measurement file</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+126"/>
         <source>Code postal par défaut</source>
         <translation>Default zip code</translation>
     </message>
@@ -17284,7 +17926,7 @@ management</translation>
         <translation>Default city</translation>
     </message>
     <message>
-        <location line="+174"/>
+        <location line="+175"/>
         <source>Evitez de modifier les réglages de l&apos;imprimante</source>
         <translation>Avoid modifying printer settings</translation>
     </message>
@@ -17350,17 +17992,17 @@ management</translation>
         <translation>You&apos;ve made some changes. Would you like to save them?</translation>
     </message>
     <message>
-        <location line="-433"/>
-        <location line="+78"/>
-        <location line="+357"/>
-        <location line="+779"/>
+        <location line="-461"/>
+        <location line="+105"/>
+        <location line="+358"/>
+        <location line="+780"/>
         <location line="+112"/>
-        <location line="+786"/>
+        <location line="+993"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location line="-2330"/>
+        <location line="-2576"/>
         <source>modifier une cotation.&lt;br&gt;</source>
         <translation>modify a quotation.&lt;br&gt;</translation>
     </message>
@@ -17375,13 +18017,28 @@ management</translation>
         <translation>Click ? for help</translation>
     </message>
     <message>
-        <location line="+188"/>
-        <location line="+435"/>
+        <location line="+24"/>
+        <source>Réunit sur une clé USB ou tout autre support toutes les données de connexion qui permettront à un autre poste, sur le réseau local du cabinet ou par internet, de se connecter à ce serveur</source>
+        <translation>Gathers onto a USB stick or any other medium all the connection details that will let another computer, on the practice&apos;s local network or over the internet, connect to this server</translation>
+    </message>
+    <message>
+        <location line="+174"/>
+        <location line="+463"/>
         <source>Enregistrer</source>
         <translation>Save</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="-401"/>
+        <source>Délai avant l&apos;alerte « Rufus ne répond pas » (ms)</source>
+        <translation>Delay before the &quot;Rufus is not responding&quot; warning (ms)</translation>
+    </message>
+    <message>
+        <location line="+61"/>
+        <source>Vous avez choisi d&apos;enregistrer une comptabilité simplifiée.</source>
+        <translation>You have chosen to keep simplified accounts.</translation>
+    </message>
+    <message>
+        <location line="+439"/>
         <source>Repertoire invalide!</source>
         <translation>Invalid folder!</translation>
     </message>
@@ -17391,7 +18048,7 @@ management</translation>
         <translation>Unable to find device name</translation>
     </message>
     <message>
-        <location line="+157"/>
+        <location line="+158"/>
         <source>Saisissez votre mot de passe</source>
         <translation>Enter your password</translation>
     </message>
@@ -17586,45 +18243,38 @@ in order to take account of the changes you have made!</translation>
         <translation>Consultations reasons</translation>
     </message>
     <message>
-        <location line="+533"/>
+        <location line="+726"/>
         <source>Clés client SSL indisponibles</source>
         <translation>SSL client keys unavailable</translation>
     </message>
     <message>
-        <location line="-47"/>
-        <location line="+54"/>
+        <location line="-195"/>
+        <location line="+201"/>
         <source>Sélectionnez la clé USB de destination</source>
         <translation>Select the destination USB drive</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="-192"/>
+        <location line="+91"/>
+        <location line="+110"/>
         <source>Dossier inaccessible</source>
         <translation>Folder not accessible</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Impossible de créer le sous-dossier SSLKeys dans l&apos;emplacement choisi.</source>
-        <translation>Unable to create the SSLKeys subfolder in the chosen location.</translation>
-    </message>
-    <message>
-        <location line="-51"/>
-        <location line="+69"/>
+        <location line="-192"/>
+        <location line="+23"/>
+        <location line="+188"/>
+        <location line="+12"/>
         <source>Export incomplet</source>
         <translation>Incomplete export</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-11"/>
         <source>Certains fichiers n&apos;ont pas pu être copiés :</source>
         <translation>Some files could not be copied:</translation>
     </message>
     <message>
-        <location line="-65"/>
-        <location line="+69"/>
-        <source>Clés client SSL exportées</source>
-        <translation>SSL client keys exported</translation>
-    </message>
-    <message>
-        <location line="-2308"/>
+        <location line="-2536"/>
         <source>&lt;b&gt;Table des cotations référencées par Rufus&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Table of the quotations referenced by Rufus&lt;/b&gt;&lt;br&gt;</translation>
     </message>
@@ -17669,7 +18319,7 @@ in order to take account of the changes you have made!</translation>
         <translation>Complete erasure of the patient database and the imaging folders</translation>
     </message>
     <message>
-        <location line="+150"/>
+        <location line="+160"/>
         <source>cette fonction n&apos;est encore implémentée</source>
         <translation>this function is not implemented yet</translation>
     </message>
@@ -17697,7 +18347,7 @@ Do you want to save it?</translation>
         <translation>Test</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+63"/>
         <source>Ce réglage concerne toute la base et n&apos;est lu qu&apos;au démarrage : Rufus va redémarrer pour le prendre en compte.
 Voulez-vous l&apos;enregistrer?</source>
         <translation>This setting applies to the whole database and is only read at startup: Rufus will restart to take it into account.
@@ -17714,22 +18364,12 @@ Do you want to save it?</translation>
         <translation>You have chosen to use accounting.</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>En chantier</source>
-        <translation>Work in progress</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Cette fonction n&apos;est pas encore implémentée.</source>
-        <translation>This function is not implemented yet.</translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Vous avez choisi de ne pas enregistrer de comptabilité.</source>
         <translation>You have chosen not to use accounting.</translation>
     </message>
     <message>
-        <location line="+1007"/>
+        <location line="+1009"/>
         <location line="+528"/>
         <source>Choisissez le dossier dans lequel vous voulez sauvegarder la base</source>
         <translation>Choose the folder in which you want to save the database</translation>
@@ -17806,7 +18446,7 @@ Do you want to save it?</translation>
         <translation>The procedure is described in the section &quot;On the client computers — Mounting the server&apos;s imaging folder at computer start-up&quot; of the page</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+89"/>
         <source>Clés SSL introuvables</source>
         <translation>SSL keys not found</translation>
     </message>
@@ -17816,22 +18456,7 @@ Do you want to save it?</translation>
         <translation>The indicated folder does not contain the practice&apos;s three SSL keys:</translation>
     </message>
     <message>
-        <location line="+17"/>
-        <source>Clés SSL non lisibles</source>
-        <translation>SSL keys not readable</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Les clés de ce dossier ne sont pas lisibles par votre compte.</source>
-        <translation>The keys in this folder are not readable by your account.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Validez dans la boîte suivante, avec le mot de passe administrateur, la correction de leurs droits.</source>
-        <translation>In the next box, confirm the correction of their permissions with the administrator password.</translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+22"/>
         <source>Correction impossible</source>
         <translation>Correction impossible</translation>
     </message>
@@ -17841,7 +18466,7 @@ Do you want to save it?</translation>
         <translation>The permissions of the keys could not be corrected.</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+51"/>
         <source>Clés SSL indisponibles</source>
         <translation>SSL keys unavailable</translation>
     </message>
@@ -17856,22 +18481,12 @@ Do you want to save it?</translation>
         <translation>They are created when Rufus installs it.</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+34"/>
         <source>Les clés SSL n&apos;ont pas pu être copiées sur :</source>
         <translation>The SSL keys could not be copied to:</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Les clés client SSL ont été copiées sur :</source>
-        <translation>The SSL client keys have been copied to:</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Déployez-les dans le dossier des clés SSL de chaque poste en accès distant.</source>
-        <translation>Deploy them in the SSL keys folder of each remote-access workstation.</translation>
-    </message>
-    <message>
-        <location line="+13"/>
+        <location line="+161"/>
         <source>Dossier des clés SSL non renseigné</source>
         <translation>SSL keys folder not specified</translation>
     </message>
@@ -17891,17 +18506,7 @@ Do you want to save it?</translation>
         <translation>The SSL keys folder does not contain the required keys:</translation>
     </message>
     <message>
-        <location line="+39"/>
-        <source>Les clés SSL d&apos;accès distant ont été copiées sur :</source>
-        <translation>The remote-access SSL keys have been copied to:</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Déployez-les sur l&apos;autre poste en accès distant, puis indiquez-y leur dossier.</source>
-        <translation>Deploy them on the other remote-access workstation, then point it to their folder.</translation>
-    </message>
-    <message>
-        <location line="+12"/>
+        <location line="+66"/>
         <source>Créer de nouvelles clés SSL ?</source>
         <translation>Create new SSL keys?</translation>
     </message>
@@ -17951,8 +18556,8 @@ Do you want to save it?</translation>
         <translation>Rufus will restart.</translation>
     </message>
     <message>
-        <location line="-2047"/>
-        <location line="+2048"/>
+        <location line="-2256"/>
+        <location line="+2257"/>
         <source>Redémarrage du programme en cours…</source>
         <translation>Restarting the program…</translation>
     </message>
@@ -18009,7 +18614,7 @@ Do you want to save it?</translation>
         <translation>Change the connection password?</translation>
     </message>
     <message>
-        <location line="+1327"/>
+        <location line="+1329"/>
         <source>Acte</source>
         <translation>Act</translation>
     </message>
@@ -18019,7 +18624,7 @@ Do you want to save it?</translation>
         <translation>Standard</translation>
     </message>
     <message>
-        <location line="-1329"/>
+        <location line="-1331"/>
         <source>Le modifier risque d&apos;empêcher ce poste de se reconnecter.</source>
         <translation>Changing it may prevent this workstation from reconnecting.</translation>
     </message>
@@ -18029,7 +18634,7 @@ Do you want to save it?</translation>
         <translation>Oops</translation>
     </message>
     <message>
-        <location line="+442"/>
+        <location line="+444"/>
         <source>Erreur</source>
         <translation>Error</translation>
     </message>
@@ -18121,7 +18726,237 @@ settings for this device</translation>
         <translation>The same COM port is assigned to several different devices!</translation>
     </message>
     <message>
-        <location line="-1130"/>
+        <location line="-1612"/>
+        <source>(ou ca.pem)</source>
+        <translation>(or ca.pem)</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Enregistrement des clés SSL</source>
+        <translation>Saving the SSL keys</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvlles clés</source>
+        <translation>In the next box, confirm the saving of the new keys</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>en entrant le mot de passe administrateur de l&apos;ordinateur.</source>
+        <translation>by entering the computer&apos;s administrator password.</translation>
+    </message>
+    <message>
+        <location line="+64"/>
+        <source>Adresse publique introuvable</source>
+        <translation>Public address not found</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rufus n&apos;a pas pu relever l&apos;adresse publique de ce cabinet.</source>
+        <translation>Rufus could not read this practice&apos;s public address.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Saisissez-la dans la boîte suivante.</source>
+        <translation>Enter it in the next box.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Adresse à laquelle le poste distant joindra ce serveur :</source>
+        <translation>Address at which the remote computer will reach this server:</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <location line="+201"/>
+        <source>Impossible de créer le dossier %1 dans l&apos;emplacement choisi.</source>
+        <translation>The %1 folder cannot be created in the chosen location.</translation>
+    </message>
+    <message>
+        <location line="-169"/>
+        <location line="+200"/>
+        <source>Les données de connexion n&apos;ont pas pu être écrites sur :</source>
+        <translation>The connection details could not be written onto:</translation>
+    </message>
+    <message>
+        <location line="-194"/>
+        <location line="+198"/>
+        <source>Données de connexion exportées</source>
+        <translation>Connection details exported</translation>
+    </message>
+    <message>
+        <location line="-197"/>
+        <location line="+198"/>
+        <source>Les données de connexion ont été correctement copiées dans :</source>
+        <translation>The connection details have been correctly copied into:</translation>
+    </message>
+    <message>
+        <location line="-196"/>
+        <source>Si cet ordinateur doit faire office de serveur dans un réseau,</source>
+        <translation>If this computer is to act as a server on a network,</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>il vous faut bloquer sa mise en veille automatique afin</source>
+        <translation>you must block its automatic sleep so</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>qu&apos;il reste toujours disponible pour répondre aux requêtes des autres postes du réseau.</source>
+        <translation>that it always stays available to answer the requests of the other computers on the network.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Pour connecter un autre poste à ce serveur, branchez-y ce support, démarrez Rufus et ouvrez le menu Edition / Paramètres, onglet Ce poste.</source>
+        <translation>To connect another computer to this server, plug this medium into it, start Rufus and open the Edit / Settings menu, This computer tab.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Poste du réseau local</source>
+        <translation>Computer on the local network</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cochez « Cet appareil se connecte à un serveur local », puis « Importer les données de connexion ».</source>
+        <translation>Check &quot;This device connects to a local server&quot;, then &quot;Import the connection details&quot;.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La box du cabinet doit réserver à cet ordinateur une adresse IP fixe (%1).</source>
+        <translation>The practice&apos;s router must reserve a fixed IP address (%1) for this computer.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le dossier d&apos;imagerie partagé par ce serveur doit être monté automatiquement au démarrage du poste, sans quoi Rufus ne le retrouvera pas.</source>
+        <translation>The imaging folder shared by this server must be mounted automatically when the computer starts, otherwise Rufus will not find it.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <location line="+6"/>
+        <source>La marche à suivre est décrite sur :</source>
+        <translation>The procedure is described at:</translation>
+    </message>
+    <message>
+        <location line="-4"/>
+        <source>Poste en accès distant</source>
+        <translation>Computer in remote access</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cochez « Cet appareil se connecte à un serveur distant », puis « Importer les données de connexion ».</source>
+        <translation>Check &quot;This device connects to a remote server&quot;, then &quot;Import the connection details&quot;.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La box doit rediriger le port %1 vers cet ordinateur, et au besoin demander une adresse IP fixe à votre opérateur.</source>
+        <translation>The router must forward port %1 to this computer, and if needed ask your provider for a fixed IP address.</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Sélectionnez le dossier %1 sur la clé USB</source>
+        <translation>Select the %1 folder on the USB stick</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Dossier incomplet</source>
+        <translation>Incomplete folder</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce dossier ne contient pas les données de connexion exportées par le serveur.</source>
+        <translation>This folder does not contain the connection details exported by the server.</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Impossible de créer le dossier des clés SSL :</source>
+        <translation>The SSL keys folder cannot be created:</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Import incomplet</source>
+        <translation>Incomplete import</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Certaines clés SSL n&apos;ont pas pu être copiées :</source>
+        <translation>Some SSL keys could not be copied:</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Données de connexion importées</source>
+        <translation>Connection details imported</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce poste est paramétré pour joindre le serveur %1.</source>
+        <translation>This computer is set up to reach the server %1.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Les clés SSL ont été copiées dans :</source>
+        <translation>The SSL keys have been copied into:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le dossier d&apos;imagerie partagé par le serveur doit être monté automatiquement au démarrage de cet ordinateur, sans quoi Rufus ne le retrouvera pas.</source>
+        <translation>The imaging folder shared by the server must be mounted automatically when this computer starts, otherwise Rufus will not find it.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Pour que ce poste joigne le serveur, la box du cabinet doit rediriger le port %1 vers lui.</source>
+        <translation>For this computer to reach the server, the practice&apos;s router must forward port %1 to it.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Pour que ce poste retrouve le serveur, la box du cabinet doit lui réserver une adresse IP fixe (%1).</source>
+        <translation>For this computer to find the server, the practice&apos;s router must reserve a fixed IP address (%1) for it.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le serveur ne doit pas non plus se mettre en veille, sinon ce poste ne le trouvera plus.</source>
+        <translation>The server must not go to sleep either, otherwise this computer will no longer find it.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Effacer les données du support ?</source>
+        <translation>Erase the data from the medium?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Les données de connexion sont maintenant enregistrées sur ce poste.</source>
+        <translation>The connection details are now saved on this computer.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Voulez-vous les effacer du support amovible ?</source>
+        <translation>Do you want to erase them from the removable medium?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Conserver</source>
+        <translation>Keep</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Effacer</source>
+        <translation>Erase</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Effacement impossible</source>
+        <translation>Erasing impossible</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le dossier n&apos;a pas pu être supprimé du support.</source>
+        <translation>The folder could not be deleted from the medium.</translation>
+    </message>
+    <message>
+        <location line="+81"/>
+        <source>Sur l&apos;autre poste, onglet Accès distant, cochez « Cet appareil se connecte à un serveur distant », puis « Importer les données de connexion ».</source>
+        <translation>On the other computer, Remote access tab, check &quot;This device connects to a remote server&quot;, then &quot;Import the connection details&quot;.</translation>
+    </message>
+    <message>
+        <location line="+141"/>
         <source>Base restaurée</source>
         <translation>Database restored</translation>
     </message>
@@ -18136,7 +18971,7 @@ settings for this device</translation>
         <translation>yes, change the password</translation>
     </message>
     <message>
-        <location line="+964"/>
+        <location line="+966"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour l&apos;autorefractomètre </source>
         <translation>You have not specified a communication port for the autorefractometer </translation>
     </message>
@@ -18241,99 +19076,16 @@ settings for this device</translation>
     </message>
 </context>
 <context>
-    <name>dlg_paramconnexion</name>
-    <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="+25"/>
-        <source>Paramètrage de connexion à la base</source>
-        <translation>Connnexion to the database</translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Emplacement du serveur</source>
-        <translation>Server location</translation>
-    </message>
-    <message>
-        <location line="-4"/>
-        <source>Sur ce poste</source>
-        <translation>On this workstation</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Réseau local</source>
-        <translation>Local network</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Accès distant</source>
-        <translation>Remote access</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Adresse IP du serveur</source>
-        <translation>Server IP Adress</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Emplacement clés SSL</source>
-        <translation>SSL Keys location</translation>
-    </message>
-    <message>
-        <location line="+24"/>
-        <source>Port</source>
-        <translation>Port</translation>
-    </message>
-    <message>
-        <location line="+54"/>
-        <source>Informations importantes sur l&apos;accès par internet</source>
-        <translation>Important information about Internet access</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Pour des raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données.</source>
-        <translation>For privacy reasons, remote access in Rufus always works with data encryption.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:</source>
-        <translation>If you want to use remote access on this computer, you must:</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>1. le serveur MySQL soit configuré pour le cryptage</source>
-        <translation>1. the MySQL server is configured for encryption</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>2. que sur ce poste les clés clientes SSL soient installées.</source>
-        <translation>2. the SSL client keys are installed on this computer.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Reportez-vous à la page internet :</source>
-        <translation>Refer to the web page:</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>pour savoir comment modifier la configuration du serveur et générer des clés de cryptage.</source>
-        <translation>to find out how to change the server configuration and generate encryption keys.</translation>
-    </message>
-    <message>
-        <location line="+30"/>
-        <source>Vous n&apos;avez pas précisé d&apos;adresse valide pour les clés SSL.</source>
-        <translation>You have not specified a valid address for the SSL keys.</translation>
-    </message>
-    <message>
-        <location line="-6"/>
-        <source>Vous n&apos;avez pas précisé l&apos;adresse du serveur.</source>
-        <translation>You didn&apos;t specify the server adress.</translation>
-    </message>
-</context>
-<context>
     <name>dlg_programmationinterventions</name>
     <message>
-        <location filename="Dialogs/dlg_programmationinterventions.cpp" line="+28"/>
+        <location filename="Dialogs/dlg_programmationinterventions.cpp" line="+29"/>
         <source>Programmer une intervention pour </source>
         <translation>Schedule surgery for </translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Programme opératoire</source>
+        <translation>Surgical program</translation>
     </message>
     <message>
         <location line="+29"/>
@@ -19175,23 +19927,23 @@ No bank account is registered.</translation>
     <message>
         <location line="+45"/>
         <location line="+630"/>
-        <location line="+931"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="+1588"/>
+        <location line="+976"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="+1631"/>
         <location line="+1"/>
         <source>Œil droit</source>
         <translation>Right eye</translation>
     </message>
     <message>
-        <location line="-1545"/>
+        <location line="-1590"/>
         <location line="+544"/>
-        <location line="+1014"/>
+        <location line="+1059"/>
         <location filename="Dialogs/dlg_refraction.cpp" line="+1"/>
         <location line="+1"/>
         <source>Œil gauche</source>
         <translation>Left eye</translation>
     </message>
     <message>
-        <location line="-1541"/>
+        <location line="-1586"/>
         <source>Verres spéciaux</source>
         <translation>Special lenses</translation>
     </message>
@@ -19291,7 +20043,7 @@ No bank account is registered.</translation>
     </message>
     <message>
         <location line="+57"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="-2392"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="-2435"/>
         <source>+ de détails</source>
         <translation>more details</translation>
     </message>
@@ -19312,12 +20064,12 @@ No bank account is registered.</translation>
     </message>
     <message>
         <location line="+16"/>
-        <location line="+776"/>
+        <location line="+821"/>
         <source>Les 2</source>
         <translation>Both</translation>
     </message>
     <message>
-        <location line="-757"/>
+        <location line="-802"/>
         <source>Vision de Loin</source>
         <translation>Far vision</translation>
     </message>
@@ -19338,13 +20090,13 @@ No bank account is registered.</translation>
     </message>
     <message>
         <location line="+19"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="+1376"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="+1419"/>
         <source>Prescription</source>
         <translation>Prescription</translation>
     </message>
     <message>
         <location line="+16"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="-1879"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="-1922"/>
         <location line="+14"/>
         <source>Réfraction</source>
         <translation>Refraction</translation>
@@ -19357,7 +20109,7 @@ No bank account is registered.</translation>
     </message>
     <message>
         <location line="+26"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="+3076"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="+3120"/>
         <location line="+79"/>
         <location line="+19"/>
         <source>Enregistrer
@@ -19396,7 +20148,17 @@ and close</translation>
         <translation>PD</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+31"/>
+        <source>Mail</source>
+        <translation>email</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>PDF</source>
+        <translation>PDF</translation>
+    </message>
+    <message>
+        <location line="+36"/>
         <source>Aperçu de la prescription</source>
         <translation>Prescription  preview</translation>
     </message>
@@ -19429,7 +20191,7 @@ Comment</translation>
     </message>
     <message>
         <location line="+12"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="-211"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="-212"/>
         <source>Monture</source>
         <translation>Frame</translation>
     </message>
@@ -19475,7 +20237,7 @@ Comment</translation>
         <translation>Near vision</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_refraction.cpp" line="-3337"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="-3380"/>
         <source>Transférer la mesure de fronto au réfracteur</source>
         <translation>Transfer the lensmeter measurement to the refractor</translation>
     </message>
@@ -19517,7 +20279,7 @@ Comment</translation>
     </message>
     <message>
         <location line="+11"/>
-        <location line="+2636"/>
+        <location line="+2680"/>
         <location line="+2"/>
         <location line="+122"/>
         <location line="+2"/>
@@ -19525,9 +20287,9 @@ Comment</translation>
         <translation>less details</translation>
     </message>
     <message>
-        <location line="-2624"/>
+        <location line="-2668"/>
         <location line="+83"/>
-        <location line="+1255"/>
+        <location line="+1298"/>
         <location line="+2"/>
         <location line="+630"/>
         <location line="+5"/>
@@ -19546,7 +20308,7 @@ Comment</translation>
         <translation>frosted</translation>
     </message>
     <message>
-        <location line="-2271"/>
+        <location line="-2314"/>
         <location line="+2"/>
         <location line="+81"/>
         <location line="+2"/>
@@ -19556,7 +20318,7 @@ Comment</translation>
     <message>
         <location line="-79"/>
         <location line="+83"/>
-        <location line="+1550"/>
+        <location line="+1593"/>
         <location line="+3"/>
         <location line="+4"/>
         <location line="+10"/>
@@ -19569,7 +20331,7 @@ Comment</translation>
         <translation>Prism </translation>
     </message>
     <message>
-        <location line="-2330"/>
+        <location line="-2373"/>
         <location line="+3"/>
         <location line="+6"/>
         <location line="+4"/>
@@ -19577,7 +20339,7 @@ Comment</translation>
         <location line="+3"/>
         <location line="+6"/>
         <location line="+4"/>
-        <location line="+1233"/>
+        <location line="+1276"/>
         <location line="+29"/>
         <location line="+181"/>
         <location line="+2"/>
@@ -19615,9 +20377,9 @@ Comment</translation>
         <translation> to </translation>
     </message>
     <message>
-        <location line="-2240"/>
+        <location line="-2283"/>
         <location line="+83"/>
-        <location line="+1213"/>
+        <location line="+1256"/>
         <location line="+2"/>
         <location line="+16"/>
         <location line="+9"/>
@@ -19656,9 +20418,9 @@ Comment</translation>
         <translation>plano</translation>
     </message>
     <message>
-        <location line="-2241"/>
+        <location line="-2284"/>
         <location line="+83"/>
-        <location line="+1234"/>
+        <location line="+1277"/>
         <location line="+29"/>
         <location line="+146"/>
         <location line="+5"/>
@@ -19674,7 +20436,7 @@ Comment</translation>
         <translation> Near</translation>
     </message>
     <message>
-        <location line="-1656"/>
+        <location line="-1699"/>
         <location line="+162"/>
         <source>Contrôle de cohérence</source>
         <translation>Consistency check</translation>
@@ -19686,7 +20448,7 @@ Comment</translation>
         <translation>You forgot to enter the near correction!</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+37"/>
         <source>Ordonnance déjà imprimée</source>
         <translation>Prescription already printed</translation>
     </message>
@@ -19701,12 +20463,42 @@ Comment</translation>
         <translation>Would you like to reprint it?</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+69"/>
         <source>Prescription correction</source>
         <translation>Prescription correction</translation>
     </message>
     <message>
-        <location line="+62"/>
+        <location line="+5"/>
+        <source>Documents</source>
+        <translation>Documents</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Enregistrement pdf</source>
+        <translation>Saving pdf</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Echec enregistrement pdf</source>
+        <translation>Registration failure pdf</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>fichier</source>
+        <translation>file</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>sauvegardé sur le bureau dans le dossier </source>
+        <translation>saved on Desktop in folder </translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Impossible d&apos;enregistrer le fichier </source>
+        <translation>Cannot save the file </translation>
+    </message>
+    <message>
+        <location line="+86"/>
         <source>(zeroPL|PLnonO|PLO|VBLM|CLD 50cm|CLD 1m|0,5/10|0\.5/10|1/10|1,6/10|1\.6/10|2/10|2\.5/10|2,5/10|3/10|4/10|5/10|6/10|6\.3/10|6,3/10|7/10|8/10|9/10|10/10|12/10|16/10)</source>
         <translation>(zeroPL|PLnonO|PLO|VBLM|CLD 50cm|CLD 1m|0,5/10|0\.5/10|1/10|1,6/10|1\.6/10|2/10|2\.5/10|2,5/10|3/10|4/10|5/10|6/10|6\.3/10|6,3/10|7/10|8/10|9/10|10/10|12/10|16/10)</translation>
     </message>
@@ -19747,22 +20539,22 @@ Comment</translation>
     </message>
     <message>
         <location line="+176"/>
-        <location line="+1968"/>
+        <location line="+1969"/>
         <location line="+23"/>
         <location line="+182"/>
         <source>Ecart interpupillaire</source>
         <translation>Pupillary distance</translation>
     </message>
     <message>
-        <location line="-2173"/>
-        <location line="+1968"/>
+        <location line="-2174"/>
+        <location line="+1969"/>
         <location line="+23"/>
         <location line="+182"/>
         <source>inconnu</source>
         <translation>unknown</translation>
     </message>
     <message>
-        <location line="-2158"/>
+        <location line="-2159"/>
         <source>Impossible de se connecter à la table des Donnees biométriques!</source>
         <translation>Unable to connect to the Biometric Data table!</translation>
     </message>
@@ -20113,7 +20905,7 @@ Comment</translation>
         <translation>Refractions history </translation>
     </message>
     <message>
-        <location line="+160"/>
+        <location line="+161"/>
         <source>Imprimer</source>
         <translation>Print</translation>
     </message>

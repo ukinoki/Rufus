@@ -103,7 +103,7 @@
     </message>
     <message>
         <location line="+26"/>
-        <location line="+407"/>
+        <location line="+453"/>
         <location line="+89"/>
         <location line="+35"/>
         <source>
@@ -114,7 +114,7 @@ Erro
 </translation>
     </message>
     <message>
-        <location line="-531"/>
+        <location line="-577"/>
         <source>
 requete = </source>
         <translation>
@@ -126,17 +126,17 @@ consulta = </translation>
         <translation>consulta = </translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+155"/>
         <source>Mode d&apos;accès non défini : appelez setModeacces() avant de vous connecter.</source>
         <translation>Modo de acesso não definido: chame setModeacces() antes de se ligar.</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="-90"/>
         <source>Clés SSL introuvables</source>
         <translation>Chaves SSL não encontradas</translation>
     </message>
     <message>
-        <location line="+145"/>
+        <location line="+211"/>
         <source>Le dossier de sauvegarde d&apos;imagerie </source>
         <translation>A pasta de backup de imagens </translation>
     </message>
@@ -226,7 +226,7 @@ consulta = </translation>
         <translation>Diversos e outras receitas</translation>
     </message>
     <message>
-        <location line="+515"/>
+        <location line="+530"/>
         <source>Ville déjà enregistrée</source>
         <translation>Cidade já registrada</translation>
     </message>
@@ -948,7 +948,7 @@ consulta = </translation>
 <context>
     <name>MySQLInstaller</name>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+942"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+761"/>
         <source>Téléchargement de Visual C++ Redistributable 2022…</source>
         <translation>Baixando o Visual C++ Redistributable 2022…</translation>
     </message>
@@ -1000,7 +1000,7 @@ Connectez-vous avec un compte administrateur (ou demandez à un administrateur d
 Faça login com uma conta de administrador (ou peça a um administrador para executá-lo) e reinicie.</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+23"/>
         <source>Visual C++ Redistributable requis</source>
         <translation>Visual C++ Redistributable necessário</translation>
     </message>
@@ -1022,60 +1022,38 @@ Verifique sua ligação com a Internet e reinicie.</translation>
         <translation>Este programa requer o Ubuntu 22.04 ou uma versão posterior.</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <location line="+344"/>
+        <location line="+358"/>
         <source>Installation de MySQL</source>
         <translation>Instalação do MySQL</translation>
     </message>
     <message>
-        <location line="-343"/>
-        <source>Pour installer Rufus, il est nécessaire d&apos;installer une base de données MySQL sur cet ordinateur.
-
-Voulez-vous l&apos;installer maintenant ?</source>
-        <translation>Para instalar o Rufus, é necessário instalar uma base de dados MySQL neste computador.
-
-Deseja instalá-lo agora?</translation>
-    </message>
-    <message>
-        <location line="+1649"/>
+        <location line="+1562"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location line="-1599"/>
-        <location line="+223"/>
-        <location line="+624"/>
+        <location line="-1806"/>
+        <location line="+998"/>
         <source>Connexion impossible</source>
         <translation>Ligação impossível</translation>
     </message>
     <message>
-        <location line="-842"/>
-        <location line="+223"/>
+        <location line="-993"/>
         <source>Connexion refusée avec cet identifiant / mot de passe. Réessayez.</source>
         <translation>Ligação recusada com este utilizador / palavra-passe. Tente novamente.</translation>
     </message>
     <message>
-        <location line="+13"/>
-        <source>Droits insuffisants</source>
-        <translation>Direitos insuficientes</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="-84"/>
         <source>Le compte MySQL « %1 » n&apos;a pas le droit de créer des utilisateurs (CREATE USER). Réessayez avec un compte administrateur MySQL (par ex. root).</source>
         <translation>A conta MySQL «%1» não tem permissão para criar utilizadores (CREATE USER). Tente novamente com uma conta de administrador do MySQL (por exemplo, root).</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Erreur</source>
-        <translation>Erro</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Impossible de créer les comptes Rufus.</source>
         <translation>Não é possível criar as contas do Rufus.</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+357"/>
         <source>Paramétrage de l&apos;installation pour Rufus en cours…</source>
         <translation>Configurando a instalação para o Rufus…</translation>
     </message>
@@ -1085,21 +1063,7 @@ Deseja instalá-lo agora?</translation>
         <translation>Baixando e instalando o servidor MySQL…</translation>
     </message>
     <message>
-        <location line="-330"/>
-        <source>Installation d&apos;un serveur MySQL neuf</source>
-        <translation>Instalação de um servidor MySQL novo</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Rufus doit installer un serveur MySQL neuf sur cet ordinateur.
-
-Le serveur actuel et tout ce qu&apos;il contient seront supprimés. Voulez-vous continuer ?</source>
-        <translation>O Rufus tem de instalar um servidor MySQL novo neste computador.
-
-O servidor atual e tudo o que contém serão eliminados. Deseja continuar?</translation>
-    </message>
-    <message>
-        <location line="+20"/>
+        <location line="-291"/>
         <source>Un serveur MySQL est déjà installé</source>
         <translation>Já está instalado um servidor MySQL</translation>
     </message>
@@ -1113,19 +1077,17 @@ Disposez-vous d&apos;un identifiant et d&apos;un mot de passe administrateur de 
 Dispõe de um identificador e de uma palavra-passe de administrador deste servidor MySQL?</translation>
     </message>
     <message>
-        <location line="+16"/>
-        <location line="+223"/>
+        <location line="+47"/>
         <source>Le serveur MySQL de cet ordinateur ne répond pas.</source>
         <translation>O servidor MySQL deste computador não responde.</translation>
     </message>
     <message>
-        <location line="-222"/>
-        <location line="+223"/>
+        <location line="+1"/>
         <source>Il est installé mais non démarré : ni l&apos;identifiant ni le mot de passe ne sont en cause.</source>
         <translation>Está instalado mas não iniciado: nem o identificador nem a palavra-passe estão em causa.</translation>
     </message>
     <message>
-        <location line="-18"/>
+        <location line="-97"/>
         <source>Configuration de MySQL</source>
         <translation>Configuração do MySQL</translation>
     </message>
@@ -1135,12 +1097,121 @@ Dispõe de um identificador e de uma palavra-passe de administrador deste servid
         <translation>Configuração do servidor em curso…</translation>
     </message>
     <message>
-        <location line="+119"/>
+        <location line="+12"/>
+        <source>Comptes Rufus non créés</source>
+        <translation>Contas Rufus não criadas</translation>
+    </message>
+    <message>
+        <location line="+65"/>
+        <source>Un serveur MySQL existe déjà.
+Saisissez l&apos;identifiant d&apos;un compte MySQL administrateur
+- capable de créer des utilisateurs -</source>
+        <translation>Já existe um servidor MySQL.
+Introduza o identificador de uma conta MySQL administradora
+- capaz de criar utilizadores -</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Mot de passe</source>
+        <translation>Palavra-passe</translation>
+    </message>
+    <message>
+        <location line="+149"/>
+        <source>Erreur de connexion au serveur MySQL</source>
+        <translation>Erro de ligação com o servidor MySQL</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La connexion à MySQL a échoué après l&apos;installation.</source>
+        <translation>A ligação com o MySQL falhou após a instalação.</translation>
+    </message>
+    <message>
+        <location line="+144"/>
         <source>Serveur MySQL installé</source>
         <translation>Servidor MySQL instalado</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+22"/>
+        <location line="+505"/>
+        <source>&lt;b&gt;Pourquoi ce message ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Porque esta mensagem?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="-504"/>
+        <source>Pour protéger vos données, ce serveur est protégé par un mot de passe unique et aléatoire, créé à l&apos;instant et propre à votre cabinet — Rufus n&apos;utilise plus de mot de passe générique connu.</source>
+        <translation>Para proteger os seus dados, este servidor está protegido por uma palavra-passe única e aleatória, criada agora mesmo e própria do seu consultório — o Rufus já não utiliza uma palavra-passe genérica conhecida.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&lt;b&gt;Qu&apos;est-ce que ça change pour les autres postes ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;O que muda para os outros postos?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Si d&apos;autres ordinateurs consultent ce serveur, ils doivent utiliser la même version de Rufus que celle-ci et connaître ce mot de passe sécurisé. Un poste équipé d&apos;une ancienne version ne pourra pas se connecter.</source>
+        <translation>Se outros computadores consultam este servidor, devem utilizar a mesma versão do Rufus que esta e conhecer esta palavra-passe segura. Um posto com uma versão antiga não conseguirá ligar-se.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&lt;b&gt;Que faire pour connecter un autre poste ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;O que fazer para ligar outro posto?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>1. Installez ou mettez à jour Rufus sur cet autre poste avec la présente version.</source>
+        <translation>1. Instale ou atualize o Rufus nesse outro posto com a presente versão.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. Munissez-vous du mot de passe sécurisé (celui que Rufus vient de vous inviter à noter).</source>
+        <translation>2. Tenha à mão a palavra-passe segura (aquela que o Rufus acabou de lhe pedir para anotar).</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>3. Au premier lancement, saisissez-le lorsque Rufus le demande (ou importez-le depuis la clé USB si vous l&apos;y avez enregistré).</source>
+        <translation>3. No primeiro arranque, introduza-a quando o Rufus a pedir (ou importe-a da pen USB se a guardou lá).</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;b&gt;Où est ce mot de passe ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Onde está esta palavra-passe?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>C&apos;est le mot de passe que Rufus vous a demandé de conserver en lieu sûr (papier ou clé USB) juste après l&apos;installation. Gardez-le : il est nécessaire pour tout nouveau poste.</source>
+        <translation>É a palavra-passe que o Rufus lhe pediu para guardar em lugar seguro (papel ou pen USB) logo após a instalação. Guarde-a: é necessária para cada novo posto.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Connexion des autres postes</source>
+        <translation>Ligação dos outros postos</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ce serveur utilise un mot de passe sécurisé.</source>
+        <translation>Este servidor utiliza uma palavra-passe segura.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Si d&apos;autres postes doivent se connecter à ce serveur avec une ancienne version de Rufus, ils ne pourront pas : il faudra d&apos;abord les mettre à jour avec cette version, puis leur fournir ce mot de passe sécurisé.</source>
+        <translation>Se outros postos tiverem de se ligar a este servidor com uma versão antiga do Rufus, não conseguirão: será preciso primeiro atualizá-los para esta versão e depois fornecer-lhes esta palavra-passe segura.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <location line="+1"/>
+        <location line="+515"/>
+        <location line="+1"/>
+        <source>Plus d&apos;explications</source>
+        <translation>Mais explicações</translation>
+    </message>
+    <message>
+        <location line="-515"/>
+        <location line="+516"/>
+        <source>OK, j&apos;ai compris</source>
+        <translation>OK, compreendi</translation>
+    </message>
+    <message>
+        <location line="-496"/>
         <source>Réinstallation de MySQL</source>
         <translation>Reinstalação do MySQL</translation>
     </message>
@@ -1150,7 +1221,7 @@ Dispõe de um identificador e de uma palavra-passe de administrador deste servid
         <translation>Instalando o servidor MySQL…</translation>
     </message>
     <message>
-        <location line="+305"/>
+        <location line="+318"/>
         <source>Certificats SSL expirés</source>
         <translation>Certificados SSL expirados</translation>
     </message>
@@ -1255,7 +1326,97 @@ Dispõe de um identificador e de uma palavra-passe de administrador deste servid
         <translation>Mande gerar novas chaves NO POSTO SERVIDOR (menu Editar / Definições / Este posto → «Criar novas chaves SSL»), depois peça que lhe enviem as novas chaves e indique aqui a respetiva pasta.</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+76"/>
+        <source>l&apos;Explorateur de fichiers</source>
+        <translation>o Explorador de Ficheiros</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>le Finder</source>
+        <translation>o Finder</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>le gestionnaire de fichiers « Fichiers »</source>
+        <translation>o gestor de ficheiros «Ficheiros»</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Rufus vient de réinstaller son moteur de base de données. La base (vos patients, vos consultations) a été sauvegardée et remise en place automatiquement. En revanche, les images (fond d&apos;œil, OCT, champ visuel, documents scannés) ne sont pas dans la base : ce sont des fichiers rangés dans un dossier de l&apos;ordinateur. Rufus ne peut pas deviner où se trouvaient vos anciennes images ; c&apos;est pourquoi il vous demande de vérifier.</source>
+        <translation>O Rufus acabou de reinstalar o seu motor de base de dados. A base (os seus doentes, as suas consultas) foi guardada e reposta automaticamente. Em contrapartida, as imagens (fundo do olho, OCT, campo visual, documentos digitalizados) não estão na base: são ficheiros guardados numa pasta do computador. O Rufus não pode adivinhar onde estavam as suas imagens antigas; é por isso que lhe pede para verificar.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&lt;b&gt;Où doivent être vos images maintenant ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Onde devem estar as suas imagens agora?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Dans ce dossier, et nulle part ailleurs :</source>
+        <translation>Nesta pasta, e em nenhum outro lugar:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;b&gt;Comment vérifier et, au besoin, recopier vos images ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Como verificar e, se necessário, recopiar as suas imagens?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>1. Ouvrez le gestionnaire de fichiers de votre ordinateur (%1).</source>
+        <translation>1. Abra o gestor de ficheiros do seu computador (%1).</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. Cherchez le dossier où étaient rangées vos images avant (souvent un dossier nommé Rufus puis Imagerie, à l&apos;endroit que vous aviez choisi lors de la première installation).</source>
+        <translation>2. Procure a pasta onde estavam antes as suas imagens (muitas vezes uma pasta chamada Rufus e depois Imagerie, no lugar que escolheu na primeira instalação).</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>3. Si ce dossier contient bien vos images et qu&apos;il n&apos;est pas celui indiqué ci-dessus, sélectionnez tout son contenu, faites Copier, puis Collez le tout dans le dossier indiqué ci-dessus.</source>
+        <translation>3. Se essa pasta contém realmente as suas imagens e não é a indicada acima, selecione todo o seu conteúdo, faça Copiar e depois Cole tudo na pasta indicada acima.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>4. Vous pouvez copier (et non déplacer) : vos fichiers d&apos;origine restent en place, rien n&apos;est perdu si vous vous trompez.</source>
+        <translation>4. Pode copiar (e não mover): os seus ficheiros de origem ficam no lugar, nada se perde se se enganar.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;b&gt;Et si je ne trouve pas mes anciennes images ?&lt;/b&gt;</source>
+        <translation>&lt;b&gt;E se não encontrar as minhas imagens antigas?&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ne supprimez rien et ne réinstallez rien. Vos fichiers sont toujours sur le disque, là où ils étaient. Notez le message et contactez l&apos;assistance : on retrouvera le dossier avec vous.</source>
+        <translation>Não elimine nada e não reinstale nada. Os seus ficheiros continuam no disco, onde estavam. Anote a mensagem e contacte a assistência: encontraremos a pasta com você.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Vos documents d&apos;imagerie (photos du fond d&apos;œil, OCT, champs visuels, scanners…) ne font pas partie de la sauvegarde de la base de données : ils sont rangés à part, dans un dossier.</source>
+        <translation>Os seus documentos de imagens (fotos do fundo do olho, OCT, campos visuais, digitalizações…) não fazem parte da cópia de segurança da base de dados: são guardados à parte, numa pasta.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Vos anciennes images se trouvent dans :</source>
+        <translation>As suas imagens antigas encontram-se em:</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Recopiez-les vous-même dans le nouveau dossier :</source>
+        <translation>Recopie-as você mesmo para a nova pasta:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le bouton « Plus d&apos;explications » vous montre comment faire, pas à pas.</source>
+        <translation>O botão «Mais explicações» mostra-lhe como fazer, passo a passo.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Vos documents d&apos;imagerie</source>
+        <translation>Os seus documentos de imagens</translation>
+    </message>
+    <message>
+        <location line="+68"/>
         <source>PATH non configuré</source>
         <translation>PATH não configurado</translation>
     </message>
@@ -1265,7 +1426,7 @@ Dispõe de um identificador e de uma palavra-passe de administrador deste servid
         <translation>Não é possível adicionar o caminho do mysql à variável PATH.</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+13"/>
         <source>Création d&apos;utilisateur impossible</source>
         <translation>Não é possível criar o utilizador</translation>
     </message>
@@ -1276,7 +1437,7 @@ Dispõe de um identificador e de uma palavra-passe de administrador deste servid
     </message>
     <message>
         <location line="+3"/>
-        <location line="+21"/>
+        <location line="+61"/>
         <source>Détail :</source>
         <translation>Detalhes:</translation>
     </message>
@@ -1308,7 +1469,7 @@ Vérifiez le login et le mot de passe.</source>
 Verifique o login e a palavra-passe.</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+3"/>
         <source>Écriture impossible</source>
         <translation>Gravação impossível</translation>
     </message>
@@ -1322,7 +1483,14 @@ Vérifiez que le compte « %2 » possède le privilège FILE et que les droits d
 Verifique se a conta «%2» tem o privilégio FILE e se as permissões da pasta autorizam a escrita.</translation>
     </message>
     <message>
-        <location line="+214"/>
+        <location line="+19"/>
+        <source>Suppression du serveur MySQL en place…
+Cela peut durer plusieurs minutes.</source>
+        <translation>Remoção do servidor MySQL existente…
+Isto pode durar vários minutos.</translation>
+    </message>
+    <message>
+        <location line="+198"/>
         <source>Mise à jour du partage réseau</source>
         <translation>Atualização da partilha de rede</translation>
     </message>
@@ -1348,7 +1516,7 @@ Verifique se a conta «%2» tem o privilégio FILE e se as permissões da pasta 
         <translation>Consoante o tamanho da pasta de imagens, a operação pode demorar um a dois minutos, durante os quais o ecrã pode parecer bloqueado.</translation>
     </message>
     <message>
-        <location line="+409"/>
+        <location line="+434"/>
         <source>Ce poste utilise un mot de passe sécurisé pour accèder au serveur de base de données.</source>
         <translation>Este posto utiliza uma palavra-passe segura para aceder ao servidor de base de dados.</translation>
     </message>
@@ -1397,7 +1565,7 @@ en créer un nouveau</source>
 criar uma nova</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+24"/>
         <source>Mot de passe non récupéré</source>
         <translation>Palavra-passe não recuperada</translation>
     </message>
@@ -1412,21 +1580,7 @@ criar uma nova</translation>
         <translation>Ligue-se a partir de um posto da rede local ou do servidor para recuperar ou recriar a palavra-passe segura do consultório.</translation>
     </message>
     <message>
-        <location line="+22"/>
-        <source>Base de données sécurisée</source>
-        <translation>Base de dados protegida</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Aucun mot de passe connu ne permet de se connecter à cette base : elle a été sécurisée sur un autre poste.
-
-Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne, ou le saisir si vous le connaissez.</source>
-        <translation>Nenhuma palavra-passe conhecida permite ligar-se a esta base: foi protegida noutro posto.
-
-Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir de um posto que funcione, ou introduzi-la se a conhecer.</translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+61"/>
         <source>Saisir le mot de passe</source>
         <translation>Introduzir a palavra-passe</translation>
     </message>
@@ -1436,22 +1590,12 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>Importar de uma pen USB</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Je n&apos;ai aucun mot de passe</source>
-        <translation>Não tenho nenhuma palavra-passe</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Réinitialiser le programme</source>
-        <translation>Reinicializar o programa</translation>
-    </message>
-    <message>
-        <location line="+17"/>
+        <location line="+79"/>
         <source>Sélectionnez le fichier du mot de passe sur la clé USB</source>
         <translation>Selecione o ficheiro da palavra-passe na pen USB</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+17"/>
         <source>Fichier illisible</source>
         <translation>Ficheiro ilegível</translation>
     </message>
@@ -1461,12 +1605,12 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>Este ficheiro não contém uma palavra-passe válida.</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-25"/>
         <source>Entrez le mot de passe MySQL du cabinet :</source>
         <translation>Introduza a palavra-passe MySQL do consultório:</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="-11"/>
         <source>Mot de passe incorrect</source>
         <translation>Palavra-passe incorreta</translation>
     </message>
@@ -1476,7 +1620,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>Esta palavra-passe não permite ligar-se à base de dados.</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+57"/>
         <source>Impossible depuis un poste distant</source>
         <translation>Impossível a partir de um posto remoto</translation>
     </message>
@@ -1521,7 +1665,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>Esta proteção não pode ser feita a partir de um posto remoto.</translation>
     </message>
     <message>
-        <location line="+91"/>
+        <location line="+90"/>
         <source>Mot de passe générique à désactiver</source>
         <translation>Palavra-passe genérica a desativar</translation>
     </message>
@@ -1541,7 +1685,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>Não pode ser desativada a partir de um posto remoto: ligue-se a partir de um posto da rede local ou do servidor para a desencadear.</translation>
     </message>
     <message>
-        <location line="+528"/>
+        <location line="+547"/>
         <source>Étape : %1</source>
         <translation>Etapa: %1</translation>
     </message>
@@ -1586,7 +1730,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>verificação da variável do servidor após o reinício</translation>
     </message>
     <message>
-        <location line="+437"/>
+        <location line="+401"/>
         <source>Compte de secours non créé</source>
         <translation>Conta de emergência não criada</translation>
     </message>
@@ -1601,18 +1745,18 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>Nada foi modificado; o Rufus tentará novamente no próximo arranque.</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <location line="+5"/>
+        <location line="+12"/>
+        <location line="+7"/>
         <source>Mot de passe de secours enregistré</source>
         <translation>Palavra-passe de emergência registada</translation>
     </message>
     <message>
-        <location line="-4"/>
+        <location line="-6"/>
         <source>Votre mot de passe de secours est en place.</source>
         <translation>A sua palavra-passe de emergência está ativa.</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>En revanche, Rufus n&apos;a pas pu supprimer le compte « root » de MySQL</source>
         <translation>Em contrapartida, o Rufus não conseguiu eliminar a conta «root» do MySQL</translation>
     </message>
@@ -1627,7 +1771,8 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>Não a esqueça: não está escrita em lado nenhum e é ela que lhe permitirá recuperar o acesso à sua base se todas as outras palavras-passe se perderem.</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="-1249"/>
+        <location line="+1282"/>
         <source>Mot de passe de secours refusé</source>
         <translation>Palavra-passe de emergência recusada</translation>
     </message>
@@ -1652,7 +1797,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>A ligação de emergência funciona, mas o Rufus não conseguiu reescrever as contas de acesso à base.</translation>
     </message>
     <message>
-        <location line="+377"/>
+        <location line="+367"/>
         <source>Dossier d&apos;imagerie déplacé</source>
         <translation>Pasta de imagens deslocada</translation>
     </message>
@@ -1707,7 +1852,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>e configurá-lo-á automaticamente para a sua utilização.</translation>
     </message>
     <message>
-        <location line="-2963"/>
+        <location line="-3107"/>
         <source>Privilèges manquants</source>
         <translation>Privilégios ausentes</translation>
     </message>
@@ -1717,7 +1862,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>Privilégio(s) ausente(s) para «%1»: %2</translation>
     </message>
     <message>
-        <location line="+214"/>
+        <location line="+284"/>
         <source>Correction de la configuration MySQL</source>
         <translation>Correção da configuração do MySQL</translation>
     </message>
@@ -1752,7 +1897,7 @@ Pode recuperar a palavra-passe do consultório copiada para uma pen USB a partir
         <translation>O Rufus continua; algumas funções (imagens, cópia de segurança) podem ser afetadas.</translation>
     </message>
     <message>
-        <location line="+384"/>
+        <location line="+410"/>
         <source>Mot de passe générique bientôt désactivé</source>
         <translation>Palavra-passe genérica em breve desativada</translation>
     </message>
@@ -1819,9 +1964,44 @@ mot de passe</source>
 palavra-passe</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+65"/>
+        <source>Connexion impossible à la base de données</source>
+        <translation>Ligação impossível à base de dados</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Récupérer le mot de passe du cabinet</source>
         <translation>Recuperar a palavra-passe do consultório</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Aucun mot de passe connu ne permet de connecter Rufus à la base de donnnées</source>
+        <translation>Nenhuma palavra-passe conhecida permite ligar o Rufus à base de dados</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Vous pouvez :</source>
+        <translation>Pode:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>. récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne</source>
+        <translation>. recuperar a palavra-passe do consultório copiada para uma pen USB a partir de um posto que funciona</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>. le saisir si vous le connaissez.</source>
+        <translation>. introduzi-la se a conhecer.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>. tenter une récupération avec le mot de passe de secours si vous le connaissez</source>
+        <translation>. tentar uma recuperação com a palavra-passe de recurso se a conhecer</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>. saisir un identifiant/mot de passe MySQL valide</source>
+        <translation>. introduzir um identificador/palavra-passe MySQL válidos</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1829,7 +2009,41 @@ palavra-passe</translation>
         <translation>Introduza a palavra-passe segura do consultório, ou importe-a da pen USB para a qual foi copiada a partir de um posto atualizado.</translation>
     </message>
     <message>
-        <location line="+320"/>
+        <location line="+14"/>
+        <source>Je dispose d&apos;un identifiant
+MySQL valide</source>
+        <translation>Disponho de um identificador
+MySQL válido</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Tenter de récupérer l&apos;accès
+avec le mot de passe de secours</source>
+        <translation>Tentar recuperar o acesso
+com a palavra-passe de recurso</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Ce mot de passe de secours ne permet pas d&apos;accéder à la base de données.</source>
+        <translation>Esta palavra-passe de recurso não permite aceder à base de dados.</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Identifiant inutilisable</source>
+        <translation>Identificador inutilizável</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce compte MySQL ne permet pas d&apos;ouvrir la base de données, ou n&apos;y a pas tous les droits nécessaires.</source>
+        <translation>Esta conta MySQL não permite abrir a base de dados, ou não tem nela todas as permissões necessárias.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Un compte déclaré pour la seule adresse « %1 » ne convient pas : il doit aussi l&apos;être pour « localhost ».</source>
+        <translation>Uma conta declarada apenas para o endereço «%1» não serve: também deve estar declarada para «localhost».</translation>
+    </message>
+    <message>
+        <location line="+267"/>
         <source>Téléchargement de MySQL %1 (Oracle)…</source>
         <translation>Baixando o MySQL %1 (Oracle)…</translation>
     </message>
@@ -1846,12 +2060,32 @@ palavra-passe</translation>
         <translation>Baixando o MySQL %1…</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+62"/>
         <source>Extraction des fichiers MySQL…</source>
         <translation>Extraindo os ficheiros do MySQL…</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+15"/>
+        <source>Installation bloquée</source>
+        <translation>Instalação bloqueada</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Un programme utilise des fichiers de l&apos;ancienne installation de MySQL et empêche leur remplacement.</source>
+        <translation>Um programa está a utilizar ficheiros da antiga instalação do MySQL e impede a sua substituição.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Fermez les autres programmes puis relancez l&apos;installation.</source>
+        <translation>Feche os outros programas e reinicie a instalação.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Fermez ce programme puis relancez l&apos;installation : %1</source>
+        <translation>Feche este programa e reinicie a instalação: %1</translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Extraction échouée</source>
         <translation>Falha na extração</translation>
     </message>
@@ -1870,7 +2104,7 @@ Detalhe: %1</translation>
         <translation>(sem detalhes)</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+9"/>
         <source>Configuration échouée</source>
         <translation>Falha na configuração</translation>
     </message>
@@ -1880,7 +2114,7 @@ Detalhe: %1</translation>
         <translation>Não é possível gravar %1.</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+15"/>
         <source>Initialisation de la base de données,
 cela peut prendre quelques instants…</source>
         <translation>Inicializando a base de dados,
@@ -1960,8 +2194,13 @@ Detalhe (%2):
         <translation>Reiniciando o MySQL…</translation>
     </message>
     <message>
-        <location line="+676"/>
-        <location line="+142"/>
+        <location line="+517"/>
+        <source>En revanche, Rufus n&apos;a pas pu vérifier le compte « root » de MySQL</source>
+        <translation>Em contrapartida, o Rufus não conseguiu verificar a conta «root» do MySQL</translation>
+    </message>
+    <message>
+        <location line="+120"/>
+        <location line="+140"/>
         <source>Préparation du serveur…
 Cela peut durer plusieurs minutes.</source>
         <translation>Preparando o servidor…
@@ -2009,88 +2248,12 @@ Fechando o programa.</translation>
 <context>
     <name>MySQLInstallerDialog</name>
     <message>
-        <location line="-4805"/>
-        <location line="+5"/>
+        <location line="-4900"/>
         <source>Préparation de MySQL pour Rufus</source>
         <translation>Preparando o MySQL para o Rufus</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <source>Identifiant :</source>
-        <translation>Utilizador:</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Mot de passe :</source>
-        <translation>Palavra-passe:</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Confirmez le mot de passe :</source>
-        <translation>Confirme a palavra-passe:</translation>
-    </message>
-    <message>
-        <location line="+26"/>
-        <source>Supprimer MySQL</source>
-        <translation>Remover o MySQL</translation>
-    </message>
-    <message>
-        <location line="+75"/>
-        <source>Création de la base Rufus</source>
-        <translation>Criação da base Rufus</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Choisissez l&apos;identifiant et le mot de passe que vous utiliserez dans Rufus.</source>
-        <translation>Escolha o utilizador e a palavra-passe que você usará no Rufus.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Installer</source>
-        <translation>Instalar</translation>
-    </message>
-    <message>
-        <location line="+23"/>
-        <source>Connexion à MySQL</source>
-        <translation>Ligação ao MySQL</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Un serveur MySQL existe déjà. Saisissez l&apos;identifiant et le mot de passe d&apos;un compte MySQL administrateur (capable de créer des utilisateurs).</source>
-        <translation>Já existe um servidor MySQL. Introduza o utilizador e a palavra-passe de uma conta de administrador do MySQL (capaz de criar utilizadores).</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Se connecter</source>
-        <translation>Ligar</translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Connexion OK</source>
-        <translation>Ligação OK</translation>
-    </message>
-    <message>
-        <location line="+27"/>
-        <source>Saisie incomplète</source>
-        <translation>Preenchimento incompleto</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Veuillez renseigner un identifiant et un mot de passe.</source>
-        <translation>Introduza um utilizador e uma palavra-passe.</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Confirmation incorrecte</source>
-        <translation>Confirmação incorreta</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Le mot de passe et sa confirmation ne sont pas identiques.</source>
-        <translation>A palavra-passe e a sua confirmação não são idênticas.</translation>
-    </message>
-    <message>
-        <location line="+11"/>
+        <location line="+41"/>
         <source>MySQL %1 (ou ultérieur) installé</source>
         <translation>MySQL %1 (ou posterior) instalado</translation>
     </message>
@@ -2128,7 +2291,7 @@ Fechando o programa.</translation>
 <context>
     <name>MySQLProgressDialog</name>
     <message>
-        <location line="-317"/>
+        <location line="-134"/>
         <source>MySQL Installer</source>
         <translation>Instalador do MySQL</translation>
     </message>
@@ -2273,7 +2436,7 @@ Fechando o programa.</translation>
 <context>
     <name>Procedures</name>
     <message>
-        <location filename="procedures.cpp" line="+276"/>
+        <location filename="procedures.cpp" line="+278"/>
         <source>Choisir une période</source>
         <translation>Escolher um período</translation>
     </message>
@@ -2339,19 +2502,19 @@ Fechando o programa.</translation>
     </message>
     <message>
         <location line="+17"/>
-        <location line="+2863"/>
+        <location line="+2916"/>
         <source>Choisissez un dossier de sauvegarde</source>
         <translation>Escolha uma pasta de backup</translation>
     </message>
     <message>
-        <location line="-2856"/>
-        <location line="+2836"/>
+        <location line="-2909"/>
+        <location line="+2889"/>
         <location line="+30"/>
         <source>Sauvegarde impossible</source>
         <translation>Backup impossível</translation>
     </message>
     <message>
-        <location line="-2865"/>
+        <location line="-2918"/>
         <source>Impossible de créer le dossier de sauvegarde.</source>
         <translation>Não é possível criar a pasta de backup.</translation>
     </message>
@@ -2370,15 +2533,15 @@ Fechando o programa.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+2580"/>
+        <location line="+2633"/>
         <source>table </source>
         <translation>tabela </translation>
     </message>
     <message>
-        <location line="-2564"/>
-        <location line="+2309"/>
+        <location line="-2617"/>
+        <location line="+2353"/>
         <location line="+33"/>
-        <location line="+186"/>
+        <location line="+195"/>
         <location line="+49"/>
         <location line="+23"/>
         <location line="+16"/>
@@ -2388,7 +2551,7 @@ Fechando o programa.</translation>
         <translation>Mensagens</translation>
     </message>
     <message>
-        <location line="-2643"/>
+        <location line="-2696"/>
         <source>Fichier de paramétrage Rufus.ini sauvegardé
 </source>
         <translation>Ficheiro de configuração Rufus.ini salvo
@@ -2467,22 +2630,23 @@ Fechando o programa.</translation>
     <message>
         <location line="-52"/>
         <location line="+54"/>
-        <location line="+1750"/>
+        <location line="+1794"/>
         <location line="+156"/>
-        <location line="+236"/>
-        <location line="+555"/>
-        <location line="+152"/>
+        <location line="+245"/>
+        <location line="+561"/>
+        <location line="+96"/>
+        <location line="+58"/>
         <location line="+51"/>
-        <location line="+65"/>
-        <location line="+19"/>
-        <location line="+756"/>
-        <location line="+689"/>
-        <location line="+644"/>
+        <location line="+72"/>
+        <location line="+1"/>
+        <location line="+798"/>
+        <location line="+652"/>
+        <location line="+1090"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location line="-5127"/>
+        <location line="-5628"/>
         <location line="+54"/>
         <source>Reprendre</source>
         <translation>Continuar</translation>
@@ -2525,12 +2689,12 @@ Fechando o programa.</translation>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+3663"/>
+        <location line="+3755"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation>Quem registra os honorários para </translation>
     </message>
     <message>
-        <location line="-3601"/>
+        <location line="-3693"/>
         <source>remplacé par</source>
         <translation>substituído por</translation>
     </message>
@@ -2551,12 +2715,12 @@ Fechando o programa.</translation>
     </message>
     <message>
         <location line="+0"/>
-        <location line="+650"/>
+        <location line="+663"/>
         <source>d MMMM yyyy</source>
         <translation>d AAAA mm</translation>
     </message>
     <message>
-        <location line="-586"/>
+        <location line="-599"/>
         <source>Erreur d&apos;accès au fichier:
 </source>
         <translation>Erro de acesso ao ficheiro:
@@ -2568,7 +2732,13 @@ Fechando o programa.</translation>
         <translation>Impossível guardar a impressão na base</translation>
     </message>
     <message>
-        <location line="+314"/>
+        <location line="+204"/>
+        <location line="+4297"/>
+        <source>Afficher / masquer le mot de passe</source>
+        <translation>Mostrar / ocultar a palavra-passe</translation>
+    </message>
+    <message>
+        <location line="-4174"/>
         <source>Imprimer</source>
         <translation>Imprimir</translation>
     </message>
@@ -2605,23 +2775,26 @@ Fechando o programa.</translation>
     <message>
         <location line="+6"/>
         <location line="+134"/>
+        <location line="+27"/>
         <source>Enregistrement pdf</source>
         <translation>Guardar PDF</translation>
     </message>
     <message>
-        <location line="-134"/>
+        <location line="-161"/>
         <location line="+134"/>
+        <location line="+27"/>
         <source>Echec enregistrement pdf</source>
         <translation>Falha ao guardar PDF</translation>
     </message>
     <message>
-        <location line="-133"/>
+        <location line="-160"/>
         <location line="+134"/>
+        <location line="+27"/>
         <source>Impossible d&apos;enregistrer le fichier </source>
         <translation>Impossível guardar o ficheiro </translation>
     </message>
     <message>
-        <location line="+127"/>
+        <location line="+131"/>
         <source>Vos données enregistrées pour cette session</source>
         <translation>Seus dados registrados para esta sessão</translation>
     </message>
@@ -2642,12 +2815,12 @@ Fechando o programa.</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+2013"/>
+        <location line="+2059"/>
         <source>Ophtalmologiste</source>
         <translation>Oftalmologista</translation>
     </message>
     <message>
-        <location line="-2011"/>
+        <location line="-2057"/>
         <source>Orthoptiste</source>
         <translation>Ortoptista</translation>
     </message>
@@ -2733,11 +2906,13 @@ Fechando o programa.</translation>
     <message>
         <location line="+0"/>
         <location line="+30"/>
+        <location line="+2879"/>
+        <location line="+864"/>
         <source>Oui</source>
         <translation>Sim</translation>
     </message>
     <message>
-        <location line="-30"/>
+        <location line="-3773"/>
         <location line="+30"/>
         <source>Sans</source>
         <translation>Sem</translation>
@@ -2839,72 +3014,72 @@ Você confirma a exclusão dos dados antigos?
     </message>
     <message>
         <location line="+4"/>
-        <location line="+236"/>
+        <location line="+245"/>
         <source>J&apos;ai compris
 Je confirme</source>
         <translation>Entendi
 Confirmo</translation>
     </message>
     <message>
-        <location line="-197"/>
+        <location line="-206"/>
         <location line="+2"/>
-        <location line="+223"/>
+        <location line="+232"/>
         <location line="+2"/>
         <source>Echec de la restauration</source>
         <translation>Falha na restauração</translation>
     </message>
     <message>
-        <location line="-227"/>
+        <location line="-236"/>
         <location line="+2"/>
-        <location line="+223"/>
+        <location line="+232"/>
         <location line="+2"/>
         <source>Le fichier </source>
         <translation>O ficheiro </translation>
     </message>
     <message>
-        <location line="-227"/>
-        <location line="+225"/>
+        <location line="-236"/>
+        <location line="+234"/>
         <source> n&apos;a pas été trouvé!</source>
         <translation> não foi encontrado!</translation>
     </message>
     <message>
-        <location line="-223"/>
-        <location line="+225"/>
+        <location line="-232"/>
+        <location line="+234"/>
         <source> est vide!</source>
         <translation> está vazio!</translation>
     </message>
     <message>
-        <location line="-221"/>
-        <location line="+205"/>
-        <location line="+20"/>
-        <location line="+346"/>
+        <location line="-230"/>
+        <location line="+213"/>
+        <location line="+21"/>
+        <location line="+350"/>
         <source>Base non restaurée</source>
         <translation>Base não restaurada</translation>
     </message>
     <message>
-        <location line="-565"/>
+        <location line="-578"/>
         <source>Impossible d&apos;éxécuter la restauration!</source>
         <translation>Impossível executar a restauração!</translation>
     </message>
     <message>
         <location line="+8"/>
-        <location line="+219"/>
+        <location line="+228"/>
         <source>Suppression de l&apos;ancienne base Rufus en cours</source>
         <translation>Exclusão da antiga base Rufus em andamento</translation>
     </message>
     <message>
-        <location line="-196"/>
+        <location line="-205"/>
         <source>Création de la base en cours…</source>
         <translation>A criar a base de dados…</translation>
     </message>
     <message>
         <location line="+11"/>
-        <location line="+235"/>
+        <location line="+244"/>
         <source>Incident pendant la restauration</source>
         <translation>Incidente durante a restauração</translation>
     </message>
     <message>
-        <location line="-229"/>
+        <location line="-238"/>
         <source>Base vierge créée</source>
         <translation>Base vazia criada</translation>
     </message>
@@ -2914,18 +3089,18 @@ Confirmo</translation>
         <translation>A criação da base vazia foi bem-sucedida.</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+27"/>
         <source>d MMM yyyy</source>
         <translation>d MMM yyyy</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Choix du dossier de sauvegarde</source>
         <translation>Escolha da pasta de backup</translation>
     </message>
     <message>
-        <location line="-13"/>
+        <location line="-14"/>
         <source>une sauvegarde automatique</source>
         <translation>uma cópia de segurança automática</translation>
     </message>
@@ -2950,7 +3125,7 @@ Confirmo</translation>
         <translation>Utilizar a cópia de segurança automática</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+14"/>
         <source>Une fois le dossier sélectionné, la sauvegarde commencera automatiquement.</source>
         <translation>Após selecionar a pasta, o backup iniciará automaticamente.</translation>
     </message>
@@ -2975,17 +3150,288 @@ Confirmo</translation>
         <translation>A pasta escolhida não contém uma cópia de segurança Rufus completa.</translation>
     </message>
     <message>
-        <location line="-2"/>
+        <location line="+2851"/>
+        <source>Connexion à une base patients Rufus existante</source>
+        <translation>Ligação a uma base de doentes Rufus existente</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Monoposte</source>
+        <translation>Monoposto</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Accès distant</source>
+        <translation>Acesso remoto</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Emplacement du serveur</source>
+        <translation>Localização do servidor</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Importer les données de connexion depuis un support externe (clé USB…)</source>
+        <translation>Importar os dados de ligação a partir de um suporte externo (pen USB…)</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Choisir le dossier %1</source>
+        <translation>Escolher a pasta %1</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;b&gt;Comment récupérer automatiquement vos données de connexion&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Como recuperar automaticamente os seus dados de ligação&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Sur le poste qui héberge la base, ouvrez Edition / Paramètres, onglet Ce poste, et cliquez sur « Exporter les données de connexion » : Rufus copie sur une clé USB un dossier %1 contenant l&apos;adresse du serveur, le port, le mot de passe et les clés SSL.&lt;br&gt;</source>
+        <translation>No posto que aloja a base, abra Edição / Parâmetros, separador Este posto, e clique em «Exportar os dados de ligação»: o Rufus copia para uma pen USB uma pasta %1 com o endereço do servidor, a porta, a palavra-passe e as chaves SSL.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Branchez cette clé sur ce poste, indiquez ci-contre comment il joint le serveur, puis désignez ce dossier : tout est repris et la connexion est éprouvée aussitôt.&lt;br&gt;</source>
+        <translation>Ligue essa pen a este posto, indique ao lado como ele alcança o servidor e depois indique essa pasta: tudo é retomado e a ligação é testada de imediato.&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Effacez ensuite ce dossier de la clé : il donne un accès complet à votre base.</source>
+        <translation>Depois apague essa pasta da pen: ela dá acesso completo à sua base.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Comment récupérer automatiquement vos données de connexion ?</source>
+        <translation>Como recuperar automaticamente os seus dados de ligação?</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Renseigner les données de connexion</source>
+        <translation>Preencher os dados de ligação</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Saisir vous-même l&apos;adresse du serveur, le port, le mot de passe et l&apos;emplacement des clés SSL</source>
+        <translation>Introduzir você mesmo o endereço do servidor, a porta, a palavra-passe e a localização das chaves SSL</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Adresse IP du serveur</source>
+        <translation>Endereço IP do servidor</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Emplacement clés SSL</source>
+        <translation>Localização das chaves SSL</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Dossier d&apos;imagerie du serveur</source>
+        <translation>Pasta de imagens do servidor</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Dossier des vidéos</source>
+        <translation>Pasta dos vídeos</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Mot de passe de connexion à la base</source>
+        <translation>Palavra-passe de ligação à base</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Port</source>
+        <translation>Porta</translation>
+    </message>
+    <message>
+        <location line="+99"/>
+        <source>Ce dossier ne contient pas les clés client-key.pem et client-cert.pem.</source>
+        <translation>Esta pasta não contém as chaves client-key.pem e client-cert.pem.</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Informations importantes sur l&apos;accès par internet</source>
+        <translation>Informações importantes sobre o acesso pela internet</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Pour des raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données.</source>
+        <translation>Por razões de confidencialidade, o acesso remoto no Rufus funciona obrigatoriamente com encriptação de dados.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:</source>
+        <translation>Se quiser utilizar o acesso remoto neste posto, é necessário que:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>1. le serveur MySQL soit configuré pour le cryptage</source>
+        <translation>1. o servidor MySQL esteja configurado para a encriptação</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. que sur ce poste les clés clientes SSL soient installées.</source>
+        <translation>2. as chaves cliente SSL estejam instaladas neste posto.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Reportez-vous à la page internet :</source>
+        <translation>Consulte a página de Internet :</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>pour savoir comment modifier la configuration du serveur et générer des clés de cryptage.</source>
+        <translation>para saber como alterar a configuração do servidor e gerar chaves de encriptação.</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Vous n&apos;avez pas précisé l&apos;adresse du serveur.</source>
+        <translation>Você não especificou o endereço do servidor.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Vous n&apos;avez pas précisé le dossier des clés SSL.</source>
+        <translation>Não especificou a pasta das chaves SSL.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Vous n&apos;avez pas précisé le port du serveur.</source>
+        <translation>Não especificou a porta do servidor.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Vous n&apos;avez pas précisé le mot de passe de connexion à la base.</source>
+        <translation>Não especificou a palavra-passe de ligação à base.</translation>
+    </message>
+    <message>
+        <location line="+92"/>
+        <source>Sélectionnez le dossier %1 sur le support</source>
+        <translation>Selecione a pasta %1 no suporte</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Dossier incomplet</source>
+        <translation>Pasta incompleta</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce dossier ne contient pas les données de connexion exportées par le serveur.</source>
+        <translation>Esta pasta não contém os dados de ligação exportados pelo servidor.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Dossier inaccessible</source>
+        <translation>Pasta inacessível</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Impossible de créer le dossier des clés SSL :</source>
+        <translation>Impossível criar a pasta das chaves SSL:</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Les renseignements figurant sur ce support ne permettent pas de joindre la base de données de votre cabinet.</source>
+        <translation>As informações que constam neste suporte não permitem alcançar a base de dados do seu consultório.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Vérifiez le mode d&apos;accès choisi, et que le serveur est allumé et joignable.</source>
+        <translation>Verifique o modo de acesso escolhido, e que o servidor está ligado e acessível.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <location line="+22"/>
+        <source>Montage des dossiers du serveur</source>
+        <translation>Montagem das pastas do servidor</translation>
+    </message>
+    <message>
+        <location line="-21"/>
+        <source>Les dossiers d&apos;imagerie et de vidéos doivent être montés automatiquement à chaque démarrage du poste pour que les documents soient lisibles par Rufus.</source>
+        <translation>As pastas de imagens e de vídeos devem ser montadas automaticamente a cada arranque do posto para que os documentos sejam legíveis pelo Rufus.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Voulez-vous que Rufus fasse ce paramétrage ?</source>
+        <translation>Deseja que o Rufus faça esta configuração?</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Dossiers du serveur non montés</source>
+        <translation>Pastas do servidor não montadas</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Montez vous-même ces dossiers, puis corrigez leur emplacement dans Edition / Paramètres, onglet Réseau local :</source>
+        <translation>Monte você mesmo estas pastas e depois corrija a sua localização em Edição / Parâmetros, separador Rede local:</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Tant qu&apos;ils ne sont pas montés, Rufus n&apos;affichera pas les documents des patients.</source>
+        <translation>Enquanto não estiverem montadas, o Rufus não mostrará os documentos dos doentes.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Les dossiers d&apos;imagerie et de vidéos du serveur doivent être montés automatiquement au démarrage de cet ordinateur, sans quoi Rufus ne les retrouvera pas :</source>
+        <translation>As pastas de imagens e de vídeos do servidor devem ser montadas automaticamente no arranque deste computador, sem o que o Rufus não as encontrará:</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>La marche à suivre est décrite au paragraphe « Sur les postes clients — Montage du dossier d&apos;imagerie du serveur au démarrage du poste » de la page</source>
+        <translation>O procedimento está descrito no parágrafo «Nos postos clientes — Montagem da pasta de imagens do servidor no arranque do posto» da página</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Effacer les données du support ?</source>
+        <translation>Apagar os dados do suporte?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Les données de connexion sont maintenant enregistrées sur ce poste.</source>
+        <translation>Os dados de ligação estão agora guardados neste posto.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Voulez-vous les effacer du support amovible ?</source>
+        <translation>Deseja apagá-los do suporte removível?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Conserver</source>
+        <translation>Conservar</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Effacer</source>
+        <translation>Apagar</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Effacement impossible</source>
+        <translation>Apagamento impossível</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le dossier n&apos;a pas pu être supprimé du support.</source>
+        <translation>A pasta não pôde ser eliminada do suporte.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Connexion à la base établie, le lancement de Rufus se poursuit.</source>
+        <translation>Ligação à base estabelecida, o arranque do Rufus continua.</translation>
+    </message>
+    <message>
+        <location line="-3314"/>
         <source>Fichier(s) manquant(s) :</source>
         <translation>Ficheiro(s) em falta:</translation>
     </message>
     <message>
-        <location line="-2129"/>
+        <location line="-2178"/>
         <source>Le chemin des programmes mysql et mysqldump (%1) n&apos;est pas valide</source>
         <translation>O caminho dos programas mysql e mysqldump (%1) não é válido</translation>
     </message>
     <message>
-        <location line="+2215"/>
+        <location line="+2267"/>
         <source>Attention</source>
         <translation>Atenção</translation>
     </message>
@@ -3002,7 +3448,7 @@ Confirmez-vous la suppression des anciennes données?</source>
 Você confirma a exclusão dos dados antigos?</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+91"/>
         <source>Base de données Rufus restaurée
 </source>
         <translation>Base de dados Rufus restaurado
@@ -3135,7 +3581,7 @@ Você confirma a exclusão dos dados antigos?</translation>
         <translation>O suporte de cópia de segurança não dispõe de espaço livre suficiente.</translation>
     </message>
     <message>
-        <location line="-375"/>
+        <location line="-379"/>
         <source>Dans la fiche suivante, choisissez le dossier (format &quot;YYYYMMDD-HHmm&quot;)</source>
         <translation>Na ficha seguinte, escolha a pasta (formato &quot;YYYYMMDD-HHmm&quot;)</translation>
     </message>
@@ -3145,7 +3591,7 @@ Você confirma a exclusão dos dados antigos?</translation>
         <translation>que contém a cópia de segurança da base.</translation>
     </message>
     <message>
-        <location line="+375"/>
+        <location line="+379"/>
         <source>Espace nécessaire (estimé) : </source>
         <translation>Espaço necessário (estimado): </translation>
     </message>
@@ -3165,7 +3611,7 @@ Você confirma a exclusão dos dados antigos?</translation>
         <translation>Backup incompleto</translation>
     </message>
     <message>
-        <location line="+67"/>
+        <location line="+69"/>
         <source>Réinstallation impossible</source>
         <translation>Reinstalação impossível</translation>
     </message>
@@ -3176,7 +3622,7 @@ Você confirma a exclusão dos dados antigos?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+9"/>
+        <location line="+11"/>
         <source>Votre sauvegarde est conservée dans :</source>
         <translation>Seu backup foi mantido em:</translation>
     </message>
@@ -3194,8 +3640,13 @@ Encerrando o programa</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour vers la version</source>
-        <translation>Para executar esta versão do Rufus, a base de dados deve ser atualizado para a versão</translation>
+        <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour depuis la version</source>
+        <translation>Para executar esta versão do Rufus, a base de dados deve ser atualizada a partir da versão</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>vers la version</source>
+        <translation>para a versão</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -3289,11 +3740,12 @@ Encerrando o programa</translation>
     </message>
     <message>
         <location line="+42"/>
+        <location line="+1713"/>
         <source>Installation de MySQL</source>
         <translation>Instalação do MySQL</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-1712"/>
         <source>Rufus va maintenant installer un serveur MySQL neuf sur ce poste, puis créer une nouvelle base patients.</source>
         <translation>O Rufus vai agora instalar um novo servidor MySQL neste posto e criar uma nova base de pacientes.</translation>
     </message>
@@ -3315,11 +3767,12 @@ Encerrando o programa</translation>
     <message>
         <location line="+2"/>
         <location line="+3"/>
+        <location line="+2333"/>
         <source>Clés SSL introuvables</source>
         <translation>Chaves SSL não encontradas</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="-2318"/>
         <source>Un fichier de paramétrage de Rufus existe déjà sur ce poste</source>
         <translation>Já existe um ficheiro de configuração do Rufus neste posto</translation>
     </message>
@@ -3337,6 +3790,11 @@ Encerrando o programa</translation>
         <location line="+1"/>
         <source>Voulez-vous installer un serveur MySQL et une base patients sur ce poste?</source>
         <translation>Deseja instalar um servidor MySQL e uma base de doentes neste posto?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Oui, installer un serveur</source>
+        <translation>Sim, instalar um servidor</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -3469,12 +3927,11 @@ as chaves corretas</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1822"/>
         <source>Le serveur du cabinet répond, mais il refuse la liaison chiffrée.</source>
         <translation>O servidor do consultório responde, mas recusa a ligação cifrada.</translation>
     </message>
     <message>
-        <location line="-1821"/>
+        <location line="+1"/>
         <source>Les clés SSL de ce poste sont invalides ou périmées.</source>
         <translation>As chaves SSL deste posto são inválidas ou estão expiradas.</translation>
     </message>
@@ -3494,54 +3951,19 @@ as chaves corretas</translation>
         <translation>Neste posto: copie os ficheiros da pen USB (ca-cert.pem, client-cert.pem, client-key.pem) para uma pasta e depois indique-a ao Rufus.</translation>
     </message>
     <message>
-        <location line="+40"/>
-        <source>Aucun mot de passe ne fonctionne</source>
-        <translation>Nenhuma palavra-passe funciona</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Vos données ne seront pas touchées.</source>
-        <translation>Os seus dados não serão afetados.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Voulez-vous utiliser cette procédure ?</source>
-        <translation>Deseja utilizar este procedimento?</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Rétablir l&apos;accès</source>
-        <translation>Repor o acesso</translation>
-    </message>
-    <message>
-        <location line="+14"/>
+        <location line="+34"/>
         <source>Réinitialiser le programme</source>
         <translation>Reinicializar o programa</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Rufus va installer une base patients neuve sur cet ordinateur.</source>
-        <translation>O Rufus vai instalar uma base de doentes nova neste computador.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Les données de la base actuelle ne seront plus accessibles.</source>
-        <translation>Os dados da base atual deixarão de estar acessíveis.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Voulez-vous continuer ?</source>
-        <translation>Deseja continuar?</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+19"/>
         <source>Créer une nouvelle
 base patients</source>
         <translation>Criar uma nova
 base de doentes</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+52"/>
         <source>Version de MySQL trop ancienne</source>
         <translation>Versão do MySQL demasiado antiga</translation>
     </message>
@@ -3562,14 +3984,13 @@ base de doentes</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1373"/>
         <source>Annuler, je vais
 sauvegarder les données</source>
         <translation>Cancelar, vou
 guardar os dados</translation>
     </message>
     <message>
-        <location line="-1372"/>
+        <location line="+1"/>
         <source>Installer un
 serveur neuf</source>
         <translation>Instalar um
@@ -3626,54 +4047,26 @@ servidor novo</translation>
         <translation>O Rufus arranca mesmo assim, mas as imagens não serão lidas nem guardadas.</translation>
     </message>
     <message>
-        <location line="+644"/>
+        <location line="+646"/>
         <source>La base de cotations Rufus a été mise à jour.</source>
         <translation>A base de codificações do Rufus foi atualizada.</translation>
     </message>
     <message>
         <location line="+59"/>
         <location line="+11"/>
-        <location line="+743"/>
+        <location line="+717"/>
         <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
         <translation>O programa vai reiniciar para que as alterações à base de dados Rufus possam ser tidas em conta.</translation>
     </message>
     <message>
-        <location line="-145"/>
-        <source>L&apos;installation d&apos;une base Rufus va effacer les données</source>
-        <translation>A instalação de uma base Rufus vai apagar os dados</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Cet ordinateur héberge un serveur MySQL
-
-Les données déjà présentes sur ce serveur MySQL seront perdues.
-
-Rufus sauvegardera une base patients qu&apos;il y trouverait, mais pas d&apos;autres données : si elles vous importent, renoncez et sauvegardez-les vous-même.</source>
-        <translation>Este computador aloja um servidor MySQL
-
-Os dados já presentes neste servidor MySQL serão perdidos.
-
-O Rufus guardará uma base de doentes que aí encontre, mas não outros dados: se lhe importam, desista e guarde-os você mesmo.</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Continuer</source>
-        <translation>Continuar</translation>
-    </message>
-    <message>
-        <location line="+11"/>
+        <location line="+29"/>
         <source>Base patients restaurée
 à partir d&apos;une sauvegarde</source>
         <translation>Base de doentes restaurada
 a partir de uma cópia de segurança</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <source>2. J&apos;installe Rufus sur ce poste et et je vais créer une base patients à partir d&apos;une sauvehgarde</source>
-        <translation>2. Instalo o Rufus neste posto e vou criar uma base de doentes a partir de uma cópia de segurança</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="-17"/>
         <source>Confirmez la création d&apos;une nouvelle base vierge Rufus</source>
         <translation>Confirme a criação de uma nova base vazia Rufus</translation>
     </message>
@@ -3683,7 +4076,7 @@ a partir de uma cópia de segurança</translation>
         <translation>Confirme a restauração de uma cópia de segurança da base Rufus</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="-114"/>
         <source>Une base patients Rufus est présente sur ce serveur</source>
         <translation>Existe uma base de doentes Rufus neste servidor</translation>
     </message>
@@ -3712,7 +4105,7 @@ sauvegarder la base</source>
 guardar a base</translation>
     </message>
     <message>
-        <location line="+67"/>
+        <location line="+80"/>
         <source>Erreur de création du compte utilisateur</source>
         <translation>Erro na criação da conta de utilizador</translation>
     </message>
@@ -3722,72 +4115,7 @@ guardar a base</translation>
         <translation>Impossível criar uma conta de utilizador para a base de doentes</translation>
     </message>
     <message>
-        <location line="+208"/>
-        <source>Mot de passe de la base du cabinet</source>
-        <translation>Palavra-passe da base do consultório</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Indiquez le mot de passe de connexion à la base du cabinet.</source>
-        <translation>Indique a palavra-passe de ligação à base do consultório.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Il se récupère sur une clé USB depuis le poste qui héberge la base (menu Édition / Paramètres).</source>
-        <translation>Recupera-se numa pen USB a partir do posto que aloja a base (menu Editar / Parâmetros).</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Connexion établie sans mot de passe personnel</source>
-        <translation>Ligação estabelecida sem palavra-passe pessoal</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>La base du cabinet ne s&apos;ouvre qu&apos;avec le mot de passe générique de Rufus.</source>
-        <translation>A base do consultório só abre com a palavra-passe genérica do Rufus.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Faites-la sécuriser depuis le poste qui l&apos;héberge.</source>
-        <translation>Mande protegê-la a partir do posto que a aloja.</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Aucun serveur ne répond à cette adresse.</source>
-        <translation>Nenhum servidor responde a este endereço.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Vérifiez l&apos;adresse du serveur, qu&apos;il est bien allumé et, en accès distant, la redirection de ports de votre box.</source>
-        <translation>Verifique o endereço do servidor, que está ligado e, em acesso remoto, o reencaminhamento de portas do seu router.</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Les clés SSL de ce poste sont invalides ou périmées : faites-vous en transmettre de nouvelles depuis le poste serveur.</source>
-        <translation>As chaves SSL deste posto são inválidas ou estão expiradas: peça que lhe enviem novas a partir do posto servidor.</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Le serveur du cabinet répond, mais il refuse ce mot de passe.</source>
-        <translation>O servidor do consultório responde, mas recusa esta palavra-passe.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>L&apos;adresse du serveur est donc correcte : c&apos;est le mot de passe de connexion qu&apos;il faut récupérer sur le poste qui héberge la base.</source>
-        <translation>O endereço do servidor está, pois, correto: é a palavra-passe de ligação que é preciso recuperar no posto que aloja a base.</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Aucun mot de passe n&apos;ouvre la base avec ces paramètres.</source>
-        <translation>Nenhuma palavra-passe abre a base com estes parâmetros.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Vérifiez le mot de passe de connexion, l&apos;adresse du serveur et, en accès distant, le dossier des clés SSL.</source>
-        <translation>Verifique a palavra-passe de ligação, o endereço do servidor e, em acesso remoto, a pasta das chaves SSL.</translation>
-    </message>
-    <message>
-        <location line="+85"/>
+        <location line="+300"/>
         <source>Rufus.ini restauré</source>
         <translation>Rufus.ini restaurado</translation>
     </message>
@@ -3798,22 +4126,11 @@ guardar a base</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+16"/>
         <source>Le lancement de Rufus se poursuit.</source>
         <translation>O arranque do Rufus prossegue.</translation>
     </message>
     <message>
-        <location line="-2"/>
-        <source>Rufus.ini reconstruit</source>
-        <translation>Rufus.ini reconstruído</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Les paramètres de connexion de ce poste sont enregistrés.</source>
-        <translation>Os parâmetros de ligação deste posto estão registados.</translation>
-    </message>
-    <message>
-        <location line="+12"/>
+        <location line="+39"/>
         <source>Créer une base patients</source>
         <translation>Criar uma base de doentes</translation>
     </message>
@@ -3823,12 +4140,12 @@ guardar a base</translation>
         <translation>Indique a pasta das chaves SSL (client-key.pem e client-cert.pem)</translation>
     </message>
     <message>
-        <location line="-2120"/>
+        <location line="-2113"/>
         <source>L&apos;accès distant nécessite les clés SSL du cabinet (client-key.pem, client-cert.pem), à copier depuis le poste serveur sur une clé USB.</source>
         <translation>O acesso remoto requer as chaves SSL do consultório (client-key.pem, client-cert.pem), a copiar do posto servidor para uma pen USB.</translation>
     </message>
     <message>
-        <location line="-277"/>
+        <location line="-283"/>
         <source>Rufus va sauvegarder votre base, désinstaller l&apos;ancien MySQL, installer la nouvelle version, puis vous proposer de restaurer votre base.</source>
         <translation>O Rufus vai guardar a sua base, desinstalar o MySQL antigo, instalar a nova versão e depois propor restaurar a sua base.</translation>
     </message>
@@ -3847,17 +4164,125 @@ je dispose d&apos;une sauvegarde</source>
 tenho uma cópia de segurança</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+26"/>
         <source>Le serveur MySQL a été mis à jour, mais votre base n&apos;a pas été restaurée.</source>
         <translation>O servidor MySQL foi atualizado, mas a sua base não foi restaurada.</translation>
     </message>
     <message>
-        <location line="+263"/>
+        <location line="+265"/>
         <source>Aucun serveur de base de données</source>
         <translation>Nenhum servidor de base de dados</translation>
     </message>
     <message>
-        <location line="+282"/>
+        <location line="+169"/>
+        <source>Rufus ne peut pas ouvrir votre base patients.</source>
+        <translation>O Rufus não pode abrir a sua base de doentes.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Si vous ne disposez réellement d&apos;aucun moyen de vous connecter au serveur depuis ce poste</source>
+        <translation>Se realmente não dispõe de nenhum meio para se ligar ao servidor a partir deste posto</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>vous pouvez tenter une nouvelle connexion depuis le serveur ou un poste du réseau local</source>
+        <translation>pode tentar uma nova ligação a partir do servidor ou de um posto da rede local</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>avec le mot de passe de secours ou un identifiant MySQL valide</source>
+        <translation>com a palavra-passe de recurso ou um identificador MySQL válido</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Et si toutes les tentatives de vous connecter échouent</source>
+        <translation>E se todas as tentativas de ligação falharem</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>vous pourrez réintialiser la base de données.</source>
+        <translation>poderá reinicializar a base de dados.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La réintialisation des données ne peut se faire que depuis le serveur</source>
+        <translation>A reinicialização dos dados só pode ser feita a partir do servidor</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+5"/>
+        <source>toutes les données de la base actuelle seront définitivement perdues.</source>
+        <translation>todos os dados da base atual serão definitivamente perdidos.</translation>
+    </message>
+    <message>
+        <location line="-4"/>
+        <source>mais vous pourrez restaurer vos données à partir d&apos;une sauvegarde.</source>
+        <translation>mas poderá restaurar os seus dados a partir de uma cópia de segurança.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Si vous ne disposez réellement d&apos;aucun moyen de vous connecter au serveur</source>
+        <translation>Se realmente não dispõe de nenhum meio para se ligar ao servidor</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Il ne vous reste plus qu&apos;à installer une base de données neuve</source>
+        <translation>Só lhe resta instalar uma base de dados nova</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>mais vous pourrez restaurer vos données à partir d&apos;une sauvegarde si vous en avez une.</source>
+        <translation>mas poderá restaurar os seus dados a partir de uma cópia de segurança se tiver uma.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Voulez-vous continuer et recréer une base neuve?</source>
+        <translation>Deseja continuar e recriar uma base nova?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Cette opération ne peut se faire que depuis le poste serveur.</source>
+        <translation>Esta operação só pode ser feita a partir do posto servidor.</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Cette façon de se connecter doit rester exceptionnelle</source>
+        <translation>Esta forma de se ligar deve ser excecional</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Rufus s&apos;est connecté à la base sans le mot de passe du cabinet.</source>
+        <translation>O Rufus ligou-se à base sem a palavra-passe do consultório.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Récupérez ce mot de passe depuis un autre poste du cabinet, puis importez-le sur celui-ci.</source>
+        <translation>Recupere esta palavra-passe a partir de outro posto do consultório e depois importe-a para este.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Les comptes de connexion de la base sont incomplets : le mot de passe du cabinet est à recréer depuis le poste qui héberge la base.</source>
+        <translation>As contas de ligação da base estão incompletas: a palavra-passe do consultório deve ser recriada a partir do posto que aloja a base.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Le mot de passe de secours est également à recréer.</source>
+        <translation>A palavra-passe de recurso também deve ser recriada.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>OK, j&apos;ai compris</source>
+        <translation>OK, compreendi</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Recréer maintenant
+le mot de passe du cabinet</source>
+        <translation>Recriar agora
+a palavra-passe do consultório</translation>
+    </message>
+    <message>
+        <location line="+91"/>
         <location line="+8"/>
         <source>Base de données endommagée</source>
         <translation>Base de dados danificada</translation>
@@ -3876,18 +4301,18 @@ tenho uma cópia de segurança</translation>
     <message>
         <location line="+24"/>
         <location line="+1"/>
-        <location line="+1349"/>
+        <location line="+1338"/>
         <source>Impossible de trouver l&apos;exécutable MySQL</source>
         <translation>Impossível encontrar o executável MySQL</translation>
     </message>
     <message>
-        <location line="-1349"/>
-        <location line="+1348"/>
+        <location line="-1338"/>
+        <location line="+1337"/>
         <source>Erreur de connexion</source>
         <translation>Erro de ligação</translation>
     </message>
     <message>
-        <location line="-1348"/>
+        <location line="-1337"/>
         <source>Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base</source>
         <translation>O programa não poderá realizar nenhuma operação de backup, restauração ou atualização da base</translation>
     </message>
@@ -3996,12 +4421,11 @@ tenho uma cópia de segurança</translation>
     <message>
         <location line="-479"/>
         <location line="+3"/>
-        <location line="+1719"/>
         <source>Connexion à la base impossible</source>
         <translation>Não é possível ligar à base de dados</translation>
     </message>
     <message>
-        <location line="-1002"/>
+        <location line="+719"/>
         <source>Restaurer la base depuis une sauvegarde</source>
         <translation>Restaurar a base a partir de um backup</translation>
     </message>
@@ -4032,11 +4456,12 @@ tenho uma cópia de segurança</translation>
     </message>
     <message>
         <location line="+0"/>
+        <location line="+1052"/>
         <source>Réseau local</source>
         <translation>Rede local</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="-1042"/>
         <source>Le dossier de sauvegarde d&apos;imagerie enregistré dans les paramètres était invalide</source>
         <translation>A pasta de backup de imagens registrada nos parâmetros era inválida</translation>
     </message>
@@ -4118,35 +4543,69 @@ seus atos registrado na base de dados</translation>
         <translation>Todos</translation>
     </message>
     <message>
-        <location line="+153"/>
+        <location line="+169"/>
+        <source>Serveur MySQL inaccessible</source>
+        <translation>Servidor MySQL inacessível</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rufus ne parvient pas à se connecter au serveur MySQL de cet ordinateur.</source>
+        <translation>O Rufus não consegue ligar-se ao servidor MySQL deste computador.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce serveur et tout ce qu&apos;il contient vont être supprimés, puis un serveur neuf sera installé.</source>
+        <translation>Este servidor e tudo o que contém serão eliminados, e depois será instalado um servidor novo.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Rufus doit installer un serveur MySQL neuf sur cet ordinateur.
+
+Le serveur actuel et tout ce qu&apos;il contient seront supprimés. Voulez-vous continuer ?</source>
+        <translation>O Rufus tem de instalar um servidor MySQL novo neste computador.
+
+O servidor atual e tudo o que contém serão eliminados. Deseja continuar?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Pour installer Rufus, il est nécessaire d&apos;installer une base de données MySQL sur cet ordinateur.
+
+Voulez-vous l&apos;installer maintenant ?</source>
+        <translation>Para instalar o Rufus, é necessário instalar uma base de dados MySQL neste computador.
+
+Deseja instalá-lo agora?</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <location line="+864"/>
+        <source>Non</source>
+        <translation>Não</translation>
+    </message>
+    <message>
+        <location line="-794"/>
         <source>Premier démarrage de Rufus!</source>
         <translation>Primeiro início do Rufus!</translation>
     </message>
     <message>
-        <location line="+118"/>
+        <location line="-7"/>
         <source>Redémarrage nécessaire</source>
         <translation>Reinício necessário</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Mot de passe :</source>
-        <translation>Palavra-passe:</translation>
-    </message>
-    <message>
-        <location line="+334"/>
+        <location line="+325"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation>Abandonar e
 sair do Rufus</translation>
     </message>
     <message>
-        <location line="-398"/>
-        <location line="+44"/>
+        <location line="-371"/>
+        <location line="+33"/>
         <source>Le programme ne pourra pas s&apos;intialiser</source>
         <translation>O programa não poderá ser inicializado</translation>
     </message>
     <message>
-        <location line="-2742"/>
+        <location line="-2766"/>
         <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers d&apos;imagerie seront réalisés puis le programme sera arrêté.
 Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.
 Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage à partir de la sauvegarde (fichier RufusBackup.ini).</source>
@@ -4158,18 +4617,18 @@ Ao reiniciar, uma janela de recuperação permitir-lhe-á recomeçar com uma bas
 Ainda poderá cancelar a reinicialização restaurando o ficheiro de configuração a partir da cópia de segurança (ficheiro RufusBackup.ini).</translation>
     </message>
     <message>
-        <location line="+445"/>
+        <location line="+454"/>
         <location line="+20"/>
         <source>Restauration de la base en cours…</source>
         <translation>A restaurar a base de dados…</translation>
     </message>
     <message>
-        <location line="+850"/>
+        <location line="+887"/>
         <source>Vous pouvez la restaurer depuis une sauvegarde, créer une nouvelle base patients, ou quitter.</source>
         <translation>Pode restaurá-la a partir de uma cópia de segurança, criar uma nova base de dados de pacientes ou sair.</translation>
     </message>
     <message>
-        <location line="+671"/>
+        <location line="+673"/>
         <source>Nouvelle base patients</source>
         <translation>Nova base de pacientes</translation>
     </message>
@@ -4187,71 +4646,56 @@ de uma cópia de segurança, ou criar uma base de pacientes vazia?
 </translation>
     </message>
     <message>
-        <location line="+639"/>
+        <location line="+750"/>
+        <source>1. J&apos;installe Rufus sur ce poste et je vais créer une nouvelle base patients vierge sur ce poste</source>
+        <translation>1. Instalo o Rufus neste posto e vou criar uma nova base de doentes vazia neste posto</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. J&apos;installe Rufus sur ce poste et je vais créer une base patients à partir d&apos;une sauvehgarde sur ce poste</source>
+        <translation>2. Instalo o Rufus neste posto e vou criar uma base de doentes a partir de uma cópia de segurança neste posto</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Nouvelle base
+patients vierge</source>
+        <translation>Nova base
+de doentes vazia</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ce poste va héberger une nouvelle base patients vierge</source>
+        <translation>Este posto vai alojar uma nova base de doentes vazia</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Ce poste va héberger une nouvelle base patients restaurée à partir d&apos;une sauvegarde</source>
+        <translation>Este posto vai alojar uma nova base de doentes restaurada a partir de uma cópia de segurança</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Abandonner</source>
         <translation>Abandonar</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Nouvelle base
-patients</source>
-        <translation>Nova base
-de pacientes</translation>
-    </message>
-    <message>
-        <location line="+17"/>
+        <location line="-22"/>
         <source>Cette étape va vous permettre de configurer le logiciel en quelques secondes</source>
         <translation>Esta etapa permite-lhe configurar o software em poucos segundos</translation>
     </message>
     <message>
-        <location line="-7"/>
+        <location line="-8"/>
         <source>Commencez par choisir la situation qui décrit le mieux votre installation de Rufus</source>
         <translation>Comece por escolher a situação que melhor descreve a sua instalação do Rufus</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>1. J&apos;installe Rufus sur ce poste en créant une nouvelle base patients</source>
-        <translation>1. Instalo o Rufus neste posto criando uma nova base de pacientes</translation>
-    </message>
-    <message>
-        <location line="+67"/>
-        <source>Erreur de connexion au serveur MySQL</source>
-        <translation>Erro de ligação com o servidor MySQL</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>La connexion à MySQL a échoué après l&apos;installation.</source>
-        <translation>A ligação com o MySQL falhou após a instalação.</translation>
-    </message>
-    <message>
-        <location line="+50"/>
-        <source>IMPORTANT — un mot de passe de connexion à votre base de données a été créé</source>
-        <translation>IMPORTANTE — foi criada uma palavra-passe de ligação à sua base de dados</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)</source>
-        <translation>Anote-a e guarde-a em local seguro (em papel ou numa pen USB)</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.</source>
-        <translation>é necessária para ligar outro posto ao consultório, ou para reparar este computador.</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Vous pourrez aussi l&apos;enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste ».</source>
-        <translation>Também a poderá guardar numa pen USB a qualquer momento em Editar/Definições/separador « Este posto ».</translation>
-    </message>
-    <message>
-        <location line="+333"/>
+        <location line="+318"/>
         <source>Restaurer la base de données
 à partir d&apos;une sauvegarde</source>
         <translation>Restaurar a base de dados
 a partir de uma cópia de segurança</translation>
     </message>
     <message>
-        <location line="-295"/>
+        <location line="-251"/>
         <source>Votre base patients a été restaurée. Rufus va redémarrer.</source>
         <oldsource>Restaurer les paramétrages de Rufus
 à partir d&apos;une sauvegarde</oldsource>
@@ -4259,17 +4703,28 @@ a partir de uma cópia de segurança</translation>
     </message>
     <message>
         <location line="-1"/>
-        <location line="+315"/>
+        <location line="+271"/>
         <source>Base restaurée</source>
         <translation>Base de dados restaurada</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-34"/>
+        <location line="+469"/>
+        <source>Connexion impossible</source>
+        <translation>Ligação impossível</translation>
+    </message>
+    <message>
+        <location line="-468"/>
+        <source>Ces paramètres ne permettent pas de joindre la base de données de votre cabinet.</source>
+        <translation>Estes parâmetros não permitem alcançar a base de dados do seu consultório.</translation>
+    </message>
+    <message>
+        <location line="+34"/>
         <source>La base de données a été restaurée. Rufus va redémarrer.</source>
         <translation>A base de dados foi restaurada. O Rufus vai reiniciar.</translation>
     </message>
     <message>
-        <location line="-4182"/>
+        <location line="-4234"/>
         <source>le lieu d&apos;exercice du document est inconnu</source>
         <translation>o local de exercício do documento é desconhecido</translation>
     </message>
@@ -4295,12 +4750,12 @@ a partir de uma cópia de segurança</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+174"/>
+        <location line="+187"/>
         <source>Envoi par mail impossible, il manque:</source>
         <translation>Envio por e-mail impossível, falta:</translation>
     </message>
     <message>
-        <location line="-173"/>
+        <location line="-186"/>
         <source>Voulez-vous compléter les coordonnées d&apos;envoi de ce lieu?</source>
         <translation>Deseja completar os dados de envio deste local?</translation>
     </message>
@@ -4321,12 +4776,12 @@ a partir de uma cópia de segurança</translation>
     </message>
     <message>
         <location line="+27"/>
-        <location line="+126"/>
+        <location line="+139"/>
         <source>Envoyer par mail</source>
         <translation>Enviar por e-mail</translation>
     </message>
     <message>
-        <location line="-107"/>
+        <location line="-112"/>
         <source>Effacer le mot de passe de cet ordinateur</source>
         <translation>Apagar a palavra-passe deste computador</translation>
     </message>
@@ -4346,7 +4801,7 @@ a partir de uma cópia de segurança</translation>
         <translation>Palavra-passe da conta </translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+25"/>
         <source>Document </source>
         <translation>Documento </translation>
     </message>
@@ -4408,12 +4863,7 @@ a partir de uma cópia de segurança</translation>
         <translation>Nenhuma impressora registada neste posto</translation>
     </message>
     <message>
-        <location line="+2034"/>
-        <source>Rufus peut tenter de rétablir l&apos;accès à la base avec le mot de passe de SECOURS choisi à l&apos;installation de la base.</source>
-        <translation>O Rufus pode tentar repor o acesso à base com a palavra-passe de EMERGÊNCIA escolhida na instalação da base.</translation>
-    </message>
-    <message>
-        <location line="+2017"/>
+        <location line="+4539"/>
         <source>Erreur connexion série</source>
         <translation>Erro de ligação serial</translation>
     </message>
@@ -4899,7 +5349,7 @@ Infelizmente, nenhuma dessas ligações parece funcionar.</translation>
         <translation>HH:mm:ss</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="-4076"/>
+        <location filename="procedures.cpp" line="-4537"/>
         <source>Le fichier d&apos;initialisation</source>
         <translation>O ficheiro de inicialização</translation>
     </message>
@@ -4919,7 +5369,7 @@ Infelizmente, nenhuma dessas ligações parece funcionar.</translation>
         <translation>Se for o caso, escolha a opção «%1»</translation>
     </message>
     <message>
-        <location line="-2133"/>
+        <location line="-2114"/>
         <source>Vous utilisez sur ce poste une version de Rufus prévue pour la version</source>
         <translation>Utiliza-se neste computador uma versão do Rufus prevista para a versão</translation>
     </message>
@@ -4949,7 +5399,7 @@ Infelizmente, nenhuma dessas ligações parece funcionar.</translation>
         <translation>Pode descarregar a última versão na página de Descargas do site</translation>
     </message>
     <message>
-        <location line="+2115"/>
+        <location line="+2096"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation>Desistir e
@@ -5002,7 +5452,7 @@ de doentes Rufus</translation>
         <translation>Esta ausência é normal se iniciar a aplicação pela primeira vez neste posto.</translation>
     </message>
     <message>
-        <location line="+865"/>
+        <location line="+1326"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation>Configurações padrão desconhecidas para o dispositivo</translation>
     </message>
@@ -5033,7 +5483,7 @@ de doentes Rufus</translation>
         <translation>plano</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="+350"/>
+        <location filename="rufus.cpp" line="+353"/>
         <source>Problème Autoref Huvitz</source>
         <translation>Problema com o Autoref Huvitz</translation>
     </message>
@@ -5058,7 +5508,7 @@ de doentes Rufus</translation>
         <translation>convidamo-lo a contactar-nos para obter mais informações</translation>
     </message>
     <message>
-        <location line="+5587"/>
+        <location line="+5596"/>
         <source>La nouvelle version est datée du </source>
         <translation>A nova versão é de </translation>
     </message>
@@ -5113,7 +5563,7 @@ de doentes Rufus</translation>
         <translation> inválida</translation>
     </message>
     <message>
-        <location line="+595"/>
+        <location line="+596"/>
         <source>Saisissez le mot de passe Administrateur Rufus</source>
         <translation>Introduza a palavra-passe de Administrador do Rufus</translation>
     </message>
@@ -5129,7 +5579,7 @@ de doentes Rufus</translation>
         <translation>Palavra-passe inválida!</translation>
     </message>
     <message>
-        <location line="+255"/>
+        <location line="+257"/>
         <location line="+13"/>
         <source>Espèces</source>
         <translation>Dinheiro</translation>
@@ -5177,7 +5627,7 @@ de doentes Rufus</translation>
         <translation>Não pago</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+1121"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="+1006"/>
         <source>Notez le mot de passe de la base de données</source>
         <translation>Anote a palavra-passe da base de dados</translation>
     </message>
@@ -5199,7 +5649,7 @@ Guarde-a em local seguro (em papel ou numa pen USB) : é necessária para ligar 
         <translation>Também a poderá guardar numa pen USB a qualquer momento em Definições ▸ separador « Este posto ».</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+70"/>
         <source>Sécurisation de la base de données</source>
         <translation>Segurança da base de dados</translation>
     </message>
@@ -5255,10 +5705,10 @@ Guarde-a em local seguro (em papel ou numa pen USB) : é necessária para ligar 
         <translation>IMPORTANTE: a palavra-passe genérica de acesso à base de dados acabou de ser eliminada.</translation>
     </message>
     <message>
-        <location line="+2567"/>
-        <source>Choisissez un mot de passe de SECOURS pour votre base de données.
+        <location line="+2769"/>
+        <source>Il n&apos;y a pas de mot de passe de SECOURS pour votre base de données MySQL.
 
-Il ne servira qu&apos;à reprendre la main sur votre base si tous les autres
+Ce mot de passe ne servira qu&apos;à reprendre la main sur votre base si tous les autres
 mots de passe sont perdus. Il n&apos;est enregistré NULLE PART :
 vous seul le connaissez.
 
@@ -5266,15 +5716,15 @@ Choisissez quelque chose que vous retrouverez dans dix ans
 (le nom de votre premier chien, de votre rue d&apos;enfance…)
 - mini 5 maxi 12 caractères -
 - pas de caractères spéciaux ou accentués -</source>
-        <translation>Escolha uma palavra-passe de EMERGÊNCIA para a sua base de dados.
+        <translation>Não existe palavra-passe de RECURSO para a sua base de dados MySQL.
 
-Só servirá para retomar o controlo da sua base se todas as outras
-palavras-passe se perderem. Não está registada EM LADO NENHUM:
+Esta palavra-passe só servirá para retomar o controlo da sua base se todas as outras
+palavras-passe estiverem perdidas. Não está guardada EM LUGAR ALGUM:
 só você a conhece.
 
-Escolha algo de que se lembre daqui a dez anos
+Escolha algo que se lembre dentro de dez anos
 (o nome do seu primeiro cão, da rua da sua infância…)
-- mín. 5 máx. 12 caracteres -
+- mínimo 5 máximo 12 caracteres -
 - sem caracteres especiais ou acentuados -</translation>
     </message>
     <message>
@@ -5290,7 +5740,7 @@ da sua base de dados.</translation>
         <translation>Indique uma palavra-passe.</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="-393"/>
+        <location filename="utils.cpp" line="-395"/>
         <source>Choisissez un login pour le nouvel utilisateur
 - mini 5 maxi 15 caractères -
 - pas de caractères spéciaux ou accentués -</source>
@@ -5337,7 +5787,7 @@ da sua base de dados.</translation>
         <translation>A palavra-passe e a sua confirmação não correspondem.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="-3656"/>
+        <location filename="procedures.cpp" line="-4117"/>
         <location line="+9"/>
         <source>Langue de l&apos;interface</source>
         <translation>Idioma da interface</translation>
@@ -5451,7 +5901,7 @@ serão copiados automaticamente</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location filename="rufus.cpp" line="+5063"/>
+        <location filename="rufus.cpp" line="+5240"/>
         <source>Recopier</source>
         <translation>Copiar</translation>
     </message>
@@ -5492,7 +5942,7 @@ pacientes - F5</translation>
     </message>
     <message>
         <location line="+22"/>
-        <location filename="rufus.cpp" line="-440"/>
+        <location filename="rufus.cpp" line="-549"/>
         <source>Créer
 le dossier</source>
         <translation>Criar
@@ -5509,8 +5959,8 @@ data de nascimento</translation>
     <message>
         <location line="+128"/>
         <location line="+2059"/>
-        <location filename="rufus.cpp" line="-5239"/>
-        <location line="+1004"/>
+        <location filename="rufus.cpp" line="-5314"/>
+        <location line="+1011"/>
         <source>Envoyer un message</source>
         <translation>Enviar uma mensagem</translation>
     </message>
@@ -5629,12 +6079,12 @@ correspondentes</translation>
     </message>
     <message>
         <location line="+50"/>
-        <location line="+985"/>
+        <location line="+979"/>
         <source>Créer un nouvel acte</source>
         <translation>Criar um novo ato</translation>
     </message>
     <message>
-        <location line="-863"/>
+        <location line="-857"/>
         <source>remettre le dossier en salle d&apos;attente</source>
         <translation>devolver o prontuário à sala de espera</translation>
     </message>
@@ -5708,26 +6158,26 @@ ato</translation>
     </message>
     <message>
         <location line="+32"/>
-        <location line="+694"/>
+        <location line="+688"/>
         <source>Tonometrie</source>
         <translation>Tonometria</translation>
     </message>
     <message>
-        <location line="-668"/>
+        <location line="-662"/>
         <source>Tonométrie - F4</source>
         <translation>Tonometria - F4</translation>
     </message>
     <message>
         <location line="+54"/>
-        <location filename="rufus.cpp" line="+3781"/>
+        <location filename="rufus.cpp" line="+3808"/>
         <source>Cotation</source>
         <translation>Codificação</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location filename="rufus.cpp" line="-1863"/>
+        <location filename="rufus.cpp" line="-1886"/>
         <location line="+4"/>
-        <location line="+1860"/>
+        <location line="+1883"/>
         <source>Montant</source>
         <translation>Valor</translation>
     </message>
@@ -5737,12 +6187,7 @@ ato</translation>
         <translation>...</translation>
     </message>
     <message>
-        <location line="+16"/>
-        <source>CCAM...</source>
-        <translation>CCAM...</translation>
-    </message>
-    <message>
-        <location line="+45"/>
+        <location line="+55"/>
         <source>G</source>
         <translation>G</translation>
     </message>
@@ -5783,7 +6228,7 @@ ato</translation>
     </message>
     <message>
         <location line="+39"/>
-        <location filename="rufus.cpp" line="-4557"/>
+        <location filename="rufus.cpp" line="-4591"/>
         <source>Enregistrer le paiement</source>
         <translation>Registrar o pagamento</translation>
     </message>
@@ -5805,7 +6250,7 @@ ato</translation>
     <message>
         <location line="+44"/>
         <location filename="rufus.cpp" line="-940"/>
-        <location line="+8046"/>
+        <location line="+8232"/>
         <source>Acte</source>
         <translation>Ato</translation>
     </message>
@@ -5816,8 +6261,8 @@ ato</translation>
     </message>
     <message>
         <location line="+26"/>
-        <location filename="rufus.cpp" line="-2127"/>
-        <location line="+2130"/>
+        <location filename="rufus.cpp" line="-2238"/>
+        <location line="+2241"/>
         <source>Documents</source>
         <translation>Documentos</translation>
     </message>
@@ -5847,7 +6292,7 @@ ato</translation>
         <translation>Tratamentos em curso</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="-11032"/>
+        <location filename="rufus.cpp" line="-11223"/>
         <source>Erreur fichier Rufus.ini</source>
         <translation>Erro no ficheiro Rufus.ini</translation>
     </message>
@@ -5880,7 +6325,7 @@ Encerrando o programa</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1995"/>
+        <location line="+2000"/>
         <location line="+77"/>
         <location line="+51"/>
         <location line="+6"/>
@@ -5888,19 +6333,19 @@ Encerrando o programa</translation>
         <location line="+108"/>
         <location line="+54"/>
         <location line="+6"/>
-        <location line="+1894"/>
+        <location line="+1901"/>
         <location line="+13"/>
         <location line="+64"/>
         <location line="+836"/>
         <location line="+22"/>
         <location line="+193"/>
         <location line="+279"/>
-        <location line="+4980"/>
+        <location line="+5157"/>
         <source>Messages</source>
         <translation>Mensagens</translation>
     </message>
     <message>
-        <location line="-10730"/>
+        <location line="-10919"/>
         <source>Connexion TCP OK</source>
         <translation>Ligação TCP OK</translation>
     </message>
@@ -5920,7 +6365,7 @@ Encerrando o programa</translation>
         <translation>Ligação remota - sem uso de TCP</translation>
     </message>
     <message>
-        <location line="+142"/>
+        <location line="+145"/>
         <source>Vous n&apos;avez aucun dossier de patient enregistré!</source>
         <translation>Você não tem nenhum prontuário de paciente registrado!</translation>
     </message>
@@ -5961,13 +6406,13 @@ Encerrando o programa</translation>
     </message>
     <message>
         <location line="+49"/>
-        <location line="+3111"/>
+        <location line="+3113"/>
         <location line="+61"/>
         <source>Urgence</source>
         <translation>Urgência</translation>
     </message>
     <message>
-        <location line="-3118"/>
+        <location line="-3120"/>
         <source>Impossible de remplir la salle d&apos;attente!</source>
         <translation>Impossível preencher a sala de espera!</translation>
     </message>
@@ -5977,7 +6422,7 @@ Encerrando o programa</translation>
         <translation>Cartão</translation>
     </message>
     <message>
-        <location line="+137"/>
+        <location line="+139"/>
         <source>Le ou les actes que vous avez sélectionnés
 sont déjà en cours d&apos;enregistrement!</source>
         <translation>O(s) ato(s) que você selecionou
@@ -5985,26 +6430,26 @@ já está(ão) sendo registrado(s)!</translation>
     </message>
     <message>
         <location line="+10"/>
-        <location line="+5850"/>
+        <location line="+5881"/>
         <location line="+6"/>
         <location line="+19"/>
         <location line="+14"/>
-        <location line="+3002"/>
+        <location line="+3155"/>
         <source>Il manque la cotation!</source>
         <translation>Falta a codificação!</translation>
     </message>
     <message>
-        <location line="-8889"/>
-        <location line="+5850"/>
+        <location line="-9073"/>
+        <location line="+5881"/>
         <location line="+25"/>
         <location line="+17"/>
         <location line="+62"/>
-        <location line="+2935"/>
+        <location line="+3088"/>
         <source>Il manque le montant!</source>
         <translation>Falta o valor!</translation>
     </message>
     <message>
-        <location line="-8886"/>
+        <location line="-9070"/>
         <source>Vous ne pouvez pas enregistrer le paiement de cet acte !</source>
         <translation>Você não pode registrar o pagamento deste ato!</translation>
     </message>
@@ -6020,40 +6465,40 @@ já está(ão) sendo registrado(s)!</translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+5901"/>
-        <location line="+906"/>
+        <location line="+5932"/>
+        <location line="+908"/>
         <source>Consultation gratuite</source>
         <translation>Consulta gratuita</translation>
     </message>
     <message>
-        <location line="-6806"/>
-        <location line="+5897"/>
-        <location line="+906"/>
+        <location line="-6839"/>
+        <location line="+5928"/>
+        <location line="+908"/>
         <source>Vous avez entré un montant nul !</source>
         <translation>Você inseriu um valor nulo!</translation>
     </message>
     <message>
-        <location line="-6802"/>
+        <location line="-6835"/>
         <source>Enregistrer cette consultation comme gratuite?</source>
         <translation>Registrar esta consulta como gratuita?</translation>
     </message>
     <message>
-        <location line="-895"/>
-        <location line="+896"/>
+        <location line="-897"/>
+        <location line="+898"/>
         <location line="+318"/>
-        <location line="+5445"/>
+        <location line="+5476"/>
         <location line="+599"/>
         <location line="+49"/>
-        <location line="+496"/>
-        <location line="+605"/>
-        <location line="+1417"/>
+        <location line="+498"/>
+        <location line="+604"/>
+        <location line="+1569"/>
         <location line="+154"/>
         <location line="+199"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location line="-10183"/>
+        <location line="-10369"/>
         <source>Paramètres d&apos;impression incorrects</source>
         <translation>Parâmetros de impressão incorretos</translation>
     </message>
@@ -6073,35 +6518,35 @@ já está(ão) sendo registrado(s)!</translation>
         <translation>Restaurar</translation>
     </message>
     <message>
-        <location line="+906"/>
+        <location line="+908"/>
         <source>Impossible d&apos;enregister cet acte comme gratuit</source>
         <translation>Impossível registrar este ato como gratuito</translation>
     </message>
     <message>
         <location line="+108"/>
-        <location line="+9663"/>
+        <location line="+9849"/>
         <source>Gestion des tiers payants</source>
         <translation>Gestão de terceiros pagadores</translation>
     </message>
     <message>
-        <location line="-9644"/>
+        <location line="-9830"/>
         <source>Autre Dossier</source>
         <translation>Outro Prontuário</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+7771"/>
+        <location line="+7955"/>
         <source>Revenir au tarif conventionnel</source>
         <translation>Voltar ao tarife convencional</translation>
     </message>
     <message>
-        <location line="-7766"/>
-        <location line="+7765"/>
+        <location line="-7950"/>
+        <location line="+7949"/>
         <source>Revenir au tarif habituellement pratiqué</source>
         <translation>Voltar ao tarife habitualmente praticado</translation>
     </message>
     <message>
-        <location line="-7604"/>
+        <location line="-7788"/>
         <source>Reprendre</source>
         <translation>Continuar</translation>
     </message>
@@ -6138,22 +6583,22 @@ ou criar um novo relatório com a data de hoje?</translation>
         <location line="+17"/>
         <location line="+35"/>
         <location line="+266"/>
-        <location line="+2710"/>
+        <location line="+2717"/>
         <location line="+21"/>
         <source>Dossier de sauvegarde </source>
         <translation>Pasta de backup </translation>
     </message>
     <message>
-        <location line="-3032"/>
+        <location line="-3039"/>
         <location line="+35"/>
         <location line="+266"/>
-        <location line="+2710"/>
+        <location line="+2717"/>
         <location line="+21"/>
         <source> invalide</source>
         <translation> inválida</translation>
     </message>
     <message>
-        <location line="-3020"/>
+        <location line="-3027"/>
         <source>Nombreux documents à convertir</source>
         <translation>Muitos documentos para converter</translation>
     </message>
@@ -6318,36 +6763,36 @@ ou criar um novo relatório com a data de hoje?</translation>
         <location line="+76"/>
         <location line="+2"/>
         <location line="+127"/>
-        <location line="+4350"/>
+        <location line="+4381"/>
         <source>d MMM yyyy</source>
         <translation>d MMM yyyy</translation>
     </message>
     <message>
-        <location line="-4540"/>
-        <location line="+4556"/>
+        <location line="-4571"/>
+        <location line="+4587"/>
         <source>Tél.</source>
         <translation>Tel.</translation>
     </message>
     <message>
-        <location line="-4554"/>
-        <location line="+4556"/>
+        <location line="-4585"/>
+        <location line="+4587"/>
         <source>Portable</source>
         <translation>Celular</translation>
     </message>
     <message>
-        <location line="-4554"/>
-        <location line="+4556"/>
+        <location line="-4585"/>
+        <location line="+4587"/>
         <source>Mail</source>
         <translation>E-mail</translation>
     </message>
     <message>
-        <location line="-4554"/>
-        <location line="+4556"/>
+        <location line="-4585"/>
+        <location line="+4587"/>
         <source>NNI</source>
         <translation>NNI</translation>
     </message>
     <message>
-        <location line="-4545"/>
+        <location line="-4576"/>
         <source>Antécédents ophtalmologiques: </source>
         <translation>Antecedentes oftalmológicos: </translation>
     </message>
@@ -6588,12 +7033,12 @@ num prontuário para abri-lo</translation>
     </message>
     <message>
         <location line="+31"/>
-        <location line="+3831"/>
+        <location line="+3862"/>
         <source>dossiers</source>
         <translation>prontuários</translation>
     </message>
     <message>
-        <location line="-3782"/>
+        <location line="-3813"/>
         <location line="+53"/>
         <source>Visualiser le dossier</source>
         <translation>Visualizar o prontuário</translation>
@@ -6613,12 +7058,12 @@ num prontuário para abri-lo</translation>
     <message>
         <location line="+5"/>
         <location line="+203"/>
-        <location line="+7100"/>
+        <location line="+7284"/>
         <source>Créer un dossier de la même famille</source>
         <translation>Criar um prontuário da mesma família</translation>
     </message>
     <message>
-        <location line="-7292"/>
+        <location line="-7476"/>
         <location line="+247"/>
         <source>Programmer une intervention</source>
         <translation>Programar uma intervenção</translation>
@@ -6647,12 +7092,12 @@ num prontuário para abri-lo</translation>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+7283"/>
+        <location line="+7467"/>
         <source>Enregistrer une video</source>
         <translation>Registrar um vídeo</translation>
     </message>
     <message>
-        <location line="-7258"/>
+        <location line="-7442"/>
         <source>Pas de consultation enregistrée pour </source>
         <translation>Nenhuma consulta registrada para </translation>
     </message>
@@ -6678,13 +7123,13 @@ num prontuário para abri-lo</translation>
     </message>
     <message>
         <location line="+8"/>
-        <location line="+3783"/>
-        <location line="+3132"/>
+        <location line="+3814"/>
+        <location line="+3285"/>
         <source>Ouvrir le dossier</source>
         <translation>Abrir o prontuário</translation>
     </message>
     <message>
-        <location line="-6870"/>
+        <location line="-7054"/>
         <source>Reprendre le dossier</source>
         <translation>Retomar o prontuário</translation>
     </message>
@@ -6755,12 +7200,12 @@ num prontuário para abri-lo</translation>
     </message>
     <message>
         <location line="+91"/>
-        <location line="+6588"/>
+        <location line="+6772"/>
         <source>Paramètres</source>
         <translation>Parâmetros</translation>
     </message>
     <message>
-        <location line="-6513"/>
+        <location line="-6690"/>
         <location line="+913"/>
         <source>Vous avez oublié de rédiger le texte de votre message!</source>
         <translation>Você se esqueceu de redigir o texto da sua mensagem!</translation>
@@ -6778,12 +7223,12 @@ num prontuário para abri-lo</translation>
     </message>
     <message>
         <location line="-843"/>
-        <location line="+3835"/>
+        <location line="+3863"/>
         <source>dd/MM/yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
     <message>
-        <location line="-3812"/>
+        <location line="-3840"/>
         <source>A propos de </source>
         <translation>Sobre </translation>
     </message>
@@ -6794,12 +7239,12 @@ num prontuário para abri-lo</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+5097"/>
+        <location line="+5274"/>
         <source>Tout le monde</source>
         <translation>Todos</translation>
     </message>
     <message>
-        <location line="-5011"/>
+        <location line="-5188"/>
         <source>Tâche à accomplir avant le </source>
         <translation>Tarefa a realizar antes de </translation>
     </message>
@@ -6917,12 +7362,12 @@ num prontuário para abri-lo</translation>
     </message>
     <message>
         <location line="+15"/>
-        <location line="+1360"/>
+        <location line="+1364"/>
         <source> pour </source>
         <translation> para </translation>
     </message>
     <message>
-        <location line="-1341"/>
+        <location line="-1345"/>
         <source>Modifier</source>
         <translation>Modificar</translation>
     </message>
@@ -6955,26 +7400,26 @@ num prontuário para abri-lo</translation>
         <location line="+129"/>
         <location line="+8"/>
         <location line="+11"/>
-        <location line="+5259"/>
+        <location line="+5436"/>
         <source>Vous avez </source>
         <translation>Você tem </translation>
     </message>
     <message>
-        <location line="-5278"/>
+        <location line="-5455"/>
         <location line="+19"/>
-        <location line="+5259"/>
+        <location line="+5436"/>
         <source> nouveaux messages</source>
         <translation> novas mensagens</translation>
     </message>
     <message>
-        <location line="-5276"/>
+        <location line="-5453"/>
         <location line="+19"/>
-        <location line="+5259"/>
+        <location line="+5436"/>
         <source>Vous avez 1 nouveau message</source>
         <translation>Você tem 1 nova mensagem</translation>
     </message>
     <message>
-        <location line="-5272"/>
+        <location line="-5449"/>
         <source> messages</source>
         <translation> mensagens</translation>
     </message>
@@ -6995,13 +7440,13 @@ num prontuário para abri-lo</translation>
     </message>
     <message>
         <location line="+262"/>
-        <location line="+4158"/>
+        <location line="+4335"/>
         <location line="+13"/>
         <source>inconnu</source>
         <translation>desconhecido</translation>
     </message>
     <message>
-        <location line="-4161"/>
+        <location line="-4338"/>
         <source>administrateur</source>
         <translation>administrador</translation>
     </message>
@@ -7016,7 +7461,7 @@ num prontuário para abri-lo</translation>
         <translation> foi removido da lista dos postos atualmente ligados ao servidor</translation>
     </message>
     <message>
-        <location line="+505"/>
+        <location line="+509"/>
         <source>Impossible de mettre à jour le champ </source>
         <translation>Impossível atualizar o campo </translation>
     </message>
@@ -7041,7 +7486,7 @@ num prontuário para abri-lo</translation>
         <translation>Ver as consultas anteriores de </translation>
     </message>
     <message>
-        <location line="+283"/>
+        <location line="+303"/>
         <source>Il existe </source>
         <translation>Existe </translation>
     </message>
@@ -7093,24 +7538,24 @@ num prontuário para abri-lo</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+906"/>
+        <location line="+908"/>
         <source>Enregistrer cet acte comme gratuit?</source>
         <translation>Registrar este ato como gratuito?</translation>
     </message>
     <message>
-        <location line="-903"/>
-        <location line="+906"/>
+        <location line="-905"/>
+        <location line="+908"/>
         <source>Non</source>
         <translation>Não</translation>
     </message>
     <message>
-        <location line="-890"/>
-        <location line="+2950"/>
+        <location line="-892"/>
+        <location line="+3103"/>
         <source>il manque les informations de paiement</source>
         <translation>faltam as informações de pagamento</translation>
     </message>
     <message>
-        <location line="-2859"/>
+        <location line="-3012"/>
         <source>Fermer quand même</source>
         <translation>Fechar mesmo assim</translation>
     </message>
@@ -7183,12 +7628,12 @@ nome e sobrenome</translation>
     </message>
     <message>
         <location line="+15"/>
-        <location line="+3161"/>
+        <location line="+3314"/>
         <source>Ce patient est déjà venu!</source>
         <translation>Este paciente já veio!</translation>
     </message>
     <message>
-        <location line="-3155"/>
+        <location line="-3308"/>
         <source>Ouverture du dossier de </source>
         <translation>Abertura do prontuário de </translation>
     </message>
@@ -7230,48 +7675,48 @@ Criá-lo mesmo assim?</translation>
     </message>
     <message>
         <location line="+34"/>
-        <location line="+611"/>
-        <location line="+2521"/>
+        <location line="+613"/>
+        <location line="+2672"/>
         <source>Dossier </source>
         <translation>Prontuário </translation>
     </message>
     <message>
-        <location line="-3132"/>
-        <location line="+3132"/>
+        <location line="-3285"/>
+        <location line="+3285"/>
         <source> créé</source>
         <translation> criado</translation>
     </message>
     <message>
-        <location line="-3131"/>
-        <location line="+611"/>
-        <location line="+2521"/>
+        <location line="-3284"/>
+        <location line="+613"/>
+        <location line="+2672"/>
         <source>Ouvrir le dossier ou inscrire le dossier en salle d&apos;attente?</source>
         <translation>Abrir o prontuário ou inscrevê-lo na sala de espera?</translation>
     </message>
     <message>
-        <location line="-3130"/>
-        <location line="+612"/>
-        <location line="+2520"/>
+        <location line="-3283"/>
+        <location line="+614"/>
+        <location line="+2671"/>
         <source>Inscrire le dossier
 en salle d&apos;attente</source>
         <translation>Inscrever o prontuário
 na sala de espera</translation>
     </message>
     <message>
-        <location line="-3130"/>
-        <location line="+612"/>
-        <location line="+2520"/>
+        <location line="-3283"/>
+        <location line="+614"/>
+        <location line="+2671"/>
         <source>Ne rien faire</source>
         <translation>Não fazer nada</translation>
     </message>
     <message>
-        <location line="-3075"/>
-        <location line="+3191"/>
+        <location line="-3228"/>
+        <location line="+3344"/>
         <source>Information statut</source>
         <translation>Informação de status</translation>
     </message>
     <message>
-        <location line="-3131"/>
+        <location line="-3282"/>
         <source>Copier</source>
         <translation>Copiar</translation>
     </message>
@@ -7371,13 +7816,13 @@ o prontuário</translation>
     </message>
     <message>
         <location line="+107"/>
-        <location line="+1197"/>
+        <location line="+1348"/>
         <location line="+1454"/>
         <source>dd-MM-yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
     <message>
-        <location line="-2649"/>
+        <location line="-2800"/>
         <source>yyyyMMdd</source>
         <translation>yyyyMMdd</translation>
     </message>
@@ -7389,7 +7834,12 @@ o prontuário</translation>
  o prontuário</translation>
     </message>
     <message>
-        <location line="+117"/>
+        <location line="+105"/>
+        <source>Rechercher une cotation</source>
+        <translation>Procurar uma codificação</translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Liste des patients</source>
         <translation>Lista dos pacientes</translation>
     </message>
@@ -7399,7 +7849,7 @@ o prontuário</translation>
         <translation>Ver as mensagens</translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+69"/>
         <source>Heure</source>
         <translation>Hora</translation>
     </message>
@@ -7419,15 +7869,15 @@ o prontuário</translation>
         <translation>Pagamento</translation>
     </message>
     <message>
-        <location line="+143"/>
-        <location line="+283"/>
+        <location line="+141"/>
+        <location line="+326"/>
         <source>Ouvrir
 le dossier</source>
         <translation>Abrir
 o prontuário</translation>
     </message>
     <message>
-        <location line="-234"/>
+        <location line="-277"/>
         <source>Correspondant inconnu! Souhaitez-vous l&apos;enregistrer?</source>
         <translation>Correspondente desconhecido! Deseja registrá-lo?</translation>
     </message>
@@ -7437,7 +7887,37 @@ o prontuário</translation>
         <translation>Registrar</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+138"/>
+        <source>Choisir les fichiers à envoyer</source>
+        <translation>Escolher os ficheiros a enviar</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Impossible de lire le fichier</source>
+        <translation>Impossível ler o ficheiro</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Envoi trop lourd</source>
+        <translation>Envio demasiado pesado</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Les fichiers choisis font un mail de </source>
+        <translation>Os ficheiros escolhidos formam um e-mail de </translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source> Mo</source>
+        <translation> MB</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La plupart des serveurs refusent au-delà de 5 Mo</source>
+        <translation>A maioria dos servidores recusa acima de 5 MB</translation>
+    </message>
+    <message>
+        <location line="+26"/>
         <source>Impossible d&apos;imprimer</source>
         <translation>Impossível imprimir</translation>
     </message>
@@ -7447,7 +7927,7 @@ o prontuário</translation>
         <translation>Nenhum emissor foi especificado para a impressão</translation>
     </message>
     <message>
-        <location line="+177"/>
+        <location line="+179"/>
         <source>Aucun dossier sélectionné!</source>
         <translation>Nenhum prontuário selecionado!</translation>
     </message>
@@ -7457,7 +7937,7 @@ o prontuário</translation>
         <translation>Selecione primeiro um prontuário para copiar.</translation>
     </message>
     <message>
-        <location line="+1528"/>
+        <location line="+1635"/>
         <location line="+3"/>
         <source>Carte Vitale</source>
         <translation>Cartão Vitale</translation>
@@ -7515,7 +7995,7 @@ Marque as que deseja substituir:</translation>
         <translation>ServidorTCP</translation>
     </message>
     <message>
-        <location line="-9980"/>
+        <location line="-10169"/>
         <source>Le fichier rufus.ini est endommagé</source>
         <translation>O ficheiro rufus.ini está danificado</translation>
     </message>
@@ -7525,7 +8005,7 @@ Marque as que deseja substituir:</translation>
         <translation>o programa vai ser reiniciado</translation>
     </message>
     <message>
-        <location line="+9989"/>
+        <location line="+10178"/>
         <location line="+18"/>
         <source>Postes connectés</source>
         <translation>Postos ligados</translation>
@@ -7770,6 +8250,16 @@ Você deve modificar o lançamento correspondente para poder excluir o ato.</tra
     </message>
     <message>
         <location line="+3"/>
+        <source>Envoyer un mail groupé</source>
+        <translation>Enviar um e-mail agrupado</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Programmes opératoires</source>
+        <translation>Programas cirúrgicos</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Liste des correspondants</source>
         <translation>Lista dos correspondentes</translation>
     </message>
@@ -7921,13 +8411,13 @@ Você deve modificar o lançamento correspondente para poder excluir o ato.</tra
 <context>
     <name>SmtpClient</name>
     <message>
-        <location filename="smtpclient.cpp" line="+49"/>
+        <location filename="smtpclient.cpp" line="+50"/>
         <location line="+7"/>
         <source>le serveur ne répond plus</source>
         <translation>o servidor já não responde</translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+56"/>
         <location line="+9"/>
         <source>connexion impossible à </source>
         <translation>ligação impossível a </translation>
@@ -8130,17 +8620,17 @@ valor conforme mais próximo!</translation>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location line="+233"/>
+        <location line="+235"/>
         <source>Nom de dossier non conforme</source>
         <translation>Nome de pasta não conforme</translation>
     </message>
     <message>
-        <location line="-1396"/>
+        <location line="-1399"/>
         <source>Redémarrage du programme</source>
         <translation>Reinício do programa</translation>
     </message>
     <message>
-        <location line="+1396"/>
+        <location line="+1399"/>
         <source>Le dossier doit être différent</source>
         <translation>A pasta deve ser diferente</translation>
     </message>
@@ -8188,6 +8678,51 @@ com alto risco de corrupção dos dados</translation>
         <location line="+434"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>Erro de acesso ao ficheiro:</translation>
+    </message>
+    <message>
+        <location filename="utils.h" line="+217"/>
+        <source>Pour configurer automatiquement ce poste afin de lui permettre d&apos;accèder à un serveur Rufus</source>
+        <translation>Para configurar automaticamente este posto e permitir-lhe aceder a um servidor Rufus</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>1. Enregistrez depuis le serveur les données de connexion sur une clé USB ou tout autre support amovible</source>
+        <translation>1. Guarde a partir do servidor os dados de ligação numa pen USB ou em qualquer outro suporte removível</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>2. Sur le serveur -&gt; Menu Edition/Paramètres/ Onglet Monoposte - bouton Exporter les données de connexion</source>
+        <translation>2. No servidor -&gt; Menu Edição/Parâmetros/ Separador Monoposto - botão Exportar os dados de ligação</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>3. puis, branchez le support amovible sur ce poste</source>
+        <translation>3. depois, ligue o suporte removível a este posto</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>4. puis, cliquez sur ce bouton et, dans la fenêtre de navigation qui s&apos;affiche</source>
+        <translation>4. depois, clique neste botão e, na janela de navegação que aparece</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>5. retrouvez le dossier %1 sur ce support amovible</source>
+        <translation>5. encontre a pasta %1 nesse suporte removível</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>6. l&apos;adresse du serveur, le port, le mot de passe et les clés SSL sont configurés automatiquement</source>
+        <translation>6. o endereço do servidor, a porta, a palavra-passe e as chaves SSL são configurados automaticamente</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Ce dossier contient TOUT ce qui permet de se connecter à votre base : mot de passe, adresses, port et clés SSL. Quiconque le récupère peut lire et modifier les dossiers de vos patients.</source>
+        <translation>Esta pasta contém TUDO o que permite ligar-se à sua base: palavra-passe, endereços, porta e chaves SSL. Quem a obtiver pode ler e alterar os processos dos seus doentes.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Effacez-le du support dès qu&apos;il a servi, et gardez ce support en lieu sûr : ne le laissez pas branché, ne le confiez à personne.</source>
+        <translation>Apague-a do suporte assim que tenha servido, e guarde esse suporte em lugar seguro: não o deixe ligado, não o confie a ninguém.</translation>
     </message>
 </context>
 <context>
@@ -9472,7 +10007,7 @@ dos profissionais</translation>
 <context>
     <name>dlg_choixccam</name>
     <message>
-        <location filename="Dialogs/dlg_gestioncotations.cpp" line="+459"/>
+        <location filename="Dialogs/dlg_gestioncotations.cpp" line="+472"/>
         <location line="+3"/>
         <source>Actes CCAM</source>
         <translation>Atos CCAM</translation>
@@ -9496,6 +10031,114 @@ dos profissionais</translation>
         <location line="+1"/>
         <source>non OPTAM</source>
         <translation>não OPTAM</translation>
+    </message>
+</context>
+<context>
+    <name>dlg_choixcotation</name>
+    <message>
+        <location filename="Dialogs/dlg_choixcotation.cpp" line="+52"/>
+        <source>Rechercher une cotation</source>
+        <translation>Procurar uma codificação</translation>
+    </message>
+    <message>
+        <location line="+71"/>
+        <source>Uniquement l&apos;ophtalmologie</source>
+        <translation>Apenas a oftalmologia</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Toutes les cotations</source>
+        <translation>Todas as codificações</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>CCAM</source>
+        <translation>CCAM</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>NGAP</source>
+        <translation>NGAP</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Associations CCAM</source>
+        <translation>Associações CCAM</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Hors convention</source>
+        <translation>Fora da convenção</translation>
+    </message>
+    <message>
+        <location line="+90"/>
+        <source>Cotation</source>
+        <translation>Codificação</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Descriptif</source>
+        <translation>Descrição</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Non OPTAM</source>
+        <translation>Não OPTAM</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>OPTAM</source>
+        <translation>OPTAM</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Pratiqué</source>
+        <translation>Praticado</translation>
+    </message>
+    <message>
+        <location line="+101"/>
+        <source>Cotation inutilisée</source>
+        <translation>Codificação não utilizada</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cette cotation n&apos;est plus utilisée par personne.</source>
+        <translation>Esta codificação já não é utilizada por ninguém.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Voulez-vous la supprimer de la liste des cotations ?</source>
+        <translation>Deseja eliminá-la da lista de codificações?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Non</source>
+        <translation>Não</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Oui</source>
+        <translation>Sim</translation>
+    </message>
+    <message>
+        <location line="+128"/>
+        <source>Supprimer une cotation</source>
+        <translation>Eliminar uma codificação</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Voulez-vous vraiment supprimer la cotation %1 ?</source>
+        <translation>Deseja realmente eliminar a codificação %1?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Annuler</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Supprimer</source>
+        <translation>Excluir</translation>
     </message>
 </context>
 <context>
@@ -11356,19 +11999,15 @@ Deseja preencher automaticamente os campos com dados fictícios?
 <context>
     <name>dlg_gestioncotations</name>
     <message>
-        <location filename="Dialogs/dlg_gestioncotations.cpp" line="-508"/>
+        <location filename="Dialogs/dlg_gestioncotations.cpp" line="-521"/>
         <source>Nouvelle cotation</source>
         <translation>Nova codificação</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Ajouter une cotation CCAM</source>
-        <translation>Adicionar uma codificação CCAM</translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Créer une association CCAM</source>
-        <translation>Criar uma associação CCAM</translation>
+        <oldsource>Ajouter une cotation CCAM</oldsource>
+        <translation>Adicionar uma codificação CCAM</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11376,7 +12015,7 @@ Deseja preencher automaticamente os campos com dados fictícios?
         <translation>Criar uma codificação</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+27"/>
         <source>Choisir un code CCAM</source>
         <translation>Escolher um código CCAM</translation>
     </message>
@@ -11391,7 +12030,7 @@ Deseja preencher automaticamente os campos com dados fictícios?
         <translation>Tarifa convencionada não OPTAM</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="+117"/>
         <source>Montant conventionnel</source>
         <translation>Montante convencionado</translation>
     </message>
@@ -11406,12 +12045,7 @@ Deseja preencher automaticamente os campos com dados fictícios?
         <translation>Tarifa convencionada OPTAM</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Cotation CCAM</source>
-        <translation>Codificação CCAM</translation>
-    </message>
-    <message>
-        <location line="+0"/>
+        <location line="+9"/>
         <source>Association CCAM</source>
         <translation>Associação CCAM</translation>
     </message>
@@ -11421,7 +12055,7 @@ Deseja preencher automaticamente os campos com dados fictícios?
         <translation>Codificação</translation>
     </message>
     <message>
-        <location line="+118"/>
+        <location line="+116"/>
         <source>Renseignements incomplets</source>
         <translation>Informação incompleta</translation>
     </message>
@@ -11441,7 +12075,7 @@ Deseja preencher automaticamente os campos com dados fictícios?
         <translation>Esqueceu-se da tarifa praticada</translation>
     </message>
     <message>
-        <location line="-253"/>
+        <location line="-268"/>
         <source>Tarif pratiqué</source>
         <translation>Tarifa praticada</translation>
     </message>
@@ -13554,14 +14188,14 @@ para saber como modificar esta variável secure-file-priv na configuração do s
     </message>
     <message>
         <location line="+16"/>
-        <location filename="Dialogs/dlg_impressions.cpp" line="+2797"/>
+        <location filename="Dialogs/dlg_impressions.cpp" line="+2788"/>
         <location line="+45"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
         <location line="+26"/>
-        <location filename="Dialogs/dlg_impressions.cpp" line="-1581"/>
+        <location filename="Dialogs/dlg_impressions.cpp" line="-1579"/>
         <source>Imprimer
 la sélection</source>
         <translation>Imprimir
@@ -13590,19 +14224,19 @@ et documents publics</oldsource>
         <translation>PDF</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_impressions.cpp" line="-2025"/>
+        <location filename="Dialogs/dlg_impressions.cpp" line="-2018"/>
         <source>Préparer un document pour </source>
         <translation>Preparar um documento para </translation>
     </message>
     <message>
         <location line="+12"/>
-        <location line="+1314"/>
-        <location line="+124"/>
+        <location line="+1315"/>
+        <location line="+120"/>
         <source>dd/MM/yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
     <message>
-        <location line="-1437"/>
+        <location line="-1434"/>
         <source>Cocher cette case pour visualiser les dossiers et documents rendus publics par leurs créateurs
 Ces dossiers et documents sont affichés en caractères italiques bleus</source>
         <translation>Marque esta caixa para visualizar os prontuários e documentos tornados públicos pelos seus criadores
@@ -13919,12 +14553,12 @@ antes de ser impresso</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+2496"/>
+        <location line="+2488"/>
         <source>Document administratif</source>
         <translation>Documento administrativo</translation>
     </message>
     <message>
-        <location line="-2490"/>
+        <location line="-2482"/>
         <source>Recopier ce document</source>
         <translation>Copiar este documento</translation>
     </message>
@@ -13954,7 +14588,7 @@ antes de ser impresso</translation>
         <translation>Qual profissional?</translation>
     </message>
     <message>
-        <location line="+248"/>
+        <location line="+249"/>
         <source>Pas d&apos;émetteur pour ce document</source>
         <translation>Sem emissor para este documento</translation>
     </message>
@@ -13974,27 +14608,27 @@ antes de ser impresso</translation>
         <translation>Você não selecionou nenhum documento.</translation>
     </message>
     <message>
-        <location line="+153"/>
-        <location line="+125"/>
+        <location line="+149"/>
+        <location line="+121"/>
         <source>chaque oeil</source>
         <translation>cada olho</translation>
     </message>
     <message>
-        <location line="-125"/>
-        <location line="+125"/>
+        <location line="-121"/>
+        <location line="+121"/>
         <location line="+1438"/>
         <source>l&apos;oeil droit</source>
         <translation>o olho direito</translation>
     </message>
     <message>
-        <location line="-1563"/>
-        <location line="+125"/>
+        <location line="-1559"/>
+        <location line="+121"/>
         <location line="+1440"/>
         <source>l&apos;oeil gauche</source>
         <translation>o olho esquerdo</translation>
     </message>
     <message>
-        <location line="-1552"/>
+        <location line="-1548"/>
         <source>Droit</source>
         <translation>direito</translation>
     </message>
@@ -14020,24 +14654,24 @@ antes de ser impresso</translation>
     </message>
     <message>
         <location line="+25"/>
-        <location line="+1524"/>
+        <location line="+1520"/>
         <source>Locale</source>
         <translation>Local</translation>
     </message>
     <message>
-        <location line="-1523"/>
-        <location line="+1525"/>
+        <location line="-1519"/>
+        <location line="+1521"/>
         <source>LocoRegionale</source>
         <translation>LocoRegional</translation>
     </message>
     <message>
-        <location line="-1524"/>
-        <location line="+1526"/>
+        <location line="-1520"/>
+        <location line="+1522"/>
         <source>Générale</source>
         <translation>Geral</translation>
     </message>
     <message>
-        <location line="-1525"/>
+        <location line="-1521"/>
         <source>Sans objet</source>
         <translation>Sem objeto</translation>
     </message>
@@ -14072,7 +14706,7 @@ antes de ser impresso</translation>
         <translation>Urgência</translation>
     </message>
     <message>
-        <location line="+161"/>
+        <location line="+157"/>
         <location line="+1149"/>
         <location line="+11"/>
         <location line="+156"/>
@@ -14411,7 +15045,7 @@ que é um documento privado!</translation>
         <translation>A quem endereçar esta correspondência?</translation>
     </message>
     <message>
-        <location line="+95"/>
+        <location line="+94"/>
         <source>TITRES DES DOCUMENTS</source>
         <translation>TÍTULOS DOS DOCUMENTOS</translation>
     </message>
@@ -14426,7 +15060,7 @@ que é um documento privado!</translation>
         <translation>Documento editável no momento da impressão</translation>
     </message>
     <message>
-        <location line="+96"/>
+        <location line="+95"/>
         <source>DOSSIERS</source>
         <translation>PASTAS</translation>
     </message>
@@ -16733,14 +17367,14 @@ Você confirma a inserção?</translation>
     </message>
     <message>
         <location line="+35"/>
-        <location line="+510"/>
+        <location line="+482"/>
         <location line="+253"/>
-        <location line="+384"/>
+        <location line="+399"/>
         <source>Mot de passe</source>
         <translation>Palavra-passe</translation>
     </message>
     <message>
-        <location line="-1004"/>
+        <location line="-991"/>
         <source>Cotations</source>
         <translation>Codificações</translation>
     </message>
@@ -16755,31 +17389,64 @@ Você confirma a inserção?</translation>
         <translation>Alterar a fonte da tela</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+222"/>
+        <source>Exporter les données de connexion pour paramétrer un accès distant</source>
+        <translation>Exportar os dados de ligação para configurar um acesso remoto</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <location line="+633"/>
+        <source>Exporter les données de connexion</source>
+        <translation>Exportar os dados de ligação</translation>
+    </message>
+    <message>
+        <location line="-617"/>
+        <location line="+614"/>
+        <source>Exporter sur une clé USB les données de connexion à ce serveur distant, pour paramétrer un autre poste</source>
+        <translation>Exportar para uma pen USB os dados de ligação a este servidor remoto, para configurar outro posto</translation>
+    </message>
+    <message>
+        <location line="-370"/>
+        <location line="+389"/>
+        <source>Importer les données de connexion</source>
+        <translation>Importar os dados de ligação</translation>
+    </message>
+    <message>
+        <location line="-375"/>
+        <source>Cet appareil se connecte à un serveur local</source>
+        <translation>Este aparelho liga-se a um servidor local</translation>
+    </message>
+    <message>
+        <location line="+392"/>
+        <source>Cet appareil se connecte à un serveur distant</source>
+        <translation>Este aparelho liga-se a um servidor remoto</translation>
+    </message>
+    <message>
+        <location line="+2374"/>
         <source>T</source>
         <translation>T</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="-3225"/>
         <source>Ce poste</source>
         <translation>Este posto</translation>
     </message>
     <message>
         <location line="+61"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3794"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+4046"/>
         <source>Monoposte</source>
         <translation>Monoposto</translation>
     </message>
     <message>
         <location line="+37"/>
         <location line="+253"/>
-        <location line="+280"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3130"/>
+        <location line="+295"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3340"/>
         <source>Port</source>
         <translation>Porta</translation>
     </message>
     <message>
-        <location line="-468"/>
+        <location line="-483"/>
         <source>Recréer le mot de passe de la base si l&apos;ancien est perdu (protégé par le mot de passe Administrateur)</source>
         <translation>Recriar a palavra-passe da base de dados se a anterior estiver perdida (protegido pela palavra-passe de Administrador)</translation>
     </message>
@@ -16789,20 +17456,7 @@ Você confirma a inserção?</translation>
         <translation>Recriar a palavra-passe da base de dados</translation>
     </message>
     <message>
-        <location line="+16"/>
-        <location line="+19"/>
-        <location line="+599"/>
-        <source>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</source>
-        <translation>Copiar as chaves cliente SSL para uma pen USB, para as implantar nos postos de acesso remoto</translation>
-    </message>
-    <message>
-        <location line="-615"/>
-        <location line="+618"/>
-        <source>Exporter les clés client SSL (clé USB)</source>
-        <translation>Exportar as chaves cliente SSL (pen USB)</translation>
-    </message>
-    <message>
-        <location line="-599"/>
+        <location line="+38"/>
         <source>Créer de nouvelles clés SSL</source>
         <translation>Criar novas chaves SSL</translation>
     </message>
@@ -16813,13 +17467,13 @@ Você confirma a inserção?</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+226"/>
-        <location line="+379"/>
+        <location line="+241"/>
+        <location line="+395"/>
         <source>Emplacement des dossiers des documents émis par chaque appareil d&apos;imagerie</source>
         <translation>Localização das pastas dos documentos emitidos por cada aparelho de imagem</translation>
     </message>
     <message>
-        <location line="-589"/>
+        <location line="-620"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Emplacement du dossier d&apos;imagerie&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Localização da pasta de imagens&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -16830,10 +17484,10 @@ Você confirma a inserção?</translation>
     </message>
     <message>
         <location line="+41"/>
-        <location line="+233"/>
+        <location line="+248"/>
         <location line="+58"/>
         <location line="+109"/>
-        <location line="+187"/>
+        <location line="+203"/>
         <location line="+83"/>
         <location line="+260"/>
         <location line="+44"/>
@@ -16841,43 +17495,36 @@ Você confirma a inserção?</translation>
         <location line="+44"/>
         <location line="+72"/>
         <location line="+16"/>
-        <location line="+809"/>
+        <location line="+746"/>
         <location line="+589"/>
         <location line="+13"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location line="-2517"/>
-        <location line="+233"/>
-        <location line="+379"/>
+        <location line="-2485"/>
+        <location line="+248"/>
+        <location line="+395"/>
         <source>Chemin depuis ce poste
 du dossier de stockage des videos</source>
         <translation>Caminho desde este posto
 da pasta de armazenamento dos vídeos</translation>
     </message>
     <message>
-        <location line="-605"/>
-        <location filename="Dialogs/dlg_param.cpp" line="+3131"/>
+        <location line="-636"/>
+        <location filename="Dialogs/dlg_param.cpp" line="+3341"/>
         <source>Réseau local</source>
         <translation>Rede local</translation>
     </message>
     <message>
         <location line="+89"/>
-        <location line="+234"/>
-        <location line="+1595"/>
+        <location line="+249"/>
+        <location line="+1548"/>
         <source>Emplacement</source>
         <translation>Localização</translation>
     </message>
     <message>
-        <location line="-1799"/>
-        <source>Cet appareil peut se connecter à
-un serveur hébergé sur le réseau local</source>
-        <translation>Este aparelho pode se ligar a
-um servidor hospedado na rede local</translation>
-    </message>
-    <message>
-        <location line="+74"/>
+        <location line="-1678"/>
         <source>Chemin depuis ce poste
 du dossier d&apos;imagerie sur le serveur</source>
         <translation>Caminho desde este posto
@@ -16895,12 +17542,7 @@ da pasta de imagens no servidor</translation>
         <translation>Localização das chaves cliente SSL</translation>
     </message>
     <message>
-        <location line="+103"/>
-        <source>Cet appareil peut se connecter à un serveur distant</source>
-        <translation>Este aparelho pode se ligar a um servidor remoto</translation>
-    </message>
-    <message>
-        <location line="+51"/>
+        <location line="+170"/>
         <source>Emplacement du dossier de copie des originaux
 des fichiers image importés depuis ce poste</source>
         <translation>Localização da pasta de cópia dos originais
@@ -16995,7 +17637,7 @@ dos ficheiros de imagem importados desde este posto</translation>
         <translation>Este aparelho não participa da importação dos documentos de imagem</translation>
     </message>
     <message>
-        <location line="+133"/>
+        <location line="+70"/>
         <source>Général</source>
         <translation>Geral</translation>
     </message>
@@ -17079,8 +17721,8 @@ os dados</translation>
     </message>
     <message>
         <location line="+100"/>
-        <location filename="Dialogs/dlg_param.cpp" line="-3159"/>
-        <location line="+1028"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-3369"/>
+        <location line="+1029"/>
         <source>Appareils connectés au réseau</source>
         <translation>Aparelhos ligados à rede</translation>
     </message>
@@ -17195,7 +17837,7 @@ dos organismos bancários</translation>
         <translation>Versão</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="-1483"/>
+        <location filename="Dialogs/dlg_param.cpp" line="-1517"/>
         <source>Emplacement du dossier de stockage des documents d&apos;imagerie &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;SUR CE POSTE SERVEUR&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Cet emplacement n&apos;est pas modifiable et correspond à la variable secure_file_priv de MySQL</source>
         <translation>Localização da pasta de armazenamento dos documentos de imagem &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;NESTE POSTO SERVIDOR&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Esta localização não é modificável e corresponde à variável secure_file_priv do MySQL</translation>
     </message>
@@ -17235,7 +17877,7 @@ dos organismos bancários</translation>
         <translation>Localização do ficheiro de medidas emitidas pelo tonômetro</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+126"/>
         <source>Code postal par défaut</source>
         <translation>Código postal padrão</translation>
     </message>
@@ -17245,7 +17887,7 @@ dos organismos bancários</translation>
         <translation>Cidade padrão</translation>
     </message>
     <message>
-        <location line="+174"/>
+        <location line="+175"/>
         <source>Evitez de modifier les réglages de l&apos;imprimante</source>
         <translation>Evite modificar as configurações da impressora</translation>
     </message>
@@ -17310,17 +17952,17 @@ dos organismos bancários</translation>
         <translation>Você modificou alguns elementos. Deseja guardar estas modificações?</translation>
     </message>
     <message>
-        <location line="-433"/>
-        <location line="+78"/>
-        <location line="+357"/>
-        <location line="+779"/>
+        <location line="-461"/>
+        <location line="+105"/>
+        <location line="+358"/>
+        <location line="+780"/>
         <location line="+112"/>
-        <location line="+786"/>
+        <location line="+993"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location line="-2330"/>
+        <location line="-2576"/>
         <source>modifier une cotation.&lt;br&gt;</source>
         <translation>modificar uma codificação.&lt;br&gt;</translation>
     </message>
@@ -17335,13 +17977,28 @@ dos organismos bancários</translation>
         <translation>Clique em ? para obter ajuda</translation>
     </message>
     <message>
-        <location line="+188"/>
-        <location line="+435"/>
+        <location line="+24"/>
+        <source>Réunit sur une clé USB ou tout autre support toutes les données de connexion qui permettront à un autre poste, sur le réseau local du cabinet ou par internet, de se connecter à ce serveur</source>
+        <translation>Reúne numa pen USB ou em qualquer outro suporte todos os dados de ligação que permitirão a outro posto, na rede local do consultório ou pela internet, ligar-se a este servidor</translation>
+    </message>
+    <message>
+        <location line="+174"/>
+        <location line="+463"/>
         <source>Enregistrer</source>
         <translation>Registrar</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="-401"/>
+        <source>Délai avant l&apos;alerte « Rufus ne répond pas » (ms)</source>
+        <translation>Tempo antes do alerta «O Rufus não responde» (ms)</translation>
+    </message>
+    <message>
+        <location line="+61"/>
+        <source>Vous avez choisi d&apos;enregistrer une comptabilité simplifiée.</source>
+        <translation>Escolheu registar uma contabilidade simplificada.</translation>
+    </message>
+    <message>
+        <location line="+439"/>
         <source>Repertoire invalide!</source>
         <translation>Diretório inválido!</translation>
     </message>
@@ -17351,7 +18008,7 @@ dos organismos bancários</translation>
         <translation>Impossível encontrar o nome do aparelho</translation>
     </message>
     <message>
-        <location line="+157"/>
+        <location line="+158"/>
         <source>Saisissez votre mot de passe</source>
         <translation>Introduza sua palavra-passe</translation>
     </message>
@@ -17546,45 +18203,38 @@ para poder processar as modificações realizadas!</translation>
         <translation>Motivos de consultas</translation>
     </message>
     <message>
-        <location line="+533"/>
+        <location line="+726"/>
         <source>Clés client SSL indisponibles</source>
         <translation>Chaves cliente SSL indisponíveis</translation>
     </message>
     <message>
-        <location line="-47"/>
-        <location line="+54"/>
+        <location line="-195"/>
+        <location line="+201"/>
         <source>Sélectionnez la clé USB de destination</source>
         <translation>Selecione a pen USB de destino</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="-192"/>
+        <location line="+91"/>
+        <location line="+110"/>
         <source>Dossier inaccessible</source>
         <translation>Pasta inacessível</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Impossible de créer le sous-dossier SSLKeys dans l&apos;emplacement choisi.</source>
-        <translation>Não foi possível criar a subpasta SSLKeys no local escolhido.</translation>
-    </message>
-    <message>
-        <location line="-51"/>
-        <location line="+69"/>
+        <location line="-192"/>
+        <location line="+23"/>
+        <location line="+188"/>
+        <location line="+12"/>
         <source>Export incomplet</source>
         <translation>Exportação incompleta</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-11"/>
         <source>Certains fichiers n&apos;ont pas pu être copiés :</source>
         <translation>Alguns ficheiros não puderam ser copiados:</translation>
     </message>
     <message>
-        <location line="-65"/>
-        <location line="+69"/>
-        <source>Clés client SSL exportées</source>
-        <translation>Chaves cliente SSL exportadas</translation>
-    </message>
-    <message>
-        <location line="-2308"/>
+        <location line="-2536"/>
         <source>&lt;b&gt;Table des cotations référencées par Rufus&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Tabela das codificações referenciadas pelo Rufus&lt;/b&gt;&lt;br&gt;</translation>
     </message>
@@ -17629,7 +18279,7 @@ para poder processar as modificações realizadas!</translation>
         <translation>Apagamento completo da base de doentes e das pastas de imagens</translation>
     </message>
     <message>
-        <location line="+150"/>
+        <location line="+160"/>
         <source>cette fonction n&apos;est encore implémentée</source>
         <translation>esta função ainda não está implementada</translation>
     </message>
@@ -17657,7 +18307,7 @@ Deseja guardá-lo?</translation>
         <translation>Teste</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+63"/>
         <source>Ce réglage concerne toute la base et n&apos;est lu qu&apos;au démarrage : Rufus va redémarrer pour le prendre en compte.
 Voulez-vous l&apos;enregistrer?</source>
         <translation>Este ajuste diz respeito a toda a base e só é lido no arranque: o Rufus vai reiniciar para o ter em conta.
@@ -17674,22 +18324,12 @@ Deseja guardá-lo?</translation>
         <translation>Escolheu registar uma contabilidade.</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>En chantier</source>
-        <translation>Em obras</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Cette fonction n&apos;est pas encore implémentée.</source>
-        <translation>Esta função ainda não está implementada.</translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Vous avez choisi de ne pas enregistrer de comptabilité.</source>
         <translation>Escolheu não registar contabilidade.</translation>
     </message>
     <message>
-        <location line="+1007"/>
+        <location line="+1009"/>
         <location line="+528"/>
         <source>Choisissez le dossier dans lequel vous voulez sauvegarder la base</source>
         <translation>Escolha a pasta na qual deseja guardar a base</translation>
@@ -17766,7 +18406,7 @@ Deseja guardá-lo?</translation>
         <translation>O procedimento está descrito no parágrafo «Nos postos clientes — Montagem da pasta de imagens do servidor no arranque do posto» da página</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+89"/>
         <source>Clés SSL introuvables</source>
         <translation>Chaves SSL não encontradas</translation>
     </message>
@@ -17776,22 +18416,7 @@ Deseja guardá-lo?</translation>
         <translation>A pasta indicada não contém as três chaves SSL do consultório:</translation>
     </message>
     <message>
-        <location line="+17"/>
-        <source>Clés SSL non lisibles</source>
-        <translation>Chaves SSL não legíveis</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Les clés de ce dossier ne sont pas lisibles par votre compte.</source>
-        <translation>As chaves desta pasta não são legíveis pela sua conta.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Validez dans la boîte suivante, avec le mot de passe administrateur, la correction de leurs droits.</source>
-        <translation>Valide na caixa seguinte, com a palavra-passe de administrador, a correção das suas permissões.</translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+22"/>
         <source>Correction impossible</source>
         <translation>Correção impossível</translation>
     </message>
@@ -17801,7 +18426,7 @@ Deseja guardá-lo?</translation>
         <translation>As permissões das chaves não puderam ser corrigidas.</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+51"/>
         <source>Clés SSL indisponibles</source>
         <translation>Chaves SSL indisponíveis</translation>
     </message>
@@ -17816,22 +18441,12 @@ Deseja guardá-lo?</translation>
         <translation>São criadas aquando da sua instalação pelo Rufus.</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+34"/>
         <source>Les clés SSL n&apos;ont pas pu être copiées sur :</source>
         <translation>As chaves SSL não puderam ser copiadas para:</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Les clés client SSL ont été copiées sur :</source>
-        <translation>As chaves cliente SSL foram copiadas para:</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Déployez-les dans le dossier des clés SSL de chaque poste en accès distant.</source>
-        <translation>Implante-as na pasta das chaves SSL de cada posto de acesso remoto.</translation>
-    </message>
-    <message>
-        <location line="+13"/>
+        <location line="+161"/>
         <source>Dossier des clés SSL non renseigné</source>
         <translation>Pasta das chaves SSL não indicada</translation>
     </message>
@@ -17851,17 +18466,7 @@ Deseja guardá-lo?</translation>
         <translation>A pasta das chaves SSL não contém as chaves necessárias:</translation>
     </message>
     <message>
-        <location line="+39"/>
-        <source>Les clés SSL d&apos;accès distant ont été copiées sur :</source>
-        <translation>As chaves SSL de acesso remoto foram copiadas para:</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Déployez-les sur l&apos;autre poste en accès distant, puis indiquez-y leur dossier.</source>
-        <translation>Implante-as no outro posto de acesso remoto e indique aí a respetiva pasta.</translation>
-    </message>
-    <message>
-        <location line="+12"/>
+        <location line="+66"/>
         <source>Créer de nouvelles clés SSL ?</source>
         <translation>Criar novas chaves SSL?</translation>
     </message>
@@ -17911,8 +18516,8 @@ Deseja guardá-lo?</translation>
         <translation>O Rufus vai reiniciar.</translation>
     </message>
     <message>
-        <location line="-2047"/>
-        <location line="+2048"/>
+        <location line="-2256"/>
+        <location line="+2257"/>
         <source>Redémarrage du programme en cours…</source>
         <translation>Reinício do programa em curso…</translation>
     </message>
@@ -17969,7 +18574,7 @@ Deseja guardá-lo?</translation>
         <translation>Alterar a palavra-passe de ligação?</translation>
     </message>
     <message>
-        <location line="+1327"/>
+        <location line="+1329"/>
         <source>Acte</source>
         <translation>Ato</translation>
     </message>
@@ -17979,7 +18584,7 @@ Deseja guardá-lo?</translation>
         <translation>Convencionado</translation>
     </message>
     <message>
-        <location line="-1329"/>
+        <location line="-1331"/>
         <source>Le modifier risque d&apos;empêcher ce poste de se reconnecter.</source>
         <translation>Alterá-la pode impedir que este posto se volte a ligar.</translation>
     </message>
@@ -17989,7 +18594,7 @@ Deseja guardá-lo?</translation>
         <translation>Ups</translation>
     </message>
     <message>
-        <location line="+442"/>
+        <location line="+444"/>
         <source>Erreur</source>
         <translation>Erro</translation>
     </message>
@@ -18081,7 +18686,237 @@ padrão para este aparelho</translation>
         <translation>Uma mesma porta COM está atribuída a vários aparelhos diferentes!</translation>
     </message>
     <message>
-        <location line="-1130"/>
+        <location line="-1612"/>
+        <source>(ou ca.pem)</source>
+        <translation>(ou ca.pem)</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Enregistrement des clés SSL</source>
+        <translation>Registo das chaves SSL</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Dans la boîte suivante, validez l&apos;enregistrement des nouvlles clés</source>
+        <translation>Na caixa seguinte, valide o registo das novas chaves</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>en entrant le mot de passe administrateur de l&apos;ordinateur.</source>
+        <translation>introduzindo a palavra-passe de administrador do computador.</translation>
+    </message>
+    <message>
+        <location line="+64"/>
+        <source>Adresse publique introuvable</source>
+        <translation>Endereço público não encontrado</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rufus n&apos;a pas pu relever l&apos;adresse publique de ce cabinet.</source>
+        <translation>O Rufus não conseguiu obter o endereço público deste consultório.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Saisissez-la dans la boîte suivante.</source>
+        <translation>Introduza-o na caixa seguinte.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Adresse à laquelle le poste distant joindra ce serveur :</source>
+        <translation>Endereço no qual o posto remoto alcançará este servidor:</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <location line="+201"/>
+        <source>Impossible de créer le dossier %1 dans l&apos;emplacement choisi.</source>
+        <translation>Impossível criar a pasta %1 na localização escolhida.</translation>
+    </message>
+    <message>
+        <location line="-169"/>
+        <location line="+200"/>
+        <source>Les données de connexion n&apos;ont pas pu être écrites sur :</source>
+        <translation>Os dados de ligação não puderam ser escritos em:</translation>
+    </message>
+    <message>
+        <location line="-194"/>
+        <location line="+198"/>
+        <source>Données de connexion exportées</source>
+        <translation>Dados de ligação exportados</translation>
+    </message>
+    <message>
+        <location line="-197"/>
+        <location line="+198"/>
+        <source>Les données de connexion ont été correctement copiées dans :</source>
+        <translation>Os dados de ligação foram corretamente copiados para:</translation>
+    </message>
+    <message>
+        <location line="-196"/>
+        <source>Si cet ordinateur doit faire office de serveur dans un réseau,</source>
+        <translation>Se este computador deve servir de servidor numa rede,</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>il vous faut bloquer sa mise en veille automatique afin</source>
+        <translation>tem de bloquear a sua suspensão automática para</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>qu&apos;il reste toujours disponible pour répondre aux requêtes des autres postes du réseau.</source>
+        <translation>que fique sempre disponível para responder aos pedidos dos outros postos da rede.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Pour connecter un autre poste à ce serveur, branchez-y ce support, démarrez Rufus et ouvrez le menu Edition / Paramètres, onglet Ce poste.</source>
+        <translation>Para ligar outro posto a este servidor, ligue-lhe este suporte, inicie o Rufus e abra o menu Edição / Parâmetros, separador Este posto.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Poste du réseau local</source>
+        <translation>Posto da rede local</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cochez « Cet appareil se connecte à un serveur local », puis « Importer les données de connexion ».</source>
+        <translation>Marque «Este aparelho liga-se a um servidor local» e depois «Importar os dados de ligação».</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La box du cabinet doit réserver à cet ordinateur une adresse IP fixe (%1).</source>
+        <translation>O router do consultório deve reservar a este computador um endereço IP fixo (%1).</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le dossier d&apos;imagerie partagé par ce serveur doit être monté automatiquement au démarrage du poste, sans quoi Rufus ne le retrouvera pas.</source>
+        <translation>A pasta de imagens partilhada por este servidor deve ser montada automaticamente no arranque do posto, sem o que o Rufus não a encontrará.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <location line="+6"/>
+        <source>La marche à suivre est décrite sur :</source>
+        <translation>O procedimento está descrito em:</translation>
+    </message>
+    <message>
+        <location line="-4"/>
+        <source>Poste en accès distant</source>
+        <translation>Posto em acesso remoto</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cochez « Cet appareil se connecte à un serveur distant », puis « Importer les données de connexion ».</source>
+        <translation>Marque «Este aparelho liga-se a um servidor remoto» e depois «Importar os dados de ligação».</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>La box doit rediriger le port %1 vers cet ordinateur, et au besoin demander une adresse IP fixe à votre opérateur.</source>
+        <translation>O router deve redirecionar a porta %1 para este computador e, se necessário, pedir um endereço IP fixo ao seu operador.</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Sélectionnez le dossier %1 sur la clé USB</source>
+        <translation>Selecione a pasta %1 na pen USB</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Dossier incomplet</source>
+        <translation>Pasta incompleta</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce dossier ne contient pas les données de connexion exportées par le serveur.</source>
+        <translation>Esta pasta não contém os dados de ligação exportados pelo servidor.</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Impossible de créer le dossier des clés SSL :</source>
+        <translation>Impossível criar a pasta das chaves SSL:</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Import incomplet</source>
+        <translation>Importação incompleta</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Certaines clés SSL n&apos;ont pas pu être copiées :</source>
+        <translation>Algumas chaves SSL não puderam ser copiadas:</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Données de connexion importées</source>
+        <translation>Dados de ligação importados</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ce poste est paramétré pour joindre le serveur %1.</source>
+        <translation>Este posto está configurado para alcançar o servidor %1.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Les clés SSL ont été copiées dans :</source>
+        <translation>As chaves SSL foram copiadas para:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le dossier d&apos;imagerie partagé par le serveur doit être monté automatiquement au démarrage de cet ordinateur, sans quoi Rufus ne le retrouvera pas.</source>
+        <translation>A pasta de imagens partilhada pelo servidor deve ser montada automaticamente no arranque deste computador, sem o que o Rufus não a encontrará.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Pour que ce poste joigne le serveur, la box du cabinet doit rediriger le port %1 vers lui.</source>
+        <translation>Para que este posto alcance o servidor, o router do consultório deve redirecionar-lhe a porta %1.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Pour que ce poste retrouve le serveur, la box du cabinet doit lui réserver une adresse IP fixe (%1).</source>
+        <translation>Para que este posto encontre o servidor, o router do consultório deve reservar-lhe um endereço IP fixo (%1).</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le serveur ne doit pas non plus se mettre en veille, sinon ce poste ne le trouvera plus.</source>
+        <translation>O servidor também não deve entrar em suspensão, senão este posto não o encontrará mais.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Effacer les données du support ?</source>
+        <translation>Apagar os dados do suporte?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Les données de connexion sont maintenant enregistrées sur ce poste.</source>
+        <translation>Os dados de ligação estão agora guardados neste posto.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Voulez-vous les effacer du support amovible ?</source>
+        <translation>Deseja apagá-los do suporte removível?</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Conserver</source>
+        <translation>Conservar</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Effacer</source>
+        <translation>Apagar</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Effacement impossible</source>
+        <translation>Apagamento impossível</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Le dossier n&apos;a pas pu être supprimé du support.</source>
+        <translation>A pasta não pôde ser eliminada do suporte.</translation>
+    </message>
+    <message>
+        <location line="+81"/>
+        <source>Sur l&apos;autre poste, onglet Accès distant, cochez « Cet appareil se connecte à un serveur distant », puis « Importer les données de connexion ».</source>
+        <translation>No outro posto, separador Acesso remoto, marque «Este aparelho liga-se a um servidor remoto» e depois «Importar os dados de ligação».</translation>
+    </message>
+    <message>
+        <location line="+141"/>
         <source>Base restaurée</source>
         <translation>Base de dados restaurada</translation>
     </message>
@@ -18096,7 +18931,7 @@ padrão para este aparelho</translation>
         <translation>sim, alterar a palavra-passe</translation>
     </message>
     <message>
-        <location line="+964"/>
+        <location line="+966"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour l&apos;autorefractomètre </source>
         <translation>Você não especificou uma porta de comunicação para o autorrefratômetro </translation>
     </message>
@@ -18201,99 +19036,16 @@ padrão para este aparelho</translation>
     </message>
 </context>
 <context>
-    <name>dlg_paramconnexion</name>
-    <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="+25"/>
-        <source>Paramètrage de connexion à la base</source>
-        <translation>Configuração de ligação à base</translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Emplacement du serveur</source>
-        <translation>Localização do servidor</translation>
-    </message>
-    <message>
-        <location line="-4"/>
-        <source>Sur ce poste</source>
-        <translation>Neste posto</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Réseau local</source>
-        <translation>Rede local</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Accès distant</source>
-        <translation>Acesso remoto</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Adresse IP du serveur</source>
-        <translation>Endereço IP do servidor</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Emplacement clés SSL</source>
-        <translation>Localização das chaves SSL</translation>
-    </message>
-    <message>
-        <location line="+24"/>
-        <source>Port</source>
-        <translation>Porta</translation>
-    </message>
-    <message>
-        <location line="+54"/>
-        <source>Informations importantes sur l&apos;accès par internet</source>
-        <translation>Informações importantes sobre o acesso pela internet</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Pour des raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données.</source>
-        <translation>Por razões de confidencialidade, o acesso remoto no Rufus funciona obrigatoriamente com encriptação de dados.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:</source>
-        <translation>Se quiser utilizar o acesso remoto neste posto, é necessário que:</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>1. le serveur MySQL soit configuré pour le cryptage</source>
-        <translation>1. o servidor MySQL esteja configurado para a encriptação</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>2. que sur ce poste les clés clientes SSL soient installées.</source>
-        <translation>2. as chaves cliente SSL estejam instaladas neste posto.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Reportez-vous à la page internet :</source>
-        <translation>Consulte a página de Internet :</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>pour savoir comment modifier la configuration du serveur et générer des clés de cryptage.</source>
-        <translation>para saber como alterar a configuração do servidor e gerar chaves de encriptação.</translation>
-    </message>
-    <message>
-        <location line="+30"/>
-        <source>Vous n&apos;avez pas précisé d&apos;adresse valide pour les clés SSL.</source>
-        <translation>Não indicou um endereço válido para as chaves SSL.</translation>
-    </message>
-    <message>
-        <location line="-6"/>
-        <source>Vous n&apos;avez pas précisé l&apos;adresse du serveur.</source>
-        <translation>Você não especificou o endereço do servidor.</translation>
-    </message>
-</context>
-<context>
     <name>dlg_programmationinterventions</name>
     <message>
-        <location filename="Dialogs/dlg_programmationinterventions.cpp" line="+28"/>
+        <location filename="Dialogs/dlg_programmationinterventions.cpp" line="+29"/>
         <source>Programmer une intervention pour </source>
         <translation>Programar uma intervenção para </translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Programme opératoire</source>
+        <translation>Programa cirúrgico</translation>
     </message>
     <message>
         <location line="+29"/>
@@ -19134,23 +19886,23 @@ Nenhuma conta bancária está registrada.</translation>
     <message>
         <location line="+45"/>
         <location line="+630"/>
-        <location line="+931"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="+1588"/>
+        <location line="+976"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="+1631"/>
         <location line="+1"/>
         <source>Œil droit</source>
         <translation>Olho direito</translation>
     </message>
     <message>
-        <location line="-1545"/>
+        <location line="-1590"/>
         <location line="+544"/>
-        <location line="+1014"/>
+        <location line="+1059"/>
         <location filename="Dialogs/dlg_refraction.cpp" line="+1"/>
         <location line="+1"/>
         <source>Œil gauche</source>
         <translation>Olho esquerdo</translation>
     </message>
     <message>
-        <location line="-1541"/>
+        <location line="-1586"/>
         <source>Verres spéciaux</source>
         <translation>Lentes especiais</translation>
     </message>
@@ -19250,7 +20002,7 @@ Nenhuma conta bancária está registrada.</translation>
     </message>
     <message>
         <location line="+57"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="-2392"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="-2435"/>
         <source>+ de détails</source>
         <translation>+ detalhes</translation>
     </message>
@@ -19271,12 +20023,12 @@ Nenhuma conta bancária está registrada.</translation>
     </message>
     <message>
         <location line="+16"/>
-        <location line="+776"/>
+        <location line="+821"/>
         <source>Les 2</source>
         <translation>Os 2</translation>
     </message>
     <message>
-        <location line="-757"/>
+        <location line="-802"/>
         <source>Vision de Loin</source>
         <translation>Visão de Longe</translation>
     </message>
@@ -19297,13 +20049,13 @@ Nenhuma conta bancária está registrada.</translation>
     </message>
     <message>
         <location line="+19"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="+1376"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="+1419"/>
         <source>Prescription</source>
         <translation>Prescrição</translation>
     </message>
     <message>
         <location line="+16"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="-1879"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="-1922"/>
         <location line="+14"/>
         <source>Réfraction</source>
         <translation>Refração</translation>
@@ -19316,7 +20068,7 @@ Nenhuma conta bancária está registrada.</translation>
     </message>
     <message>
         <location line="+26"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="+3076"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="+3120"/>
         <location line="+79"/>
         <location line="+19"/>
         <source>Enregistrer
@@ -19355,7 +20107,17 @@ e fechar</translation>
         <translation>EIP</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+31"/>
+        <source>Mail</source>
+        <translation>E-mail</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>PDF</source>
+        <translation>PDF</translation>
+    </message>
+    <message>
+        <location line="+36"/>
         <source>Aperçu de la prescription</source>
         <translation>Pré-visualização da prescrição</translation>
     </message>
@@ -19388,7 +20150,7 @@ predefinido</translation>
     </message>
     <message>
         <location line="+12"/>
-        <location filename="Dialogs/dlg_refraction.cpp" line="-211"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="-212"/>
         <source>Monture</source>
         <translation>Armação</translation>
     </message>
@@ -19434,7 +20196,7 @@ predefinido</translation>
         <translation>Visão de perto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_refraction.cpp" line="-3337"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="-3380"/>
         <source>Transférer la mesure de fronto au réfracteur</source>
         <translation>Transferir a medição de frontofocómetro para o refrator</translation>
     </message>
@@ -19476,7 +20238,7 @@ predefinido</translation>
     </message>
     <message>
         <location line="+11"/>
-        <location line="+2636"/>
+        <location line="+2680"/>
         <location line="+2"/>
         <location line="+122"/>
         <location line="+2"/>
@@ -19484,9 +20246,9 @@ predefinido</translation>
         <translation>- detalhes</translation>
     </message>
     <message>
-        <location line="-2624"/>
+        <location line="-2668"/>
         <location line="+83"/>
-        <location line="+1255"/>
+        <location line="+1298"/>
         <location line="+2"/>
         <location line="+630"/>
         <location line="+5"/>
@@ -19505,7 +20267,7 @@ predefinido</translation>
         <translation>fosco</translation>
     </message>
     <message>
-        <location line="-2271"/>
+        <location line="-2314"/>
         <location line="+2"/>
         <location line="+81"/>
         <location line="+2"/>
@@ -19515,7 +20277,7 @@ predefinido</translation>
     <message>
         <location line="-79"/>
         <location line="+83"/>
-        <location line="+1550"/>
+        <location line="+1593"/>
         <location line="+3"/>
         <location line="+4"/>
         <location line="+10"/>
@@ -19528,7 +20290,7 @@ predefinido</translation>
         <translation>Prisma </translation>
     </message>
     <message>
-        <location line="-2330"/>
+        <location line="-2373"/>
         <location line="+3"/>
         <location line="+6"/>
         <location line="+4"/>
@@ -19536,7 +20298,7 @@ predefinido</translation>
         <location line="+3"/>
         <location line="+6"/>
         <location line="+4"/>
-        <location line="+1233"/>
+        <location line="+1276"/>
         <location line="+29"/>
         <location line="+181"/>
         <location line="+2"/>
@@ -19574,9 +20336,9 @@ predefinido</translation>
         <translation>a</translation>
     </message>
     <message>
-        <location line="-2240"/>
+        <location line="-2283"/>
         <location line="+83"/>
-        <location line="+1213"/>
+        <location line="+1256"/>
         <location line="+2"/>
         <location line="+16"/>
         <location line="+9"/>
@@ -19615,9 +20377,9 @@ predefinido</translation>
         <translation>plano</translation>
     </message>
     <message>
-        <location line="-2241"/>
+        <location line="-2284"/>
         <location line="+83"/>
-        <location line="+1234"/>
+        <location line="+1277"/>
         <location line="+29"/>
         <location line="+146"/>
         <location line="+5"/>
@@ -19633,7 +20395,7 @@ predefinido</translation>
         <translation> VP</translation>
     </message>
     <message>
-        <location line="-1656"/>
+        <location line="-1699"/>
         <location line="+162"/>
         <source>Contrôle de cohérence</source>
         <translation>Controle de coerência</translation>
@@ -19645,7 +20407,7 @@ predefinido</translation>
         <translation>Você se esqueceu de preencher a correção de perto!</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+37"/>
         <source>Ordonnance déjà imprimée</source>
         <translation>Receita já impressa</translation>
     </message>
@@ -19660,12 +20422,42 @@ predefinido</translation>
         <translation>Deseja reimprimí-la?</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+69"/>
         <source>Prescription correction</source>
         <translation>Prescrição de correção</translation>
     </message>
     <message>
-        <location line="+62"/>
+        <location line="+5"/>
+        <source>Documents</source>
+        <translation>Documentos</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Enregistrement pdf</source>
+        <translation>Guardar PDF</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Echec enregistrement pdf</source>
+        <translation>Falha ao guardar PDF</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>fichier</source>
+        <translation>ficheiro</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>sauvegardé sur le bureau dans le dossier </source>
+        <translation>salvo na área de trabalho na pasta </translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Impossible d&apos;enregistrer le fichier </source>
+        <translation>Impossível guardar o ficheiro </translation>
+    </message>
+    <message>
+        <location line="+86"/>
         <source>(zeroPL|PLnonO|PLO|VBLM|CLD 50cm|CLD 1m|0,5/10|0\.5/10|1/10|1,6/10|1\.6/10|2/10|2\.5/10|2,5/10|3/10|4/10|5/10|6/10|6\.3/10|6,3/10|7/10|8/10|9/10|10/10|12/10|16/10)</source>
         <translation>(zeroPL|PLnonO|PLO|VBLM|CLD 50cm|CLD 1m|0,5/10|0\.5/10|1/10|1,6/10|1\.6/10|2/10|2\.5/10|2,5/10|3/10|4/10|5/10|6/10|6\.3/10|6,3/10|7/10|8/10|9/10|10/10|12/10|16/10)</translation>
     </message>
@@ -19706,22 +20498,22 @@ predefinido</translation>
     </message>
     <message>
         <location line="+176"/>
-        <location line="+1968"/>
+        <location line="+1969"/>
         <location line="+23"/>
         <location line="+182"/>
         <source>Ecart interpupillaire</source>
         <translation>Distância interpupilar</translation>
     </message>
     <message>
-        <location line="-2173"/>
-        <location line="+1968"/>
+        <location line="-2174"/>
+        <location line="+1969"/>
         <location line="+23"/>
         <location line="+182"/>
         <source>inconnu</source>
         <translation>desconhecido</translation>
     </message>
     <message>
-        <location line="-2158"/>
+        <location line="-2159"/>
         <source>Impossible de se connecter à la table des Donnees biométriques!</source>
         <translation>Impossível ligar à tabela de Dados biométricos!</translation>
     </message>
@@ -20072,7 +20864,7 @@ predefinido</translation>
         <translation>Histórico de refrações </translation>
     </message>
     <message>
-        <location line="+160"/>
+        <location line="+161"/>
         <source>Imprimer</source>
         <translation>Imprimir</translation>
     </message>
