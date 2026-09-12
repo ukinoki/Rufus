@@ -55,10 +55,18 @@ distinctes, chacune avec son adresse : réglez celle par laquelle le serveur est
 réellement connecté. Un serveur branché en câble est plus stable.
 
 **Choisir l'adresse fixe.** On garde les trois premiers nombres de l'adresse
-actuelle et on ne change que le dernier. Prenez-le élevé (240 à 250) : les box
-distribuent en partant du bas, la collision devient très improbable. Vérifiez
-qu'il est libre en le pinguant depuis un autre poste — `ping 192.168.1.240` ne
-doit recevoir **aucune réponse**.
+actuelle et on ne change que le dernier. Prenez-le élevé, par exemple 240.
+
+**Réserver la plage sur la box.** Sans cela, la box finira par donner le 240 à
+un autre appareil et les deux se disputeront l'adresse. Dans son interface
+(§ 1), rubrique **DHCP**, la plage distribuée est donnée par un début et une
+fin : ramenez la fin à `192.168.1.199`. Au-delà, la box ne distribue plus rien —
+c'est votre réserve d'adresses fixes. Un appareil qui détient déjà un numéro
+au-dessus le garde jusqu'à expiration de son bail : le redémarrer le fait
+rentrer dans le rang.
+
+Vérifiez enfin que l'adresse choisie est libre en la pinguant depuis un autre
+poste — `ping 192.168.1.240` ne doit recevoir **aucune réponse**.
 
 ---
 
