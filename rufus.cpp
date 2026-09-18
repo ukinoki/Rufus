@@ -6014,6 +6014,12 @@ void Rufus::VerifLastVersion()
         QDate datenewversion = QDate::fromString(m_MAJlastversion, "yyyy/MM/dd");
         if (dateactversion < datenewversion)
         {
+            /*! titre volontairement hors traduction : il sert à reconnaître le message déjà enregistré */
+            const QString titre = "Rufus " + datenewversion.toString("dd-MM-yyyy");
+            for (Message *msg : Datas::I()->messages->allmessages())
+                if (msg->texte().contains(titre))
+                    return;
+
             QString text = QObject::tr("La nouvelle version est datée du ") + QLocale::system().toString(datenewversion, "d MMM yyyy") + "<br/>"
                     + QObject::tr("Vous utilisez la version du ") + QLocale::system().toString(dateactversion, "d MMM yyyy");
             if (m_MAJBase)
@@ -6039,7 +6045,19 @@ void Rufus::VerifLastVersion()
             lienAffiche = lienAffiche.section('/', 0, 0);       //! garde uniquement le domaine
             text += "<br/>" + QObject::tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site")
                     + " <a href=\"" + lien + "\">" + lienAffiche + "</a>";
-            UpMessageBox::Watch(this, QObject::tr("Une nouvelle version de Rufus est en ligne"), text, UpDialog::ButtonOK, lien);
+            if (UpMessageBox::Watch(this, QObject::tr("Une nouvelle version de Rufus est en ligne"), text, UpDialog::ButtonOK, lien)
+                    != UpSmallButton::STARTBUTTON)
+                return;
+
+            //! le message remplace l'avertissement des démarrages suivants
+            QHash<QString, QVariant> binds;
+            binds[CP_IDEMETTEUR_MSG]    = currentuser()->id();
+            binds[CP_TEXT_MSG]          = "<b>" + titre + "</b><br/>"
+                                        + QObject::tr("Une nouvelle version de Rufus est en ligne") + "<br/>" + text;
+            binds[CP_URGENT_MSG]        = 1;
+            binds[CP_DATECREATION_MSG]  = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+            if (Datas::I()->messages->CreationMessage(binds, QList<int>() << currentuser()->id()))
+                ReconstruitListeMessages();
         }
         //qDebug() << "OS = " << m_os;
     };
