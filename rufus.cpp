@@ -4660,7 +4660,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
             continue;
         listactifs << usr;
     }
-    if (m_ok && listactifs.size()>0)
+    if (listactifs.size()>0)
     {
         UsrGroupBox = new QGroupBox(dlg_sendMessage);
         UsrGroupBox->setTitle(tr("Destinataire"));
