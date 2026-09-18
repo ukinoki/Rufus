@@ -5607,41 +5607,54 @@ void Rufus::SupprimerMessageRecu(int idJoint)
 
 /*!
  * \brief IconeMessages
- * L'icône post-it de la messagerie, marquée d'un point rouge en haut à droite quand on le demande.
- * \param pointrouge  ajouter le point
+ * L'icône post-it de la messagerie, marquée d'un point rouge en haut à droite pour un message urgent
+ * et d'un point vert en bas à droite pour une tâche à accomplir.
+ * \param pointrouge  ajouter le point des messages urgents
+ * \param pointvert   ajouter le point des tâches
  */
-static QIcon IconeMessages(bool pointrouge)
+static QIcon IconeMessages(bool pointrouge, bool pointvert)
 {
     QPixmap px = Icons::icPostit().pixmap(64, 64);
-    if (pointrouge)
+    if (pointrouge || pointvert)
     {
         QPainter p(&px);
         p   .setRenderHint(QPainter::Antialiasing);
         p   .setPen(Qt::NoPen);
-        p   .setBrush(QColor("#cc0000"));
-        p   .drawEllipse(QPoint(px.width()-14, 14), 13, 13);
+        if (pointrouge)
+        {
+            p   .setBrush(QColor("#cc0000"));
+            p   .drawEllipse(QPoint(px.width()-14, 14), 13, 13);
+        }
+        if (pointvert)
+        {
+            p   .setBrush(QColor("#00a000"));
+            p   .drawEllipse(QPoint(px.width()-14, px.height()-14), 13, 13);
+        }
     }
     return QIcon(px);
 }
 
 /*!
  * \brief Rufus::RegleIconeMessages
- * Fait clignoter lentement le point rouge de l'icône tant qu'un message urgent est en attente.
+ * Fait clignoter lentement les points de l'icône tant qu'un message urgent ou une tâche est en attente.
  * \param urgent  un message urgent figure dans la liste de l'utilisateur
+ * \param tache   un message porte une tâche à accomplir
  */
-void Rufus::RegleIconeMessages(bool urgent)
+void Rufus::RegleIconeMessages(bool urgent, bool tache)
 {
-    if (!urgent)
+    m_messageurgent = urgent;
+    m_messagetache  = tache;
+    if (!urgent && !tache)
     {
         t_timerpointurgent  .stop();
         m_pointurgentaffiche = false;
-        ict_messageIcon     ->setIcon(IconeMessages(false));
+        ict_messageIcon     ->setIcon(IconeMessages(false, false));
         return;
     }
     if (t_timerpointurgent.isActive())
         return;
     m_pointurgentaffiche = true;
-    ict_messageIcon     ->setIcon(IconeMessages(true));
+    ict_messageIcon     ->setIcon(IconeMessages(urgent, tache));
     t_timerpointurgent  .start(1200);
 }
 
@@ -5652,7 +5665,7 @@ void Rufus::ReconstruitListeMessages()
     Datas::I()->messages->initListeAllMsgsByIdUser(currentuser()->id());
     m_totalMessages = Datas::I()->messages->allmessages().size();
     ict_messageIcon->setVisible(m_totalMessages>0);
-    bool urgent = false;
+    bool urgent = false, tache = false;
     if (m_totalMessages>0)
     {
         for (int i=0; i<Datas::I()->messages->allmessages().size(); i++)
@@ -5663,6 +5676,8 @@ void Rufus::ReconstruitListeMessages()
                 m_totalNvxMessages += 1;
             if (msg->isurgent())
                 urgent = true;
+            if (msg->istache())
+                tache = true;
         }
         m_datederniermessageuser = QDateTime(DateMsg);
     }
@@ -5673,7 +5688,7 @@ void Rufus::ReconstruitListeMessages()
         delete dlg_msgBAL;
         dlg_msgBAL = nullptr;
     }
-    RegleIconeMessages(urgent);
+    RegleIconeMessages(urgent, tache);
 
     QString msg = "";
     if (m_isTotalMessagesAffiche)
@@ -8568,7 +8583,8 @@ void Rufus::InitWidgets()
     connect(ict_messageIcon,        &QSystemTrayIcon::messageClicked,   this,   [=, this] {AfficheBAL();});
     connect(&t_timerpointurgent,    &QTimer::timeout,                   this,   [this] {
                                                                                     m_pointurgentaffiche = !m_pointurgentaffiche;
-                                                                                    ict_messageIcon->setIcon(IconeMessages(m_pointurgentaffiche));
+                                                                                    ict_messageIcon->setIcon(IconeMessages(m_pointurgentaffiche && m_messageurgent,
+                                                                                                                           m_pointurgentaffiche && m_messagetache));
                                                                                 });
 
     dlg_msgRepons = new QDialog();
