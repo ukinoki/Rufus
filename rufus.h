@@ -280,6 +280,7 @@ private:
     void        MsgModif(int);                                                              /*! Gère la modification d'un message émis */
     void        MsgResp(int);                                                               /*! Affiche la fiche de rédaction des réponses - dlg_msgRepons */
     void        ReconstruitListeMessages();                                                 /*! initialise la liste des messages reçus et émis de l'utilisteur */
+    void        RegleIconeMessages(bool urgent);                                            /*! point rouge clignotant sur l'icône de la messagerie tant qu'un message est urgent */
     void        SendMessage(QMap<QString,QVariant>, int id = -1 , int idMsg = -1);          /*! Affiche la fiche de rédaction des messages - dlg_sendMessage */
     void        SupprimerMessageEmis(int idMsg);
     void        SupprimerMessageRecu(int idJoint);
@@ -317,6 +318,8 @@ private:
     Mode                    m_mode;
     int                     m_totalMessages, m_totalNvxMessages;
     bool                    m_isTotalMessagesAffiche;
+    QTimer                  t_timerpointurgent;                     /*!< cadence du clignotement du point rouge */
+    bool                    m_pointurgentaffiche    = false;
     QDate                   m_datepardefaut;
     QDateTime               m_datederniermessageuser;
     UpDialog                *dlg_ask                        = nullptr;

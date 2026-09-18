@@ -5605,6 +5605,46 @@ void Rufus::SupprimerMessageRecu(int idJoint)
     QTimer::singleShot(0, this, [this] {ReconstruitListeMessages();});
 }
 
+/*!
+ * \brief IconeMessages
+ * L'icône post-it de la messagerie, marquée d'un point rouge en haut à droite quand on le demande.
+ * \param pointrouge  ajouter le point
+ */
+static QIcon IconeMessages(bool pointrouge)
+{
+    QPixmap px = Icons::icPostit().pixmap(64, 64);
+    if (pointrouge)
+    {
+        QPainter p(&px);
+        p   .setRenderHint(QPainter::Antialiasing);
+        p   .setPen(Qt::NoPen);
+        p   .setBrush(QColor("#cc0000"));
+        p   .drawEllipse(QPoint(px.width()-14, 14), 13, 13);
+    }
+    return QIcon(px);
+}
+
+/*!
+ * \brief Rufus::RegleIconeMessages
+ * Fait clignoter lentement le point rouge de l'icône tant qu'un message urgent est en attente.
+ * \param urgent  un message urgent figure dans la liste de l'utilisateur
+ */
+void Rufus::RegleIconeMessages(bool urgent)
+{
+    if (!urgent)
+    {
+        t_timerpointurgent  .stop();
+        m_pointurgentaffiche = false;
+        ict_messageIcon     ->setIcon(IconeMessages(false));
+        return;
+    }
+    if (t_timerpointurgent.isActive())
+        return;
+    m_pointurgentaffiche = true;
+    ict_messageIcon     ->setIcon(IconeMessages(true));
+    t_timerpointurgent  .start(1200);
+}
+
 void Rufus::ReconstruitListeMessages()
 {
     QDateTime DateMsg;
@@ -5612,6 +5652,7 @@ void Rufus::ReconstruitListeMessages()
     Datas::I()->messages->initListeAllMsgsByIdUser(currentuser()->id());
     m_totalMessages = Datas::I()->messages->allmessages().size();
     ict_messageIcon->setVisible(m_totalMessages>0);
+    bool urgent = false;
     if (m_totalMessages>0)
     {
         for (int i=0; i<Datas::I()->messages->allmessages().size(); i++)
@@ -5620,6 +5661,8 @@ void Rufus::ReconstruitListeMessages()
             DateMsg = msg->datecreation();
             if (msg->datecreation() > QDateTime(m_datederniermessageuser))
                 m_totalNvxMessages += 1;
+            if (msg->isurgent())
+                urgent = true;
         }
         m_datederniermessageuser = QDateTime(DateMsg);
     }
@@ -5630,6 +5673,7 @@ void Rufus::ReconstruitListeMessages()
         delete dlg_msgBAL;
         dlg_msgBAL = nullptr;
     }
+    RegleIconeMessages(urgent);
 
     QString msg = "";
     if (m_isTotalMessagesAffiche)
@@ -8522,6 +8566,10 @@ void Rufus::InitWidgets()
     ict_messageIcon->setContextMenu(m_trayIconMenu);
     ict_messageIcon->setIcon(Icons::icPostit());
     connect(ict_messageIcon,        &QSystemTrayIcon::messageClicked,   this,   [=, this] {AfficheBAL();});
+    connect(&t_timerpointurgent,    &QTimer::timeout,                   this,   [this] {
+                                                                                    m_pointurgentaffiche = !m_pointurgentaffiche;
+                                                                                    ict_messageIcon->setIcon(IconeMessages(m_pointurgentaffiche));
+                                                                                });
 
     dlg_msgRepons = new QDialog();
     dlg_msgBAL = new QDialog();
