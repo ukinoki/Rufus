@@ -6012,10 +6012,13 @@ void Rufus::VerifLastVersion()
         QString actversion = qApp->applicationVersion().split("/").at(0);
         QDate dateactversion = QDate::fromString(actversion,"dd-MM-yyyy");
         QDate datenewversion = QDate::fromString(m_MAJlastversion, "yyyy/MM/dd");
+        if (!datenewversion.isValid())
+            return;
+        /*! marque hors traduction : elle désigne le poste et retrouve ses annonces chez tous les users */
+        const QString marque = "[MAJ " + Utils::hostName() + "]";
         if (dateactversion < datenewversion)
         {
-            /*! titre volontairement hors traduction : il sert à reconnaître le message déjà enregistré */
-            const QString titre = "Rufus " + datenewversion.toString("dd-MM-yyyy");
+            const QString titre = marque + " Rufus " + datenewversion.toString("dd-MM-yyyy");
             for (Message *msg : Datas::I()->messages->allmessages())
                 if (msg->texte().contains(titre))
                     return;
@@ -6058,6 +6061,14 @@ void Rufus::VerifLastVersion()
             binds[CP_DATECREATION_MSG]  = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
             if (Datas::I()->messages->CreationMessage(binds, QList<int>() << currentuser()->id()))
                 ReconstruitListeMessages();
+        }
+        else
+        {
+            //! ce poste est à jour : ses annonces de mise à jour n'ont plus d'objet, chez personne
+            db->StandardSQL("delete from " TBL_MESSAGESJOINTURES " where " CP_IDMSG_JOINTURESMSG
+                            " in (select " CP_ID_MSG " from " TBL_MESSAGES " where " CP_TEXT_MSG " like '%" + marque + "%')");
+            db->StandardSQL("delete from " TBL_MESSAGES " where " CP_TEXT_MSG " like '%" + marque + "%'");
+            ReconstruitListeMessages();
         }
         //qDebug() << "OS = " << m_os;
     };
