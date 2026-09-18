@@ -5570,6 +5570,8 @@ void Rufus::SupprimerMessageEmis(int idMsg)
     db->StandardSQL(req);
     if (dlg_msgBAL->findChildren<QScrollArea*>().size()>0)
         AfficheBAL(1);
+    //! différé : l'appel vient d'un widget de la BAL, que ReconstruitListeMessages peut détruire
+    QTimer::singleShot(0, this, [this] {ReconstruitListeMessages();});
 }
 
 void Rufus::SupprimerMessageRecu(int idJoint)
@@ -5599,6 +5601,8 @@ void Rufus::SupprimerMessageRecu(int idJoint)
     }
     if (dlg_msgBAL->findChildren<QScrollArea*>().size()>0)
         AfficheBAL();
+    //! différé : l'appel vient d'un widget de la BAL, que ReconstruitListeMessages peut détruire
+    QTimer::singleShot(0, this, [this] {ReconstruitListeMessages();});
 }
 
 void Rufus::ReconstruitListeMessages()
