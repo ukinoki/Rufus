@@ -4716,6 +4716,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
     }
     else
     {
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Aucun autre utilisateur à qui envoyer un message."), Icons::icSunglasses(), 2000);
         delete vbox;
         delete totallayout;
         delete destlayout;
