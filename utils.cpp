@@ -1066,6 +1066,14 @@ bool Utils::SaisirMDP(QString Msg, QString &mdp, QWidget *parent)
     champ   ->setMaxLength(25);
     dlg     .dlglayout()->insertWidget(1, champ);
 
+    QAction *oeil = champ->addAction(Icons::icEye(), QLineEdit::TrailingPosition);
+    oeil    ->setToolTip(tr("Afficher / masquer le mot de passe"));
+    connect(oeil, &QAction::triggered, &dlg, [=] {
+        const bool masque = (champ->echoMode() == QLineEdit::Password);
+        champ   ->setEchoMode(masque ? QLineEdit::Normal : QLineEdit::Password);
+        oeil    ->setIcon(masque ? Icons::icEyeBarre() : Icons::icEye());
+    });
+
     dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(dlg.OKButton, &QPushButton::clicked, &dlg, &QDialog::accept);
     connect(champ, &UpLineEdit::returnPressed, dlg.OKButton, &QPushButton::click);
