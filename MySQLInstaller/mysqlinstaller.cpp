@@ -2797,10 +2797,14 @@ MySQLInstaller::RecupererMotDePasseMySQL(QWidget *parent, bool avecSecoursEtComp
         MySQLInstaller m(parent);
         QStringList manquants;
         const bool cnx  = m.tryConnectAs(login, mdp);
+        const DataBase::CauseEchec cause = DataBase::I()->causeEchecConnexion();
         const bool priv = cnx && m.checkPrivileges(manquants);
         const QString err = priv ? DataBase::I()->connectToDataBase(DB_RUFUS, login, mdp) : QString("(non tenté)");
-        qDebug() << "connexionValide login=" << login << "cnx=" << cnx << "priv=" << priv
-                 << "manquants=" << manquants << "err=" << err << "mysql=" << m.mysqlBin("mysql");
+        qDebug() << "connexionValide login=" << login << "cnx=" << cnx
+                 << "cause=" << int(cause)   //! 0 aucune, 1 injoignable, 2 muet, 3 clés SSL, 4 identifiants, 5 indéterminée
+                 << "mode=" << Utils::EnumDescription(QMetaEnum::fromType<Utils::ModeAcces>(), DataBase::I()->ModeAccesDataBase())
+                 << "serveur=" << DataBase::I()->AdresseServer() << "port=" << DataBase::I()->port()
+                 << "priv=" << priv << "manquants=" << manquants << "err=" << err << "mysql=" << m.mysqlBin("mysql");
         return cnx && priv && err.isEmpty();
     };
 
